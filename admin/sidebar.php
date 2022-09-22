@@ -4,17 +4,31 @@
 
 	buat_menu("horizon", "plane", "Horizon", array("admin"));
 
-	buka_dropdown("shopping-cart", "Finance", array("admin"));
+	buka_dropdown("usd", "Financial Health Station", array("admin"));
 	buat_submenu("asset", "Asset Monitoring", array("admin"));
 	buat_submenu("debt", "Debt Monitoring", array("admin"));
+	buat_submenu("budget", "Expense Budget", array("admin"));
+	buat_submenu("cashin", "Cash In", array("admin"));
+	buat_submenu("cashout", "Cash Out", array("admin"));
 	tutup_dropdown(array("admin"));
 
-	buat_menu("user", "file", "Dino Projects", array("admin"));
-	buat_menu("user", "leaf", "Arla Industri", array("admin"));
-	buat_menu("user", "book", "Dino Library", array("admin"));
+	buka_dropdown("road", "Road to Jannah", array("admin"));
+	buat_submenu("#", "Qur'an Memorize", array("admin"));
+	buat_submenu("#", "Hadits Memorize", array("admin"));
+	tutup_dropdown(array("admin"));
+
+	buka_dropdown("globe", "The Synapse", array("admin"));
+	buat_submenu("#", "Education", array("admin"));
+	buat_submenu("#", "Skill", array("admin"));
+	buat_submenu("#", "Personal Achievement", array("admin"));
+	tutup_dropdown(array("admin"));
+
+	buat_menu("user", "file", "Dino Projects Archive", array("admin"));
+	buat_menu("user", "book", "Digital Library", array("admin"));
+	buat_menu("media", "cloud", "Personal Cloud", array("admin"));
 
 	buat_menu("user", "user", "User Data", array("admin"));
-	buat_menu("media", "picture", "Media", array("admin"));
+
 	buat_menu("backuprestore", "cog", "Backup dan Restore", array("admin"));
 
 

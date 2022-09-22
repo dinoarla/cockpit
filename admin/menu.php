@@ -13,11 +13,33 @@ if (!defined("INDEX")) header('location: index.php');
 <div id="navbar" class="navbar-collapse collapse">
 	<ul class="nav navbar-nav visible-xs">
 		<?php
-		buat_menu("horizon", "home", "Horizon", array("admin"));
-		buat_menu("asset", "flag", "Asset Monitoring", array("admin"));
-		buat_menu("debt", "flag", "Debt Monitoring", array("admin"));
+		buat_menu("horizon", "plane", "Horizon", array("admin"));
+
+		buka_dropdown("usd", "Financial Health Station", array("admin"));
+		buat_submenu("asset", "Asset Monitoring", array("admin"));
+		buat_submenu("debt", "Debt Monitoring", array("admin"));
+		buat_submenu("budget", "Monthly Budget", array("admin"));
+		buat_submenu("cashin", "Cash In", array("admin"));
+		buat_submenu("cashout", "Cash Out", array("admin"));
+		tutup_dropdown(array("admin"));
+
+		buka_dropdown("road", "Road to Jannah", array("admin"));
+		buat_submenu("#", "Qur'an Memorize", array("admin"));
+		buat_submenu("#", "Hadits Memorize", array("admin"));
+		tutup_dropdown(array("admin"));
+
+		buka_dropdown("globe", "The Synapse", array("admin"));
+		buat_submenu("#", "Education", array("admin"));
+		buat_submenu("#", "Skill", array("admin"));
+		buat_submenu("#", "Personal Achievement", array("admin"));
+		tutup_dropdown(array("admin"));
+
+		buat_menu("user", "file", "Dino Projects Archive", array("admin"));
+		buat_menu("user", "book", "Digital Library", array("admin"));
+		buat_menu("media", "cloud", "Personal Cloud", array("admin"));
+
 		buat_menu("user", "user", "User Data", array("admin"));
-		buat_menu("media", "picture", "Media", array("admin"));
+
 		buat_menu("backuprestore", "cog", "Backup dan Restore", array("admin"));
 
 		?>
