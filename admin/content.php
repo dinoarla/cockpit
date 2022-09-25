@@ -11,7 +11,7 @@ function format_uang($angka)
 }
 
 //Menampilkan file sesuai nilai $content
-$page = array('horizon', 'asset', 'debt', 'cashin', 'cashout', 'user', 'media', 'backuprestore');
+$page = array('horizon', 'asset', 'debt', 'budget', 'cashin', 'cashout', 'user', 'media', 'backuprestore');
 foreach ($page as $pg) {
 	if ($content == $pg and $kosong) {
 		include 'content/' . $pg . '.php';

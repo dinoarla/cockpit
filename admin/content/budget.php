@@ -3,30 +3,30 @@ if (!defined("INDEX")) header('location: ../index.php');
 if ($_SESSION['leveluser'] != "admin") header('location: index.php');
 
 $show = isset($_GET['show']) ? $_GET['show'] : "";
-$link = "?content=cashout";
-$link_export = "../admin/content/export/export_cashout.php";
+$link = "?content=budget";
+$link_export = "../admin/content/export/export_budget.php";
 switch ($show) {
 
         //Menampilkan data
     default:
-        echo '<h3 class="page-header"><b>Actual Transaction (Cash Out)</b>
+        echo '<h3 class="page-header"><b>Expense Budget</b>
 				<a href="' . $link_export . '" target="_blank" class="btn btn-success btn-sm pull-right top-button" style="margin-left:10px;">
 					<i class="glyphicon glyphicon-list-alt"></i> Export Excel
 				</a>
 				<a href="' . $link . '&show=form" class="btn btn-primary btn-sm pull-right top-button">
-					<i class="glyphicon glyphicon-plus-sign"></i> Add Transaction
+					<i class="glyphicon glyphicon-plus-sign"></i> Add Budget
 				</a>
 			</h3>';
 
-        buka_tabel(array("Uraian", "Category", "Tanggal Transaksi", "Nominal"));
+        buka_tabel(array("Uraian", "Category", "Tanggal", "Nominal"));
         $no = 1;
-        $query = $mysqli->query("SELECT * FROM tbl_cashout ORDER BY id_out DESC");
+        $query = $mysqli->query("SELECT * FROM tbl_budget ORDER BY id_budget DESC");
         while ($data = $query->fetch_array()) {
-            $id = str_pad($data['id_out'], 4, '0', STR_PAD_LEFT);
+            $id = str_pad($data['id_budget'], 4, '0', STR_PAD_LEFT);
             $uraian  =
                 '<p>' . $data['uraian'] . '</p>
 			<small class="text-muted">
-                <span class="label label-primary">ID: DINO-CASHOUT-' . $data['kategori'] . '-' . $id . '</span>
+                <span class="label label-primary">ID: DINO-BUDGET-' . $data['kategori'] . '-' . $id . '</span>
 			</small>';
 
             if ($data['kategori'] == '01') $kat = 'BRI Credit Anuity';
@@ -54,7 +54,7 @@ switch ($show) {
             $beli = tgl_indonesia($data['tgl']);
             $value    = 'Rp ' . format_rupiah($data['nilai']);
 
-            isi_tabel($no, array($uraian, $kat, $beli, $value), $link, $data['id_out']);
+            isi_tabel($no, array($uraian, $kat, $beli, $value), $link, $data['id_budget']);
             $no++;
         }
         tutup_tabel();
@@ -64,17 +64,17 @@ switch ($show) {
         //Menampilkan form input dan edit data
     case "form":
         if (isset($_GET['id'])) {
-            $query = $mysqli->query("SELECT * FROM tbl_cashout WHERE id_out='$_GET[id]'");
+            $query = $mysqli->query("SELECT * FROM tbl_budget WHERE id_budget='$_GET[id]'");
             $data = $query->fetch_array();
             $aksi = "Edit";
         } else {
-            $data = array("id_out" => "", "uraian" => "", "tgl" => "", "kategori" => "", "nilai" => "", "ket" => "");
+            $data = array("id_budget" => "", "uraian" => "", "tgl" => "", "kategori" => "", "nilai" => "", "ket" => "");
             $aksi = "Tambah";
         }
 
-        echo '<h3 class="page-header"><b>' . $aksi . ' Transaksi Cash Out</b> </h3>';
+        echo '<h3 class="page-header"><b>' . $aksi . ' Budget</b> </h3>';
 
-        buka_form($link, $data['id_out'], strtolower($aksi));
+        buka_form($link, $data['id_budget'], strtolower($aksi));
 
         buat_textbox("Transaksi", "uraian", $data['uraian']);
         buat_textbox("Nominal", "nilai", $data['nilai']);
@@ -115,7 +115,7 @@ switch ($show) {
         //Menyisipkan atau mengedit data di database
     case "action":
         if ($_POST['aksi'] == "tambah") {
-            $mysqli->query("INSERT INTO tbl_cashout SET
+            $mysqli->query("INSERT INTO tbl_budget SET
 			    uraian          = '$_POST[uraian]',
 				tgl 	        = '$_POST[tgl]',
 			    kategori 	    = '$_POST[kategori]',
@@ -123,20 +123,20 @@ switch ($show) {
 				ket	 		    = '$_POST[ket]'		
 			");
         } elseif ($_POST['aksi'] == "edit") {
-            $mysqli->query("UPDATE tbl_cashout SET
+            $mysqli->query("UPDATE tbl_budget SET
 			    uraian          = '$_POST[uraian]',
 				tgl 	        = '$_POST[tgl]',
 			    kategori 	    = '$_POST[kategori]',
 				nilai 	        = '$_POST[nilai]',
 				ket	 		    = '$_POST[ket]'	
-			WHERE id_out='$_POST[id]'");
+			WHERE id_budget='$_POST[id]'");
         }
         header('location:' . $link);
         break;
 
         //Menghapus data di database
     case "delete":
-        $mysqli->query("DELETE FROM tbl_cashout WHERE id_out='$_GET[id]'");
+        $mysqli->query("DELETE FROM tbl_budget WHERE id_budget='$_GET[id]'");
         header('location:' . $link);
         break;
 }

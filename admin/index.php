@@ -43,8 +43,12 @@ if (empty($_SESSION['username']) or empty($_SESSION['password']) or $_SESSION['l
 		<script type="text/javascript" src="../plugin/jquery/jquery-2.0.2.min.js"></script>
 
 		<script src="../plugin/highcharts/code/highcharts.js"></script>
+		<script src="../plugin/highcharts/code/highcharts-3d.js"></script>
 		<script src="../plugin/highcharts/code/modules/data.js"></script>
+		<script src="../plugin/highcharts/code/modules/cylinder.js"></script>
+		<script src="../plugin/highcharts/code/modules/funnel3d.js"></script>
 		<script src="../plugin/highcharts/code/modules/exporting.js"></script>
+
 
 	</head>
 
@@ -81,6 +85,8 @@ if (empty($_SESSION['username']) or empty($_SESSION['password']) or $_SESSION['l
 
 		<script type="text/javascript" src="../plugin/dataTables/js/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" src="../plugin/dataTables/js/dataTables.bootstrap.min.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="../plugin/bootstrap/css/pe-icon-7-stroke.css" />
 
 		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 		<link href='https://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>

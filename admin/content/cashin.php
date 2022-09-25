@@ -29,10 +29,18 @@ switch ($show) {
                 <span class="label label-primary">ID: DINO-CASHIN-' . $data['kategori'] . '-' . $id . '</span>
 			</small>';
 
+            if ($data['kategori'] == '01') $kat = 'Earned Income';
+            elseif ($data['kategori'] == '02') $kat = 'Profit Income';
+            elseif ($data['kategori'] == '03') $kat = 'Capital Gain';
+            elseif ($data['kategori'] == '04') $kat = 'Dividend Income';
+            elseif ($data['kategori'] == '05') $kat = 'Rental Income';
+            elseif ($data['kategori'] == '06') $kat = 'Royalty Income';
+            else $kat = 'Belum Ada Kategori';
+
             $beli = tgl_indonesia($data['tgl']);
             $value    = 'Rp ' . format_rupiah($data['nilai']);
 
-            isi_tabel($no, array($uraian, $data['kategori'], $beli, $value), $link, $data['id_in']);
+            isi_tabel($no, array($uraian, $kat, $beli, $value), $link, $data['id_in']);
             $no++;
         }
         tutup_tabel();
