@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor Aktivitas — COCKPIT Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,900&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D1117;--navy-2:#161B22;--navy-3:#1C2128;
+  --orange:#FF4D00;--yellow:#FFD600;--green:#2ECC71;--red:#E74C3C;--blue:#3B82F6;
+  --border:rgba(255,255,255,.07);--border-2:rgba(255,255,255,.12);
+  --ink:#E6EDF3;--ink-2:rgba(230,237,243,.5);--ink-3:rgba(230,237,243,.25);
+}
+html,body{min-height:100%;background:var(--navy);color:var(--ink);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.95);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;
+  justify-content:space-between;height:56px;}
+.topbar-left{display:flex;align-items:center;gap:16px;}
+.brand{font-family:'Fraunces',serif;font-weight:900;font-size:.95rem;color:var(--ink);}
+.brand-mark{width:30px;height:30px;border-radius:7px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;}
+.page-title{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;}
+.btn-back{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;color:var(--ink-2);text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid var(--border-2);transition:all .15s;}
+.btn-back:hover{color:var(--ink);background:rgba(255,255,255,.05);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.btn-refresh{background:transparent;border:1px solid var(--border-2);color:var(--ink-2);padding:7px 13px;border-radius:8px;font-size:.78rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;}
+.btn-refresh:hover{background:rgba(255,255,255,.05);}
+
+.main{max-width:1200px;margin:0 auto;padding:28px 28px 80px;}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.kpi{background:var(--navy-2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;}
+.kpi-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px;}
+.kpi-val{font-family:'DM Mono',monospace;font-size:1.6rem;font-weight:500;color:var(--ink);}
+.kpi-note{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--ink-3);margin-top:4px;}
+.kpi.danger .kpi-val{color:var(--red);}
+.kpi.ok .kpi-val{color:var(--green);}
+.kpi.warn .kpi-val{color:var(--yellow);}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border);}
+.tab{padding:10px 18px;font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+.tab.active{color:var(--orange);border-bottom-color:var(--orange);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* FILTERS */
+.filter-bar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
+.filter-chip{padding:6px 14px;border-radius:20px;border:1px solid var(--border-2);background:transparent;color:var(--ink-2);font-family:'DM Mono',monospace;font-size:.6rem;cursor:pointer;transition:all .15s;}
+.filter-chip.active{background:rgba(255,77,0,.12);border-color:rgba(255,77,0,.3);color:var(--orange);}
+.filter-input{background:var(--navy-2);border:1px solid var(--border-2);border-radius:8px;padding:7px 12px;color:var(--ink);font-family:'DM Mono',monospace;font-size:.65rem;outline:none;}
+.filter-input:focus{border-color:var(--orange);}
+
+/* LOG TABLE */
+.log-table{width:100%;border-collapse:collapse;}
+.log-table thead th{text-align:left;padding:8px 12px;border-bottom:1px solid var(--border-2);font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);}
+.log-table tbody td{padding:9px 12px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:.68rem;}
+.log-table tbody tr:hover{background:rgba(255,255,255,.02);}
+.badge-ok{background:rgba(46,204,113,.1);color:var(--green);border:1px solid rgba(46,204,113,.2);padding:2px 7px;border-radius:8px;font-size:.55rem;}
+.badge-fail{background:rgba(231,76,60,.1);color:var(--red);border:1px solid rgba(231,76,60,.2);padding:2px 7px;border-radius:8px;font-size:.55rem;}
+.reason-tag{font-size:.58rem;color:var(--ink-3);background:rgba(255,255,255,.04);padding:1px 6px;border-radius:6px;}
+
+/* SESSION TABLE */
+.session-row{background:var(--navy-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;}
+.session-user{font-weight:600;font-size:.85rem;margin-bottom:4px;}
+.session-meta{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;}
+.session-exp{color:var(--yellow);}
+
+.loading{text-align:center;padding:40px;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--ink-3);}
+.empty{text-align:center;padding:32px;font-family:'DM Mono',monospace;font-size:.65rem;color:var(--ink-3);}
+.count-badge{font-family:'DM Mono',monospace;font-size:.58rem;background:rgba(255,255,255,.06);padding:2px 7px;border-radius:10px;margin-left:6px;color:var(--ink-3);}
+
+@media(max-width:700px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="brand-mark"><i class="fa-solid fa-bolt"></i></div>
+    <div class="brand">COCKPIT</div>
+    <div class="page-title">/ Admin / Monitor Aktivitas</div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-refresh" id="btnRefresh"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+    <a href="/menu.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Menu</a>
+  </div>
+</header>
+
+<main class="main">
+  <div class="kpi-row" id="kpiRow">
+    <div class="kpi"><div class="kpi-label">Total Login (24j)</div><div class="kpi-val" id="kpiTotalLogin">—</div><div class="kpi-note">berhasil + gagal</div></div>
+    <div class="kpi ok"><div class="kpi-label">Login Berhasil (24j)</div><div class="kpi-val" id="kpiOk">—</div><div class="kpi-note">—</div></div>
+    <div class="kpi danger"><div class="kpi-label">Login Gagal (24j)</div><div class="kpi-val" id="kpiFail">—</div><div class="kpi-note">semua alasan</div></div>
+    <div class="kpi warn"><div class="kpi-label">Sesi Aktif</div><div class="kpi-val" id="kpiSess">—</div><div class="kpi-note">belum expired</div></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="tab-audit">Log Login <span class="count-badge" id="auditCount">—</span></div>
+    <div class="tab" data-tab="tab-sessions">Sesi Aktif <span class="count-badge" id="sessCount">—</span></div>
+  </div>
+
+  <!-- AUDIT LOG -->
+  <div class="tab-panel active" id="tab-audit">
+    <div class="filter-bar">
+      <button class="filter-chip active" data-filter="all">Semua</button>
+      <button class="filter-chip" data-filter="ok">Berhasil</button>
+      <button class="filter-chip" data-filter="fail">Gagal</button>
+      <input class="filter-input" id="searchUser" placeholder="Cari username…" style="margin-left:auto;">
+    </div>
+    <div id="auditTableWrap"><div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat…</div></div>
+  </div>
+
+  <!-- SESSIONS -->
+  <div class="tab-panel" id="tab-sessions">
+    <div id="sessionsWrap"><div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat…</div></div>
+  </div>
+</main>
+
+<script>
+let auditData = [], sessionData = [], auditFilter = 'all';
+
+async function checkAdmin() {
+  const res = await fetch('/api/auth/me');
+  if (!res.ok) { window.location.href='/'; return; }
+  const u = await res.json();
+  if (u.role !== 'admin') window.location.href = '/menu.html';
+}
+
+async function loadSecurity() {
+  const res = await fetch('/api/admin/security');
+  const d = await res.json();
+  const ok24 = Number(d.loginOk?.last7d ?? 0); // we'll use audit data for 24h
+  document.getElementById('kpiFail').textContent = d.loginFailed.last24h;
+  document.getElementById('kpiSess').textContent = d.sessions.active;
+}
+
+async function loadAudit() {
+  const res = await fetch('/api/admin/audit?limit=300');
+  auditData = await res.json();
+  document.getElementById('auditCount').textContent = auditData.length;
+
+  const ok24 = auditData.filter(r => r.success && isWithin24h(r.createdAt)).length;
+  const fail24 = auditData.filter(r => !r.success && isWithin24h(r.createdAt)).length;
+  document.getElementById('kpiOk').textContent = ok24;
+  document.getElementById('kpiFail').textContent = fail24;
+  document.getElementById('kpiTotalLogin').textContent = ok24 + fail24;
+  renderAudit();
+}
+
+function isWithin24h(ts) { return new Date(ts) > new Date(Date.now() - 86400000); }
+
+function renderAudit() {
+  const q = document.getElementById('searchUser').value.toLowerCase();
+  let rows = auditData.filter(r => {
+    if (auditFilter === 'ok' && !r.success) return false;
+    if (auditFilter === 'fail' && r.success) return false;
+    if (q && !r.username.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const wrap = document.getElementById('auditTableWrap');
+  if (!rows.length) { wrap.innerHTML = '<div class="empty">Tidak ada data yang cocok.</div>'; return; }
+
+  wrap.innerHTML = `<table class="log-table">
+    <thead><tr>
+      <th>Waktu</th><th>Username</th><th>Status</th><th>Alasan</th><th>IP Address</th><th>User Agent</th>
+    </tr></thead>
+    <tbody>${rows.map(r => `<tr>
+      <td>${new Date(r.createdAt).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',second:'2-digit'})}</td>
+      <td>${r.username}</td>
+      <td>${r.success ? '<span class="badge-ok">OK</span>' : '<span class="badge-fail">GAGAL</span>'}</td>
+      <td><span class="reason-tag">${r.reason ?? '—'}</span></td>
+      <td>${r.ipAddress ?? '—'}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.userAgent ?? ''}">${(r.userAgent ?? '—').substring(0,40)}${r.userAgent?.length > 40 ? '…' : ''}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+async function loadSessions() {
+  const res = await fetch('/api/admin/sessions');
+  sessionData = await res.json();
+  document.getElementById('sessCount').textContent = sessionData.length;
+  document.getElementById('kpiSess').textContent = sessionData.length;
+
+  const wrap = document.getElementById('sessionsWrap');
+  if (!sessionData.length) { wrap.innerHTML = '<div class="empty">Tidak ada sesi aktif.</div>'; return; }
+  wrap.innerHTML = sessionData.map(s => {
+    const exp = new Date(s.expiresAt);
+    const minsLeft = Math.round((exp - Date.now()) / 60000);
+    return `<div class="session-row">
+      <div class="session-user"><i class="fa-solid fa-circle-user" style="margin-right:6px;color:var(--orange);"></i>${s.username}</div>
+      <div class="session-meta">
+        <span>ID User: ${s.userId}</span>
+        <span>IP: ${s.ipAddress ?? '—'}</span>
+        <span>Mulai: ${new Date(s.createdAt).toLocaleString('id-ID')}</span>
+        <span class="session-exp">Berakhir: ${exp.toLocaleString('id-ID')} (~${minsLeft} mnt lagi)</span>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:.57rem;color:var(--ink-3);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.userAgent ?? '—'}</div>
+    </div>`;
+  }).join('');
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab,.tab-panel').forEach(el => el.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Filters
+document.querySelectorAll('.filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    auditFilter = chip.dataset.filter;
+    renderAudit();
+  });
+});
+document.getElementById('searchUser').addEventListener('input', renderAudit);
+
+document.getElementById('btnRefresh').addEventListener('click', () => { loadAudit(); loadSessions(); loadSecurity(); });
+
+checkAdmin().then(() => { loadAudit(); loadSessions(); loadSecurity(); });
+// Auto-refresh tiap 30 detik
+setInterval(() => { loadAudit(); loadSessions(); }, 30000);
+</script>
+</body>
+</html>

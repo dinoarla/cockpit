@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Security Dashboard — COCKPIT Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,900&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D1117;--navy-2:#161B22;--navy-3:#1C2128;
+  --orange:#FF4D00;--yellow:#FFD600;--green:#2ECC71;--red:#E74C3C;--blue:#3B82F6;--purple:#8B5CF6;
+  --border:rgba(255,255,255,.07);--border-2:rgba(255,255,255,.12);
+  --ink:#E6EDF3;--ink-2:rgba(230,237,243,.5);--ink-3:rgba(230,237,243,.25);
+}
+html,body{min-height:100%;background:var(--navy);color:var(--ink);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.95);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;
+  justify-content:space-between;height:56px;}
+.topbar-left{display:flex;align-items:center;gap:16px;}
+.brand{font-family:'Fraunces',serif;font-weight:900;font-size:.95rem;}
+.brand-mark{width:30px;height:30px;border-radius:7px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;}
+.page-title{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;}
+.btn-back{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;color:var(--ink-2);text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid var(--border-2);}
+
+.main{max-width:1100px;margin:0 auto;padding:28px 28px 80px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+
+/* KPI */
+.kpi{background:var(--navy-2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;}
+.kpi.danger{border-color:rgba(231,76,60,.25);}
+.kpi.ok{border-color:rgba(46,204,113,.2);}
+.kpi.warn{border-color:rgba(255,214,0,.2);}
+.kpi-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px;}
+.kpi-val{font-family:'DM Mono',monospace;font-size:1.8rem;font-weight:500;color:var(--ink);}
+.kpi.danger .kpi-val{color:var(--red);}
+.kpi.ok .kpi-val{color:var(--green);}
+.kpi.warn .kpi-val{color:var(--yellow);}
+.kpi-note{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--ink-3);margin-top:5px;}
+
+/* CARD */
+.card{background:var(--navy-2);border:1px solid var(--border);border-radius:12px;padding:20px 22px;margin-bottom:16px;}
+.card-title{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.card-title i{color:var(--orange);}
+
+/* STATUS ROWS */
+.status-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.status-row:last-child{border-bottom:none;}
+.status-label{font-size:.82rem;color:var(--ink-2);}
+.status-label .sub{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--ink-3);display:block;margin-top:2px;}
+.badge-on{font-family:'DM Mono',monospace;font-size:.55rem;padding:3px 9px;border-radius:10px;background:rgba(46,204,113,.1);color:var(--green);border:1px solid rgba(46,204,113,.2);}
+.badge-warn{font-family:'DM Mono',monospace;font-size:.55rem;padding:3px 9px;border-radius:10px;background:rgba(255,214,0,.1);color:var(--yellow);border:1px solid rgba(255,214,0,.2);}
+.badge-off{font-family:'DM Mono',monospace;font-size:.55rem;padding:3px 9px;border-radius:10px;background:rgba(231,76,60,.1);color:var(--red);border:1px solid rgba(231,76,60,.2);}
+.badge-info{font-family:'DM Mono',monospace;font-size:.55rem;padding:3px 9px;border-radius:10px;background:rgba(139,92,246,.1);color:var(--purple);border:1px solid rgba(139,92,246,.2);}
+
+/* IP TABLE */
+.ip-table{width:100%;border-collapse:collapse;}
+.ip-table tr{border-bottom:1px solid var(--border);}
+.ip-table tr:last-child{border-bottom:none;}
+.ip-table td{padding:8px 0;font-family:'DM Mono',monospace;font-size:.68rem;}
+.ip-bar{height:6px;background:var(--red);border-radius:3px;opacity:.6;}
+
+/* REASON TABLE */
+.reason-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);}
+.reason-row:last-child{border-bottom:none;}
+.reason-name{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--ink-2);min-width:160px;}
+.reason-count{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--red);margin-left:auto;}
+.reason-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;}
+.reason-bar-fill{height:100%;background:linear-gradient(to right,var(--red),rgba(255,77,0,.5));border-radius:3px;}
+
+/* ENCRYPTION PANEL */
+.enc-field{background:var(--navy-3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.enc-icon{color:var(--green);font-size:1rem;flex-shrink:0;}
+.enc-name{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--ink-2);}
+.enc-algo{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--ink-3);margin-top:2px;}
+
+.section-head{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);margin:28px 0 16px;display:flex;align-items:center;gap:8px;}
+.loading{text-align:center;padding:40px;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--ink-3);}
+
+.threat-level{padding:16px 20px;border-radius:12px;display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.threat-level.low{background:rgba(46,204,113,.07);border:1px solid rgba(46,204,113,.2);}
+.threat-level.medium{background:rgba(255,214,0,.07);border:1px solid rgba(255,214,0,.2);}
+.threat-level.high{background:rgba(231,76,60,.07);border:1px solid rgba(231,76,60,.2);}
+.threat-icon{font-size:2rem;}
+.threat-text h3{font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+.threat-text p{font-size:.8rem;color:var(--ink-2);line-height:1.5;}
+
+@media(max-width:700px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="brand-mark"><i class="fa-solid fa-bolt"></i></div>
+    <div class="brand">COCKPIT</div>
+    <div class="page-title">/ Admin / Security Dashboard</div>
+  </div>
+  <a href="/menu.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Menu</a>
+</header>
+
+<main class="main">
+  <div id="threatBanner"></div>
+
+  <div class="grid-3" style="margin-bottom:20px;" id="kpiRow">
+    <div class="kpi danger"><div class="kpi-label">Login Gagal (24j)</div><div class="kpi-val" id="kpiFail24">—</div><div class="kpi-note">semua IP</div></div>
+    <div class="kpi danger"><div class="kpi-label">Login Gagal (7h)</div><div class="kpi-val" id="kpiFail7d">—</div><div class="kpi-note">—</div></div>
+    <div class="kpi warn"><div class="kpi-label">User Terkunci</div><div class="kpi-val" id="kpiLocked">—</div><div class="kpi-note">saat ini</div></div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Kolom kiri -->
+    <div>
+      <!-- Top Fail IPs -->
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-network-wired"></i> Top IP — Login Gagal (7 Hari)</div>
+        <div id="ipTableWrap"><div class="loading"><i class="fa-solid fa-spinner fa-spin"></i></div></div>
+      </div>
+
+      <!-- Alasan gagal -->
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-triangle-exclamation"></i> Alasan Login Gagal (7 Hari)</div>
+        <div id="reasonWrap"><div class="loading"><i class="fa-solid fa-spinner fa-spin"></i></div></div>
+      </div>
+    </div>
+
+    <!-- Kolom kanan -->
+    <div>
+      <!-- Enkripsi & Proteksi -->
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-shield-halved"></i> Lapisan Enkripsi & Proteksi</div>
+        <div id="encWrap">
+          <div class="enc-field"><i class="fa-solid fa-lock enc-icon"></i><div><div class="enc-name">Password Hash</div><div class="enc-algo">bcrypt · 12 salt rounds (OWASP-compliant)</div></div></div>
+          <div class="enc-field"><i class="fa-solid fa-key enc-icon"></i><div><div class="enc-name">Session Token</div><div class="enc-algo">32-byte CSPRNG → SHA-256 hash disimpan di DB · httpOnly cookie</div></div></div>
+          <div class="enc-field"><i class="fa-solid fa-database enc-icon"></i><div><div class="enc-name">Field Enkripsi (PII)</div><div class="enc-algo">AES-256-GCM · IV acak per-enkripsi · base64 ciphertext</div></div></div>
+          <div class="enc-field"><i class="fa-solid fa-user-secret enc-icon"></i><div><div class="enc-name">CSRF Protection</div><div class="enc-algo">Double-submit cookie pattern · token 10 menit</div></div></div>
+          <div class="enc-field"><i class="fa-solid fa-ban enc-icon"></i><div><div class="enc-name">Rate Limiting</div><div class="enc-algo">Max <span id="maxAttempts">3</span> percobaan → kunci <span id="lockDur">15</span> menit</div></div></div>
+        </div>
+      </div>
+
+      <!-- HTTP Security Headers -->
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-globe"></i> HTTP Security Headers</div>
+        <div id="headersWrap">
+          <div class="status-row"><span class="status-label">X-Frame-Options<span class="sub">Mencegah clickjacking / iframe embedding</span></span><span class="badge-on">DENY ✓</span></div>
+          <div class="status-row"><span class="status-label">X-Content-Type-Options<span class="sub">Mencegah MIME sniffing</span></span><span class="badge-on">nosniff ✓</span></div>
+          <div class="status-row"><span class="status-label">Content-Security-Policy<span class="sub">Batasi sumber script, style, font, image</span></span><span class="badge-on">AKTIF ✓</span></div>
+          <div class="status-row"><span class="status-label">Referrer-Policy<span class="sub">Batasi info referrer ke origin saja</span></span><span class="badge-on">strict-origin ✓</span></div>
+          <div class="status-row"><span class="status-label">Permissions-Policy<span class="sub">Nonaktifkan kamera, mikrofon, geolokasi</span></span><span class="badge-on">AKTIF ✓</span></div>
+          <div class="status-row" id="hstsRow"><span class="status-label">HTTPS / HSTS<span class="sub">Strict-Transport-Security (2 tahun)</span></span><span id="hstsBadge" class="badge-warn">Cek env…</span></div>
+          <div class="status-row"><span class="status-label">Cookie SameSite<span class="sub">Perlindungan CSRF tambahan</span></span><span class="badge-on">Lax ✓</span></div>
+        </div>
+      </div>
+
+      <!-- User stats -->
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-users"></i> Statistik User</div>
+        <div id="userStatsWrap">
+          <div class="status-row"><span class="status-label">Total User</span><span class="badge-info" id="statTotal">—</span></div>
+          <div class="status-row"><span class="status-label">User Aktif</span><span class="badge-on" id="statActive">—</span></div>
+          <div class="status-row"><span class="status-label">User Nonaktif</span><span class="badge-off" id="statInactive">—</span></div>
+          <div class="status-row"><span class="status-label">Sesi Aktif saat ini</span><span class="badge-info" id="statSess">—</span></div>
+          <div class="status-row"><span class="status-label">Login Berhasil (7h)</span><span class="badge-on" id="statOk7d">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+async function checkAdmin() {
+  const res = await fetch('/api/auth/me');
+  if (!res.ok) { window.location.href='/'; return; }
+  const u = await res.json();
+  if (u.role !== 'admin') window.location.href='/menu.html';
+}
+
+async function loadSecurity() {
+  const res = await fetch('/api/admin/security');
+  const d = await res.json();
+
+  // KPI
+  document.getElementById('kpiFail24').textContent = d.loginFailed.last24h;
+  document.getElementById('kpiFail7d').textContent  = d.loginFailed.last7d;
+  document.getElementById('kpiLocked').textContent  = d.users.locked;
+
+  // Threat level
+  const fail24 = Number(d.loginFailed.last24h);
+  const banner = document.getElementById('threatBanner');
+  if (fail24 >= 20) {
+    banner.innerHTML = `<div class="threat-level high" style="margin-bottom:20px;">
+      <div class="threat-icon">🚨</div>
+      <div class="threat-text"><h3 style="color:var(--red);">Ancaman Tinggi</h3>
+      <p>${fail24} percobaan login gagal dalam 24 jam terakhir. Periksa IP mencurigakan di bawah.</p></div></div>`;
+  } else if (fail24 >= 5) {
+    banner.innerHTML = `<div class="threat-level medium" style="margin-bottom:20px;">
+      <div class="threat-icon">⚠️</div>
+      <div class="threat-text"><h3 style="color:var(--yellow);">Perhatian</h3>
+      <p>${fail24} percobaan login gagal dalam 24 jam terakhir. Dalam batas normal tapi perlu dipantau.</p></div></div>`;
+  } else {
+    banner.innerHTML = `<div class="threat-level low" style="margin-bottom:20px;">
+      <div class="threat-icon">✅</div>
+      <div class="threat-text"><h3 style="color:var(--green);">Aman</h3>
+      <p>Tidak ada aktivitas mencurigakan signifikan dalam 24 jam terakhir (${fail24} percobaan gagal).</p></div></div>`;
+  }
+
+  // User stats
+  document.getElementById('statTotal').textContent   = d.users.total;
+  document.getElementById('statActive').textContent  = d.users.active;
+  document.getElementById('statInactive').textContent = d.users.total - d.users.active;
+  document.getElementById('statSess').textContent    = d.sessions.active;
+  document.getElementById('statOk7d').textContent    = d.loginOk.last7d;
+
+  // HSTS badge
+  const hstsBadge = document.getElementById('hstsBadge');
+  const isSecure = d.encryption?.cookieFlags?.some(f => f === 'Secure');
+  hstsBadge.textContent = isSecure ? 'AKTIF ✓' : 'Dev Mode';
+  hstsBadge.className   = isSecure ? 'badge-on' : 'badge-warn';
+
+  // Top fail IPs
+  const ipWrap = document.getElementById('ipTableWrap');
+  if (!d.topFailIPs.length) { ipWrap.innerHTML = '<div style="font-family:var(--font-mono);font-size:.65rem;color:var(--ink-3);padding:10px 0;">Tidak ada data.</div>'; }
+  else {
+    const maxN = d.topFailIPs[0].n;
+    ipWrap.innerHTML = `<table class="ip-table">${d.topFailIPs.map(r => `
+      <tr>
+        <td style="width:180px;">${r.ip ?? 'unknown'}</td>
+        <td style="width:60px;text-align:right;color:var(--red);">${r.n}×</td>
+        <td style="padding-left:12px;">
+          <div class="ip-bar" style="width:${Math.round(r.n/maxN*100)}%;"></div>
+        </td>
+      </tr>`).join('')}</table>`;
+  }
+
+  // Reasons
+  const rWrap = document.getElementById('reasonWrap');
+  if (!d.failReasons.length) { rWrap.innerHTML = '<div style="font-family:var(--font-mono);font-size:.65rem;color:var(--ink-3);padding:10px 0;">Tidak ada data.</div>'; }
+  else {
+    const maxR = d.failReasons[0].n;
+    const REASON_LABELS = {
+      wrong_password: 'Password salah',
+      user_not_found: 'Username tidak ditemukan',
+      locked:         'Akun terkunci',
+      inactive:       'Akun nonaktif',
+    };
+    rWrap.innerHTML = d.failReasons.map(r => `
+      <div class="reason-row">
+        <div class="reason-name">${REASON_LABELS[r.reason] ?? r.reason ?? '—'}</div>
+        <div class="reason-bar-wrap"><div class="reason-bar-fill" style="width:${Math.round(r.n/maxR*100)}%"></div></div>
+        <div class="reason-count">${r.n}×</div>
+      </div>`).join('');
+  }
+}
+
+checkAdmin().then(loadSecurity);
+setInterval(loadSecurity, 60000);
+</script>
+</body>
+</html>

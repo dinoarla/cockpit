@@ -229,9 +229,83 @@
     .sections-wrap{padding:16px;}
     .domain-header{padding:14px 16px;}
   }
+
+  /* ── CHANGELOG MODAL ── */
+  .modal-backdrop{
+    display:none;position:fixed;inset:0;z-index:1000;
+    background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+    align-items:center;justify-content:center;
+  }
+  .modal-backdrop.open{display:flex;}
+  .modal{
+    background:#1C2128;border:1px solid rgba(255,255,255,.1);
+    border-radius:16px;width:480px;max-width:92vw;max-height:80vh;
+    overflow:hidden;display:flex;flex-direction:column;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .modal-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.07);
+  }
+  .modal-head h2{font-family:'Fraunces',serif;font-weight:900;font-size:1.1rem;color:#E6EDF3;margin:0;}
+  .modal-close{background:none;border:none;color:rgba(230,237,243,.4);font-size:1.3rem;cursor:pointer;line-height:1;padding:4px 8px;border-radius:6px;}
+  .modal-close:hover{background:rgba(255,255,255,.08);color:#E6EDF3;}
+  .modal-body{padding:20px 24px;overflow-y:auto;flex:1;}
+  .changelog-item{margin-bottom:22px;}
+  .changelog-ver{
+    font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.08em;
+    display:inline-flex;align-items:center;gap:6px;
+    background:rgba(255,77,0,.12);border:1px solid rgba(255,77,0,.25);
+    color:var(--orange);padding:3px 10px;border-radius:20px;margin-bottom:10px;
+  }
+  .changelog-ver.current::after{content:'CURRENT';font-size:.5rem;
+    background:var(--orange);color:#fff;padding:1px 5px;border-radius:8px;margin-left:4px;}
+  .changelog-date{font-family:'DM Mono',monospace;font-size:.58rem;color:rgba(230,237,243,.3);margin-bottom:8px;}
+  .changelog-list{list-style:none;padding:0;margin:0;}
+  .changelog-list li{
+    font-family:'DM Sans',sans-serif;font-size:.8rem;color:rgba(230,237,243,.7);
+    padding:5px 0 5px 18px;border-bottom:1px solid rgba(255,255,255,.04);
+    position:relative;line-height:1.5;
+  }
+  .changelog-list li:last-child{border-bottom:none;}
+  .changelog-list li::before{content:'→';position:absolute;left:0;color:var(--orange);font-size:.7rem;}
 </style>
 </head>
 <body>
+
+<!-- Version Changelog Modal -->
+<div class="modal-backdrop" id="changelogModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2><i class="fa-solid fa-code-branch" style="color:var(--orange);margin-right:8px;font-size:.9rem;"></i>Riwayat Versi COCKPIT</h2>
+      <button class="modal-close" id="closeModal">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="changelog-item">
+        <div class="changelog-ver current">v0.1.0</div>
+        <div class="changelog-date">Juli 2026</div>
+        <ul class="changelog-list">
+          <li>Inisialisasi COCKPIT — Pusat Data Pribadi Dino Arla</li>
+          <li>Modul Bauran Energi Jawa Barat: peta choropleth, RKPD 2026, RUPTL 2025-2034, gangguan PLN</li>
+          <li>Modul RUPTL PLN 2025-2034: data 34 provinsi, skenario RE Base & ARED</li>
+          <li>Modul Data Induk Langganan PLN: statistik 13,9 juta pelanggan Jabar</li>
+          <li>Autentikasi: bcrypt password hash, session token, CSRF protection, rate limiter</li>
+          <li>Enkripsi field sensitif (AES-256-GCM) untuk data PII</li>
+          <li>Admin: user management, activity monitor, security dashboard</li>
+        </ul>
+      </div>
+      <div class="changelog-item" style="opacity:.4;">
+        <div class="changelog-ver">v0.2.0</div>
+        <div class="changelog-date">Direncanakan</div>
+        <ul class="changelog-list">
+          <li>Modul Data OLAP Tagihan Listrik</li>
+          <li>Modul Data Pencurian Tenaga Listrik</li>
+          <li>Ekspansi RUPTL: data provinsi A & C lengkap</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
 
 <header class="topbar">
   <div class="topbar-left">
@@ -239,7 +313,7 @@
       <div class="topbar-brand-mark"><i class="fa-solid fa-bolt"></i></div>
       <div>
         <div class="topbar-brand-name">COCKPIT</div>
-        <div class="topbar-version">v0.1.0 · Pusat Data Riset Pribadi</div>
+        <div class="topbar-version"><span id="versionBtn" title="Lihat riwayat versi" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;">v0.1.0</span> · Pusat Data Pribadi Dino Arla</div>
       </div>
     </div>
     <div class="topbar-status">
@@ -258,6 +332,51 @@
 </header>
 
 <main class="main">
+  <div id="adminPanel" style="display:none;margin-bottom:16px;">
+    <div class="domain-panel">
+      <div class="domain-header">
+        <div class="domain-header-left">
+          <div class="domain-icon" style="background:#1a1a2e;border-color:#222;"><i class="fa-solid fa-shield-halved" style="color:var(--orange);"></i></div>
+          <div>
+            <div class="domain-name">Panel Admin</div>
+            <div class="domain-desc">Manajemen sistem, pengguna, dan keamanan — hanya admin</div>
+          </div>
+        </div>
+        <span class="domain-tag active">ADMIN ONLY</span>
+      </div>
+      <div class="sections-wrap" style="padding:16px 24px;">
+        <div class="module-grid">
+          <a href="/admin/users/" class="module-card aktif">
+            <div class="module-card-top">
+              <div class="module-icon aktif"><i class="fa-solid fa-user-gear"></i></div>
+              <span class="module-status-pill aktif">AKTIF</span>
+            </div>
+            <div class="module-name">User Management</div>
+            <div class="module-desc">Buat & kelola pengguna, atur akses per-modul, reset password</div>
+            <div class="module-card-foot"><span class="module-slug">admin/users</span><span class="module-arrow"><i class="fa-solid fa-arrow-right"></i></span></div>
+          </a>
+          <a href="/admin/aktivitas/" class="module-card aktif">
+            <div class="module-card-top">
+              <div class="module-icon aktif"><i class="fa-solid fa-chart-line"></i></div>
+              <span class="module-status-pill aktif">AKTIF</span>
+            </div>
+            <div class="module-name">Monitor Aktivitas</div>
+            <div class="module-desc">Log login, sesi aktif, deteksi aktivitas mencurigakan real-time</div>
+            <div class="module-card-foot"><span class="module-slug">admin/aktivitas</span><span class="module-arrow"><i class="fa-solid fa-arrow-right"></i></span></div>
+          </a>
+          <a href="/admin/keamanan/" class="module-card aktif">
+            <div class="module-card-top">
+              <div class="module-icon aktif"><i class="fa-solid fa-lock"></i></div>
+              <span class="module-status-pill aktif">AKTIF</span>
+            </div>
+            <div class="module-name">Security Dashboard</div>
+            <div class="module-desc">Enkripsi, header HTTP, IP mencurigakan, statistik keamanan sistem</div>
+            <div class="module-card-foot"><span class="module-slug">admin/keamanan</span><span class="module-arrow"><i class="fa-solid fa-arrow-right"></i></span></div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
   <div id="domainsContainer">
     <div class="loading-state">
       <div class="spinner"></div>
@@ -314,6 +433,7 @@ async function init() {
   const user = await meRes.json();
   document.getElementById('whoami').textContent = user.username;
   document.getElementById('roleTag').textContent = user.role.toUpperCase();
+  if (user.role === 'admin') document.getElementById('adminPanel').style.display = 'block';
 
   const domRes = await fetch('/api/domains');
   if (!domRes.ok) {
@@ -430,6 +550,13 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   await fetch('/api/auth/logout', { method: 'POST' });
   window.location.href = '/';
 });
+
+// Version modal
+const modal = document.getElementById('changelogModal');
+document.getElementById('versionBtn').addEventListener('click', () => modal.classList.add('open'));
+document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
+modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classList.remove('open'); });
 </script>
 </body>
 </html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Management — COCKPIT Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,900&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D1117;--navy-2:#161B22;--navy-3:#1C2128;
+  --orange:#FF4D00;--yellow:#FFD600;--green:#2ECC71;--red:#E74C3C;--blue:#3B82F6;
+  --border:rgba(255,255,255,.07);--border-2:rgba(255,255,255,.12);
+  --ink:#E6EDF3;--ink-2:rgba(230,237,243,.5);--ink-3:rgba(230,237,243,.25);
+}
+html,body{min-height:100%;background:var(--navy);color:var(--ink);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.95);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;
+  justify-content:space-between;height:56px;}
+.topbar-left{display:flex;align-items:center;gap:16px;}
+.brand{font-family:'Fraunces',serif;font-weight:900;font-size:.95rem;color:var(--ink);}
+.brand-mark{width:30px;height:30px;border-radius:7px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;}
+.page-title{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;}
+.btn-back{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;color:var(--ink-2);text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid var(--border-2);transition:all .15s;}
+.btn-back:hover{color:var(--ink);background:rgba(255,255,255,.05);}
+
+.main{max-width:1100px;margin:0 auto;padding:28px 28px 80px;}
+
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.section-head h1{font-family:'DM Mono',monospace;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);}
+.btn-primary{background:var(--orange);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;}
+.btn-primary:hover{opacity:.85;}
+.btn-sm{padding:5px 12px;font-size:.72rem;}
+.btn-danger{background:rgba(231,76,60,.15);color:var(--red);border:1px solid rgba(231,76,60,.25);}
+.btn-danger:hover{background:rgba(231,76,60,.25);}
+.btn-ghost{background:transparent;border:1px solid var(--border-2);color:var(--ink-2);}
+.btn-ghost:hover{background:rgba(255,255,255,.05);}
+
+/* USER TABLE */
+.user-table{width:100%;border-collapse:collapse;}
+.user-table thead th{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border-2);font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);}
+.user-table tbody td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+.user-table tbody tr:hover{background:rgba(255,255,255,.02);}
+.username{font-weight:600;font-size:.88rem;}
+.email{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--ink-3);}
+.role-badge{font-family:'DM Mono',monospace;font-size:.52rem;padding:3px 8px;border-radius:10px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;}
+.role-badge.admin{background:rgba(255,77,0,.12);color:var(--orange);border:1px solid rgba(255,77,0,.25);}
+.role-badge.editor{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.25);}
+.role-badge.viewer{background:rgba(230,237,243,.06);color:var(--ink-3);border:1px solid var(--border-2);}
+.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;}
+.status-dot.active{background:var(--green);box-shadow:0 0 5px var(--green);}
+.status-dot.inactive{background:var(--red);}
+.module-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
+.chip{font-family:'DM Mono',monospace;font-size:.52rem;padding:2px 7px;border-radius:8px;background:rgba(255,255,255,.05);color:var(--ink-3);border:1px solid var(--border);}
+.chip.all{background:rgba(46,204,113,.08);color:var(--green);border-color:rgba(46,204,113,.2);}
+.actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* MODAL */
+.modal-bd{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+.modal-bd.open{display:flex;}
+.modal{background:var(--navy-2);border:1px solid var(--border-2);border-radius:14px;width:520px;max-width:94vw;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);}
+.modal-head h3{font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);}
+.modal-close{background:none;border:none;color:var(--ink-3);font-size:1.2rem;cursor:pointer;padding:4px 8px;border-radius:6px;}
+.modal-close:hover{background:rgba(255,255,255,.07);color:var(--ink);}
+.modal-body{padding:22px;overflow-y:auto;flex:1;}
+.form-row{margin-bottom:16px;}
+.form-label{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:6px;}
+.form-input,.form-select{width:100%;background:var(--navy-3);border:1px solid var(--border-2);border-radius:8px;padding:10px 13px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.84rem;outline:none;transition:border-color .15s;}
+.form-input:focus,.form-select:focus{border-color:var(--orange);}
+.form-select option{background:var(--navy-2);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.section-divider{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+
+.domain-block{background:var(--navy-3);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.domain-block-title{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:var(--orange);margin-bottom:10px;}
+.module-check-list{display:flex;flex-direction:column;gap:8px;}
+.module-check{display:flex;align-items:center;gap:8px;cursor:pointer;}
+.module-check input[type=checkbox]{accent-color:var(--orange);width:14px;height:14px;}
+.module-check span{font-size:.82rem;color:var(--ink-2);}
+.modal-foot{padding:16px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+
+.alert{padding:10px 14px;border-radius:8px;font-size:.8rem;margin-bottom:14px;}
+.alert-err{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.25);color:#f1877c;}
+.alert-ok{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.25);color:#5de8a0;}
+
+.loading{text-align:center;padding:40px;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--ink-3);}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="brand-mark"><i class="fa-solid fa-bolt"></i></div>
+    <div class="brand">COCKPIT</div>
+    <div class="page-title">/ Admin / User Management</div>
+  </div>
+  <a href="/menu.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Menu</a>
+</header>
+
+<main class="main">
+  <div class="section-head">
+    <h1><i class="fa-solid fa-users" style="margin-right:8px;"></i>Manajemen Pengguna</h1>
+    <button class="btn-primary" id="btnNewUser"><i class="fa-solid fa-user-plus"></i> Buat User Baru</button>
+  </div>
+  <div id="alertBox"></div>
+  <div id="userTableWrap"><div class="loading"><i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Memuat data…</div></div>
+</main>
+
+<!-- Modal: Buat User -->
+<div class="modal-bd" id="modalNewUser">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Buat User Baru</h3>
+      <button class="modal-close" data-close="modalNewUser">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="modalAlert"></div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label class="form-label">Username</label>
+          <input class="form-input" id="f-username" placeholder="contoh: john_doe">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Role</label>
+          <select class="form-select" id="f-role">
+            <option value="viewer">Viewer (read-only)</option>
+            <option value="editor">Editor</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="f-email" type="email" placeholder="user@email.com">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Password (min. 12 karakter, huruf besar+kecil+angka)</label>
+        <input class="form-input" id="f-password" type="password" placeholder="••••••••••••">
+      </div>
+      <div class="section-divider">Akses Modul</div>
+      <div id="moduleCheckArea"><div class="loading">Memuat modul…</div></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-primary btn-ghost btn-sm" data-close="modalNewUser">Batal</button>
+      <button class="btn-primary btn-sm" id="btnSaveUser"><i class="fa-solid fa-check"></i> Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Edit Access -->
+<div class="modal-bd" id="modalEditAccess">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="editAccessTitle">Edit Akses</h3>
+      <button class="modal-close" data-close="modalEditAccess">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="editAccessAlert"></div>
+      <div id="editModuleArea"><div class="loading">Memuat…</div></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-primary btn-ghost btn-sm" data-close="modalEditAccess">Batal</button>
+      <button class="btn-primary btn-sm" id="btnSaveAccess"><i class="fa-solid fa-check"></i> Simpan Akses</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let domainsModules = [];
+let editUserId = null;
+
+async function checkAdmin() {
+  const res = await fetch('/api/auth/me');
+  if (!res.ok) { window.location.href = '/'; return; }
+  const u = await res.json();
+  if (u.role !== 'admin') { window.location.href = '/menu.html'; }
+}
+
+async function loadDomainsModules() {
+  const res = await fetch('/api/admin/domains-modules');
+  domainsModules = await res.json();
+  renderModuleChecks('moduleCheckArea', []);
+}
+
+function renderModuleChecks(containerId, selectedModuleSlugs) {
+  const el = document.getElementById(containerId);
+  if (!domainsModules.length) { el.innerHTML = '<div class="loading">Tidak ada modul.</div>'; return; }
+  el.innerHTML = domainsModules.map(d => `
+    <div class="domain-block" style="margin-bottom:10px;">
+      <div class="domain-block-title"><i class="fa-solid fa-bolt-lightning" style="margin-right:5px;"></i>${d.nama}</div>
+      <div class="module-check-list">
+        ${d.modules.map(m => `
+          <label class="module-check">
+            <input type="checkbox" name="mod_${containerId}" value="${m.slug}"
+              ${selectedModuleSlugs.includes(m.slug) ? 'checked' : ''}>
+            <span>${m.nama} <span style="color:var(--ink-3);font-size:.72rem;">(${m.slug})</span></span>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function getCheckedSlugs(containerId) {
+  return [...document.querySelectorAll(`[name="mod_${containerId}"]:checked`)].map(el => el.value);
+}
+
+async function loadUsers() {
+  const res = await fetch('/api/admin/users');
+  const users = await res.json();
+  const wrap = document.getElementById('userTableWrap');
+  if (!users.length) { wrap.innerHTML = '<div class="loading">Belum ada user.</div>'; return; }
+
+  wrap.innerHTML = `<table class="user-table">
+    <thead><tr>
+      <th>User</th><th>Role</th><th>Status</th><th>Akses Modul</th><th>Login Gagal</th><th>Aksi</th>
+    </tr></thead>
+    <tbody>${users.map(u => `
+      <tr>
+        <td>
+          <div class="username">${u.username}</div>
+          <div class="email">${u.email}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--ink-3);margin-top:3px;">ID: ${u.id} · Dibuat: ${new Date(u.createdAt).toLocaleDateString('id-ID')}</div>
+        </td>
+        <td><span class="role-badge ${u.role}">${u.role.toUpperCase()}</span></td>
+        <td>
+          <span class="status-dot ${u.isActive ? 'active' : 'inactive'}"></span>
+          <span style="font-size:.8rem;">${u.isActive ? 'Aktif' : 'Nonaktif'}</span>
+          ${u.lockedUntil && new Date(u.lockedUntil) > new Date() ? '<div style="font-size:.7rem;color:var(--red);margin-top:3px;"><i class="fa-solid fa-lock"></i> Terkunci</div>' : ''}
+        </td>
+        <td>
+          ${u.role === 'admin'
+            ? '<span class="chip all">Semua modul</span>'
+            : u.moduleAccess.length
+              ? '<div class="module-chips">' + u.moduleAccess.map(m => `<span class="chip">${m.moduleSlug}</span>`).join('') + '</div>'
+              : u.domainAccess.length
+                ? '<div class="module-chips">' + u.domainAccess.map(d => `<span class="chip">${d.domainSlug}/*</span>`).join('') + '</div>'
+                : '<span style="font-size:.72rem;color:var(--ink-3);">—</span>'
+          }
+        </td>
+        <td>
+          <span style="font-family:'DM Mono',monospace;font-size:.75rem;color:${u.failedLoginCount > 0 ? 'var(--red)' : 'var(--ink-3)'}">
+            ${u.failedLoginCount}x
+          </span>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="btn-primary btn-sm btn-ghost" onclick="openEditAccess(${u.id}, '${u.username}', ${JSON.stringify(u.moduleAccess.map(m=>m.moduleSlug)).replace(/"/g,'&quot;')})">
+              <i class="fa-solid fa-key"></i> Akses
+            </button>
+            <button class="btn-primary btn-sm ${u.isActive ? 'btn-danger' : 'btn-ghost'}"
+              onclick="toggleActive(${u.id}, ${u.isActive})">
+              ${u.isActive ? '<i class="fa-solid fa-ban"></i>' : '<i class="fa-solid fa-check"></i>'}
+            </button>
+          </div>
+        </td>
+      </tr>
+    `).join('')}</tbody>
+  </table>`;
+}
+
+function openEditAccess(userId, username, currentModuleSlugs) {
+  editUserId = userId;
+  document.getElementById('editAccessTitle').textContent = `Akses: ${username}`;
+  renderModuleChecks('editModuleArea', currentModuleSlugs);
+  document.getElementById('modalEditAccess').classList.add('open');
+}
+
+async function toggleActive(id, current) {
+  await fetch(`/api/admin/users/${id}`, {
+    method: 'PATCH', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ isActive: !current })
+  });
+  loadUsers();
+}
+
+document.getElementById('btnSaveUser').addEventListener('click', async () => {
+  const alert = document.getElementById('modalAlert');
+  alert.innerHTML = '';
+  const body = {
+    username: document.getElementById('f-username').value.trim(),
+    email:    document.getElementById('f-email').value.trim(),
+    password: document.getElementById('f-password').value,
+    role:     document.getElementById('f-role').value,
+    moduleSlugs: getCheckedSlugs('moduleCheckArea'),
+    domainSlugs: [...new Set(
+      getCheckedSlugs('moduleCheckArea').flatMap(slug => {
+        const d = domainsModules.find(d => d.modules.some(m => m.slug === slug));
+        return d ? [d.slug] : [];
+      })
+    )],
+  };
+  const res = await fetch('/api/admin/users', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (!res.ok) { alert.innerHTML = `<div class="alert alert-err">${data.error}</div>`; return; }
+  document.getElementById('modalNewUser').classList.remove('open');
+  showGlobalAlert(`User <b>${body.username}</b> berhasil dibuat.`, true);
+  loadUsers();
+  ['f-username','f-email','f-password'].forEach(id => document.getElementById(id).value = '');
+});
+
+document.getElementById('btnSaveAccess').addEventListener('click', async () => {
+  const moduleSlugs = getCheckedSlugs('editModuleArea');
+  const domainSlugs = [...new Set(
+    moduleSlugs.flatMap(slug => {
+      const d = domainsModules.find(d => d.modules.some(m => m.slug === slug));
+      return d ? [d.slug] : [];
+    })
+  )];
+  const res = await fetch(`/api/admin/users/${editUserId}/access`, {
+    method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ domainSlugs, moduleSlugs })
+  });
+  if (res.ok) {
+    document.getElementById('modalEditAccess').classList.remove('open');
+    showGlobalAlert('Akses berhasil diperbarui.', true);
+    loadUsers();
+  }
+});
+
+function showGlobalAlert(msg, ok) {
+  const el = document.getElementById('alertBox');
+  el.innerHTML = `<div class="alert ${ok?'alert-ok':'alert-err'}" style="margin-bottom:16px;">${msg}</div>`;
+  setTimeout(() => el.innerHTML = '', 4000);
+}
+
+// Close modal buttons
+document.querySelectorAll('[data-close]').forEach(btn => {
+  btn.addEventListener('click', () => document.getElementById(btn.dataset.close).classList.remove('open'));
+});
+document.querySelectorAll('.modal-bd').forEach(bd => {
+  bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('open'); });
+});
+document.getElementById('btnNewUser').addEventListener('click', () => {
+  document.getElementById('modalNewUser').classList.add('open');
+});
+
+checkAdmin().then(() => { loadDomainsModules(); loadUsers(); });
+</script>
+</body>
+</html>
