@@ -6,6 +6,7 @@
 <title>Dashboard — COCKPIT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -34,7 +35,7 @@
     width:32px;height:32px;border-radius:8px;
     background:var(--orange);border:2px solid #111118;
     display:flex;align-items:center;justify-content:center;
-    font-size:16px;box-shadow:2px 2px 0 #111118;
+    font-size:14px;box-shadow:2px 2px 0 #111118;color:#fff;
   }
   .topbar-brand-name{font-family:'Fraunces',serif;font-weight:900;font-size:.95rem;color:var(--ink);letter-spacing:.04em;}
   .topbar-version{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--ink-3);letter-spacing:.08em;}
@@ -88,7 +89,7 @@
     width:42px;height:42px;border-radius:10px;
     background:var(--orange);border:2px solid #111118;
     display:flex;align-items:center;justify-content:center;
-    font-size:20px;box-shadow:3px 3px 0 #111118;flex-shrink:0;
+    font-size:18px;box-shadow:3px 3px 0 #111118;flex-shrink:0;color:#fff;
   }
   .domain-name{font-family:'Fraunces',serif;font-weight:900;font-size:1.05rem;color:var(--ink);}
   .domain-desc{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--ink-3);margin-top:3px;letter-spacing:.03em;}
@@ -157,7 +158,9 @@
   }
 
   .module-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
-  .module-icon{font-size:24px;line-height:1;}
+  .module-icon{font-size:20px;line-height:1;color:var(--ink-2);width:28px;}
+  .module-icon.aktif{color:var(--orange);}
+  .module-icon.draft{color:var(--ink-3);}
   .module-status-pill{
     font-family:'DM Mono',monospace;font-size:.52rem;font-weight:500;
     padding:3px 8px;border-radius:10px;
@@ -233,7 +236,7 @@
 <header class="topbar">
   <div class="topbar-left">
     <div class="topbar-brand">
-      <div class="topbar-brand-mark">⚡</div>
+      <div class="topbar-brand-mark"><i class="fa-solid fa-bolt"></i></div>
       <div>
         <div class="topbar-brand-name">COCKPIT</div>
         <div class="topbar-version">v0.1.0 · Pusat Data Riset Pribadi</div>
@@ -265,11 +268,11 @@
 
 <script>
 const MODULE_ICONS = {
-  'mdp':          '📊',
-  'ruptl':        '🏗️',
-  'pelanggan':    '👥',
-  'olap-tagihan': '🧾',
-  'pencurian':    '⚠️',
+  'mdp':          '<i class="fa-solid fa-chart-column"></i>',
+  'ruptl':        '<i class="fa-solid fa-industry"></i>',
+  'pelanggan':    '<i class="fa-solid fa-users"></i>',
+  'olap-tagihan': '<i class="fa-solid fa-file-invoice"></i>',
+  'pencurian':    '<i class="fa-solid fa-triangle-exclamation"></i>',
 };
 const MODULE_DESC = {
   'mdp':          'Data equity & energi Jawa Barat — RKPD, RUPTL, gangguan PLN, kemiskinan kab/kota',
@@ -292,7 +295,7 @@ const SECTIONS = [
   { id: 2, num: '02', label: 'Transmisi' },
   { id: 3, num: '03', label: 'Distribusi Tenaga Listrik' },
 ];
-const DOMAIN_ICONS = { 'energi-jabar': '⚡' };
+const DOMAIN_ICONS = { 'energi-jabar': '<i class="fa-solid fa-bolt-lightning"></i>' };
 
 // Clock
 function updateClock() {
@@ -375,7 +378,7 @@ function render(domainList, role) {
       if (!mods.length) {
         secEl.innerHTML += `
           <div class="section-empty">
-            <div style="font-size:1.5rem;opacity:.3">○</div>
+            <i class="fa-regular fa-circle-dot" style="font-size:1.2rem;opacity:.2;margin-bottom:8px;display:block;"></i>
             <div class="label">Modul untuk seksi ini belum tersedia</div>
           </div>`;
       } else {
@@ -390,17 +393,17 @@ function render(domainList, role) {
             card.href = mod.routePath;
           }
           const desc = MODULE_DESC[mod.slug] || mod.nama;
-          const ico  = MODULE_ICONS[mod.slug] || '📁';
+          const ico  = MODULE_ICONS[mod.slug] || '<i class="fa-solid fa-folder-open"></i>';
           card.innerHTML = `
             <div class="module-card-top">
-              <div class="module-icon">${ico}</div>
+              <div class="module-icon ${mod.status}">${ico}</div>
               <span class="module-status-pill ${mod.status}">${mod.status === 'aktif' ? 'AKTIF' : 'SEGERA'}</span>
             </div>
             <div class="module-name">${mod.nama}</div>
             <div class="module-desc">${desc}</div>
             <div class="module-card-foot">
               <span class="module-slug">${domain.slug}/${mod.slug}</span>
-              <span class="module-arrow">→</span>
+              <span class="module-arrow"><i class="fa-solid fa-arrow-right"></i></span>
             </div>
           `;
           grid.appendChild(card);
@@ -409,7 +412,7 @@ function render(domainList, role) {
         if (role === 'admin') {
           const addCard = document.createElement('div');
           addCard.className = 'module-card-add';
-          addCard.innerHTML = `<span style="font-size:1.1rem;opacity:.4">+</span><span>Modul berikutnya</span>`;
+          addCard.innerHTML = `<i class="fa-solid fa-plus" style="opacity:.3"></i><span>Modul berikutnya</span>`;
           grid.appendChild(addCard);
         }
 
