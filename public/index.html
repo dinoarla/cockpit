@@ -1,63 +1,460 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Masuk — COCKPIT</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COCKPIT — Masuk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --ink:#111118;--orange:#FF4D00;--yellow:#FFD600;
+      --cream:#FFFBF0;--navy:#0D1117;
+      --border:2px solid #111118;--shadow:4px 4px 0 #111118;
+    }
+    html,body{height:100%;overflow:hidden}
+    body{font-family:'DM Sans',sans-serif;display:flex;background:var(--navy)}
+
+    /* ── LEFT HERO ── */
+    .hero{
+      flex:1;position:relative;
+      background:var(--navy);
+      overflow:hidden;
+      display:flex;flex-direction:column;
+      padding:2.5rem 3rem;
+      min-height:100vh;
+    }
+    #neuralCanvas{
+      position:absolute;inset:0;width:100%;height:100%;
+      pointer-events:none;z-index:1;
+    }
+    .hero::after{
+      content:'';position:absolute;inset:0;z-index:1;
+      background:radial-gradient(ellipse 60% 80% at 20% 50%,transparent 40%,rgba(0,0,0,.45) 100%);
+      pointer-events:none;
+    }
+    .hero-brand{
+      position:relative;z-index:2;
+      font-family:'Fraunces',serif;font-size:1rem;font-weight:900;
+      color:var(--yellow);letter-spacing:.1em;text-transform:uppercase;
+    }
+    .hero-headline{
+      position:relative;z-index:2;
+      margin-top:2.5rem;
+      font-family:'Fraunces',serif;font-size:clamp(2.4rem,4vw,3.4rem);
+      font-weight:900;color:#fff;line-height:1.05;
+    }
+    .hero-headline em{color:var(--yellow);font-style:italic}
+    .hero-desc{
+      position:relative;z-index:2;
+      margin-top:1.25rem;font-size:.9rem;
+      color:rgba(255,255,255,.45);line-height:1.75;max-width:340px;
+    }
+    .hero-powered{
+      position:relative;z-index:2;
+      margin-top:.55rem;
+      font-family:'DM Mono',monospace;font-size:.58rem;
+      color:rgba(255,214,0,.3);letter-spacing:.1em;text-transform:uppercase;
+    }
+    .hero-powered strong{color:rgba(255,214,0,.65)}
+
+    /* ── OS TERMINAL PANEL ── */
+    .os-panel{
+      position:relative;z-index:2;
+      margin-top:auto;padding-top:2rem;
+    }
+    .os-statusbar{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:.35rem .8rem;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:8px 8px 0 0;
+      border-bottom:none;
+      font-family:'DM Mono',monospace;font-size:.6rem;
+      color:rgba(255,255,255,.3);
+    }
+    .os-statusbar-left{display:flex;align-items:center;gap:.8rem}
+    .os-statusbar-dot{
+      width:8px;height:8px;border-radius:50%;
+      background:#2ecc71;box-shadow:0 0 6px #2ecc71;
+      animation:dot-pulse 2s ease-in-out infinite;
+    }
+    @keyframes dot-pulse{0%,100%{opacity:.5}50%{opacity:1}}
+    .os-uptime{color:rgba(255,214,0,.4)}
+    .os-window{
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:0 0 10px 10px;
+      backdrop-filter:blur(12px);
+      overflow:hidden;
+    }
+    .os-proc-header{
+      display:grid;
+      grid-template-columns:24px 1fr 60px 50px 55px;
+      gap:.4rem;
+      padding:.45rem .9rem;
+      background:rgba(255,255,255,.03);
+      border-bottom:1px solid rgba(255,255,255,.05);
+      font-family:'DM Mono',monospace;font-size:.55rem;
+      color:rgba(255,255,255,.2);letter-spacing:.06em;text-transform:uppercase;
+    }
+    .os-proc-list{padding:.35rem 0}
+    .os-proc{
+      display:grid;
+      grid-template-columns:24px 1fr 60px 50px 55px;
+      gap:.4rem;align-items:center;
+      padding:.4rem .9rem;
+      font-family:'DM Mono',monospace;font-size:.62rem;
+      color:rgba(255,255,255,.5);
+      cursor:pointer;
+      transition:background .15s;
+    }
+    .os-proc:hover{background:rgba(255,255,255,.04)}
+    .os-proc.proc-active{
+      background:rgba(255,214,0,.06);
+      color:rgba(255,255,255,.85);
+    }
+    .os-proc.proc-active .proc-status{color:#2ecc71}
+    .os-proc.proc-idle .proc-status{color:rgba(255,255,255,.2)}
+    .os-proc.proc-busy .proc-status{color:#FF4D00}
+    .proc-id{color:rgba(255,255,255,.2);font-size:.55rem}
+    .proc-name{color:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .proc-active .proc-name{color:var(--yellow)}
+    .proc-bar-wrap{
+      height:3px;background:rgba(255,255,255,.06);
+      border-radius:2px;overflow:hidden;
+    }
+    .proc-bar{
+      height:100%;border-radius:2px;
+      background:rgba(255,214,0,.5);
+      transition:width .8s ease;
+    }
+    .proc-active .proc-bar{background:var(--yellow)}
+    .proc-busy .proc-bar{background:var(--orange)}
+    .proc-mem{color:rgba(255,255,255,.3);font-size:.55rem;text-align:right}
+    .proc-status{font-size:.55rem;text-align:right}
+    .os-log{
+      border-top:1px solid rgba(255,255,255,.05);
+      padding:.5rem .9rem;
+      height:70px;overflow:hidden;
+      position:relative;
+    }
+    .os-log-line{
+      font-family:'DM Mono',monospace;font-size:.58rem;
+      color:rgba(255,255,255,.25);line-height:1.7;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .os-log-line .log-time{color:rgba(255,214,0,.3);margin-right:.5rem}
+    .os-log-line .log-ok{color:#2ecc71}
+    .os-log-line .log-run{color:#FF4D00}
+    .os-log-line .log-info{color:rgba(99,179,237,.6)}
+    .cursor{
+      display:inline-block;width:6px;height:.7em;
+      background:var(--yellow);vertical-align:middle;
+      animation:blink .9s step-end infinite;margin-left:2px;
+    }
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+    /* ── RIGHT LOGIN ── */
+    .login-side{
+      width:480px;min-width:380px;
+      background:var(--cream);
+      display:flex;align-items:center;justify-content:center;
+      padding:3rem 3.5rem;
+    }
+    .login-box{width:100%;max-width:380px}
+    .greeting-wrap{margin-bottom:1.75rem}
+    .greeting-tag{
+      display:inline-flex;align-items:center;gap:.4rem;
+      background:#fff;border:var(--border);border-radius:20px;
+      padding:.3rem .75rem;
+      font-family:'DM Mono',monospace;font-size:.65rem;
+      color:var(--ink);margin-bottom:.9rem;
+      box-shadow:var(--shadow);
+      animation:tag-bounce .4s ease;
+    }
+    @keyframes tag-bounce{0%{transform:translateY(4px);opacity:0}100%{transform:translateY(0);opacity:1}}
+    .greeting-dot{
+      width:6px;height:6px;border-radius:50%;
+      background:var(--orange);animation:dot-pulse 1.5s ease-in-out infinite;
+    }
+    .greeting-time{color:var(--ink)}
+    .login-title{
+      font-family:'Fraunces',serif;font-size:2.1rem;
+      font-weight:900;color:var(--ink);line-height:1.1;
+      min-height:5rem;
+    }
+    .login-title .greeting-text{
+      display:inline-block;
+      animation:greet-in .4s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes greet-in{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .login-title em{font-style:italic;color:var(--orange)}
+    .login-sub{font-size:.85rem;color:#666;margin-top:.4rem;margin-bottom:2rem}
+    .field-lbl{display:block;font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#555;margin-bottom:.45rem}
+    .field-inp{
+      width:100%;padding:.82rem 1rem;
+      border:var(--border);border-radius:10px;
+      background:#fff;font-family:'DM Sans',sans-serif;font-size:.95rem;
+      color:var(--ink);outline:none;transition:box-shadow .15s;
+      margin-bottom:1.1rem;
+    }
+    .field-inp:focus{box-shadow:var(--shadow)}
+    .login-btn{
+      width:100%;padding:.92rem;
+      background:var(--orange);color:#fff;
+      border:var(--border);border-radius:10px;
+      font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;
+      cursor:pointer;box-shadow:var(--shadow);
+      transition:all .15s;display:flex;align-items:center;justify-content:center;gap:.5rem;
+    }
+    .login-btn:hover:not(:disabled){transform:translate(-2px,-2px);box-shadow:6px 6px 0 #111118}
+    .login-btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:2px 2px 0 #111118}
+    .login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .err{display:none;background:#FFF0EB;border:2px solid var(--orange);border-radius:8px;padding:.7rem 1rem;font-size:.82rem;color:#C0300A;margin-top:.9rem}
+    .err.show{display:block}
+    .login-footer{margin-top:2.25rem;padding-top:1.5rem;border-top:1px solid #E5E0D5;font-size:.7rem;color:#999;text-align:center;font-family:'DM Mono',monospace}
+
+    @media(max-width:900px){
+      .hero{display:none}
+      .login-side{width:100%;min-width:unset}
+    }
+  </style>
 </head>
-<body class="login-body">
+<body>
 
-  <div class="login-wrap">
-    <div class="login-brand">
-      <div class="brand-mark">⚡</div>
-      <div>
-        <div class="brand-title">COCKPIT</div>
-        <div class="brand-sub">Pusat Data Riset Pribadi</div>
+<!-- ── LEFT HERO ── -->
+<div class="hero">
+  <canvas id="neuralCanvas"></canvas>
+
+  <div class="hero-brand">⚡ COCKPIT</div>
+
+  <h1 class="hero-headline">
+    Pusat Data <em>Riset</em><br>Pribadimu
+  </h1>
+  <p class="hero-desc">
+    Dashboard data PhD — modul RUPTL, tagihan, data langganan, dan analitik energi dalam satu portal terpadu.
+  </p>
+  <p class="hero-powered">Powered by <strong>Arla Industri Teknopatih</strong></p>
+
+  <div class="os-panel">
+    <div class="os-statusbar">
+      <div class="os-statusbar-left">
+        <div class="os-statusbar-dot"></div>
+        <span>cockpit · v0.1.0</span>
+        <span class="os-uptime" id="uptimeEl">uptime: --</span>
       </div>
+      <span id="clockEl">--:--:--</span>
     </div>
-
-    <div class="login-card">
-      <h1>Masuk</h1>
-      <p class="login-desc">Portal riset pribadi — akses terbatas untuk pengguna terdaftar.</p>
-
-      <form id="loginForm" autocomplete="off">
-        <div class="field">
-          <label for="username">Username</label>
-          <input type="text" id="username" name="username" required autocomplete="username">
-        </div>
-        <div class="field">
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" required autocomplete="current-password">
-        </div>
-        <div id="errorBox" class="error-box" hidden></div>
-        <button type="submit" id="submitBtn">Masuk</button>
-      </form>
+    <div class="os-window">
+      <div class="os-proc-header">
+        <span></span>
+        <span>PROCESS</span>
+        <span>CPU</span>
+        <span>MEM</span>
+        <span>STATUS</span>
+      </div>
+      <div class="os-proc-list" id="procList"></div>
+      <div class="os-log" id="logPanel"></div>
     </div>
-
-    <p class="login-footnote">Akses dibatasi untuk pengguna terdaftar. Setiap percobaan login dicatat.</p>
   </div>
+</div>
+
+<!-- ── RIGHT LOGIN ── -->
+<div class="login-side">
+  <div class="login-box">
+
+    <div class="greeting-wrap">
+      <div class="greeting-tag">
+        <div class="greeting-dot"></div>
+        <span class="greeting-time" id="greetingTime">Selamat Pagi</span>
+      </div>
+      <h1 class="login-title" id="loginTitle">
+        <span class="greeting-text">Loading...</span>
+      </h1>
+      <p class="login-sub">Masuk untuk mengakses COCKPIT</p>
+    </div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <label class="field-lbl">Username</label>
+      <input type="text" id="username" class="field-inp" placeholder="username" autocomplete="username" required>
+
+      <label class="field-lbl">Password</label>
+      <input type="password" id="password" class="field-inp" placeholder="••••••••" autocomplete="current-password" required>
+
+      <button type="submit" class="login-btn" id="loginBtn">
+        <span id="loginBtnText">Masuk ke COCKPIT →</span>
+      </button>
+    </form>
+
+    <div class="err" id="errMsg"></div>
+
+    <div class="login-footer">
+      COCKPIT · Private Access · Dino Arla · Setiap login dicatat.
+    </div>
+  </div>
+</div>
 
 <script>
+// ══════════════════════════
+// CSRF TOKEN
+// ══════════════════════════
 let csrfToken = null;
-
 async function loadCsrfToken() {
-  const res = await fetch('/api/auth/csrf-token');
-  const data = await res.json();
-  csrfToken = data.csrfToken;
+  try {
+    const res = await fetch('/api/auth/csrf-token');
+    const data = await res.json();
+    csrfToken = data.csrfToken;
+  } catch(_) {}
 }
 loadCsrfToken();
 
-const form = document.getElementById('loginForm');
-const errorBox = document.getElementById('errorBox');
-const submitBtn = document.getElementById('submitBtn');
+// ══════════════════════════
+// DYNAMIC GREETING
+// ══════════════════════════
+const GREETINGS = {
+  dawn:     ['Masih begadang nih,', 'Jam segini masih riset,', 'Early bird nih,', 'Subuh-subuh udah semangat,'],
+  morning:  ['Selamat pagi,', 'Morning, bos!', 'Pagi yang produktif,', 'Semangat pagi,', 'Good morning,'],
+  noon:     ['Selamat siang,', 'Lagi istirahat ya,', 'Tengah hari nih,', 'Semangat terus,'],
+  afternoon:['Selamat sore,', 'Gimana risetnya,', 'Sore nih bos,', 'Hampir maghrib nih,'],
+  evening:  ['Selamat malam,', 'Malam-malam masih riset,', 'Udah malam nih bos,', 'Good evening,'],
+  night:    ['Masih up nih,', 'Begadang ya bos,', 'Malam yang produktif,', 'Late night research,'],
+};
+const NAME_CALLS = [
+  'Dino! 👋', 'Boss Dino!', 'Bos! 🚀', 'Dino Arla!',
+  'Kak Dino!', 'Chief!', 'Pak Dino!', 'Dino 💪',
+];
+const SUFFIXES = [
+  'Apa kabar?', 'Siap riset hari ini?', 'Data apa yang mau dicek?',
+  'Let\'s dig the data!', 'Sistem siap, bos!', 'COCKPIT standby!',
+  'Data riset menunggu!', 'Semangat PhD-nya!',
+];
 
-form.addEventListener('submit', async (e) => {
+function getTimeSlot() {
+  const h = new Date().getHours();
+  if (h >= 4  && h < 6)  return 'dawn';
+  if (h >= 6  && h < 12) return 'morning';
+  if (h >= 12 && h < 14) return 'noon';
+  if (h >= 14 && h < 18) return 'afternoon';
+  if (h >= 18 && h < 21) return 'evening';
+  return 'night';
+}
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function buildGreeting() {
+  const slot = getTimeSlot();
+  const greet = pick(GREETINGS[slot]);
+  const name  = pick(NAME_CALLS);
+  const suffix = pick(SUFFIXES);
+  const labels = {
+    dawn:'Dini Hari', morning:'Pagi', noon:'Siang',
+    afternoon:'Sore', evening:'Malam', night:'Tengah Malam'
+  };
+  document.getElementById('greetingTime').textContent = labels[slot];
+  document.getElementById('loginTitle').innerHTML = `
+    <span class="greeting-text">${greet}</span><br>
+    <span class="greeting-text" style="animation-delay:.1s;color:var(--orange);font-style:italic">${name}</span><br>
+    <span class="greeting-text" style="animation-delay:.2s;font-size:1.15rem;font-weight:400;font-family:'DM Sans',sans-serif;color:#555;margin-top:.2rem;display:block">${suffix}</span>
+  `;
+}
+buildGreeting();
+setInterval(buildGreeting, 8000);
+
+// ══════════════════════════
+// OS PROCESS MONITOR
+// ══════════════════════════
+const PROCESSES = [
+  { pid:'1001', name:'db.connection_pool',    baseCpu:3,  baseMem:48  },
+  { pid:'1002', name:'mod.ruptl_engine',      baseCpu:18, baseMem:156 },
+  { pid:'1003', name:'mod.mdp_renderer',      baseCpu:8,  baseMem:92  },
+  { pid:'1004', name:'auth.session_guard',    baseCpu:5,  baseMem:64  },
+  { pid:'1005', name:'proc.data_indexer',     baseCpu:22, baseMem:184 },
+  { pid:'1006', name:'sys.cache_manager',     baseCpu:6,  baseMem:78  },
+  { pid:'1007', name:'core.api_gateway',      baseCpu:12, baseMem:112 },
+];
+const LOG_TEMPLATES = [
+  (p) => `[${p}] <span class="log-ok">✓</span> query selesai dalam <span class="log-info">${(Math.random()*2+0.1).toFixed(2)}s</span>`,
+  (p) => `[${p}] <span class="log-run">↻</span> indexing dataset row #${Math.floor(Math.random()*9000+1000)}`,
+  (p) => `[${p}] <span class="log-ok">✓</span> cache hit — ${Math.floor(Math.random()*50+10)} rows served`,
+  (p) => `[${p}] <span class="log-info">→</span> session token validated`,
+  (p) => `[${p}] <span class="log-run">⚡</span> db query dispatched`,
+  (p) => `[${p}] <span class="log-ok">✓</span> ${Math.floor(Math.random()*1000+100)} records loaded`,
+  (p) => `[${p}] <span class="log-info">→</span> compressing ${Math.floor(Math.random()*500+50)} rows`,
+  (p) => `[${p}] <span class="log-ok">✓</span> module ready`,
+];
+
+let activeProcIdx = 0;
+let startTime = Date.now();
+
+function getRandCpu(base) {
+  return Math.min(99, Math.max(1, base + Math.floor((Math.random()-0.5)*20)));
+}
+function renderProcs() {
+  const list = document.getElementById('procList');
+  list.innerHTML = PROCESSES.map((p, i) => {
+    const isActive = i === activeProcIdx;
+    const isBusy   = i === (activeProcIdx + 1) % PROCESSES.length;
+    const cpu = isActive ? getRandCpu(p.baseCpu + 30) : isBusy ? getRandCpu(p.baseCpu + 10) : getRandCpu(p.baseCpu);
+    const mem = isActive ? p.baseMem + Math.floor(Math.random()*40) : p.baseMem;
+    const barW = Math.min(98, cpu);
+    const stateClass = isActive ? 'proc-active' : isBusy ? 'proc-busy' : 'proc-idle';
+    const statusTxt  = isActive ? 'running' : isBusy ? 'ready' : 'idle';
+    return `
+      <div class="os-proc ${stateClass}" data-idx="${i}">
+        <span class="proc-id">${p.pid}</span>
+        <span class="proc-name">${p.name}</span>
+        <div class="proc-bar-wrap"><div class="proc-bar" style="width:${barW}%"></div></div>
+        <span class="proc-mem">${mem}M</span>
+        <span class="proc-status">${statusTxt}</span>
+      </div>`;
+  }).join('');
+  list.querySelectorAll('.os-proc').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      activeProcIdx = parseInt(el.dataset.idx);
+      renderProcs();
+    });
+  });
+}
+function addLog() {
+  const panel = document.getElementById('logPanel');
+  const now = new Date();
+  const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  const proc = PROCESSES[Math.floor(Math.random() * PROCESSES.length)];
+  const tmpl = LOG_TEMPLATES[Math.floor(Math.random() * LOG_TEMPLATES.length)];
+  const line = document.createElement('div');
+  line.className = 'os-log-line';
+  line.innerHTML = `<span class="log-time">${ts}</span>${tmpl(proc.pid)}`;
+  panel.insertBefore(line, panel.firstChild);
+  if (panel.children.length > 4) panel.removeChild(panel.lastChild);
+}
+function updateClock() {
+  const now = new Date();
+  const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  document.getElementById('clockEl').textContent = ts;
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const m = Math.floor(elapsed / 60), s = elapsed % 60;
+  document.getElementById('uptimeEl').textContent = `uptime: ${m}m ${s}s`;
+}
+
+renderProcs();
+addLog(); addLog();
+setInterval(() => { updateClock(); }, 1000);
+setInterval(() => { activeProcIdx = (activeProcIdx + 1) % PROCESSES.length; renderProcs(); }, 1600);
+setInterval(() => { addLog(); }, 2200);
+
+// ══════════════════════════
+// LOGIN
+// ══════════════════════════
+async function handleLogin(e) {
   e.preventDefault();
-  errorBox.hidden = true;
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Memeriksa...';
+  const btn = document.getElementById('loginBtn');
+  const txt = document.getElementById('loginBtnText');
+  const err = document.getElementById('errMsg');
+
+  btn.disabled = true;
+  txt.textContent = 'Memverifikasi...';
+  err.classList.remove('show');
 
   try {
     const res = await fetch('/api/auth/login', {
@@ -70,23 +467,116 @@ form.addEventListener('submit', async (e) => {
       }),
     });
     const data = await res.json();
-
-    if (!res.ok) {
-      errorBox.textContent = data.error || 'Login gagal.';
-      errorBox.hidden = false;
-      await loadCsrfToken(); // token lama sudah dipakai, ambil yang baru
-      return;
+    if (res.ok) {
+      txt.textContent = '✓ Berhasil! Mengalihkan...';
+      window.location.href = '/menu.html';
+    } else {
+      throw new Error(data.error || 'Login gagal.');
     }
-
-    window.location.href = '/menu.html';
-  } catch (err) {
-    errorBox.textContent = 'Tidak bisa terhubung ke server. Coba lagi.';
-    errorBox.hidden = false;
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Masuk';
+  } catch(error) {
+    err.textContent = '❌ ' + (error.message || 'Tidak bisa terhubung ke server. Coba lagi.');
+    err.classList.add('show');
+    btn.disabled = false;
+    txt.textContent = 'Masuk ke COCKPIT →';
+    await loadCsrfToken();
   }
-});
+}
+
+// ══════════════════════════
+// NEURAL NETWORK CANVAS
+// ══════════════════════════
+(function() {
+  const canvas = document.getElementById('neuralCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, nodes, mouse = { x: -999, y: -999 };
+  const NODE_COUNT   = 60;
+  const CONNECT_DIST = 140;
+  const MOUSE_DIST   = 180;
+  const MOUSE_FORCE  = 0.012;
+  const COLORS = [
+    'rgba(100,120,160,',
+    'rgba(70,90,130,',
+  ];
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  function makeNode() {
+    const col = COLORS[Math.floor(Math.random() * COLORS.length)];
+    return {
+      x: Math.random() * W, y: Math.random() * H,
+      vx: (Math.random()-0.5)*0.35, vy: (Math.random()-0.5)*0.35,
+      r: Math.random()*2+1.2, col,
+      pulse: Math.random()*Math.PI*2,
+      pulseSpeed: 0.02+Math.random()*0.03,
+    };
+  }
+  function init() { resize(); nodes = Array.from({ length: NODE_COUNT }, makeNode); }
+  function drawFrame() {
+    ctx.clearRect(0, 0, W, H);
+    nodes.forEach(n => {
+      const dx = n.x-mouse.x, dy = n.y-mouse.y;
+      const dist = Math.sqrt(dx*dx+dy*dy);
+      if (dist < MOUSE_DIST) {
+        const force = (1-dist/MOUSE_DIST)*MOUSE_FORCE;
+        n.vx += dx*force; n.vy += dy*force;
+      }
+      n.vx *= 0.98; n.vy *= 0.98;
+      n.x += n.vx; n.y += n.vy;
+      n.pulse += n.pulseSpeed;
+      if (n.x < 0) { n.x=0; n.vx=Math.abs(n.vx); }
+      if (n.x > W) { n.x=W; n.vx=-Math.abs(n.vx); }
+      if (n.y < 0) { n.y=0; n.vy=Math.abs(n.vy); }
+      if (n.y > H) { n.y=H; n.vy=-Math.abs(n.vy); }
+    });
+    for (let i=0; i<nodes.length; i++) {
+      for (let j=i+1; j<nodes.length; j++) {
+        const a=nodes[i], b=nodes[j];
+        const dx=a.x-b.x, dy=a.y-b.y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if (d < CONNECT_DIST) {
+          const alpha=(1-d/CONNECT_DIST)*0.22;
+          ctx.beginPath();
+          const grad=ctx.createLinearGradient(a.x,a.y,b.x,b.y);
+          grad.addColorStop(0, a.col+alpha+')');
+          grad.addColorStop(1, b.col+alpha+')');
+          ctx.strokeStyle=grad;
+          ctx.lineWidth=alpha*2.5;
+          ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+          ctx.stroke();
+          if (Math.random() < 0.002) {
+            const t=(Date.now()%3000)/3000;
+            const px=a.x+(b.x-a.x)*t, py=a.y+(b.y-a.y)*t;
+            ctx.beginPath();
+            ctx.arc(px,py,1.5,0,Math.PI*2);
+            ctx.fillStyle=a.col+'0.9)';
+            ctx.fill();
+          }
+        }
+      }
+    }
+    nodes.forEach(n => {
+      const glow=0.5+0.5*Math.sin(n.pulse);
+      const g=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r*5);
+      g.addColorStop(0, n.col+(0.25*glow)+')');
+      g.addColorStop(1, n.col+'0)');
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r*5,0,Math.PI*2);
+      ctx.fillStyle=g; ctx.fill();
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+      ctx.fillStyle=n.col+(0.7+0.3*glow)+')'; ctx.fill();
+    });
+    requestAnimationFrame(drawFrame);
+  }
+  const hero = canvas.parentElement;
+  hero.addEventListener('mousemove', e => {
+    const rect=hero.getBoundingClientRect();
+    mouse.x=e.clientX-rect.left; mouse.y=e.clientY-rect.top;
+  });
+  hero.addEventListener('mouseleave', () => { mouse.x=-999; mouse.y=-999; });
+  window.addEventListener('resize', resize);
+  init(); drawFrame();
+})();
 </script>
 </body>
 </html>
