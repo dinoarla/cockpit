@@ -1,6 +1,4 @@
 import "dotenv/config";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
@@ -9,10 +7,6 @@ import { authRoutes } from "./routes/auth.js";
 import { domainRoutes } from "./routes/domains.js";
 import { mdpRoutes } from "./routes/mdp.js";
 import { ruptlRoutes } from "./routes/ruptl.js";
-
-// Absolute path ke public/ — tidak bergantung pada CWD saat dijalankan
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const publicDir = join(__dirname, "..", "public");
 
 const app = new Hono();
 
@@ -27,15 +21,16 @@ app.route("/api/domains", domainRoutes);
 app.route("/api/mdp", mdpRoutes);
 app.route("/api/ruptl", ruptlRoutes);
 
-app.use("/menu.html", requireAuth, serveStatic({ root: publicDir }));
-app.use("/modules/*", requireAuth, serveStatic({ root: publicDir }));
-app.use("/*", serveStatic({ root: publicDir }));
+app.use("/menu.html", requireAuth, serveStatic({ root: "./public" }));
+app.use("/modules/*", requireAuth, serveStatic({ root: "./public" }));
+app.use("/*", serveStatic({ root: "./public" }));
 
-// Export untuk edge/serverless (Hostinger Hono preset)
-export default app;
-
-// Start HTTP server — untuk traditional Node.js hosting
 const port = Number(process.env.PORT ?? 3000);
-serve({ fetch: app.fetch, port, hostname: "0.0.0.0" }, (info) => {
-  console.log(`[COCKPIT] Running on http://${info.address}:${info.port}`);
+
+serve({
+  fetch: app.fetch,
+  port,
+  hostname: "0.0.0.0",
 });
+
+console.log(`Server running on http://0.0.0.0:${port}`);
