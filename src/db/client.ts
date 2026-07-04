@@ -1,31 +1,48 @@
 import "dotenv/config";
 import mysql from "mysql2/promise";
 import { drizzle } from "drizzle-orm/mysql2";
+import type { MySql2Database } from "drizzle-orm/mysql2";
 import * as schema from "./schema.js";
 
-// Tidak throw di sini supaya app tetap start walau env var belum terset.
-// Error akan muncul saat query pertama dijalankan (misal saat login).
-function getEnv(name: string, fallback = ""): string {
-  const value = process.env[name];
-  if (!value) {
-    console.warn(`[COCKPIT] Warning: env var ${name} tidak di-set.`);
-    return fallback;
-  }
-  return value;
+// Lazy init — pool tidak dibuat saat module load, tapi saat pertama kali db dipakai.
+// Ini memastikan serve() jalan dulu sebelum ada koneksi DB apapun.
+let _pool: mysql.Pool | undefined;
+let _db: MySql2Database<typeof schema> | undefined;
+
+function ensureInit() {
+  if (_pool) return;
+  _pool = mysql.createPool({
+    host:     process.env.DB_HOST     ?? "localhost",
+    port:     Number(process.env.DB_PORT     ?? 3306),
+    user:     process.env.DB_USER     ?? "",
+    password: process.env.DB_PASSWORD ?? "",
+    database: process.env.DB_NAME     ?? "",
+    waitForConnections: true,
+    connectionLimit: 10,
+    maxIdle: 5,
+    idleTimeout: 60_000,
+    queueLimit: 0,
+    ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: true } : undefined,
+  });
+  _db = drizzle(_pool, { schema, mode: "default" });
 }
 
-export const pool = mysql.createPool({
-  host:     getEnv("DB_HOST", "localhost"),
-  port:     Number(process.env.DB_PORT ?? 3306),
-  user:     getEnv("DB_USER"),
-  password: getEnv("DB_PASSWORD"),
-  database: getEnv("DB_NAME"),
-  waitForConnections: true,
-  connectionLimit: 10,
-  maxIdle: 5,
-  idleTimeout: 60_000,
-  queueLimit: 0,
-  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: true } : undefined,
+// Proxy: db dibuat saat property pertama kali diakses (saat ada request masuk),
+// bukan saat module di-import.
+export const db = new Proxy({} as MySql2Database<typeof schema>, {
+  get(_, prop: string | symbol) {
+    ensureInit();
+    return Reflect.get(_db!, prop);
+  },
 });
 
-export const db = drizzle(pool, { schema, mode: "default" });
+// pool.end() untuk migrate.ts dan createAdmin.ts
+export const pool = {
+  end: async () => {
+    if (_pool) {
+      await _pool.end();
+      _pool = undefined;
+      _db  = undefined;
+    }
+  },
+};

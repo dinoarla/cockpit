@@ -27,7 +27,7 @@ app.use("/menu.html", requireAuth, serveStatic({ root: publicDir }));
 app.use("/modules/*", requireAuth, serveStatic({ root: publicDir }));
 app.use("/*", serveStatic({ root: publicDir }));
 
-const port = Number(process.env.PORT ?? 3000);
+const port = Number(process.env.PORT) || 3000;
 
 serve({
   fetch: app.fetch,
