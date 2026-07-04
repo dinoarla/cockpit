@@ -1,4 +1,15 @@
 import "dotenv/config";
+
+// Tangkap semua crash agar error-nya muncul di runtime logs hosting
+process.on("uncaughtException", (err) => {
+  console.error("[COCKPIT] Uncaught exception:", err.message, "\n", err.stack);
+  process.exit(1);
+});
+process.on("unhandledRejection", (reason) => {
+  console.error("[COCKPIT] Unhandled rejection:", reason);
+  process.exit(1);
+});
+
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";

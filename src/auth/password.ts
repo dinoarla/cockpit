@@ -1,23 +1,14 @@
-import { hash, verify, Algorithm } from "@node-rs/argon2";
+import bcrypt from "bcryptjs";
 
 /**
- * Argon2id — pemenang Password Hashing Competition (2015), direkomendasikan
- * OWASP sebagai pilihan pertama untuk hash password baru.
- *
- * Pakai @node-rs/argon2 (pre-built binary via napi-rs) bukan node-argon2
- * supaya tidak butuh kompilasi native di server hosting — lihat PRD §10.
- *
- * Parameter mengikuti rekomendasi minimum OWASP Password Storage Cheat Sheet (2024).
+ * bcryptjs — pure JavaScript, tidak butuh native binary.
+ * Dipakai sebagai fallback dari Argon2id karena kompatibilitas hosting (PRD §10).
+ * 12 salt rounds memberikan keamanan yang cukup (OWASP: minimum 10 rounds).
  */
-const ARGON2_OPTIONS = {
-  algorithm: Algorithm.Argon2id,
-  memoryCost: 19456, // ~19 MB
-  timeCost: 2,
-  parallelism: 1,
-};
+const SALT_ROUNDS = 12;
 
 export async function hashPassword(plainPassword: string): Promise<string> {
-  return hash(plainPassword, ARGON2_OPTIONS);
+  return bcrypt.hash(plainPassword, SALT_ROUNDS);
 }
 
 export async function verifyPassword(
@@ -25,7 +16,7 @@ export async function verifyPassword(
   plainPassword: string
 ): Promise<boolean> {
   try {
-    return await verify(storedHash, plainPassword, ARGON2_OPTIONS);
+    return await bcrypt.compare(plainPassword, storedHash);
   } catch {
     return false;
   }
