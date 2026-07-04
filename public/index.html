@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masuk — Pusat Data PLN &amp; Jawa Barat</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="login-body">
+
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="brand-mark">⚡</div>
+      <div>
+        <div class="brand-title">Pusat Data</div>
+        <div class="brand-sub">PLN &amp; Jawa Barat</div>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <h1>Masuk</h1>
+      <p class="login-desc">Portal internal — data ketenagalistrikan &amp; kependudukan Jawa Barat.</p>
+
+      <form id="loginForm" autocomplete="off">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password">
+        </div>
+        <div id="errorBox" class="error-box" hidden></div>
+        <button type="submit" id="submitBtn">Masuk</button>
+      </form>
+    </div>
+
+    <p class="login-footnote">Akses dibatasi untuk pengguna terdaftar. Setiap percobaan login dicatat.</p>
+  </div>
+
+<script>
+let csrfToken = null;
+
+async function loadCsrfToken() {
+  const res = await fetch('/api/auth/csrf-token');
+  const data = await res.json();
+  csrfToken = data.csrfToken;
+}
+loadCsrfToken();
+
+const form = document.getElementById('loginForm');
+const errorBox = document.getElementById('errorBox');
+const submitBtn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errorBox.hidden = true;
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Memeriksa...';
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value,
+        csrfToken,
+      }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      errorBox.textContent = data.error || 'Login gagal.';
+      errorBox.hidden = false;
+      await loadCsrfToken(); // token lama sudah dipakai, ambil yang baru
+      return;
+    }
+
+    window.location.href = '/menu.html';
+  } catch (err) {
+    errorBox.textContent = 'Tidak bisa terhubung ke server. Coba lagi.';
+    errorBox.hidden = false;
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Masuk';
+  }
+});
+</script>
+</body>
+</html>

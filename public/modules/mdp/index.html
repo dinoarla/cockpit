@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Pendukung — Adaptasi MDP Energi Terbarukan Berkeadilan, Jawa Barat</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B3350;
+    --navy-2:#123A5E;
+    --teal:#0E7C7B;
+    --teal-light:#E4F3F2;
+    --amber:#C2760C;
+    --amber-light:#FBF0DE;
+    --red:#B3401F;
+    --red-light:#FBEAE4;
+    --green:#3F7D51;
+    --green-light:#EBF4EC;
+    --bg:#F3F5F7;
+    --card:#FFFFFF;
+    --line:#E3E7EB;
+    --ink:#182430;
+    --ink-2:#5B6B7A;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(15,35,55,.04), 0 4px 16px rgba(15,35,55,.06);
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  .section-head, #sec-ringkasan{scroll-margin-top:56px;}
+  body{
+    margin:0;
+    background:var(--bg);
+    font-family:var(--font-body);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1240px;margin:0 auto;padding:0 24px 64px;}
+
+  /* ===== HEADER ===== */
+  header.top{
+    background:linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 55%, #0A4A5E 100%);
+    color:#EAF1F6;
+    padding:36px 24px 0;
+  }
+  .top-inner{max-width:1240px;margin:0 auto;}
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:#8FB4C9;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:var(--font-display);
+    font-size:30px;
+    line-height:1.25;
+    margin:0 0 10px;
+    font-weight:700;
+    max-width:780px;
+    color:#fff;
+  }
+  .top-sub{
+    font-size:14.5px;
+    color:#C4D7E2;
+    max-width:640px;
+    line-height:1.6;
+    margin-bottom:22px;
+  }
+  .top-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:28px;
+  }
+  .btn{
+    font-family:var(--font-body);
+    font-size:13px;
+    font-weight:600;
+    padding:10px 16px;
+    border-radius:9px;
+    border:1px solid rgba(255,255,255,.22);
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:background .15s ease;
+  }
+  .btn:hover{background:rgba(255,255,255,.18);}
+  .btn.primary{
+    background:#E8A233;
+    border-color:#E8A233;
+    color:#2A1D00;
+  }
+  .btn.primary:hover{background:#F0AE45;}
+
+  /* segmented bauran-energi bar — signature motif */
+  .mix-bar{
+    display:flex;
+    height:34px;
+    border-radius:8px;
+    overflow:hidden;
+    margin-bottom:0;
+    box-shadow:0 1px 0 rgba(255,255,255,.08) inset;
+  }
+  .mix-seg{display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:500;color:#fff;white-space:nowrap;}
+  .mix-fosil{background:#5A6B78;}
+  .mix-ebt{background:#1E9E86;}
+  .mix-caption{
+    display:flex;justify-content:space-between;
+    font-size:11.5px;color:#9FBAC9;padding:8px 2px 22px;
+    font-family:var(--font-mono);
+  }
+
+  /* ===== KPI ===== */
+  section.kpis{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin:20px 0 30px;
+  }
+  .kpi{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:20px 22px;
+    box-shadow:var(--shadow);
+    border-top:3px solid var(--teal);
+  }
+  .kpi.k2{border-top-color:#1E9E86;}
+  .kpi.k3{border-top-color:var(--amber);}
+  .kpi.k4{border-top-color:var(--red);}
+  .kpi-label{font-size:12px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:8px;}
+  .kpi-value{font-family:var(--font-display);font-size:30px;font-weight:700;color:var(--ink);}
+  .kpi-value span{font-size:16px;font-weight:600;color:var(--ink-2);}
+  .kpi-note{font-size:12px;color:var(--ink-2);margin-top:6px;line-height:1.5;}
+
+  /* ===== SECTION HEADERS ===== */
+  .section-head{margin:44px 0 16px;}
+  .section-head h2{
+    font-family:var(--font-display);
+    font-size:19px;
+    margin:0 0 4px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .section-head .num{
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--teal);
+    background:var(--teal-light);
+    padding:3px 9px;
+    border-radius:20px;
+    font-weight:600;
+  }
+  .section-head p{font-size:13.5px;color:var(--ink-2);margin:0;max-width:720px;line-height:1.6;}
+
+  /* ===== CHART GRID ===== */
+  .grid-2{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;}
+  .grid-2b{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:20px 22px 16px;
+    box-shadow:var(--shadow);
+  }
+  .card h3{font-size:14px;margin:0 0 2px;font-weight:600;}
+  .card .sub{font-size:11.5px;color:var(--ink-2);margin-bottom:14px;}
+  .card canvas{max-height:260px;}
+  .card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
+  .src{font-size:10.5px;color:#8B99A6;font-family:var(--font-mono);}
+  .mini-export{font-size:11px;color:var(--teal);background:none;border:none;cursor:pointer;font-weight:600;padding:0;}
+
+  /* ===== EQUITY SPOTLIGHT ===== */
+  .wilayah-row{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:18px;}
+  .wcard{background:var(--card);border-radius:10px;padding:14px 10px;text-align:center;box-shadow:var(--shadow);border-bottom:3px solid var(--teal);}
+  .wcard .rn{font-family:var(--font-mono);font-size:11px;color:var(--teal);font-weight:700;}
+  .wcard .nm{font-family:var(--font-display);font-size:13.5px;font-weight:600;margin-top:3px;}
+  .wcard .tg{font-size:10.5px;color:var(--ink-2);margin-top:5px;line-height:1.4;}
+
+  .callouts{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .callout{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border-left:4px solid var(--amber);}
+  .callout.c2{border-left-color:var(--teal);}
+  .callout.c3{border-left-color:#6D5BA8;}
+  .callout .tag{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);font-weight:700;margin-bottom:8px;}
+  .callout.c2 .tag{color:var(--teal);}
+  .callout.c3 .tag{color:#6D5BA8;}
+  .callout h4{font-size:14.5px;margin:0 0 8px;font-family:var(--font-display);}
+  .callout p{font-size:12.5px;color:var(--ink-2);line-height:1.6;margin:0;}
+
+  /* ===== TABLE ===== */
+  .table-tools{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+  .search-box{
+    position:relative;
+  }
+  .search-box input{
+    padding:9px 14px 9px 34px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-size:13px;
+    width:230px;
+    font-family:var(--font-body);
+    background:#FAFBFC;
+  }
+  .search-box::before{
+    content:"⌕";
+    position:absolute;left:12px;top:50%;transform:translateY(-50%);
+    color:var(--ink-2);font-size:15px;
+  }
+  .filter-chips{display:flex;gap:6px;}
+  .chip{
+    font-size:12px;font-weight:600;padding:7px 13px;border-radius:20px;
+    border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--ink-2);
+  }
+  .chip.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  table.data{width:100%;border-collapse:collapse;font-size:12.8px;}
+  table.data thead th{
+    text-align:left;padding:10px 12px;border-bottom:2px solid var(--line);
+    color:var(--ink-2);font-weight:600;font-size:11px;text-transform:uppercase;
+    letter-spacing:.04em;cursor:pointer;user-select:none;white-space:nowrap;
+  }
+  table.data thead th:hover{color:var(--ink);}
+  table.data thead th.sorted::after{content:" ▾";font-size:9px;}
+  table.data tbody td{padding:9px 12px;border-bottom:1px solid #F0F2F4;}
+  table.data tbody tr:hover{background:#FAFBFC;}
+  .num-cell{font-family:var(--font-mono);text-align:right;}
+  .badge{
+    font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;
+    display:inline-block;font-family:var(--font-mono);
+  }
+  .badge.tinggi{background:var(--red-light);color:var(--red);}
+  .badge.sedang{background:var(--amber-light);color:var(--amber);}
+  .badge.rendah{background:var(--green-light);color:var(--green);}
+  .table-note{font-size:11.5px;color:var(--ink-2);margin-top:12px;}
+
+  /* ===== DATA GAP ===== */
+  .gap-panel{
+    background:#FFFCF6;
+    border:1px dashed #E3B968;
+    border-radius:var(--radius);
+    padding:22px 24px;
+  }
+  .gap-panel h3{font-family:var(--font-display);font-size:15px;margin:0 0 4px;color:#8A5A0A;}
+  .gap-panel > p{font-size:12.5px;color:var(--ink-2);margin:0 0 14px;}
+  .gap-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 20px;list-style:none;padding:0;margin:0;}
+  .gap-list li{
+    font-size:12.5px;color:var(--ink);
+    padding:9px 0 9px 24px;
+    border-bottom:1px solid #F0E6D2;
+    position:relative;
+  }
+  .gap-list li::before{
+    content:"○";
+    position:absolute;left:0;top:9px;color:#C2760C;font-size:13px;
+  }
+  .gap-list li b{font-weight:600;}
+  .gap-list li .who{display:block;font-size:11px;color:var(--ink-2);margin-top:2px;}
+
+  footer{
+    margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
+    font-size:11.5px;color:var(--ink-2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  }
+
+  @media (max-width:900px){
+    section.kpis{grid-template-columns:repeat(2,1fr);margin-top:16px;}
+    .grid-2,.grid-2b{grid-template-columns:1fr;}
+    .wilayah-row{grid-template-columns:repeat(4,1fr);}
+    .callouts{grid-template-columns:1fr;}
+    .gap-list{grid-template-columns:1fr;}
+  }
+  /* ===== MAP ===== */
+  .map-card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:20px 22px 18px;
+    box-shadow:var(--shadow);
+    margin-top:16px;
+  }
+  .map-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:14px;}
+  .map-head h3{font-size:15px;margin:0 0 3px;font-weight:600;}
+  .map-head .sub{font-size:11.5px;color:var(--ink-2);}
+  .map-metrics{display:flex;gap:6px;flex-wrap:wrap;}
+  .map-metric-btn{
+    font-size:12px;font-weight:600;padding:8px 13px;border-radius:20px;
+    border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--ink-2);
+    transition:all .15s ease;
+  }
+  .map-metric-btn.active{color:#fff;border-color:transparent;}
+  #jabarMap{
+    width:100%;
+    height:560px;
+    border-radius:10px;
+    z-index:1;
+  }
+  .map-legend{
+    display:flex;align-items:center;gap:10px;margin-top:12px;font-size:11.5px;color:var(--ink-2);
+  }
+  .map-legend .grad{
+    height:10px;width:220px;border-radius:6px;
+  }
+  .leaflet-popup-content-wrapper{border-radius:10px;}
+  .leaflet-popup-content{font-family:var(--font-body);font-size:12.5px;margin:12px 14px;}
+  .popup-title{font-family:var(--font-display);font-weight:700;font-size:14px;margin-bottom:8px;}
+  .popup-row{display:flex;justify-content:space-between;gap:16px;padding:3px 0;border-bottom:1px solid #F0F2F4;}
+  .popup-row:last-child{border-bottom:none;}
+  .popup-row span:last-child{font-family:var(--font-mono);font-weight:600;}
+  @media (max-width:900px){
+    #jabarMap{height:420px;}
+  }
+
+  @media print{
+    .btn, .table-tools, .mini-export, .subnav, .map-card{display:none !important;}
+    body{background:#fff;}
+    .card, .kpi, .wcard, .callout, .gap-panel{box-shadow:none;border:1px solid #ddd;}
+    header.top{background:var(--navy) !important; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  }
+
+  /* ===== STICKY SUBNAV ===== */
+  .subnav-wrap{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+    box-shadow:0 2px 10px rgba(15,35,55,.05);
+  }
+  .subnav{
+    max-width:1240px;
+    margin:0 auto;
+    padding:0 24px;
+    display:flex;
+    align-items:center;
+    gap:4px;
+    overflow-x:auto;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  .subnav::-webkit-scrollbar{display:none;}
+  .subnav a{
+    flex:0 0 auto;
+    font-family:var(--font-body);
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink-2);
+    text-decoration:none;
+    padding:13px 14px;
+    border-bottom:2.5px solid transparent;
+    white-space:nowrap;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .subnav a:hover{color:var(--navy);}
+  .subnav a.active{color:var(--teal); border-bottom-color:var(--teal);}
+  .subnav a .n{
+    font-family:var(--font-mono);
+    font-size:10px;
+    color:#A7B4BF;
+    margin-right:5px;
+  }
+  .subnav a.active .n{color:var(--teal);}
+  @media (max-width:900px){
+    .subnav a{padding:12px 10px; font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="eyebrow">Studi Kasus &middot; Jawa Barat &middot; RKPD, RUPTL &amp; Data Operasional PLN</div>
+    <h1>Data Pendukung: Adaptasi MDP Perencanaan Energi Terbarukan Berkeadilan untuk Jawa Barat</h1>
+    <p class="top-sub">Rekap data kuantitatif hasil ekstraksi dari RKPD Provinsi Jawa Barat 2026, RUPTL PLN 2025-2034, dan data operasional gangguan jaringan PLN UID Jabar — disusun untuk mendukung riset adaptasi kerangka MDP equity-aware ke konteks Jawa Barat.</p>
+    <div class="top-actions">
+      <button class="btn primary" onclick="window.print()">⤓ Export / Cetak PDF</button>
+      <button class="btn" onclick="exportAllJSON()">⤓ Export Semua Data (JSON)</button>
+      <button class="btn" onclick="exportPovertyCSV()">⤓ Export Tabel Kemiskinan & Populasi (CSV)</button>
+    </div>
+    <div class="mix-bar">
+      <div class="mix-seg mix-fosil" style="width:75.64%">Fosil 75,64%</div>
+      <div class="mix-seg mix-ebt" style="width:24.36%">EBT 24,36%</div>
+    </div>
+    <div class="mix-caption">
+      <span>Bauran Energi Primer Jawa Barat — 2023</span>
+      <span>Target RUED 2025: min. 20% &nbsp;|&nbsp; Target 2050: 28%</span>
+    </div>
+  </div>
+</header>
+
+<div class="subnav-wrap">
+  <nav class="subnav" id="subnav">
+    <a href="#sec-ringkasan" data-target="sec-ringkasan"><span class="n">•</span>Ringkasan</a>
+    <a href="#sec-01" data-target="sec-01"><span class="n">01</span>Ketenagalistrikan</a>
+    <a href="#sec-02" data-target="sec-02"><span class="n">02</span>Anggaran</a>
+    <a href="#sec-03" data-target="sec-03"><span class="n">03</span>Ekuitas Wilayah</a>
+    <a href="#sec-04" data-target="sec-04"><span class="n">04</span>Kemiskinan</a>
+    <a href="#sec-05" data-target="sec-05"><span class="n">05</span>Konteks Provinsi</a>
+    <a href="#sec-06" data-target="sec-06"><span class="n">06</span>Risiko Bencana</a>
+    <a href="#sec-07" data-target="sec-07"><span class="n">07</span>RUPTL</a>
+    <a href="#sec-08" data-target="sec-08"><span class="n">08</span>Gangguan</a>
+    <a href="#sec-09" data-target="sec-09"><span class="n">09</span>Demand per UP3</a>
+    <a href="#sec-10" data-target="sec-10"><span class="n">10</span>Investasi AI Sar</a>
+    <a href="#sec-11" data-target="sec-11"><span class="n">11</span>Data Gap</a>
+  </nav>
+</div>
+
+<div class="wrap">
+
+  <section class="kpis" id="sec-ringkasan">
+    <div class="kpi">
+      <div class="kpi-label">Rasio Elektrifikasi</div>
+      <div class="kpi-value">99,99<span>%</span></div>
+      <div class="kpi-note">Target provinsi 2026 · Tabel 5.31</div>
+    </div>
+    <div class="kpi k2">
+      <div class="kpi-label">Porsi EBT / Bauran Energi</div>
+      <div class="kpi-value">24,36<span>%</span></div>
+      <div class="kpi-note">Realisasi 2023 → target 24,71% (2026)</div>
+    </div>
+    <div class="kpi k3">
+      <div class="kpi-label">Konsumsi Listrik / Kapita</div>
+      <div class="kpi-value">1.392<span>kWh</span></div>
+      <div class="kpi-note">2024, naik dari 1.337 kWh (2022)</div>
+    </div>
+    <div class="kpi k4">
+      <div class="kpi-label">Penduduk Miskin Provinsi</div>
+      <div class="kpi-value">7,08<span>%</span></div>
+      <div class="kpi-note">2024 · 8 dari 27 kab/kota masih &gt;10%</div>
+    </div>
+  </section>
+
+  <div class="map-card">
+    <div class="map-head">
+      <div>
+        <h3>Peta Sebaran Indikator Equity — 27 Kabupaten/Kota</h3>
+        <div class="sub">Klik wilayah untuk detail lengkap. Pilih indikator untuk mengubah pewarnaan peta.</div>
+      </div>
+      <div class="map-metrics" id="mapMetrics">
+        <button class="map-metric-btn active" data-metric="miskinPct" style="background:var(--red);border-color:var(--red);color:#fff;">% Kemiskinan</button>
+        <button class="map-metric-btn" data-metric="risiko">Risiko Bencana</button>
+        <button class="map-metric-btn" data-metric="populasi">Populasi</button>
+        <button class="map-metric-btn" data-metric="miskinAbsolut">Jiwa Miskin</button>
+        <button class="map-metric-btn" data-metric="demandGWh">Demand Energi</button>
+        <button class="map-metric-btn" data-metric="investasiM">Investasi AI Sar</button>
+      </div>
+    </div>
+    <div id="jabarMap"></div>
+    <div class="map-legend">
+      <span id="legendMin">-</span>
+      <div class="grad" id="legendGrad"></div>
+      <span id="legendMax">-</span>
+      <span style="margin-left:auto;">● lingkaran = Bandung Barat &amp; Pangandaran (batas wilayah belum tersedia di sumber GeoJSON terbuka)</span>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:var(--ink-2);margin:8px 0 0;">Indikator "Demand Energi" adalah hasil proporsi dari target penjualan 2026 per UP3 (section 09), dipecah ke kab/kota berdasarkan bobot populasi.</p>
+
+  <div class="section-head" id="sec-01">
+    <h2><span class="num">01</span> Kondisi & Target Ketenagalistrikan Provinsi</h2>
+    <p>Tren konsumsi dan komposisi bauran energi — dasar untuk mengisi state variable "demand" dan "supply RE/NRE" pada model MDP.</p>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Konsumsi Listrik Provinsi Jawa Barat</h3>
+      <div class="sub">GWh total (batang) vs kWh per kapita (garis) — 2022–2024</div>
+      <canvas id="chartKonsumsi"></canvas>
+      <div class="card-foot"><span class="src">Sumber: RKPD 2026, Tabel 2.87, hal. II-160</span><button class="mini-export" onclick="downloadChart('chartKonsumsi')">Unduh PNG</button></div>
+    </div>
+    <div class="card">
+      <h3>Bauran Energi Primer 2023</h3>
+      <div class="sub">Fosil vs Energi Baru Terbarukan</div>
+      <canvas id="chartBauran"></canvas>
+      <div class="card-foot"><span class="src">Sumber: RKPD 2026, hal. II-159</span><button class="mini-export" onclick="downloadChart('chartBauran')">Unduh PNG</button></div>
+    </div>
+  </div>
+
+  <div class="grid-2b" style="margin-top:16px;">
+    <div class="card">
+      <h3>Potensi Energi Baru Terbarukan per Sumber</h3>
+      <div class="sub">Skala logaritmik (MW-ekuivalen) — potensi teoretis, bukan kapasitas terpasang</div>
+      <canvas id="chartPotensi"></canvas>
+      <div class="card-foot"><span class="src">Sumber: RKPD 2026, hal. II-159</span><button class="mini-export" onclick="downloadChart('chartPotensi')">Unduh PNG</button></div>
+    </div>
+    <div class="card">
+      <h3>Target Porsi EBT dalam Bauran Energi</h3>
+      <div class="sub">Tren realisasi & target RKPD 2023–2026</div>
+      <canvas id="chartTargetEBT"></canvas>
+      <div class="card-foot"><span class="src">Sumber: RKPD 2026, Tabel 7.3 hal. 831 (⚠ Tabel 5.31 hal.772 sebut target 2026 = 23,85% — ada selisih kecil antar tabel, perlu diklarifikasi)</span><button class="mini-export" onclick="downloadChart('chartTargetEBT')">Unduh PNG</button></div>
+    </div>
+  </div>
+
+  <div class="section-head" id="sec-02">
+    <h2><span class="num">02</span> Anggaran Kementerian ESDM 2026</h2>
+    <p>Pagu anggaran per program — kandidat langsung untuk parameter <em>budget constraint</em> pada MDP.</p>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Pagu Anggaran Program ESDM 2026</h3>
+      <div class="sub">Dalam miliar rupiah</div>
+      <canvas id="chartAnggaran"></canvas>
+      <div class="card-foot"><span class="src">Sumber: RKPD 2026, Bab IV, hal. 622–623</span><button class="mini-export" onclick="downloadChart('chartAnggaran')">Unduh PNG</button></div>
+    </div>
+    <div class="card">
+      <h3>Catatan Anggaran</h3>
+      <div class="sub">&nbsp;</div>
+      <div style="font-size:13px;line-height:1.9;padding-top:4px;">
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);"><span>Pengelolaan Ketenagalistrikan</span><b style="font-family:var(--font-mono)">Rp 101,44 M</b></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);"><span>Pengelolaan Energi Baru Terbarukan</span><b style="font-family:var(--font-mono)">Rp 4,07 M</b></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;"><span>Rasio EBT : Ketenagalistrikan</span><b style="font-family:var(--font-mono)">≈ 1 : 25</b></div>
+        <p style="color:var(--ink-2);font-size:12px;margin-top:12px;">Anggaran "Ketenagalistrikan" jauh lebih besar karena mencakup operasional 7 Cabang Kementerian ESDM dan target elektrifikasi daerah tertinggal — bukan murni belanja pembangkit EBT. Ini relevan untuk membedakan action "perluasan grid" vs "insentif EBT" di action space MDP.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-head" id="sec-03">
+    <h2><span class="num">03</span> Sorotan Ekuitas: 7 Wilayah Kerja Cabang Kementerian ESDM</h2>
+    <p>Setiap wilayah kerja punya target identik 100% "pembangunan sarana listrik daerah belum berkembang, terpencil & perdesaan" — kandidat unit spasial untuk state variable region pada MDP (paralel dengan 8 kota pada paper asli).</p>
+  </div>
+  <div class="wilayah-row" id="wilayahRow"></div>
+
+  <div class="callouts">
+    <div class="callout">
+      <div class="tag">Program Equity</div>
+      <h4>Jabar Caang</h4>
+      <p>Skema pendanaan APBD + CSR untuk memberi sambungan listrik gratis bagi rumah tangga miskin yang belum berlistrik — contoh langsung kebijakan redistributif yang bisa dipetakan ke reward function equity term.</p>
+    </div>
+    <div class="callout c2">
+      <div class="tag">PLTS Atap Institusi</div>
+      <h4>PLTS Atap di 7 SMA/K</h4>
+      <p>Pembangunan PLTS atap di gedung sekolah wilayah kerja Kementerian ESDM untuk mendorong bauran EBT — contoh action "bangun fasilitas RE publik" yang paling dekat dengan model MDP asli.</p>
+    </div>
+    <div class="callout c3">
+      <div class="tag">Skema KPBU (Swasta)</div>
+      <h4>TPPAS Legok Nangka</h4>
+      <p>Proyek waste-to-energy dengan skema Kerjasama Pemerintah-Badan Usaha, memakai Perjanjian Jual Beli Listrik ke PLN atas penugasan Kementerian ESDM — contoh nyata dominasi swasta/IPP yang perlu direpresentasikan sebagai actor terpisah.</p>
+    </div>
+  </div>
+
+  <div class="section-head" id="sec-04">
+    <h2><span class="num">04</span> Kemiskinan & Populasi per Kabupaten/Kota</h2>
+    <p>Proxy equity-index / social vulnerability untuk 27 kabupaten/kota, dilengkapi jumlah penduduk (2025) — state variable inti pada reward function equity-aware.</p>
+  </div>
+  <section class="kpis" style="margin-top:0;">
+    <div class="kpi">
+      <div class="kpi-label">Populasi Provinsi</div>
+      <div class="kpi-value">50,76<span>juta jiwa</span></div>
+      <div class="kpi-note">2025 · provinsi terpadat di Indonesia</div>
+    </div>
+    <div class="kpi k4">
+      <div class="kpi-label">Terpadat</div>
+      <div class="kpi-value">Kab. Bogor</div>
+      <div class="kpi-note">5,72 juta jiwa (2025)</div>
+    </div>
+    <div class="kpi k2">
+      <div class="kpi-label">Terjarang</div>
+      <div class="kpi-value">Kota Banjar</div>
+      <div class="kpi-note">211.960 jiwa (2025)</div>
+    </div>
+    <div class="kpi k3">
+      <div class="kpi-label">Estimasi Total Penduduk Miskin</div>
+      <div class="kpi-value" id="kpiMiskinAbsolut">-</div>
+      <div class="kpi-note">Populasi 2025 × %miskin 2024 per wilayah</div>
+    </div>
+  </section>
+  <div class="card">
+    <div class="table-tools">
+      <div class="search-box"><input type="text" id="searchInput" placeholder="Cari kabupaten/kota…" oninput="renderTable()"></div>
+      <div class="filter-chips">
+        <button class="chip active" data-filter="all" onclick="setFilter('all')">Semua (27)</button>
+        <button class="chip" data-filter="tinggi" onclick="setFilter('tinggi')">Prioritas Tinggi &gt;10%</button>
+        <button class="chip" data-filter="sedang" onclick="setFilter('sedang')">Sedang 7–10%</button>
+        <button class="chip" data-filter="rendah" onclick="setFilter('rendah')">Rendah &lt;7%</button>
+      </div>
+    </div>
+    <table class="data">
+      <thead>
+        <tr>
+          <th onclick="sortBy('daerah')">Kabupaten/Kota</th>
+          <th onclick="sortBy('populasi')" class="num-cell">Populasi 2025</th>
+          <th onclick="sortBy('y2024')" class="num-cell">% Miskin 2024</th>
+          <th onclick="sortBy('miskinAbsolut')" class="num-cell">Est. Jiwa Miskin</th>
+          <th onclick="sortBy('y2024')" style="text-align:center">Status Equity</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <p class="table-note">Klasifikasi: <b style="color:var(--red)">Prioritas Tinggi</b> &gt;10% penduduk miskin · <b style="color:var(--amber)">Sedang</b> 7–10% · <b style="color:var(--green)">Rendah</b> &lt;7% (berdasarkan data 2024). "Est. Jiwa Miskin" dihitung dari populasi 2025 × %miskin 2024 (estimasi kasar, beda tahun basis). Sumber: RKPD 2026 Tabel 2.38 (hal. II-66–67) & BPS/Open Data Jabar (populasi 2025).</p>
+  </div>
+
+  <div class="section-head" id="sec-05">
+    <h2><span class="num">05</span> Konteks Provinsi: Kemiskinan vs IPM</h2>
+    <p>Tren 2020–2024 dan sebaran ekstrem IPM antar kabupaten/kota (disparitas Jabar Utara/Tengah vs Jabar Selatan).</p>
+  </div>
+  <div class="grid-2b">
+    <div class="card">
+      <h3>Persentase Penduduk Miskin vs IPM Provinsi</h3>
+      <div class="sub">2020–2024</div>
+      <canvas id="chartTrend"></canvas>
+      <div class="card-foot"><span class="src">Sumber: RKPD 2026, Tabel 2.36 & 2.26</span><button class="mini-export" onclick="downloadChart('chartTrend')">Unduh PNG</button></div>
+    </div>
+    <div class="card">
+      <h3>Disparitas IPM Kab/Kota 2024</h3>
+      <div class="sub">3 tertinggi vs 3 terendah (poin)</div>
+      <canvas id="chartIPMExtreme"></canvas>
+      <div class="card-foot"><span class="src">Sumber: RKPD 2026, hal. II-49–50 (narasi teks, bukan tabel lengkap)</span><button class="mini-export" onclick="downloadChart('chartIPMExtreme')">Unduh PNG</button></div>
+    </div>
+  </div>
+
+  <div class="section-head" id="sec-06">
+    <h2><span class="num">06</span> Indeks Risiko Bencana per Kabupaten/Kota</h2>
+    <p>Pelengkap social vulnerability index selain kemiskinan — sumber: Open Data Jabar, 2024. Semakin tinggi poin, semakin tinggi risiko bencana.</p>
+  </div>
+  <section class="kpis" style="margin-top:0;">
+    <div class="kpi k4">
+      <div class="kpi-label">Risiko Tertinggi</div>
+      <div class="kpi-value">168,97</div>
+      <div class="kpi-note">Kab. Sukabumi — 2024</div>
+    </div>
+    <div class="kpi k2">
+      <div class="kpi-label">Risiko Terendah</div>
+      <div class="kpi-value">58,03</div>
+      <div class="kpi-note">Kota Bogor — 2024</div>
+    </div>
+    <div class="kpi k3">
+      <div class="kpi-label">Rata-rata Provinsi</div>
+      <div class="kpi-value" id="kpiRisikoAvg">-</div>
+      <div class="kpi-note">27 kab/kota, 2024</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Prioritas Ganda</div>
+      <div class="kpi-value" style="font-size:20px;">4 wilayah</div>
+      <div class="kpi-note">Miskin &gt;10% DAN risiko bencana tinggi</div>
+    </div>
+  </section>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Indeks Risiko Bencana — 27 Kab/Kota</h3>
+      <div class="sub">Diurutkan tertinggi ke terendah, 2024</div>
+      <canvas id="chartRisikoBencana" style="max-height:520px;"></canvas>
+      <div class="card-foot"><span class="src">Sumber: Open Data Jabar, indeks_risiko_bencana_jabar.csv</span><button class="mini-export" onclick="downloadChart('chartRisikoBencana')">Unduh PNG</button></div>
+    </div>
+    <div class="card">
+      <h3>Tren Rata-rata Indeks Risiko Provinsi</h3>
+      <div class="sub">2015–2024</div>
+      <canvas id="chartRisikoTrend"></canvas>
+      <div class="card-foot"><span class="src">Sumber: Open Data Jabar, 2015-2024</span><button class="mini-export" onclick="downloadChart('chartRisikoTrend')">Unduh PNG</button></div>
+      <div class="callout" style="margin-top:14px;border-left-color:var(--red);">
+        <div class="tag" style="color:var(--red);">Wilayah Prioritas Ganda</div>
+        <h4>Kemiskinan tinggi + risiko bencana tinggi</h4>
+        <p><b>Cianjur, Tasikmalaya, Kuningan, Cirebon</b> — keempatnya masuk kategori kemiskinan &gt;10% (2024) sekaligus tertile risiko bencana tertinggi. Kandidat kuat untuk prioritas ganda di reward function equity-aware.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-head" id="sec-07">
+    <h2><span class="num">07</span> RUPTL PLN 2025–2034: Sistem Jawa Barat</h2>
+    <p>Lampiran B.3 RUPTL — proyeksi demand, kapasitas eksisting, dan kandidat pembangkit EBT spesifik Provinsi Jawa Barat.</p>
+  </div>
+  <section class="kpis" style="margin-top:0;">
+    <div class="kpi">
+      <div class="kpi-label">Beban Puncak 2024</div>
+      <div class="kpi-value">8.725<span>MW</span></div>
+      <div class="kpi-note">Proyeksi 2034: 13.135 MW (+51%)</div>
+    </div>
+    <div class="kpi k2">
+      <div class="kpi-label">Total Gardu Induk</div>
+      <div class="kpi-value">31.373<span>MVA</span></div>
+      <div class="kpi-note">350 unit trafo terpasang</div>
+    </div>
+    <div class="kpi k3">
+      <div class="kpi-label">Kandidat Kapasitas EBT</div>
+      <div class="kpi-value">3.522<span>MW</span></div>
+      <div class="kpi-note">49 proyek teridentifikasi PLN, belum committed</div>
+    </div>
+    <div class="kpi k4">
+      <div class="kpi-label">Potensi Floating PLTS</div>
+      <div class="kpi-value">3.095<span>MW</span></div>
+      <div class="kpi-note">7 waduk PU di Jabar</div>
+    </div>
+  </section>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Proyeksi Kebutuhan Tenaga Listrik Jabar</h3>
+      <div class="sub">Beban puncak (MW) & penjualan (GWh), 2025–2034</div>
+      <canvas id="chartRuptlDemand"></canvas>
+      <div class="card-foot"><span class="src">Sumber: RUPTL 2025-2034, Tabel B3.8, hal. B-37</span><button class="mini-export" onclick="downloadChart('chartRuptlDemand')">Unduh PNG</button></div>
+    </div>
+    <div class="card">
+      <h3>Kandidat Potensi Pembangkit EBT Jabar</h3>
+      <div class="sub">Belum committed — daftar kandidat by jenis (MW)</div>
+      <canvas id="chartCandidateEBT"></canvas>
+      <div class="card-foot"><span class="src">Sumber: RUPTL 2025-2034, hal. B-42–43</span><button class="mini-export" onclick="downloadChart('chartCandidateEBT')">Unduh PNG</button></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <h3>Potensi Floating PLTS di Waduk Kementerian PU (Jabar)</h3>
+    <div class="sub">Kapasitas dihitung dari 20% luas permukaan waduk</div>
+    <table class="data">
+      <thead><tr><th>Waduk</th><th class="num-cell">Luas (Ha)</th><th class="num-cell">Potensi (MW)</th><th>Status</th></tr></thead>
+      <tbody id="floatingPltsBody"></tbody>
+    </table>
+    <p class="table-note">Sumber: RUPTL 2025-2034, Tabel 2.2, hal. II-32–33. Catatan: ini potensi teoretis, belum tentu masuk pipeline RUPTL committed.</p>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <div class="table-tools">
+      <div>
+        <h3 style="margin:0 0 3px;">Pembangkit Besar Eksisting di Jawa Barat</h3>
+        <div class="sub">Bukan dari RUPTL/RKPD — dikompilasi dari sumber publik terpisah (Kementerian ESDM, PLN, Hutama Karya, Wikipedia)</div>
+      </div>
+    </div>
+    <table class="data">
+      <thead><tr><th>Pembangkit</th><th>Jenis</th><th>Lokasi</th><th class="num-cell">Kapasitas (MW)</th></tr></thead>
+      <tbody id="pembangkitEksistingBody"></tbody>
+    </table>
+    <p class="table-note">
+      <b style="color:var(--green)">RE eksisting (4 pembangkit): 2.580 MW</b> · <b style="color:var(--grey)">NRE eksisting (7 pembangkit): 5.895 MW</b> — total 8.475 MW.
+      Ini <b>bukan daftar lengkap</b>, cuma pembangkit besar yang datanya terverifikasi dari beberapa sumber publik berbeda (bukan satu database resmi terpusat). PLTGU Muara Tawar kapasitasnya masih berubah karena ekspansi bertahap (unit Add-On 650MW baru diresmikan Jan 2025) — angka di atas estimasi terbaru, bisa beda sedikit antar sumber.
+    </p>
+  </div>
+
+  <div class="section-head" id="sec-08">
+    <h2><span class="num">08</span> Gangguan Jaringan Distribusi (Kinerja Penyulang PLN UID Jabar)</h2>
+    <p>Data operasional PLN — proxy langsung untuk "historical blackout data" yang sebelumnya jadi gap. Kumulatif s.d. 2 Juli, gabungan gangguan Temporer + Permanen.</p>
+  </div>
+  <section class="kpis" style="margin-top:0;">
+    <div class="kpi k4">
+      <div class="kpi-label">Total Gangguan s.d 2 Juli 2026</div>
+      <div class="kpi-value">5.056<span>kali</span></div>
+      <div class="kpi-note">vs 3.414 kali di periode sama 2025 (+48%)</div>
+    </div>
+    <div class="kpi k3">
+      <div class="kpi-label">Penyebab Dominan</div>
+      <div class="kpi-value">Pohon</div>
+      <div class="kpi-note">1.005 kali (2026 s.d 2 Juli) — lalu Binatang (951), Petir (499)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">UP3 Kenaikan Tertinggi</div>
+      <div class="kpi-value">Majalaya</div>
+      <div class="kpi-note">147 → 351 kali (+139%)</div>
+    </div>
+    <div class="kpi k2">
+      <div class="kpi-label">UP3 Terkendali</div>
+      <div class="kpi-value">Cikarang</div>
+      <div class="kpi-note">277 → 208 kali (-25%)</div>
+    </div>
+  </section>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Gangguan per UP3: 2025 vs 2026</h3>
+      <div class="sub">Kumulatif s.d 2 Juli, gabungan Temporer + Permanen (18 UP3)</div>
+      <canvas id="chartGangguanUP3"></canvas>
+      <div class="card-foot"><span class="src">Sumber: MASTER_REKAP_Kinerja_Penyulang 2026, sheet "Real YoY"</span><button class="mini-export" onclick="downloadChart('chartGangguanUP3')">Unduh PNG</button></div>
+    </div>
+    <div class="card">
+      <h3>Top 10 Penyebab Gangguan (Provinsi)</h3>
+      <div class="sub">Kali gangguan, tahun 2026 s.d 2 Juli — seluruh UP3</div>
+      <canvas id="chartGangguanCauses"></canvas>
+      <div class="card-foot"><span class="src">Sumber: sheet "PENYEBAB ALL"</span><button class="mini-export" onclick="downloadChart('chartGangguanCauses')">Unduh PNG</button></div>
+    </div>
+  </div>
+  <div class="callouts" style="margin-top:16px;">
+    <div class="callout">
+      <div class="tag">Implikasi untuk MDP</div>
+      <h4>Proxy risiko keandalan per region</h4>
+      <p>Data gangguan per UP3 bisa jadi state variable "risk of outage" per wilayah — melengkapi equity-index dari kemiskinan. UP3 dengan gangguan tinggi + kemiskinan tinggi (mis. Garut, Sukabumi) jadi kandidat prioritas ganda.</p>
+    </div>
+    <div class="callout c2">
+      <div class="tag">Penyebab Alam vs Teknis</div>
+      <h4>Pohon & binatang dominan, bukan alam ekstrem</h4>
+      <p>Bencana alam cuma 4 kali dari total &gt;5000 gangguan — mayoritas penyebab (pohon, binatang, layang-layang) sebenarnya bisa dimitigasi lewat pemeliharaan jaringan, bukan investasi pembangkit baru.</p>
+    </div>
+    <div class="callout c3">
+      <div class="tag">Catatan Data</div>
+      <h4>Kenaikan gangguan 2026 perlu diklarifikasi</h4>
+      <p>Kenaikan +48% YoY across-the-board di hampir semua UP3 bisa jadi indikasi cuaca ekstrem, bisa juga perubahan metode pencatatan/pelaporan. Perlu dikonfirmasi ke Kementerian ESDM/PLN sebelum dipakai sebagai input model.</p>
+    </div>
+  </div>
+
+  <div class="section-head" id="sec-09">
+    <h2><span class="num">09</span> Demand Energi per UP3 &amp; Kab/Kota (Kinerja Niaga PLN)</h2>
+    <p>Target penjualan 2026 PLN — disusun berdasarkan permintaan/demand energi tiap unit setempat, jadi dipakai langsung sebagai proxy demand per wilayah, dipecah dari 17 UP3 turun ke 27 kab/kota (proporsi populasi).</p>
+  </div>
+  <section class="kpis" style="margin-top:0;">
+    <div class="kpi">
+      <div class="kpi-label">Realisasi Penjualan 2025</div>
+      <div class="kpi-value">63.503<span>GWh</span></div>
+      <div class="kpi-note">Provinsi, UID Jabar</div>
+    </div>
+    <div class="kpi k2">
+      <div class="kpi-label">Target Penjualan 2026</div>
+      <div class="kpi-value">67.015<span>GWh</span></div>
+      <div class="kpi-note">Growth 5,53% — tertinggi sejak 2019</div>
+    </div>
+    <div class="kpi k4">
+      <div class="kpi-label">Kab/Kota Demand Terbesar</div>
+      <div class="kpi-value">Kab. Bogor</div>
+      <div class="kpi-note">467,83 GWh (proporsi UP3 Bogor + Gunung Putri)</div>
+    </div>
+    <div class="kpi k3">
+      <div class="kpi-label">Kab/Kota Demand Terkecil</div>
+      <div class="kpi-value">Kota Banjar</div>
+      <div class="kpi-note">5,27 GWh</div>
+    </div>
+  </section>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Target Penambahan Penjualan Tenaga Listrik 2026 per UP3</h3>
+      <div class="sub">GWh — proxy demand energi per wilayah operasional PLN</div>
+      <canvas id="chartDemandUP3"></canvas>
+      <div class="card-foot"><span class="src">Sumber: Review Kinerja Niaga PLN UID Jabar, s.d Januari 2026, hal. 16</span><button class="mini-export" onclick="downloadChart('chartDemandUP3')">Unduh PNG</button></div>
+    </div>
+    <div class="card">
+      <h3>Tren Penjualan Tenaga Listrik Provinsi</h3>
+      <div class="sub">GWh, 2019–2026 (target)</div>
+      <canvas id="chartDemandTrend"></canvas>
+      <div class="card-foot"><span class="src">Sumber: Review Kinerja Niaga PLN UID Jabar, hal. 8</span><button class="mini-export" onclick="downloadChart('chartDemandTrend')">Unduh PNG</button></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <h3>Demand Energi per Kabupaten/Kota (Proporsi dari Target UP3)</h3>
+    <div class="sub">27 kab/kota, GWh — target UP3 dipecah berdasarkan bobot populasi tiap kab/kota anggotanya</div>
+    <canvas id="chartDemandKabKota" style="max-height:480px;"></canvas>
+    <div class="card-foot"><span class="src">Diturunkan dari target per UP3 (kiri atas) × bobot populasi 2025 per kab/kota</span><button class="mini-export" onclick="downloadChart('chartDemandKabKota')">Unduh PNG</button></div>
+  </div>
+  <div class="callouts" style="margin-top:16px;">
+    <div class="callout c2">
+      <div class="tag">Catatan Metodologi</div>
+      <h4>Target pertumbuhan, dipakai sebagai proxy demand</h4>
+      <p>Angka ini adalah <b>target penambahan</b> penjualan 2026 (formula KPI baru PLN) — tapi karena disusun berdasarkan proyeksi permintaan riil tiap unit, tetap representatif sebagai proxy demand relatif antar wilayah, bukan level konsumsi absolut.</p>
+    </div>
+    <div class="callout c3">
+      <div class="tag">Metodologi Proporsi Kab/Kota</div>
+      <h4>Dipecah pakai bobot populasi 2025</h4>
+      <p>Tiap UP3 dipetakan ke kab/kota anggotanya (mis. UP3 Tasikmalaya = Kab. Tasikmalaya + Ciamis + Pangandaran + Kota Tasikmalaya + Kota Banjar), lalu target GWh-nya dibagi proporsional sesuai populasi. Target UP3 Gunung Putri (232,73 GWh) digabung ke Kab. Bogor karena keduanya sama-sama melayani wilayah itu.</p>
+    </div>
+    <div class="callout" style="border-left-color:var(--teal);">
+      <div class="tag" style="color:var(--teal);">Variabilitas Historis → Diterapkan per Kab/Kota</div>
+      <h4>Provinsi: mean 57.629 GWh, growth std ±2,70%</h4>
+      <p>Dihitung dari 8 titik tren 2019-2026: rata-rata pertumbuhan YoY +4,05%, standar deviasi ±2,70%. Volatilitas ini sudah diterapkan proporsional ke tiap kab/kota (kolom "±std" di chart kiri &amp; popup peta) — <b>estimasi berbasis asumsi</b> bahwa tiap wilayah punya volatilitas relatif sama dengan provinsi, bukan hasil pengukuran time-series langsung per wilayah (karena data itu belum ada).</p>
+    </div>
+  </div>
+
+  <div class="section-head" id="sec-10">
+    <h2><span class="num">10</span> Investasi Penyambungan (AI Sar) per UP3 &amp; Kab/Kota</h2>
+    <p>Realisasi Anggaran Investasi Pemasaran (Jasa + MDU) 2025 — proxy parsial untuk komponen "biaya" di MDP, dipecah ke kab/kota dengan metodologi sama seperti demand energi.</p>
+  </div>
+  <section class="kpis" style="margin-top:0;">
+    <div class="kpi">
+      <div class="kpi-label">Total AI Sar 2025</div>
+      <div class="kpi-value">2.599,22<span>Rp M</span></div>
+      <div class="kpi-note">Jasa Rp646,71 M + MDU Rp1,95 T</div>
+    </div>
+    <div class="kpi k2">
+      <div class="kpi-label">UP3 Investasi Terbesar</div>
+      <div class="kpi-value">Cikarang</div>
+      <div class="kpi-note">Rp246,63 M — kawasan industri</div>
+    </div>
+    <div class="kpi k4">
+      <div class="kpi-label">Kab/Kota Investasi Terbesar</div>
+      <div class="kpi-value">Kab. Bogor</div>
+      <div class="kpi-note">Rp312,11 M (proporsi UP3 Bogor+Gunung Putri)</div>
+    </div>
+    <div class="kpi k3">
+      <div class="kpi-label">UP3 Investasi Terkecil</div>
+      <div class="kpi-value">Garut</div>
+      <div class="kpi-note">Rp84,62 M</div>
+    </div>
+  </section>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Realisasi AI Sar (Jasa+MDU) 2025 per UP3</h3>
+      <div class="sub">Rp Miliar</div>
+      <canvas id="chartInvestasiUP3"></canvas>
+      <div class="card-foot"><span class="src">Sumber: Review Kinerja Niaga PLN UID Jabar, hal. 17</span><button class="mini-export" onclick="downloadChart('chartInvestasiUP3')">Unduh PNG</button></div>
+    </div>
+    <div class="card">
+      <h3>Investasi per Kabupaten/Kota (Proporsi)</h3>
+      <div class="sub">Rp Miliar — dipecah dari target UP3 pakai bobot populasi</div>
+      <canvas id="chartInvestasiKabKota" style="max-height:480px;"></canvas>
+      <div class="card-foot"><span class="src">Diturunkan dari AI Sar per UP3 × bobot populasi 2025</span><button class="mini-export" onclick="downloadChart('chartInvestasiKabKota')">Unduh PNG</button></div>
+    </div>
+  </div>
+  <div class="callouts" style="margin-top:16px;">
+    <div class="callout" style="border-left-color:var(--red);">
+      <div class="tag" style="color:var(--red);">Catatan Penting</div>
+      <h4>Ini biaya sambungan, bukan biaya bangun pembangkit</h4>
+      <p>AI Sar adalah belanja <b>penyambungan pelanggan</b> (kabel, trafo, meter) — bukan capex pembangkit EBT/NRE yang dibutuhkan komponen "Biaya tambah fasilitas" di MDP. Nilainya nyerempet, bukan pas — tetap berguna sebagai proxy biaya ekspansi jaringan per wilayah, bukan pengganti data capex pembangkit yang masih jadi gap.</p>
+    </div>
+  </div>
+
+  <div class="section-head" id="sec-11">
+    <h2><span class="num">11</span> Data yang Masih Dibutuhkan</h2>
+    <p>Daftar kebutuhan data yang belum ditemukan — status diperbarui setelah RUPTL & data gangguan PLN masuk.</p>
+  </div>
+  <div class="gap-panel">
+    <h3>⚠ Data yang Masih Dibutuhkan</h3>
+    <p>Dicek ulang terhadap tabel kebutuhan data model MDP — berikut yang masih kosong atau baru sebagian, sedang dilengkapi paralel.</p>
+    <p style="background:#FDF6E8;border:1px solid #EBD9AE;border-radius:8px;padding:10px 14px;margin:0 0 16px;font-size:12px;color:#7A5A1A;">
+      <b>Catatan granularitas wilayah:</b> tiga sumber data pakai unit spasial berbeda — RKPD Kementerian ESDM pakai 7 wilayah kerja, data gangguan PLN pakai 18 UP3, sementara data kemiskinan pakai 27 kab/kota. Belum ada pemetaan resmi antar ketiganya.
+    </p>
+    <ul class="gap-list">
+      <li><b>Kapasitas EBT/NRE eksisting — pembangkit kecil & menengah</b> <span class="who">Pembangkit besar (11 unit, >80MW) sudah masuk section 07 dari sumber publik terpisah. Yang masih kosong: PLTM kecil, PLTS atap/komunal, PLTD skala kecil — tidak ada database terpusat untuk ini</span></li>
+      <li><b>Biaya capex per MW</b> (RE & NRE) <span class="who">RUPTL tidak cantumkan angka biaya. Section 10 (AI Sar) kasih proxy biaya sambungan pelanggan per wilayah, tapi itu bukan capex pembangkit — masih perlu dokumen tender PLN/IPP untuk data yang tepat</span></li>
+      <li><b>Biaya opex per MWh</b> (RE & NRE) <span class="who">Tidak ada di RUPTL/RKPD — perlu data internal PLN</span></li>
+      <li><b>Kuota PLTS atap rumah tangga per cluster PLN (UP3)</b> <span class="who">Dipublikasikan PLN per Permen ESDM 2/2024, belum ada di dua dokumen ini</span></li>
+      <li><b>Durasi pemadaman & SAIDI/SAIFI per wilayah</b> <span class="who">File gangguan yang ada baru hitung frekuensi/jumlah kejadian, belum durasi kumulatif</span></li>
+    </ul>
+  </div>
+
+  <footer>
+    <span>Dibuat dari ekstraksi otomatis 6 dokumen — Pergub Jabar No. 23/2025 ttg RKPD 2026 (845 hlm.), RUPTL PLN 2025-2034 (1.253 hlm.), MASTER_REKAP_Kinerja_Penyulang 2026 (PLN UID Jabar), Open Data Jabar (indeks risiko bencana), BPS/Open Data Jabar (populasi 2025), dan Review Kinerja Niaga PLN UID Jabar s.d Januari 2026 — plus kompilasi sumber publik (Kementerian ESDM, PLN, Wikipedia) untuk data pembangkit eksisting — untuk diskusi internal, bukan dokumen resmi.</span>
+    <span id="genDate"></span>
+  </footer>
+
+</div>
+
+<script>
+/* ============ EMBEDDED DATA ============ */
+const JABAR_GEOJSON = JSON.parse("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[107.58873842034204,-6.722208859885989],[107.5611350990099,-6.76834789048905],[107.51052900990099,-6.751259360636064],[107.45072181368137,-6.696576065106512],[107.41391738523852,-6.688031800180019],[107.33570797479749,-6.729044271827183],[107.3127052070207,-6.795689538253826],[107.33110742124212,-6.88454989348935],[107.20229192169217,-6.956321718871888],[107.18388970747074,-7.04689092709271],[107.24829745724573,-7.050308633063307],[107.30810465346535,-7.0861945457545765],[107.25749856435644,-7.188725724872488],[107.34030852835284,-7.205814254725473],[107.35871074257426,-7.236573608460846],[107.41391738523852,-7.257079844284429],[107.47372458145814,-7.250244432343235],[107.57033620612061,-7.262206403240325],[107.60714063456345,-7.308345433843385],[107.66234727722772,-7.279294933093309],[107.71295336633663,-7.301510021902191],[107.73595613411341,-7.274168374137414],[107.70835281278127,-7.222902784578459],[107.74055668766877,-7.168219489048905],[107.8095649909991,-7.135751282328234],[107.8095649909991,-7.0947388106810685],[107.87397274077408,-7.052017486048605],[107.91997827632764,-7.052017486048605],[107.91537772277228,-6.947777453945395],[107.83716831233123,-6.966574836783679],[107.7589589018902,-6.944359747974798],[107.74055668766877,-6.874296775577559],[107.74515724122412,-6.809360362136214],[107.66694783078307,-6.771765596459646],[107.59793952745275,-6.75638591959196],[107.58873842034204,-6.722208859885989]],[[107.55653454545455,-6.932397777077709],[107.57493675967596,-6.882841040504051],[107.6025400810081,-6.84866398079808],[107.63934450945095,-6.893094158415842],[107.69915170567057,-6.91872695319532],[107.6853500450045,-6.971701395739575],[107.58873842034204,-6.969992542754276],[107.55653454545455,-6.932397777077709]]]},\"properties\":{\"daerah\":\"Kab. Bandung\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[108.65606684518453,-7.347649052505251],[108.58245798829883,-7.34935790549055],[108.55945522052205,-7.313471992799281],[108.5226507920792,-7.352775611461147],[108.4720447029703,-7.356193317431744],[108.49504747074708,-7.410876612961297],[108.57325688118812,-7.421129730873088],[108.65606684518453,-7.347649052505251]]]},\"properties\":{\"daerah\":\"Kota Banjar\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[107.10107974347434,-5.937845339633964],[107.02747088658866,-5.913921397839784],[106.99526701170117,-6.024996841884189],[107.00446811881189,-6.072844725472548],[106.9722642439244,-6.091642108310832],[106.9722642439244,-6.148034256825683],[106.9722642439244,-6.173667051605161],[107.0136692259226,-6.166831639663967],[107.04587310081008,-6.230059200120013],[107.04587310081008,-6.284742495649565],[107.0228703330333,-6.3530966150615065],[106.98606590459046,-6.377020556855686],[107.04587310081008,-6.400944498649865],[107.07807697569757,-6.435121558355836],[107.17468860036004,-6.494931412841285],[107.21609358235824,-6.459045500150015],[107.2298952430243,-6.305248731473148],[107.26669967146715,-6.284742495649565],[107.29890354635464,-6.206135258325833],[107.29430299279929,-6.142907697869788],[107.14248472547254,-6.057465048604861],[107.08727808280828,-6.001072900090009],[107.10107974347434,-5.937845339633964]]]},\"properties\":{\"daerah\":\"Kab. Bekasi\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[107.17468860036004,-6.494931412841285],[107.07807697569757,-6.435121558355836],[107.04587310081008,-6.400944498649865],[106.98606590459046,-6.377020556855686],[106.96766369036904,-6.361640879987999],[106.90785649414941,-6.404362204620463],[106.87565261926193,-6.450501235223523],[106.75143767326733,-6.448792382238224],[106.7238343519352,-6.359932027002701],[106.59501885238524,-6.3633497329732975],[106.53061110261027,-6.33771693819382],[106.49840722772277,-6.354805468046806],[106.46620335283528,-6.31379299639964],[106.42939892439244,-6.347970056105611],[106.45700224572457,-6.4317038523852395],[106.40639615661566,-6.45391894119412],[106.39719504950494,-6.505184530753076],[106.42939892439244,-6.583791768076808],[106.42939892439244,-6.696576065106512],[106.51220888838884,-6.766639037503751],[106.58121719171918,-6.7239177128712875],[106.60421995949595,-6.749550507650766],[106.68702992349235,-6.742715095709571],[106.73763601260126,-6.711955741974198],[106.76983988748876,-6.747841654665467],[106.8986553870387,-6.785436420342035],[106.95846258325832,-6.7632213315331535],[106.98606590459046,-6.735879683768378],[106.99066645814581,-6.669234417341735],[107.04127254725472,-6.657272446444645],[107.14248472547254,-6.6658167113711375],[107.19309081458147,-6.643601622562257],[107.22529468946895,-6.599171444944495],[107.17468860036004,-6.544488149414942],[107.17468860036004,-6.494931412841285]],[[106.7652393339334,-6.541070443444345],[106.8158454230423,-6.5393615904590465],[106.83884819081908,-6.633348504650466],[106.82044597659765,-6.67436097629763],[106.74223656615662,-6.564994385238524],[106.7652393339334,-6.541070443444345]]]},\"properties\":{\"daerah\":\"Kab. Bogor\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[108.38463418541855,-7.07081486888689],[108.36163141764176,-7.052017486048605],[108.16840816831683,-7.063979456945695],[108.21901425742574,-7.0861945457545765],[108.20061204320432,-7.1442955472547265],[108.20061204320432,-7.275877227122713],[108.28802256075608,-7.332269375637564],[108.39383529252925,-7.359611023402341],[108.41683806030603,-7.421129730873088],[108.39383529252925,-7.47752187938794],[108.33862864986499,-7.491192703270327],[108.36163141764176,-7.6603691488148815],[108.31562588208821,-7.689419649564957],[108.33402809630964,-7.815874770477048],[108.44444138163817,-7.819292476447645],[108.49504747074708,-7.795368534653466],[108.49504747074708,-7.720179003300331],[108.51805023852386,-7.697963914491449],[108.5962596489649,-7.682584237623763],[108.66066739873988,-7.694546208520853],[108.69747182718272,-7.675748825682569],[108.7618795769577,-7.697963914491449],[108.78488234473447,-7.667204560756076],[108.73887680918092,-7.617647824182419],[108.75267846984698,-7.561255675667567],[108.7204745949595,-7.492901556255626],[108.7204745949595,-7.433091701770177],[108.65606684518453,-7.347649052505251],[108.57325688118812,-7.421129730873088],[108.49504747074708,-7.410876612961297],[108.4720447029703,-7.356193317431744],[108.5226507920792,-7.352775611461147],[108.55945522052205,-7.313471992799281],[108.58705854185419,-7.217776225622563],[108.5640557740774,-7.193852283828384],[108.5042485778578,-7.132333576357636],[108.43984082808281,-7.120371605460546],[108.38463418541855,-7.07081486888689]]]},\"properties\":{\"daerah\":\"Kab. Ciamis\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[107.33570797479749,-6.729044271827183],[107.26209911791179,-6.693158359135914],[107.26669967146715,-6.6367662106210625],[107.22529468946895,-6.599171444944495],[107.19309081458147,-6.643601622562257],[107.14248472547254,-6.6658167113711375],[107.04127254725472,-6.657272446444645],[106.99066645814581,-6.669234417341735],[106.98606590459046,-6.735879683768378],[106.95846258325832,-6.7632213315331535],[106.99066645814581,-6.8025249501950205],[107.05047365436543,-6.91872695319532],[107.03207144014402,-6.987081072607261],[107.04127254725472,-7.040055515151516],[106.96306313681369,-7.024675838283829],[106.93545981548155,-7.11695389948995],[106.96306313681369,-7.147713253225323],[106.9814653510351,-7.226320490549055],[106.95386202970298,-7.313471992799281],[106.87105206570658,-7.354484464446445],[106.82044597659765,-7.359611023402341],[106.78824210171017,-7.414294318931894],[106.79744320882088,-7.4365094077407745],[106.88485372637264,-7.434800554755476],[107.12868306480648,-7.458724496549656],[107.18388970747074,-7.475813026402641],[107.42311849234923,-7.504863527152716],[107.43231959945994,-7.416003171917192],[107.4691240279028,-7.398914642064208],[107.4783251350135,-7.352775611461147],[107.45532236723673,-7.306636580858086],[107.47372458145814,-7.250244432343235],[107.41391738523852,-7.257079844284429],[107.35871074257426,-7.236573608460846],[107.34030852835284,-7.205814254725473],[107.25749856435644,-7.188725724872488],[107.30810465346535,-7.0861945457545765],[107.24829745724573,-7.050308633063307],[107.18388970747074,-7.04689092709271],[107.20229192169217,-6.956321718871888],[107.33110742124212,-6.88454989348935],[107.3127052070207,-6.795689538253826],[107.33570797479749,-6.729044271827183]]]},\"properties\":{\"daerah\":\"Kab. Cianjur\"}},{\"type\":\"Feature\",\"geometry\":null,\"properties\":{\"daerah\":\"Kota Cimahi\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[108.54105300630063,-6.515437648664867],[108.51344968496849,-6.515437648664867],[108.4720447029703,-6.566703238223823],[108.43524027452746,-6.517146501650165],[108.36163141764176,-6.55815897329733],[108.32482698919893,-6.62822194569457],[108.36623197119712,-6.6948672121212125],[108.37543307830784,-6.764930184518453],[108.40303639963997,-6.788854126312632],[108.50884913141314,-6.792271832283229],[108.50884913141314,-6.840119715871587],[108.58245798829883,-6.893094158415842],[108.70207238073807,-6.937524336033604],[108.7618795769577,-6.983663366636664],[108.75727902340235,-6.925562365136514],[108.82628732673268,-6.829866597959796],[108.83088788028803,-6.7444239486948705],[108.79868400540055,-6.792271832283229],[108.74807791629163,-6.81448692109211],[108.69287127362736,-6.804233803180319],[108.6790696129613,-6.7632213315331535],[108.61006130963096,-6.76834789048905],[108.58245798829883,-6.73246197779778],[108.56865632763277,-6.708538036003601],[108.54565355985599,-6.592336033003301],[108.54105300630063,-6.515437648664867]]]},\"properties\":{\"daerah\":\"Kab. Cirebon\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[106.84344874437444,-6.347970056105611],[106.79284265526553,-6.361640879987999],[106.7744404410441,-6.317210702370238],[106.7652393339334,-6.361640879987999],[106.7238343519352,-6.359932027002701],[106.75143767326733,-6.448792382238224],[106.87565261926193,-6.450501235223523],[106.90785649414941,-6.404362204620463],[106.90785649414941,-6.375311703870388],[106.84344874437444,-6.347970056105611]]]},\"properties\":{\"daerah\":\"Kota Depok\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[108.13160373987398,-7.041764368136814],[108.09019875787578,-6.9973341905190525],[107.98438602610261,-6.978536807680769],[107.91537772277228,-6.947777453945395],[107.91997827632764,-7.052017486048605],[107.87397274077408,-7.052017486048605],[107.8095649909991,-7.0947388106810685],[107.8095649909991,-7.135751282328234],[107.74055668766877,-7.168219489048905],[107.70835281278127,-7.222902784578459],[107.73595613411341,-7.274168374137414],[107.71295336633663,-7.301510021902191],[107.66234727722772,-7.279294933093309],[107.60714063456345,-7.308345433843385],[107.57033620612061,-7.262206403240325],[107.47372458145814,-7.250244432343235],[107.45532236723673,-7.306636580858086],[107.4783251350135,-7.352775611461147],[107.4691240279028,-7.398914642064208],[107.43231959945994,-7.416003171917192],[107.42311849234923,-7.504863527152716],[107.60714063456345,-7.5732176465646575],[107.67154838433844,-7.622774383138315],[107.69455115211521,-7.668913413741375],[107.78656222322232,-7.679166531653166],[107.84636941944194,-7.737267533153316],[107.91077716921693,-7.730432121212122],[107.92457882988299,-7.68600194359436],[107.91077716921693,-7.60568585328533],[107.9337799369937,-7.56979994059406],[107.94298104410441,-7.455306790579058],[107.9337799369937,-7.400623495049506],[107.8923749549955,-7.3681552883288335],[107.9337799369937,-7.3305605226522665],[107.95678270477048,-7.275877227122713],[108.0165899009901,-7.2314470495049505],[108.06259543654366,-7.222902784578459],[108.07179654365437,-7.130624723372337],[108.12240263276328,-7.113536193519352],[108.13160373987398,-7.041764368136814]]]},\"properties\":{\"daerah\":\"Kab. Garut\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[108.54105300630063,-6.515437648664867],[108.53645245274528,-6.482969441944195],[108.4306397209721,-6.4129064695469555],[108.37083252475247,-6.329172673267327],[108.37543307830784,-6.2949956135613565],[108.29262311431143,-6.245438876987699],[108.24201702520253,-6.240312318031804],[108.13160373987398,-6.3342992322232226],[108.05339432943295,-6.3155018493849395],[107.91997827632764,-6.248856582958297],[107.92457882988299,-6.359932027002701],[107.90157606210622,-6.3838559687968806],[107.8923749549955,-6.455627794179419],[107.91997827632764,-6.484678294929494],[107.91077716921693,-6.537652737473748],[107.85557052655265,-6.578665209120913],[107.90617661566156,-6.594044885988599],[108.0165899009901,-6.6658167113711375],[108.04419322232224,-6.6367662106210625],[108.07179654365437,-6.583791768076808],[108.13620429342934,-6.563285532253226],[108.14540540054006,-6.602589150915092],[108.1914109360936,-6.60429800390039],[108.21441370387039,-6.564994385238524],[108.32482698919893,-6.62822194569457],[108.36163141764176,-6.55815897329733],[108.43524027452746,-6.517146501650165],[108.4720447029703,-6.566703238223823],[108.51344968496849,-6.515437648664867],[108.54105300630063,-6.515437648664867]]]},\"properties\":{\"daerah\":\"Kab. Indramayu\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[107.63934450945095,-6.212970670267027],[107.45992292079208,-6.136072285928593],[107.39551517101711,-6.023287988898891],[107.34490908190818,-5.970313546354636],[107.28050133213321,-5.958351575457546],[107.17928915391539,-5.98911092919292],[107.14248472547254,-5.9822755172517255],[107.10107974347434,-5.937845339633964],[107.08727808280828,-6.001072900090009],[107.14248472547254,-6.057465048604861],[107.29430299279929,-6.142907697869788],[107.29890354635464,-6.206135258325833],[107.26669967146715,-6.284742495649565],[107.2298952430243,-6.305248731473148],[107.21609358235824,-6.459045500150015],[107.17468860036004,-6.494931412841285],[107.17468860036004,-6.544488149414942],[107.22529468946895,-6.599171444944495],[107.26669967146715,-6.6367662106210625],[107.28970243924392,-6.60429800390039],[107.28510188568858,-6.54619700240024],[107.32650686768677,-6.489804853885389],[107.37251240324032,-6.476134030003001],[107.37251240324032,-6.418033028502851],[107.45072181368137,-6.440248117311731],[107.52893122412242,-6.418033028502851],[107.58413786678668,-6.312084143414342],[107.58413786678668,-6.257400847884789],[107.63934450945095,-6.212970670267027]]]},\"properties\":{\"daerah\":\"Kab. Karawang\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[107.55653454545455,-6.932397777077709],[107.58873842034204,-6.969992542754276],[107.6853500450045,-6.971701395739575],[107.69915170567057,-6.91872695319532],[107.63934450945095,-6.893094158415842],[107.6025400810081,-6.84866398079808],[107.57493675967596,-6.882841040504051],[107.55653454545455,-6.932397777077709]]]},\"properties\":{\"daerah\":\"Kota Bandung\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[106.98606590459046,-6.377020556855686],[107.0228703330333,-6.3530966150615065],[107.04587310081008,-6.284742495649565],[107.04587310081008,-6.230059200120013],[107.0136692259226,-6.166831639663967],[106.9722642439244,-6.173667051605161],[106.92165815481547,-6.306957584458447],[106.90785649414941,-6.375311703870388],[106.90785649414941,-6.404362204620463],[106.96766369036904,-6.361640879987999],[106.98606590459046,-6.377020556855686]]]},\"properties\":{\"daerah\":\"Kota Bekasi\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[106.7652393339334,-6.541070443444345],[106.74223656615662,-6.564994385238524],[106.82044597659765,-6.67436097629763],[106.83884819081908,-6.633348504650466],[106.8158454230423,-6.5393615904590465],[106.7652393339334,-6.541070443444345]]]},\"properties\":{\"daerah\":\"Kota Bogor\"}},{\"type\":\"Feature\",\"geometry\":null,\"properties\":{\"daerah\":\"Kota Cirebon\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[106.90785649414941,-6.908473835283529],[106.88485372637264,-6.975119101710171],[106.95386202970298,-6.978536807680769],[106.93545981548155,-6.908473835283529],[106.90785649414941,-6.908473835283529]]]},\"properties\":{\"daerah\":\"Kota Sukabumi\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[108.20061204320432,-7.275877227122713],[108.16380761476148,-7.274168374137414],[108.15460650765077,-7.333978228622863],[108.1914109360936,-7.445053672667267],[108.26041923942394,-7.431382848784879],[108.28802256075608,-7.332269375637564],[108.20061204320432,-7.275877227122713]]]},\"properties\":{\"daerah\":\"Kota Tasikmalaya\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[108.7618795769577,-6.983663366636664],[108.70207238073807,-6.937524336033604],[108.58245798829883,-6.893094158415842],[108.50884913141314,-6.840119715871587],[108.50884913141314,-6.792271832283229],[108.40303639963997,-6.788854126312632],[108.41223750675067,-6.865752510651066],[108.38463418541855,-6.975119101710171],[108.38463418541855,-7.07081486888689],[108.43984082808281,-7.120371605460546],[108.5042485778578,-7.132333576357636],[108.5640557740774,-7.193852283828384],[108.56865632763277,-7.164801783078309],[108.62386297029703,-7.137460135313532],[108.69747182718272,-7.15113095919592],[108.76648013051306,-7.115245046504651],[108.79868400540055,-7.004169602460246],[108.7618795769577,-6.983663366636664]]]},\"properties\":{\"daerah\":\"Kab. Kuningan\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[108.32482698919893,-6.62822194569457],[108.21441370387039,-6.564994385238524],[108.1914109360936,-6.60429800390039],[108.14540540054006,-6.602589150915092],[108.13620429342934,-6.563285532253226],[108.07179654365437,-6.583791768076808],[108.04419322232224,-6.6367662106210625],[108.14540540054006,-6.710246888988899],[108.20981315031503,-6.935815483048305],[108.16840816831683,-6.973410248724873],[108.13620429342934,-7.041764368136814],[108.16840816831683,-7.063979456945695],[108.36163141764176,-7.052017486048605],[108.38463418541855,-7.07081486888689],[108.38463418541855,-6.975119101710171],[108.41223750675067,-6.865752510651066],[108.40303639963997,-6.788854126312632],[108.37543307830784,-6.764930184518453],[108.36623197119712,-6.6948672121212125],[108.32482698919893,-6.62822194569457]]]},\"properties\":{\"daerah\":\"Kab. Majalengka\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[107.52893122412242,-6.418033028502851],[107.45072181368137,-6.440248117311731],[107.37251240324032,-6.418033028502851],[107.37251240324032,-6.476134030003001],[107.32650686768677,-6.489804853885389],[107.28510188568858,-6.54619700240024],[107.28970243924392,-6.60429800390039],[107.26669967146715,-6.6367662106210625],[107.26209911791179,-6.693158359135914],[107.33570797479749,-6.729044271827183],[107.41391738523852,-6.688031800180019],[107.45072181368137,-6.696576065106512],[107.51052900990099,-6.751259360636064],[107.5611350990099,-6.76834789048905],[107.58873842034204,-6.722208859885989],[107.6025400810081,-6.658981299429944],[107.58873842034204,-6.594044885988599],[107.5611350990099,-6.556450120312032],[107.56573565256525,-6.484678294929494],[107.52893122412242,-6.418033028502851]]]},\"properties\":{\"daerah\":\"Kab. Purwakarta\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[107.91997827632764,-6.248856582958297],[107.83716831233123,-6.187337875487549],[107.72215447344735,-6.2368946120612065],[107.66694783078307,-6.245438876987699],[107.63934450945095,-6.212970670267027],[107.58413786678668,-6.257400847884789],[107.58413786678668,-6.312084143414342],[107.52893122412242,-6.418033028502851],[107.56573565256525,-6.484678294929494],[107.5611350990099,-6.556450120312032],[107.58873842034204,-6.594044885988599],[107.6025400810081,-6.658981299429944],[107.58873842034204,-6.722208859885989],[107.59793952745275,-6.75638591959196],[107.66694783078307,-6.771765596459646],[107.74515724122412,-6.809360362136214],[107.8003638838884,-6.807651509150916],[107.83256775877588,-6.7734744494449455],[107.83256775877588,-6.7153734479447955],[107.85557052655265,-6.578665209120913],[107.91077716921693,-6.537652737473748],[107.91997827632764,-6.484678294929494],[107.8923749549955,-6.455627794179419],[107.90157606210622,-6.3838559687968806],[107.92457882988299,-6.359932027002701],[107.91997827632764,-6.248856582958297]]]},\"properties\":{\"daerah\":\"Kab. Subang\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[106.95846258325832,-6.7632213315331535],[106.8986553870387,-6.785436420342035],[106.76983988748876,-6.747841654665467],[106.73763601260126,-6.711955741974198],[106.68702992349235,-6.742715095709571],[106.60421995949595,-6.749550507650766],[106.58121719171918,-6.7239177128712875],[106.51220888838884,-6.766639037503751],[106.4339994779478,-6.821322333033304],[106.42939892439244,-6.865752510651066],[106.3925944959496,-6.8999295703570365],[106.39719504950494,-6.978536807680769],[106.43860003150316,-6.952904012901291],[106.54441276327633,-6.985372219621963],[106.54441276327633,-7.055435192019202],[106.40179560306031,-7.18701687188719],[106.37419228172817,-7.306636580858086],[106.42479837083708,-7.359611023402341],[106.48920612061207,-7.376699553255326],[106.52140999549955,-7.4074589069906995],[106.79284265526553,-7.4365094077407745],[106.78824210171017,-7.414294318931894],[106.82044597659765,-7.359611023402341],[106.87105206570658,-7.354484464446445],[106.95386202970298,-7.313471992799281],[106.9814653510351,-7.226320490549055],[106.96306313681369,-7.147713253225323],[106.93545981548155,-7.11695389948995],[106.96306313681369,-7.024675838283829],[107.04127254725472,-7.040055515151516],[107.03207144014402,-6.987081072607261],[107.05047365436543,-6.91872695319532],[106.99066645814581,-6.8025249501950205],[106.95846258325832,-6.7632213315331535]],[[106.90785649414941,-6.908473835283529],[106.93545981548155,-6.908473835283529],[106.95386202970298,-6.978536807680769],[106.88485372637264,-6.975119101710171],[106.90785649414941,-6.908473835283529]]]},\"properties\":{\"daerah\":\"Kab. Sukabumi\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[108.04419322232224,-6.6367662106210625],[108.0165899009901,-6.6658167113711375],[107.90617661566156,-6.594044885988599],[107.85557052655265,-6.578665209120913],[107.83256775877588,-6.7153734479447955],[107.83256775877588,-6.7734744494449455],[107.8003638838884,-6.807651509150916],[107.74515724122412,-6.809360362136214],[107.74055668766877,-6.874296775577559],[107.7589589018902,-6.944359747974798],[107.83716831233123,-6.966574836783679],[107.91537772277228,-6.947777453945395],[107.98438602610261,-6.978536807680769],[108.09019875787578,-6.9973341905190525],[108.13160373987398,-7.041764368136814],[108.13620429342934,-7.041764368136814],[108.16840816831683,-6.973410248724873],[108.20981315031503,-6.935815483048305],[108.14540540054006,-6.710246888988899],[108.04419322232224,-6.6367662106210625]]]},\"properties\":{\"daerah\":\"Kab. Sumedang\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[108.13620429342934,-7.041764368136814],[108.13160373987398,-7.041764368136814],[108.12240263276328,-7.113536193519352],[108.07179654365437,-7.130624723372337],[108.06259543654366,-7.222902784578459],[108.0165899009901,-7.2314470495049505],[107.95678270477048,-7.275877227122713],[107.9337799369937,-7.3305605226522665],[107.8923749549955,-7.3681552883288335],[107.9337799369937,-7.400623495049506],[107.94298104410441,-7.455306790579058],[107.9337799369937,-7.56979994059406],[107.91077716921693,-7.60568585328533],[107.92457882988299,-7.68600194359436],[107.91077716921693,-7.730432121212122],[108.1500059540954,-7.786824269726973],[108.33402809630964,-7.815874770477048],[108.31562588208821,-7.689419649564957],[108.36163141764176,-7.6603691488148815],[108.33862864986499,-7.491192703270327],[108.39383529252925,-7.47752187938794],[108.41683806030603,-7.421129730873088],[108.39383529252925,-7.359611023402341],[108.28802256075608,-7.332269375637564],[108.26041923942394,-7.431382848784879],[108.1914109360936,-7.445053672667267],[108.15460650765077,-7.333978228622863],[108.16380761476148,-7.274168374137414],[108.20061204320432,-7.275877227122713],[108.20061204320432,-7.1442955472547265],[108.21901425742574,-7.0861945457545765],[108.16840816831683,-7.063979456945695],[108.13620429342934,-7.041764368136814]]]},\"properties\":{\"daerah\":\"Kab. Tasikmalaya\"}}]}");
+
+const DATA = {
+  konsumsi: [
+    {tahun:2022, gwh:65320, perKapita:1337.16},
+    {tahun:2023, gwh:67355, perKapita:1346.41},
+    {tahun:2024, gwh:70064, perKapita:1391.67},
+  ],
+  bauran2023: {fosil:75.64, ebt:24.36},
+  potensiEBT: [
+    {sumber:'Surya', mw:156630},
+    {sumber:'Angin', mw:12727},
+    {sumber:'Panas Bumi', mw:5956.8},
+    {sumber:'Hidro', mw:3508},
+    {sumber:'Biomassa Kota', mw:470.82},
+    {sumber:'Biomassa Industri', mw:167.5},
+  ],
+  targetEBT: [
+    {tahun:'2023 (real.)', persen:24.36},
+    {tahun:'2025 (target)', persen:24.38},
+    {tahun:'2026 (target)', persen:24.71},
+  ],
+  anggaran: [
+    {program:'Pengelolaan\nKetenagalistrikan', miliar:101.44},
+    {program:'Pengelolaan Energi\nBaru Terbarukan', miliar:4.07},
+  ],
+  wilayahKerja: [
+    {no:'I', nama:'Cianjur'},
+    {no:'II', nama:'Bogor'},
+    {no:'III', nama:'Purwakarta'},
+    {no:'IV', nama:'Bandung'},
+    {no:'V', nama:'Sumedang'},
+    {no:'VI', nama:'Tasikmalaya'},
+    {no:'VII', nama:'Cirebon'},
+  ],
+  trendProvinsi: [
+    {tahun:2020, miskin:8.43, ipm:72.61},
+    {tahun:2021, miskin:7.97, ipm:72.96},
+    {tahun:2022, miskin:7.98, ipm:73.63},
+    {tahun:2023, miskin:7.62, ipm:74.24},
+    {tahun:2024, miskin:7.08, ipm:74.92},
+  ],
+  ipmExtreme: {
+    tinggi: [{d:'Kota Bandung', v:83.75}, {d:'Kota Bekasi', v:83.55}, {d:'Kota Depok', v:83.05}],
+    rendah: [{d:'Cianjur', v:68.89}, {d:'Garut', v:69.91}, {d:'Tasikmalaya', v:69.98}],
+  },
+  kemiskinan: [
+    {no:1,daerah:'Kab. Bogor',y2020:7.69,y2021:8.13,y2022:7.73,y2023:7.27,y2024:7.05},
+    {no:2,daerah:'Kab. Sukabumi',y2020:7.09,y2021:7.70,y2022:7.34,y2023:7.01,y2024:6.87},
+    {no:3,daerah:'Kab. Cianjur',y2020:10.36,y2021:11.18,y2022:10.55,y2023:10.22,y2024:10.14},
+    {no:4,daerah:'Kab. Bandung',y2020:6.91,y2021:7.15,y2022:6.80,y2023:6.40,y2024:6.19},
+    {no:5,daerah:'Kab. Garut',y2020:9.98,y2021:10.65,y2022:10.42,y2023:9.77,y2024:9.68},
+    {no:6,daerah:'Kab. Tasikmalaya',y2020:10.34,y2021:11.15,y2022:10.73,y2023:10.28,y2024:10.23},
+    {no:7,daerah:'Kab. Ciamis',y2020:7.62,y2021:7.97,y2022:7.72,y2023:7.42,y2024:7.39},
+    {no:8,daerah:'Kab. Kuningan',y2020:12.82,y2021:13.10,y2022:12.76,y2023:12.12,y2024:11.88},
+    {no:9,daerah:'Kab. Cirebon',y2020:11.24,y2021:12.30,y2022:12.01,y2023:11.20,y2024:11.00},
+    {no:10,daerah:'Kab. Majalengka',y2020:11.43,y2021:12.33,y2022:11.94,y2023:11.21,y2024:10.82},
+    {no:11,daerah:'Kab. Sumedang',y2020:10.26,y2021:10.71,y2022:10.14,y2023:9.36,y2024:9.10},
+    {no:12,daerah:'Kab. Indramayu',y2020:12.70,y2021:13.04,y2022:12.77,y2023:12.13,y2024:11.93},
+    {no:13,daerah:'Kab. Subang',y2020:9.31,y2021:10.03,y2022:9.75,y2023:9.52,y2024:9.49},
+    {no:14,daerah:'Kab. Purwakarta',y2020:8.27,y2021:8.83,y2022:8.70,y2023:8.46,y2024:8.41},
+    {no:15,daerah:'Kab. Karawang',y2020:8.26,y2021:8.95,y2022:8.44,y2023:7.87,y2024:7.86},
+    {no:16,daerah:'Kab. Bekasi',y2020:4.82,y2021:5.21,y2022:5.01,y2023:4.93,y2024:4.80},
+    {no:17,daerah:'Kab. Bandung Barat',y2020:10.49,y2021:11.30,y2022:10.82,y2023:10.52,y2024:10.49},
+    {no:18,daerah:'Kab. Pangandaran',y2020:8.99,y2021:9.65,y2022:9.32,y2023:8.98,y2024:8.75},
+    {no:19,daerah:'Kota Bogor',y2020:6.68,y2021:7.24,y2022:7.10,y2023:6.67,y2024:6.53},
+    {no:20,daerah:'Kota Sukabumi',y2020:7.70,y2021:8.25,y2022:8.02,y2023:7.50,y2024:7.20},
+    {no:21,daerah:'Kota Bandung',y2020:3.99,y2021:4.37,y2022:4.25,y2023:3.96,y2024:3.87},
+    {no:22,daerah:'Kota Cirebon',y2020:9.52,y2021:10.03,y2022:9.82,y2023:9.16,y2024:9.02},
+    {no:23,daerah:'Kota Bekasi',y2020:4.38,y2021:4.74,y2022:4.43,y2023:4.10,y2024:4.01},
+    {no:24,daerah:'Kota Depok',y2020:2.45,y2021:2.58,y2022:2.53,y2023:2.38,y2024:2.34},
+    {no:25,daerah:'Kota Cimahi',y2020:5.11,y2021:5.35,y2022:5.11,y2023:4.66,y2024:4.39},
+    {no:26,daerah:'Kota Tasikmalaya',y2020:12.97,y2021:13.13,y2022:12.72,y2023:11.53,y2024:11.10},
+    {no:27,daerah:'Kota Banjar',y2020:6.09,y2021:7.11,y2022:6.73,y2023:6.14,y2024:5.85},
+  ],
+  ruptlDemand: [
+    {tahun:2025, pertumbuhan:4.5, sales:65919, produksi:70743, bebanPuncak:9274, pelanggan:17479639},
+    {tahun:2026, pertumbuhan:6.4, sales:70153, produksi:75161, bebanPuncak:9851, pelanggan:17723739},
+    {tahun:2027, pertumbuhan:5.0, sales:73666, produksi:78850, bebanPuncak:10332, pelanggan:17962853},
+    {tahun:2028, pertumbuhan:4.6, sales:77088, produksi:82418, bebanPuncak:10797, pelanggan:18196824},
+    {tahun:2029, pertumbuhan:3.0, sales:79416, produksi:84818, bebanPuncak:11109, pelanggan:18425484},
+    {tahun:2030, pertumbuhan:5.0, sales:83363, produksi:88932, bebanPuncak:11645, pelanggan:18649200},
+    {tahun:2031, pertumbuhan:3.0, sales:85838, produksi:91476, bebanPuncak:11975, pelanggan:18868576},
+    {tahun:2032, pertumbuhan:3.6, sales:88890, produksi:94627, bebanPuncak:12385, pelanggan:19083774},
+    {tahun:2033, pertumbuhan:3.1, sales:91659, produksi:97571, bebanPuncak:12767, pelanggan:19294896},
+    {tahun:2034, pertumbuhan:2.9, sales:94324, produksi:100404, bebanPuncak:13135, pelanggan:19502045},
+  ],
+  ruptlHeadline: {bebanPuncak2024:8725, bebanPuncak2034:13135, totalGarduMVA:31373.5, totalTrafoUnit:350},
+  candidateEBT: [
+    {jenis:'PLTA (Hidro)', mw:1018, jumlah:6},
+    {jenis:'PLTB (Bayu/Angin)', mw:775, jumlah:5},
+    {jenis:'PLTP (Panas Bumi)', mw:335, jumlah:10},
+    {jenis:'PLTS (Surya)', mw:380, jumlah:6},
+    {jenis:'PLTS+BESS', mw:180, jumlah:2},
+    {jenis:'PS (Pumped Storage)', mw:760, jumlah:1},
+    {jenis:'PLTM (Mini Hidro)', mw:74.2, jumlah:19},
+  ],
+  floatingPLTS: [
+    {nama:'Jatiluhur/Djuanda', luasHa:8130, mw:1626, status:'Eksisting'},
+    {nama:'Jatigede', luasHa:4122, mw:824.4, status:'Selesai'},
+    {nama:'Cipanas', luasHa:1316, mw:263.19, status:'On Going'},
+    {nama:'Situ Kamojing', luasHa:628, mw:125.6, status:'Eksisting'},
+    {nama:'Sadawarna', luasHa:681, mw:136.3, status:'Selesai'},
+    {nama:'Cipancuh', luasHa:354, mw:70.73, status:'Eksisting'},
+    {nama:'Leuwikeris', luasHa:243, mw:48.58, status:'On Going'},
+  ],
+  gangguanUP3: [
+    {kode:'BDG', nama:'Bandung', total2025:161, total2026:203},
+    {kode:'BKS', nama:'Bekasi', total2025:199, total2026:145},
+    {kode:'BGR', nama:'Bogor', total2025:240, total2026:286},
+    {kode:'CJR', nama:'Cianjur', total2025:176, total2026:264},
+    {kode:'CKR', nama:'Cikarang', total2025:277, total2026:208},
+    {kode:'CMI', nama:'Cimahi', total2025:199, total2026:285},
+    {kode:'CRB', nama:'Cirebon', total2025:201, total2026:393},
+    {kode:'DPK', nama:'Depok', total2025:124, total2026:245},
+    {kode:'GRT', nama:'Garut', total2025:201, total2026:388},
+    {kode:'GPI', nama:'Gunung Putri', total2025:255, total2026:378},
+    {kode:'IDM', nama:'Indramayu', total2025:104, total2026:190},
+    {kode:'KRW', nama:'Karawang', total2025:203, total2026:231},
+    {kode:'MJA', nama:'Majalaya', total2025:147, total2026:351},
+    {kode:'PWK', nama:'Purwakarta', total2025:200, total2026:245},
+    {kode:'SKI', nama:'Sukabumi', total2025:277, total2026:484},
+    {kode:'SMD', nama:'Sumedang', total2025:87, total2026:187},
+    {kode:'TSK', nama:'Tasikmalaya', total2025:293, total2026:465},
+    {kode:'UP2D', nama:'UP2D (unit khusus)', total2025:70, total2026:108},
+  ],
+  gangguanHeadline: {total2025:3414, total2026:5056},
+  gangguanCauses: [
+    {penyebab:'Pohon', jumlah:1005},
+    {penyebab:'Binatang', jumlah:951},
+    {penyebab:'Petir', jumlah:499},
+    {penyebab:'Jointing (sambungan kabel)', jumlah:477},
+    {penyebab:'Layang-Layang', jumlah:372},
+    {penyebab:'Pihak Ke-3', jumlah:227},
+    {penyebab:'Loss Contact (FCO)', jumlah:206},
+    {penyebab:'Arrester', jumlah:140},
+    {penyebab:'Tidak Ditemukan', jumlah:137},
+    {penyebab:'Isolator', jumlah:128},
+  ],
+  risikoBencana2024: [
+    {daerah:'Kab. Sukabumi', indeks:168.97},
+    {daerah:'Kab. Cianjur', indeks:165.17},
+    {daerah:'Kab. Tasikmalaya', indeks:145.5},
+    {daerah:'Kab. Karawang', indeks:142.06},
+    {daerah:'Kab. Kuningan', indeks:141.55},
+    {daerah:'Kab. Garut', indeks:134.75},
+    {daerah:'Kab. Subang', indeks:133.56},
+    {daerah:'Kab. Pangandaran', indeks:133.13},
+    {daerah:'Kab. Cirebon', indeks:133.04},
+    {daerah:'Kab. Sumedang', indeks:127.24},
+    {daerah:'Kab. Bandung', indeks:117.13},
+    {daerah:'Kota Banjar', indeks:116.26},
+    {daerah:'Kota Cirebon', indeks:112.32},
+    {daerah:'Kota Bekasi', indeks:111.58},
+    {daerah:'Kab. Majalengka', indeks:108.99},
+    {daerah:'Kab. Bandung Barat', indeks:108.28},
+    {daerah:'Kab. Purwakarta', indeks:107.01},
+    {daerah:'Kab. Bekasi', indeks:106.39},
+    {daerah:'Kab. Ciamis', indeks:105.56},
+    {daerah:'Kab. Bogor', indeks:101.72},
+    {daerah:'Kab. Indramayu', indeks:99.21},
+    {daerah:'Kota Tasikmalaya', indeks:97.13},
+    {daerah:'Kota Bandung', indeks:91.95},
+    {daerah:'Kota Sukabumi', indeks:77.56},
+    {daerah:'Kota Depok', indeks:72.28},
+    {daerah:'Kota Cimahi', indeks:65.77},
+    {daerah:'Kota Bogor', indeks:58.03},
+  ],
+  risikoBencanaTrend: [
+    {tahun:2015, avg:168.14}, {tahun:2016, avg:163.18}, {tahun:2017, avg:158.52},
+    {tahun:2018, avg:152.13}, {tahun:2019, avg:151.57}, {tahun:2020, avg:145.81},
+    {tahun:2021, avg:134.94}, {tahun:2022, avg:131.62}, {tahun:2023, avg:123.25},
+    {tahun:2024, avg:114.15},
+  ],
+  populasi2025: [
+    {daerah:'Kab. Bogor', ribu:5721.62},
+    {daerah:'Kab. Bandung', ribu:3783.21},
+    {daerah:'Kab. Bekasi', ribu:3303.02},
+    {daerah:'Kab. Sukabumi', ribu:2852.11},
+    {daerah:'Kab. Garut', ribu:2748.7},
+    {daerah:'Kota Bekasi', ribu:2648.27},
+    {daerah:'Kab. Cianjur', ribu:2610.32},
+    {daerah:'Kab. Karawang', ribu:2581.25},
+    {daerah:'Kota Bandung', ribu:2548.78},
+    {daerah:'Kab. Cirebon', ribu:2413.81},
+    {daerah:'Kota Depok', ribu:2167.96},
+    {daerah:'Kab. Tasikmalaya', ribu:1933.81},
+    {daerah:'Kab. Indramayu', ribu:1932.52},
+    {daerah:'Kab. Bandung Barat', ribu:1907.82},
+    {daerah:'Kab. Subang', ribu:1675.52},
+    {daerah:'Kab. Majalengka', ribu:1363.76},
+    {daerah:'Kab. Ciamis', ribu:1266.33},
+    {daerah:'Kab. Kuningan', ribu:1225.49},
+    {daerah:'Kab. Sumedang', ribu:1195.53},
+    {daerah:'Kota Bogor', ribu:1083.78},
+    {daerah:'Kab. Purwakarta', ribu:1062.97},
+    {daerah:'Kota Tasikmalaya', ribu:759.37},
+    {daerah:'Kota Cimahi', ribu:606.38},
+    {daerah:'Kab. Pangandaran', ribu:436.49},
+    {daerah:'Kota Sukabumi', ribu:370.68},
+    {daerah:'Kota Cirebon', ribu:347.54},
+    {daerah:'Kota Banjar', ribu:211.96},
+  ],
+  demandUP3: [
+    {kode:'CKG', nama:'Cikarang', targetGWh:459.07},
+    {kode:'KRW', nama:'Karawang', targetGWh:452.62},
+    {kode:'BGR', nama:'Bogor', targetGWh:323.72},
+    {kode:'BDG', nama:'Bandung', targetGWh:251.70},
+    {kode:'PWK', nama:'Purwakarta', targetGWh:242.17},
+    {kode:'BKS', nama:'Bekasi', targetGWh:241.72},
+    {kode:'GPI', nama:'Gunung Putri', targetGWh:232.73},
+    {kode:'DPK', nama:'Depok', targetGWh:210.76},
+    {kode:'CRB', nama:'Cirebon', targetGWh:193.95},
+    {kode:'CMI', nama:'Cimahi', targetGWh:160.09},
+    {kode:'MJA', nama:'Majalaya', targetGWh:157.30},
+    {kode:'SMD', nama:'Sumedang', targetGWh:152.64},
+    {kode:'TSK', nama:'Tasikmalaya', targetGWh:114.48},
+    {kode:'SKI', nama:'Sukabumi', targetGWh:112.33},
+    {kode:'IDM', nama:'Indramayu', targetGWh:81.12},
+    {kode:'CJR', nama:'Cianjur', targetGWh:67.03},
+    {kode:'GRT', nama:'Garut', targetGWh:58.85},
+  ],
+  demandTrend: [
+    {tahun:'2019', gwh:50883.98}, {tahun:'2020', gwh:49882.91}, {tahun:'2021', gwh:53318.02},
+    {tahun:'2022', gwh:56226.11}, {tahun:'2023', gwh:58564.31}, {tahun:'2024', gwh:61637.47},
+    {tahun:'2025', gwh:63503.30}, {tahun:'2026 (target)', gwh:67015.56},
+  ],
+  demandKabKota: [
+    {daerah:'Kab. Bogor', gwh:467.83, stdGwh:12.63},
+    {daerah:'Kab. Bekasi', gwh:459.07, stdGwh:12.39},
+    {daerah:'Kab. Karawang', gwh:452.62, stdGwh:12.22},
+    {daerah:'Kota Bandung', gwh:251.70, stdGwh:6.80},
+    {daerah:'Kota Bekasi', gwh:241.72, stdGwh:6.53},
+    {daerah:'Kota Depok', gwh:210.76, stdGwh:5.69},
+    {daerah:'Kab. Bandung', gwh:157.30, stdGwh:4.25},
+    {daerah:'Kab. Subang', gwh:148.17, stdGwh:4.00},
+    {daerah:'Kab. Bandung Barat', gwh:121.48, stdGwh:3.28},
+    {daerah:'Kab. Cirebon', gwh:117.43, stdGwh:3.17},
+    {daerah:'Kab. Sukabumi', gwh:99.41, stdGwh:2.68},
+    {daerah:'Kab. Purwakarta', gwh:94.00, stdGwh:2.54},
+    {daerah:'Kota Bogor', gwh:88.62, stdGwh:2.39},
+    {daerah:'Kab. Majalengka', gwh:81.34, stdGwh:2.20},
+    {daerah:'Kab. Indramayu', gwh:81.12, stdGwh:2.19},
+    {daerah:'Kab. Sumedang', gwh:71.30, stdGwh:1.93},
+    {daerah:'Kab. Cianjur', gwh:67.03, stdGwh:1.81},
+    {daerah:'Kab. Kuningan', gwh:59.62, stdGwh:1.61},
+    {daerah:'Kab. Garut', gwh:58.85, stdGwh:1.59},
+    {daerah:'Kab. Tasikmalaya', gwh:48.04, stdGwh:1.30},
+    {daerah:'Kota Cimahi', gwh:38.61, stdGwh:1.04},
+    {daerah:'Kab. Ciamis', gwh:31.46, stdGwh:0.85},
+    {daerah:'Kota Tasikmalaya', gwh:18.87, stdGwh:0.51},
+    {daerah:'Kota Cirebon', gwh:16.91, stdGwh:0.46},
+    {daerah:'Kota Sukabumi', gwh:12.92, stdGwh:0.35},
+    {daerah:'Kab. Pangandaran', gwh:10.84, stdGwh:0.29},
+    {daerah:'Kota Banjar', gwh:5.27, stdGwh:0.14},
+  ],
+  investasiUP3: [
+    {nama:'Cikarang', investasiM:246.63},
+    {nama:'Bogor', investasiM:241.53},
+    {nama:'Karawang', investasiM:229.74},
+    {nama:'Bekasi', investasiM:199.05},
+    {nama:'Cirebon', investasiM:179.31},
+    {nama:'Bandung', investasiM:161.12},
+    {nama:'Purwakarta', investasiM:160.98},
+    {nama:'Tasikmalaya', investasiM:159.74},
+    {nama:'Depok', investasiM:159.32},
+    {nama:'Gunung Putri', investasiM:129.70},
+    {nama:'Majalaya', investasiM:129.26},
+    {nama:'Sumedang', investasiM:119.08},
+    {nama:'Cimahi', investasiM:104.71},
+    {nama:'Indramayu', investasiM:102.93},
+    {nama:'Sukabumi', investasiM:97.54},
+    {nama:'Cianjur', investasiM:93.96},
+    {nama:'Garut', investasiM:84.62},
+  ],
+  investasiKabKota: [
+    {daerah:'Kab. Bogor', investasiM:312.11},
+    {daerah:'Kab. Bekasi', investasiM:246.63},
+    {daerah:'Kab. Karawang', investasiM:229.74},
+    {daerah:'Kota Bekasi', investasiM:199.05},
+    {daerah:'Kota Bandung', investasiM:161.12},
+    {daerah:'Kota Depok', investasiM:159.32},
+    {daerah:'Kab. Bandung', investasiM:129.26},
+    {daerah:'Kab. Cirebon', investasiM:108.56},
+    {daerah:'Kab. Indramayu', investasiM:102.93},
+    {daerah:'Kab. Subang', investasiM:98.49},
+    {daerah:'Kab. Cianjur', investasiM:93.96},
+    {daerah:'Kab. Sukabumi', investasiM:86.32},
+    {daerah:'Kab. Garut', investasiM:84.62},
+    {daerah:'Kab. Bandung Barat', investasiM:79.46},
+    {daerah:'Kab. Tasikmalaya', investasiM:67.04},
+    {daerah:'Kab. Majalengka', investasiM:63.45},
+    {daerah:'Kab. Purwakarta', investasiM:62.49},
+    {daerah:'Kota Bogor', investasiM:59.12},
+    {daerah:'Kab. Sumedang', investasiM:55.63},
+    {daerah:'Kab. Kuningan', investasiM:55.12},
+    {daerah:'Kab. Ciamis', investasiM:43.90},
+    {daerah:'Kota Tasikmalaya', investasiM:26.32},
+    {daerah:'Kota Cimahi', investasiM:25.25},
+    {daerah:'Kota Cirebon', investasiM:15.63},
+    {daerah:'Kab. Pangandaran', investasiM:15.13},
+    {daerah:'Kota Sukabumi', investasiM:11.22},
+    {daerah:'Kota Banjar', investasiM:7.35},
+  ],
+  pembangkitEksisting: [
+    {nama:'PLTA Cirata', jenis:'RE', kab:'Purwakarta/Cianjur/Bandung Barat', mw:1008},
+    {nama:'PLTA Saguling', jenis:'RE', kab:'Kab. Bandung Barat', mw:700},
+    {nama:'PLTA Jatiluhur', jenis:'RE', kab:'Kab. Purwakarta', mw:187},
+    {nama:'PLTP (gabungan Kamojang dkk)', jenis:'RE', kab:'Garut/Bandung/Bogor', mw:685},
+    {nama:'PLTGU Muara Tawar', jenis:'NRE', kab:'Kab. Bekasi', mw:1815},
+    {nama:'PLTU Pelabuhan Ratu', jenis:'NRE', kab:'Kab. Sukabumi', mw:1050},
+    {nama:'PLTU Indramayu', jenis:'NRE', kab:'Kab. Indramayu', mw:990},
+    {nama:'PLTU Cirebon Unit 2 (Cirebon Power)', jenis:'NRE', kab:'Kab. Cirebon', mw:1000},
+    {nama:'PLTU Cirebon Unit 1', jenis:'NRE', kab:'Kab. Cirebon', mw:660},
+    {nama:'PLTGU Cikarang Listrindo', jenis:'NRE', kab:'Kab. Bekasi', mw:300},
+    {nama:'PLTG Sunyaragi', jenis:'NRE', kab:'Kota/Kab. Cirebon', mw:80},
+  ],
+};
+
+/* ============ THEME HELPERS ============ */
+const COLORS = {navy:'#0B3350', teal:'#0E7C7B', tealLine:'#1E9E86', amber:'#C2760C', red:'#B3401F', green:'#3F7D51', grey:'#5A6B78', purple:'#6D5BA8'};
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.color = '#5B6B7A';
+Chart.defaults.font.size = 11.5;
+
+function statusOf(v){
+  if(v > 10) return 'tinggi';
+  if(v >= 7) return 'sedang';
+  return 'rendah';
+}
+function statusLabel(s){
+  return {tinggi:'Prioritas Tinggi', sedang:'Sedang', rendah:'Rendah'}[s];
+}
+
+/* ============ CHARTS ============ */
+new Chart(document.getElementById('chartKonsumsi'), {
+  data: {
+    labels: DATA.konsumsi.map(d=>d.tahun),
+    datasets: [
+      {type:'bar', label:'Konsumsi (GWh)', data: DATA.konsumsi.map(d=>d.gwh), backgroundColor: COLORS.teal+'CC', borderRadius:4, yAxisID:'y'},
+      {type:'line', label:'Per kapita (kWh)', data: DATA.konsumsi.map(d=>d.perKapita), borderColor: COLORS.amber, backgroundColor: COLORS.amber, tension:.3, yAxisID:'y1', pointRadius:4}
+    ]
+  },
+  options: {
+    responsive:true,
+    interaction:{mode:'index', intersect:false},
+    plugins:{legend:{position:'bottom', labels:{boxWidth:10, padding:14}}},
+    scales:{
+      y:{position:'left', title:{display:true, text:'GWh'}, grid:{color:'#EEF1F3'}},
+      y1:{position:'right', title:{display:true, text:'kWh/kapita'}, grid:{display:false}}
+    }
+  }
+});
+
+new Chart(document.getElementById('chartBauran'), {
+  type:'doughnut',
+  data:{
+    labels:['Energi Fosil', 'Energi Baru Terbarukan'],
+    datasets:[{data:[DATA.bauran2023.fosil, DATA.bauran2023.ebt], backgroundColor:[COLORS.grey, COLORS.tealLine], borderWidth:0}]
+  },
+  options:{
+    responsive:true,
+    cutout:'62%',
+    plugins:{legend:{position:'bottom', labels:{boxWidth:10, padding:14}},
+      tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw}%`}}}
+  }
+});
+
+new Chart(document.getElementById('chartPotensi'), {
+  type:'bar',
+  data:{
+    labels: DATA.potensiEBT.map(d=>d.sumber),
+    datasets:[{label:'Potensi (MW-ekuivalen)', data: DATA.potensiEBT.map(d=>d.mw), backgroundColor: COLORS.teal+'CC', borderRadius:4}]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.raw.toLocaleString('id-ID')} MW`}}},
+    scales:{x:{type:'logarithmic', title:{display:true, text:'MW (skala log)'}, grid:{color:'#EEF1F3'}}, y:{grid:{display:false}}}
+  }
+});
+
+new Chart(document.getElementById('chartTargetEBT'), {
+  type:'line',
+  data:{
+    labels: DATA.targetEBT.map(d=>d.tahun),
+    datasets:[{label:'Porsi EBT (%)', data: DATA.targetEBT.map(d=>d.persen), borderColor: COLORS.tealLine, backgroundColor: COLORS.tealLine+'22', fill:true, tension:.25, pointRadius:5}]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false}},
+    scales:{y:{suggestedMin:23, suggestedMax:26, title:{display:true, text:'% bauran energi'}, grid:{color:'#EEF1F3'}}, x:{grid:{display:false}}}
+  }
+});
+
+new Chart(document.getElementById('chartAnggaran'), {
+  type:'bar',
+  data:{
+    labels: DATA.anggaran.map(d=>d.program),
+    datasets:[{label:'Pagu 2026 (Rp Miliar)', data: DATA.anggaran.map(d=>d.miliar), backgroundColor:[COLORS.navy, COLORS.amber], borderRadius:4}]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>` Rp ${c.raw.toLocaleString('id-ID')} Miliar`}}},
+    scales:{y:{type:'logarithmic', title:{display:true, text:'Rp Miliar (skala log)'}, grid:{color:'#EEF1F3'}}, x:{grid:{display:false}}}
+  }
+});
+
+new Chart(document.getElementById('chartTrend'), {
+  data:{
+    labels: DATA.trendProvinsi.map(d=>d.tahun),
+    datasets:[
+      {type:'line', label:'Penduduk Miskin (%)', data: DATA.trendProvinsi.map(d=>d.miskin), borderColor: COLORS.red, backgroundColor: COLORS.red, tension:.3, yAxisID:'y', pointRadius:4},
+      {type:'line', label:'IPM (poin)', data: DATA.trendProvinsi.map(d=>d.ipm), borderColor: COLORS.navy, backgroundColor: COLORS.navy, tension:.3, yAxisID:'y1', pointRadius:4},
+    ]
+  },
+  options:{
+    responsive:true,
+    interaction:{mode:'index', intersect:false},
+    plugins:{legend:{position:'bottom', labels:{boxWidth:10, padding:14}}},
+    scales:{
+      y:{position:'left', title:{display:true, text:'% Miskin'}, grid:{color:'#EEF1F3'}},
+      y1:{position:'right', title:{display:true, text:'Poin IPM'}, grid:{display:false}}
+    }
+  }
+});
+
+new Chart(document.getElementById('chartIPMExtreme'), {
+  type:'bar',
+  data:{
+    labels:[...DATA.ipmExtreme.tinggi.map(d=>d.d), ...DATA.ipmExtreme.rendah.map(d=>d.d)],
+    datasets:[{
+      label:'IPM 2024',
+      data:[...DATA.ipmExtreme.tinggi.map(d=>d.v), ...DATA.ipmExtreme.rendah.map(d=>d.v)],
+      backgroundColor:[COLORS.tealLine,COLORS.tealLine,COLORS.tealLine,COLORS.red,COLORS.red,COLORS.red],
+      borderRadius:4
+    }]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true,
+    plugins:{legend:{display:false}},
+    scales:{x:{suggestedMin:60, suggestedMax:90, title:{display:true, text:'Poin IPM'}, grid:{color:'#EEF1F3'}}, y:{grid:{display:false}}}
+  }
+});
+
+new Chart(document.getElementById('chartRuptlDemand'), {
+  data:{
+    labels: DATA.ruptlDemand.map(d=>d.tahun),
+    datasets:[
+      {type:'bar', label:'Penjualan (GWh)', data: DATA.ruptlDemand.map(d=>d.sales), backgroundColor: COLORS.navy+'BB', borderRadius:4, yAxisID:'y'},
+      {type:'line', label:'Beban Puncak (MW)', data: DATA.ruptlDemand.map(d=>d.bebanPuncak), borderColor: COLORS.red, backgroundColor: COLORS.red, tension:.3, yAxisID:'y1', pointRadius:4}
+    ]
+  },
+  options:{
+    responsive:true,
+    interaction:{mode:'index', intersect:false},
+    plugins:{legend:{position:'bottom', labels:{boxWidth:10, padding:14}}},
+    scales:{
+      y:{position:'left', title:{display:true, text:'GWh'}, grid:{color:'#EEF1F3'}},
+      y1:{position:'right', title:{display:true, text:'MW'}, grid:{display:false}}
+    }
+  }
+});
+
+new Chart(document.getElementById('chartCandidateEBT'), {
+  type:'bar',
+  data:{
+    labels: DATA.candidateEBT.map(d=>d.jenis),
+    datasets:[{label:'Kandidat Kapasitas (MW)', data: DATA.candidateEBT.map(d=>d.mw), backgroundColor: COLORS.tealLine+'CC', borderRadius:4}]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>{
+      const item = DATA.candidateEBT[c.dataIndex];
+      return ` ${item.mw} MW (${item.jumlah} proyek)`;
+    }}}},
+    scales:{x:{title:{display:true, text:'MW'}, grid:{color:'#EEF1F3'}}, y:{grid:{display:false}}}
+  }
+});
+
+new Chart(document.getElementById('chartGangguanUP3'), {
+  type:'bar',
+  data:{
+    labels: DATA.gangguanUP3.map(d=>d.nama),
+    datasets:[
+      {label:'2025 (s.d 2 Jul)', data: DATA.gangguanUP3.map(d=>d.total2025), backgroundColor: COLORS.grey+'AA', borderRadius:3},
+      {label:'2026 (s.d 2 Jul)', data: DATA.gangguanUP3.map(d=>d.total2026), backgroundColor: COLORS.red+'CC', borderRadius:3}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom', labels:{boxWidth:10, padding:14}}},
+    scales:{x:{ticks:{font:{size:9.5}}, grid:{display:false}}, y:{title:{display:true, text:'Kali gangguan'}, grid:{color:'#EEF1F3'}}}
+  }
+});
+
+new Chart(document.getElementById('chartGangguanCauses'), {
+  type:'bar',
+  data:{
+    labels: DATA.gangguanCauses.map(d=>d.penyebab),
+    datasets:[{label:'Kali gangguan', data: DATA.gangguanCauses.map(d=>d.jumlah), backgroundColor: COLORS.amber+'CC', borderRadius:4}]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true,
+    plugins:{legend:{display:false}},
+    scales:{x:{title:{display:true, text:'Kali gangguan (UID Jabar)'}, grid:{color:'#EEF1F3'}}, y:{grid:{display:false}}}
+  }
+});
+
+new Chart(document.getElementById('chartDemandUP3'), {
+  type:'bar',
+  data:{
+    labels: DATA.demandUP3.map(d=>d.nama),
+    datasets:[{label:'Target Penambahan 2026 (GWh)', data: DATA.demandUP3.map(d=>d.targetGWh), backgroundColor: COLORS.navy+'CC', borderRadius:4}]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false}},
+    scales:{x:{ticks:{font:{size:9.5}}, grid:{display:false}}, y:{title:{display:true, text:'GWh'}, grid:{color:'#EEF1F3'}}}
+  }
+});
+
+new Chart(document.getElementById('chartDemandTrend'), {
+  type:'bar',
+  data:{
+    labels: DATA.demandTrend.map(d=>d.tahun),
+    datasets:[{label:'Penjualan (GWh)', data: DATA.demandTrend.map(d=>d.gwh), backgroundColor: DATA.demandTrend.map((d,i)=> i===DATA.demandTrend.length-1 ? COLORS.amber+'CC' : COLORS.teal+'CC'), borderRadius:4}]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false}},
+    scales:{y:{title:{display:true, text:'GWh'}, grid:{color:'#EEF1F3'}}, x:{grid:{display:false}}}
+  }
+});
+
+new Chart(document.getElementById('chartDemandKabKota'), {
+  type:'bar',
+  data:{
+    labels: DATA.demandKabKota.map(d=>d.daerah),
+    datasets:[{label:'Demand Energi (GWh)', data: DATA.demandKabKota.map(d=>d.gwh), backgroundColor: COLORS.teal+'CC', borderRadius:3}]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:c=>{
+        const d = DATA.demandKabKota[c.dataIndex];
+        return ` ${d.gwh} GWh  (±${d.stdGwh} GWh estimasi std)`;
+      }}}
+    },
+    scales:{x:{title:{display:true, text:'GWh (hover untuk lihat estimasi std)'}, grid:{color:'#EEF1F3'}}, y:{ticks:{font:{size:10}}, grid:{display:false}}}
+  }
+});
+
+new Chart(document.getElementById('chartInvestasiUP3'), {
+  type:'bar',
+  data:{
+    labels: DATA.investasiUP3.map(d=>d.nama),
+    datasets:[{label:'AI Sar 2025 (Rp Miliar)', data: DATA.investasiUP3.map(d=>d.investasiM), backgroundColor: COLORS.purple+'CC', borderRadius:4}]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false}},
+    scales:{x:{ticks:{font:{size:9.5}}, grid:{display:false}}, y:{title:{display:true, text:'Rp Miliar'}, grid:{color:'#EEF1F3'}}}
+  }
+});
+
+new Chart(document.getElementById('chartInvestasiKabKota'), {
+  type:'bar',
+  data:{
+    labels: DATA.investasiKabKota.map(d=>d.daerah),
+    datasets:[{label:'Investasi (Rp Miliar)', data: DATA.investasiKabKota.map(d=>d.investasiM), backgroundColor: COLORS.purple+'CC', borderRadius:3}]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{x:{title:{display:true, text:'Rp Miliar'}, grid:{color:'#EEF1F3'}}, y:{ticks:{font:{size:10}}, grid:{display:false}}}
+  }
+});
+
+document.getElementById('floatingPltsBody').innerHTML = DATA.floatingPLTS.map(d => `
+  <tr>
+    <td>${d.nama}</td>
+    <td class="num-cell">${d.luasHa.toLocaleString('id-ID')}</td>
+    <td class="num-cell"><b>${d.mw.toLocaleString('id-ID')}</b></td>
+    <td>${d.status}</td>
+  </tr>
+`).join('');
+
+document.getElementById('pembangkitEksistingBody').innerHTML = [...DATA.pembangkitEksisting]
+  .sort((a,b)=>b.mw-a.mw)
+  .map(d => `
+    <tr>
+      <td>${d.nama}</td>
+      <td><span class="badge ${d.jenis==='RE' ? 'rendah' : ''}" style="${d.jenis==='NRE' ? 'background:#EEF1F3;color:#5A6B78;' : ''}">${d.jenis}</span></td>
+      <td>${d.kab}</td>
+      <td class="num-cell"><b>${d.mw.toLocaleString('id-ID')}</b></td>
+    </tr>
+`).join('');
+
+function statusRisiko(v){
+  if(v >= 133) return 'tinggi';
+  if(v >= 106) return 'sedang';
+  return 'rendah';
+}
+const risikoColorMap = {tinggi: COLORS.red+'CC', sedang: COLORS.amber+'CC', rendah: COLORS.green+'CC'};
+
+new Chart(document.getElementById('chartRisikoBencana'), {
+  type:'bar',
+  data:{
+    labels: DATA.risikoBencana2024.map(d=>d.daerah),
+    datasets:[{
+      label:'Indeks Risiko Bencana',
+      data: DATA.risikoBencana2024.map(d=>d.indeks),
+      backgroundColor: DATA.risikoBencana2024.map(d=>risikoColorMap[statusRisiko(d.indeks)]),
+      borderRadius:3
+    }]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{x:{title:{display:true, text:'Poin (2024)'}, grid:{color:'#EEF1F3'}}, y:{ticks:{font:{size:10}}, grid:{display:false}}}
+  }
+});
+
+new Chart(document.getElementById('chartRisikoTrend'), {
+  type:'line',
+  data:{
+    labels: DATA.risikoBencanaTrend.map(d=>d.tahun),
+    datasets:[{label:'Rata-rata Indeks Provinsi', data: DATA.risikoBencanaTrend.map(d=>d.avg), borderColor: COLORS.red, backgroundColor: COLORS.red+'22', fill:true, tension:.3, pointRadius:4}]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false}},
+    scales:{y:{title:{display:true, text:'Poin (rata-rata)'}, grid:{color:'#EEF1F3'}}, x:{grid:{display:false}}}
+  }
+});
+
+document.getElementById('kpiRisikoAvg').textContent =
+  (DATA.risikoBencana2024.reduce((a,b)=>a+b.indeks,0) / DATA.risikoBencana2024.length).toFixed(1);
+
+/* ============ MAP ============ */
+try {
+if (typeof L === 'undefined') { throw new Error('Leaflet library gagal dimuat'); }
+(function(){
+  const popMap = {};
+  DATA.populasi2025.forEach(p => popMap[p.daerah] = p.ribu * 1000);
+  const riskMap = {};
+  DATA.risikoBencana2024.forEach(r => riskMap[r.daerah] = r.indeks);
+  const demandMap = {};
+  DATA.demandKabKota.forEach(d => demandMap[d.daerah] = d.gwh);
+  const demandStdMap = {};
+  DATA.demandKabKota.forEach(d => demandStdMap[d.daerah] = d.stdGwh);
+  const investasiMap = {};
+  DATA.investasiKabKota.forEach(d => investasiMap[d.daerah] = d.investasiM);
+
+  const regionData = {};
+  DATA.kemiskinan.forEach(r => {
+    const pop = popMap[r.daerah] || null;
+    regionData[r.daerah] = {
+      miskinPct: r.y2024,
+      populasi: pop,
+      miskinAbsolut: pop ? Math.round(pop * r.y2024 / 100) : null,
+      risiko: riskMap[r.daerah] != null ? riskMap[r.daerah] : null,
+      demandGWh: demandMap[r.daerah] != null ? demandMap[r.daerah] : null,
+      demandStdGWh: demandStdMap[r.daerah] != null ? demandStdMap[r.daerah] : null,
+      investasiM: investasiMap[r.daerah] != null ? investasiMap[r.daerah] : null,
+    };
+  });
+
+  const METRIC_CONFIG = {
+    miskinPct: {label:'% Kemiskinan', color:'#B3401F', fmt:v=>v.toFixed(2)+'%'},
+    risiko: {label:'Indeks Risiko Bencana', color:'#C2760C', fmt:v=>v.toFixed(1)+' poin'},
+    populasi: {label:'Populasi', color:'#0B3350', fmt:v=>Math.round(v).toLocaleString('id-ID')+' jiwa'},
+    miskinAbsolut: {label:'Estimasi Jiwa Miskin', color:'#6D5BA8', fmt:v=>Math.round(v).toLocaleString('id-ID')+' jiwa'},
+    demandGWh: {label:'Demand Energi (proporsi target UP3)', color:'#0E7C7B', fmt:v=>v.toFixed(1)+' GWh'},
+    investasiM: {label:'Investasi AI Sar (proporsi)', color:'#6D5BA8', fmt:v=>'Rp '+v.toFixed(1)+' M'},
+  };
+
+  let currentMetric = 'miskinPct';
+
+  function hexToRgb(hex){
+    hex = hex.replace('#','');
+    return [parseInt(hex.substring(0,2),16), parseInt(hex.substring(2,4),16), parseInt(hex.substring(4,6),16)];
+  }
+  function colorFor(metric, value, min, max){
+    const [r,g,b] = hexToRgb(METRIC_CONFIG[metric].color);
+    const t = max > min ? (value - min) / (max - min) : 0.5;
+    const tt = Math.max(0, Math.min(1, t));
+    const lr = 248, lg = 250, lb = 251;
+    const nr = Math.round(lr + (r-lr)*tt);
+    const ng = Math.round(lg + (g-lg)*tt);
+    const nb = Math.round(lb + (b-lb)*tt);
+    return `rgb(${nr},${ng},${nb})`;
+  }
+  function getMinMax(metric){
+    const vals = Object.values(regionData).map(d=>d[metric]).filter(v=>v!=null);
+    return [Math.min(...vals), Math.max(...vals)];
+  }
+  function popupHTML(daerah){
+    const d = regionData[daerah];
+    if(!d) return `<div class="popup-title">${daerah}</div><div>Data belum tersedia</div>`;
+    return `
+      <div class="popup-title">${daerah}</div>
+      <div class="popup-row"><span>Populasi (2025)</span><span>${d.populasi ? Math.round(d.populasi).toLocaleString('id-ID') : '-'}</span></div>
+      <div class="popup-row"><span>% Kemiskinan (2024)</span><span>${d.miskinPct.toFixed(2)}%</span></div>
+      <div class="popup-row"><span>Est. Jiwa Miskin</span><span>${d.miskinAbsolut ? d.miskinAbsolut.toLocaleString('id-ID') : '-'}</span></div>
+      <div class="popup-row"><span>Indeks Risiko Bencana</span><span>${d.risiko != null ? d.risiko.toFixed(1) : '-'}</span></div>
+      <div class="popup-row"><span>Demand Energi (proporsi)</span><span>${d.demandGWh != null ? d.demandGWh.toFixed(1)+' ± '+d.demandStdGWh.toFixed(1)+' GWh' : '-'}</span></div>
+      <div class="popup-row"><span>Investasi AI Sar (proporsi)</span><span>${d.investasiM != null ? 'Rp '+d.investasiM.toFixed(1)+' M' : '-'}</span></div>
+    `;
+  }
+
+  const map = L.map('jabarMap', {scrollWheelZoom:false}).setView([-6.95, 107.9], 8);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    maxZoom: 13,
+  }).addTo(map);
+
+  const geoLayer = L.geoJSON(JABAR_GEOJSON, {
+    style: function(){ return {weight:1, color:'#fff', fillOpacity:0.88, fillColor:'#EEE'}; },
+    onEachFeature: function(feature, layer){
+      const daerah = feature.properties.daerah;
+      layer.bindPopup(popupHTML(daerah));
+      layer.on('mouseover', function(){ this.setStyle({weight:2.5, color:'#0B3350'}); });
+      layer.on('mouseout', function(){ geoLayer.resetStyle(this); refreshStyles(); });
+    }
+  }).addTo(map);
+
+  const missingRegions = [
+    {daerah:'Kab. Bandung Barat', lat:-6.8395, lng:107.4885},
+    {daerah:'Kab. Pangandaran', lat:-7.6298, lng:108.6529},
+  ];
+  const markers = missingRegions.map(m => {
+    const marker = L.circleMarker([m.lat, m.lng], {radius:14, weight:2, color:'#fff', fillOpacity:0.9}).addTo(map);
+    marker.bindPopup(popupHTML(m.daerah));
+    return {daerah:m.daerah, marker};
+  });
+
+  function refreshStyles(){
+    const [min, max] = getMinMax(currentMetric);
+    geoLayer.eachLayer(layer => {
+      const daerah = layer.feature.properties.daerah;
+      const d = regionData[daerah];
+      const val = d ? d[currentMetric] : null;
+      layer.setStyle({fillColor: val != null ? colorFor(currentMetric, val, min, max) : '#EEE'});
+    });
+    markers.forEach(({daerah, marker}) => {
+      const d = regionData[daerah];
+      const val = d ? d[currentMetric] : null;
+      marker.setStyle({fillColor: val != null ? colorFor(currentMetric, val, min, max) : '#EEE'});
+    });
+    const cfg = METRIC_CONFIG[currentMetric];
+    document.getElementById('legendMin').textContent = cfg.fmt(min);
+    document.getElementById('legendMax').textContent = cfg.fmt(max);
+    document.getElementById('legendGrad').style.background =
+      `linear-gradient(to right, ${colorFor(currentMetric, min, min, max)}, ${cfg.color})`;
+  }
+
+  document.querySelectorAll('.map-metric-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentMetric = btn.dataset.metric;
+      document.querySelectorAll('.map-metric-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.background = '#fff';
+        b.style.borderColor = 'var(--line)';
+        b.style.color = 'var(--ink-2)';
+      });
+      btn.classList.add('active');
+      const cfg = METRIC_CONFIG[currentMetric];
+      btn.style.background = cfg.color;
+      btn.style.borderColor = cfg.color;
+      btn.style.color = '#fff';
+      refreshStyles();
+    });
+  });
+
+  refreshStyles();
+  setTimeout(() => map.invalidateSize(), 300);
+})();
+} catch(e) {
+  console.error('Peta gagal dimuat:', e);
+  const mapEl = document.getElementById('jabarMap');
+  if (mapEl) mapEl.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#8B99A6;font-size:13px;text-align:center;padding:20px;">⚠ Peta gagal dimuat (kemungkinan koneksi ke CDN Leaflet terblokir). Data lain di dashboard tetap berfungsi normal.</div>';
+}
+
+/* ============ WILAYAH CARDS ============ */
+document.getElementById('wilayahRow').innerHTML = DATA.wilayahKerja.map(w => `
+  <div class="wcard">
+    <div class="rn">Wil. ${w.no}</div>
+    <div class="nm">${w.nama}</div>
+    <div class="tg">Elektrifikasi daerah tertinggal: <b>100%</b><br>Kepatuhan teknis: <b>71%</b></div>
+  </div>
+`).join('');
+
+/* ============ TABLE ============ */
+let currentSort = {key:'y2024', dir:'desc'};
+let currentFilter = 'all';
+
+const populasiMap = {};
+DATA.populasi2025.forEach(p => populasiMap[p.daerah] = p.ribu * 1000);
+
+const equityRows = DATA.kemiskinan.map(r => {
+  const populasi = populasiMap[r.daerah] || null;
+  const miskinAbsolut = populasi ? Math.round(populasi * r.y2024 / 100) : null;
+  return {...r, populasi, miskinAbsolut};
+});
+
+document.getElementById('kpiMiskinAbsolut').textContent =
+  equityRows.reduce((a,b)=>a+(b.miskinAbsolut||0),0).toLocaleString('id-ID') + ' jiwa';
+
+function setFilter(f){
+  currentFilter = f;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active', c.dataset.filter===f));
+  renderTable();
+}
+function sortBy(key){
+  if(currentSort.key===key){currentSort.dir = currentSort.dir==='asc'?'desc':'asc';}
+  else {currentSort = {key, dir:'desc'};}
+  renderTable();
+}
+function renderTable(){
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let rows = equityRows.filter(r => r.daerah.toLowerCase().includes(q));
+  if(currentFilter !== 'all'){
+    rows = rows.filter(r => statusOf(r.y2024) === currentFilter);
+  }
+  rows.sort((a,b)=>{
+    let va=a[currentSort.key], vb=b[currentSort.key];
+    if(typeof va === 'string') return currentSort.dir==='asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+    return currentSort.dir==='asc' ? va-vb : vb-va;
+  });
+  document.getElementById('tableBody').innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.daerah}</td>
+      <td class="num-cell">${r.populasi ? r.populasi.toLocaleString('id-ID') : '-'}</td>
+      <td class="num-cell"><b>${r.y2024.toFixed(2)}%</b></td>
+      <td class="num-cell">${r.miskinAbsolut ? r.miskinAbsolut.toLocaleString('id-ID') : '-'}</td>
+      <td style="text-align:center"><span class="badge ${statusOf(r.y2024)}">${statusLabel(statusOf(r.y2024))}</span></td>
+    </tr>
+  `).join('');
+}
+renderTable();
+
+/* ============ EXPORTS ============ */
+function downloadChart(id){
+  const link = document.createElement('a');
+  link.download = id + '.png';
+  link.href = document.getElementById(id).toDataURL('image/png', 1.0);
+  link.click();
+}
+function exportPovertyCSV(){
+  const header = ['No','Kabupaten/Kota','Populasi 2025','2020','2021','2022','2023','2024','Est Jiwa Miskin 2024','Status Equity 2024'];
+  const rows = equityRows.map(r => [r.no, r.daerah, r.populasi||'', r.y2020, r.y2021, r.y2022, r.y2023, r.y2024, r.miskinAbsolut||'', statusLabel(statusOf(r.y2024))]);
+  const csv = [header, ...rows].map(row => row.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'kemiskinan_populasi_kabkota_jabar.csv';
+  link.click();
+}
+function exportAllJSON(){
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'data_pendukung_mdp_jabar.json';
+  link.click();
+}
+
+/* ============ SUBNAV SCROLL-SPY ============ */
+const navLinks = Array.from(document.querySelectorAll('#subnav a'));
+const navSections = navLinks.map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+
+function setActiveNav(id){
+  navLinks.forEach(a => a.classList.toggle('active', a.dataset.target === id));
+}
+
+if('IntersectionObserver' in window){
+  const observer = new IntersectionObserver((entries) => {
+    // pick the entry closest to the top that is intersecting
+    const visible = entries.filter(e => e.isIntersecting);
+    if(visible.length > 0){
+      visible.sort((a,b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      setActiveNav(visible[0].target.id);
+    }
+  }, {rootMargin: '-56px 0px -70% 0px', threshold: 0});
+  navSections.forEach(sec => observer.observe(sec));
+} else {
+  setActiveNav('sec-ringkasan');
+}
+
+document.getElementById('genDate').textContent = 'Dibuat: ' + new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu — Pusat Data PLN &amp; Jawa Barat</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+
+<header class="menu-top">
+  <div class="menu-top-inner">
+    <div>
+      <div class="brand-title-sm">Pusat Data PLN &amp; Jawa Barat</div>
+      <div class="welcome-text">Selamat datang, <span id="whoami">…</span></div>
+    </div>
+    <button id="logoutBtn" class="btn-logout">Keluar</button>
+  </div>
+</header>
+
+<main class="menu-grid-wrap">
+  <div class="menu-grid">
+    <a class="module-card ready" href="/modules/mdp/index.html">
+      <div class="module-icon">📊</div>
+      <div class="module-name">Data Pendukung MDP</div>
+      <div class="module-desc">Data equity &amp; energi Jawa Barat untuk riset MDP renewable energy</div>
+      <div class="module-status">Aktif</div>
+    </a>
+
+    <a class="module-card" href="#" data-locked="true">
+      <div class="module-icon">👥</div>
+      <div class="module-name">Data Induk Langganan PLN Jabar</div>
+      <div class="module-desc">Master data pelanggan — akses terbatas</div>
+      <div class="module-status pending">Segera</div>
+    </a>
+
+    <a class="module-card" href="#" data-locked="true">
+      <div class="module-icon">🧾</div>
+      <div class="module-name">Data OLAP Tagihan Listrik Jabar</div>
+      <div class="module-desc">Ringkasan &amp; analisis tagihan listrik</div>
+      <div class="module-status pending">Segera</div>
+    </a>
+
+    <a class="module-card" href="#" data-locked="true">
+      <div class="module-icon">⚠️</div>
+      <div class="module-name">Data Pencurian Tenaga Listrik</div>
+      <div class="module-desc">Akses terbatas — role tertentu saja</div>
+      <div class="module-status pending">Segera</div>
+    </a>
+
+    <a class="module-card" href="#" data-locked="true">
+      <div class="module-icon">🏗️</div>
+      <div class="module-name">Data RUPTL PLN 2025–2034</div>
+      <div class="module-desc">Rencana pengembangan sistem tenaga listrik</div>
+      <div class="module-status pending">Segera</div>
+    </a>
+
+    <div class="module-card module-card-empty">
+      <div class="module-icon">➕</div>
+      <div class="module-name">Modul Berikutnya</div>
+      <div class="module-desc">Slot untuk data baru yang ditambahkan nanti</div>
+    </div>
+  </div>
+</main>
+
+<script>
+async function init() {
+  const res = await fetch('/api/auth/me');
+  if (!res.ok) {
+    window.location.href = '/';
+    return;
+  }
+  const user = await res.json();
+  document.getElementById('whoami').textContent = `${user.username} (${user.role})`;
+}
+init();
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  window.location.href = '/';
+});
+
+document.querySelectorAll('.module-card[data-locked="true"]').forEach(card => {
+  card.addEventListener('click', (e) => {
+    e.preventDefault();
+    alert('Modul ini belum aktif. Tambahkan route & datanya di src/routes/ untuk mengaktifkan.');
+  });
+});
+</script>
+</body>
+</html>
