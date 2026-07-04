@@ -1,7 +1,7 @@
 {
-  "name": "plnjabar-portal",
+  "name": "cockpit",
   "version": "0.1.0",
-  "description": "Pusat data PLN & Jawa Barat - portal internal dengan auth dan multi-modul data",
+  "description": "COCKPIT — Pusat Data Riset Pribadi untuk mendukung studi PhD",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",

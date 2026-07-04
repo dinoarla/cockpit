@@ -98,7 +98,7 @@ export function safeCompare(a: string, b: string): boolean {
   return timingSafeEqual(bufA, bufB);
 }
 
-export const SESSION_COOKIE_NAME = "plnjabar_session";
+export const SESSION_COOKIE_NAME = "cockpit_session";
 
 export function sessionCookieOptions() {
   return {

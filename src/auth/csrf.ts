@@ -15,7 +15,7 @@ import { safeCompare } from "./session.js";
  * tidak akan bisa menyertakan nilai yang cocok di hidden field.
  */
 
-export const CSRF_COOKIE_NAME = "plnjabar_csrf";
+export const CSRF_COOKIE_NAME = "cockpit_csrf";
 
 export function generateCsrfToken(): string {
   return randomBytes(32).toString("base64url");
