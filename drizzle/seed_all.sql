@@ -28,6 +28,12 @@ JOIN domains d ON dm.domain_id = d.id
 SET dm.nama = 'Bauran Energi Jawa Barat'
 WHERE d.slug = 'energi-jabar' AND dm.slug = 'mdp';
 
+-- Aktifkan modul pelanggan (halaman statistik DIL sudah tersedia)
+UPDATE domain_modules dm
+JOIN domains d ON dm.domain_id = d.id
+SET dm.status = 'aktif'
+WHERE d.slug = 'energi-jabar' AND dm.slug = 'pelanggan';
+
 
 -- ============================================================
 -- BAGIAN 1: B2 — BANTEN

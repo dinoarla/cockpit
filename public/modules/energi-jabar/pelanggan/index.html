@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Induk Langganan PLN Jawa Barat — COCKPIT</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+<style>
+:root{
+  --navy:#0B3350;--navy-2:#123A5E;--teal:#0E7C7B;--teal-light:#E4F3F2;
+  --amber:#C2760C;--amber-light:#FBF0DE;--red:#B3401F;--red-light:#FBEAE4;
+  --green:#3F7D51;--green-light:#EBF4EC;--purple:#6D5BA8;--purple-light:#F0EEF9;
+  --bg:#F3F5F7;--card:#FFFFFF;--line:#E3E7EB;--ink:#182430;--ink-2:#5B6B7A;
+  --radius:14px;--shadow:0 1px 2px rgba(15,35,55,.04),0 4px 16px rgba(15,35,55,.06);
+  --font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);font-family:var(--font-body);color:var(--ink);-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px 80px;}
+
+/* HEADER */
+header.top{background:linear-gradient(160deg,var(--navy) 0%,var(--navy-2) 55%,#0A4A5E 100%);color:#EAF1F6;padding:36px 24px 0;}
+.top-inner{max-width:1240px;margin:0 auto;}
+.eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8FB4C9;margin-bottom:10px;}
+h1{font-family:var(--font-display);font-size:28px;line-height:1.25;margin:0 0 10px;font-weight:700;color:#fff;}
+.top-sub{font-size:14px;color:#C4D7E2;max-width:660px;line-height:1.6;margin-bottom:28px;}
+.badge-sensitive{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10.5px;
+  background:rgba(179,64,31,.18);border:1px solid rgba(179,64,31,.35);color:#F4A58A;
+  padding:4px 10px;border-radius:20px;margin-bottom:20px;letter-spacing:.06em;}
+.btn-back{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#8FB4C9;text-decoration:none;margin-bottom:16px;}
+.btn-back:hover{color:#fff;}
+
+/* SUBNAV */
+.subnav-wrap{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);box-shadow:0 2px 10px rgba(15,35,55,.05);}
+.subnav{max-width:1240px;margin:0 auto;padding:0 24px;display:flex;align-items:center;
+  gap:4px;overflow-x:auto;scrollbar-width:none;}
+.subnav::-webkit-scrollbar{display:none;}
+.subnav a{flex:0 0 auto;font-family:var(--font-body);font-size:12.5px;font-weight:600;
+  color:var(--ink-2);text-decoration:none;padding:13px 14px;border-bottom:2.5px solid transparent;
+  white-space:nowrap;transition:color .15s,border-color .15s;}
+.subnav a:hover{color:var(--navy);}
+.subnav a.active{color:var(--teal);border-bottom-color:var(--teal);}
+.subnav a .n{font-family:var(--font-mono);font-size:10px;color:#A7B4BF;margin-right:5px;}
+.subnav a.active .n{color:var(--teal);}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0 28px;}
+.kpi{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border-top:3px solid var(--teal);}
+.kpi.k2{border-top-color:var(--purple);}
+.kpi.k3{border-top-color:var(--amber);}
+.kpi.k4{border-top-color:var(--green);}
+.kpi-label{font-size:11.5px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:8px;}
+.kpi-value{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--ink);}
+.kpi-value span{font-size:13px;font-weight:600;color:var(--ink-2);}
+.kpi-note{font-size:11px;color:var(--ink-2);margin-top:5px;line-height:1.4;}
+
+/* SECTION HEAD */
+.sec-head{margin:36px 0 16px;scroll-margin-top:56px;}
+.sec-head h2{font-family:var(--font-display);font-size:18px;margin:0 0 4px;display:flex;align-items:center;gap:10px;}
+.sec-head .tag{font-family:var(--font-mono);font-size:11px;color:var(--teal);background:var(--teal-light);padding:3px 9px;border-radius:20px;font-weight:600;}
+.sec-head p{font-size:13px;color:var(--ink-2);margin:0;max-width:680px;line-height:1.6;}
+
+/* CARDS */
+.grid-2{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;}
+.grid-2b{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.card{background:var(--card);border-radius:var(--radius);padding:20px 22px 16px;box-shadow:var(--shadow);}
+.card h3{font-size:14px;margin:0 0 2px;font-weight:600;}
+.card .sub{font-size:11.5px;color:var(--ink-2);margin-bottom:14px;}
+.card canvas{max-height:260px;}
+.card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;
+  padding-top:10px;border-top:1px dashed var(--line);}
+.src{font-size:10.5px;color:#8B99A6;font-family:var(--font-mono);}
+
+/* MAP */
+.map-card{background:var(--card);border-radius:var(--radius);padding:20px 22px 18px;
+  box-shadow:var(--shadow);margin-top:16px;}
+.map-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:14px;}
+.map-head h3{font-size:15px;margin:0 0 3px;font-weight:600;}
+.map-head .sub{font-size:11.5px;color:var(--ink-2);}
+.map-toggle{display:flex;gap:6px;flex-wrap:wrap;}
+.map-btn{font-size:12px;font-weight:600;padding:7px 13px;border-radius:20px;
+  border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--ink-2);transition:all .15s;}
+.map-btn.active{color:#fff;border-color:transparent;}
+#pelangganMap{width:100%;height:520px;border-radius:10px;z-index:1;}
+.map-legend{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:11.5px;color:var(--ink-2);}
+.map-legend .grad{height:10px;width:200px;border-radius:6px;}
+.leaflet-popup-content-wrapper{border-radius:10px;}
+.leaflet-popup-content{font-family:var(--font-body);font-size:12.5px;margin:12px 14px;}
+.popup-title{font-family:var(--font-display);font-weight:700;font-size:14px;margin-bottom:8px;}
+.popup-row{display:flex;justify-content:space-between;gap:16px;padding:3px 0;border-bottom:1px solid #F0F2F4;}
+.popup-row:last-child{border-bottom:none;}
+.popup-row span:last-child{font-family:var(--font-mono);font-weight:600;}
+
+/* TABLE */
+.table-tools{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+.search-box{position:relative;}
+.search-box input{padding:9px 14px 9px 34px;border:1px solid var(--line);border-radius:8px;
+  font-size:13px;width:220px;font-family:var(--font-body);background:#FAFBFC;}
+.search-box::before{content:"⌕";position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  color:var(--ink-2);font-size:15px;}
+table.data{width:100%;border-collapse:collapse;font-size:12.5px;}
+table.data thead th{text-align:left;padding:10px 12px;border-bottom:2px solid var(--line);
+  color:var(--ink-2);font-weight:600;font-size:11px;text-transform:uppercase;
+  letter-spacing:.04em;cursor:pointer;user-select:none;white-space:nowrap;}
+table.data thead th:hover{color:var(--ink);}
+table.data thead th.sorted::after{content:" ▾";font-size:9px;}
+table.data tbody td{padding:9px 12px;border-bottom:1px solid #F0F2F4;}
+table.data tbody tr:hover{background:#FAFBFC;}
+.num-cell{font-family:var(--font-mono);text-align:right;}
+.pct-bar-wrap{display:flex;align-items:center;gap:8px;}
+.pct-bar{height:6px;border-radius:3px;background:var(--teal);flex-shrink:0;}
+.pct-bar.paska{background:var(--purple);}
+
+/* CATATAN */
+.note-panel{background:#FFFCF6;border:1px dashed #E3B968;border-radius:var(--radius);padding:18px 22px;margin-top:20px;}
+.note-panel h4{font-family:var(--font-display);font-size:14px;margin:0 0 6px;color:#8A5A0A;}
+.note-panel p{font-size:12.5px;color:var(--ink-2);margin:0;line-height:1.7;}
+
+/* PROGRESS BAR (prabayar vs paskabayar) */
+.split-bar{display:flex;height:28px;border-radius:8px;overflow:hidden;margin:12px 0 4px;}
+.split-seg{display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);
+  font-size:11.5px;font-weight:500;color:#fff;white-space:nowrap;}
+.split-pra{background:var(--teal);}
+.split-pas{background:var(--purple);}
+.split-caption{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-2);
+  font-family:var(--font-mono);padding:4px 2px 16px;}
+
+footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
+  font-size:11.5px;color:var(--ink-2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .grid-2,.grid-2b,.grid-3{grid-template-columns:1fr;}
+  #pelangganMap{height:420px;}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <a href="/menu.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali ke Menu</a>
+    <div class="eyebrow">Master Data Pelanggan &middot; PLN UID Jawa Barat &middot; Data Agregat</div>
+    <h1>Data Induk Langganan PLN Jawa Barat</h1>
+    <p class="top-sub">Statistik dan peta sebaran 13,9 juta pelanggan PLN di Provinsi Jawa Barat — distribusi per kabupaten/kota, tarif, daya, dan jenis layanan. Data mentah bersifat sensitif (PII); halaman ini hanya menampilkan agregasi anonim.</p>
+    <div class="badge-sensitive"><i class="fa-solid fa-lock"></i> AKSES TERBATAS — DATA PII TERENKRIPSI</div>
+
+    <div class="split-bar">
+      <div class="split-seg split-pra" style="width:61.0%">Prabayar 61,0%</div>
+      <div class="split-seg split-pas" style="width:39.0%">Pascabayar 39,0%</div>
+    </div>
+    <div class="split-caption">
+      <span>Komposisi jenis layanan — 13.919.871 pelanggan total</span>
+      <span>Sumber: Data Induk Langganan PLN UID Jabar</span>
+    </div>
+  </div>
+</header>
+
+<div class="subnav-wrap">
+  <nav class="subnav">
+    <a href="#sec-ringkasan" class="active"><span class="n">•</span>Ringkasan</a>
+    <a href="#sec-peta"><span class="n">01</span>Peta Sebaran</a>
+    <a href="#sec-tarif"><span class="n">02</span>Tarif & Daya</a>
+    <a href="#sec-tabel"><span class="n">03</span>Tabel Kabupaten</a>
+  </nav>
+</div>
+
+<div class="wrap">
+
+  <!-- KPI -->
+  <section class="kpi-grid" id="sec-ringkasan" style="scroll-margin-top:56px;">
+    <div class="kpi">
+      <div class="kpi-label">Total Pelanggan</div>
+      <div class="kpi-value">13,92<span>juta</span></div>
+      <div class="kpi-note">Data Induk Langganan — PLN UID Jabar</div>
+    </div>
+    <div class="kpi k2">
+      <div class="kpi-label">Prabayar</div>
+      <div class="kpi-value">8,49<span>juta</span></div>
+      <div class="kpi-note">61,0% dari total — token listrik</div>
+    </div>
+    <div class="kpi k3">
+      <div class="kpi-label">Pascabayar</div>
+      <div class="kpi-value">5,43<span>juta</span></div>
+      <div class="kpi-note">39,0% dari total — tagihan bulanan</div>
+    </div>
+    <div class="kpi k4">
+      <div class="kpi-label">Kabupaten Terbesar</div>
+      <div class="kpi-value" style="font-size:18px;">Kab. Bekasi</div>
+      <div class="kpi-note">1.214.692 pelanggan (8,7% total)</div>
+    </div>
+  </section>
+
+  <!-- PETA -->
+  <div class="sec-head" id="sec-peta">
+    <h2><span class="tag">01</span> Peta Sebaran Pelanggan — 27 Kabupaten/Kota</h2>
+    <p>Klik wilayah untuk detail. Warna menunjukkan jumlah pelanggan per kabupaten/kota. Beberapa wilayah memiliki cakupan data parsial (lihat catatan).</p>
+  </div>
+
+  <div class="map-card">
+    <div class="map-head">
+      <div>
+        <h3>Distribusi Pelanggan PLN per Kabupaten/Kota</h3>
+        <div class="sub">Klik area untuk melihat detail. Pangandaran & Bandung Barat: batas wilayah atau data belum lengkap.</div>
+      </div>
+      <div class="map-toggle">
+        <button class="map-btn active" data-metric="total" style="background:var(--teal);color:#fff;">Total Pelanggan</button>
+        <button class="map-btn" data-metric="prabayar">% Prabayar</button>
+        <button class="map-btn" data-metric="paskabayar">Pascabayar</button>
+      </div>
+    </div>
+    <div id="pelangganMap"></div>
+    <div class="map-legend">
+      <span id="legendMin">0</span>
+      <div class="grad" id="legendGrad" style="background:linear-gradient(to right,#E4F3F2,#0E7C7B)"></div>
+      <span id="legendMax">1,2 juta</span>
+    </div>
+  </div>
+
+  <!-- TARIF & DAYA -->
+  <div class="sec-head" id="sec-tarif">
+    <h2><span class="tag">02</span> Distribusi Tarif & Daya</h2>
+    <p>Komposisi pelanggan berdasarkan golongan tarif PLN dan kapasitas daya tersambung.</p>
+  </div>
+
+  <div class="grid-2b">
+    <div class="card">
+      <h3>Golongan Tarif</h3>
+      <div class="sub">Jumlah pelanggan per kelompok tarif PLN</div>
+      <canvas id="chartTarif"></canvas>
+      <div class="card-foot"><span class="src">Sumber: DIL PLN UID Jabar</span></div>
+    </div>
+    <div class="card">
+      <h3>Distribusi Daya Tersambung</h3>
+      <div class="sub">8 golongan daya terbesar (VA)</div>
+      <canvas id="chartDaya"></canvas>
+      <div class="card-foot"><span class="src">Sumber: DIL PLN UID Jabar</span></div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-top:16px;">
+    <div class="card">
+      <h3>Prabayar vs Pascabayar</h3>
+      <div class="sub">Komposisi jenis layanan</div>
+      <canvas id="chartJenis"></canvas>
+      <div class="card-foot"><span class="src">Sumber: DIL PLN UID Jabar</span></div>
+    </div>
+    <div class="card" style="grid-column:span 2;">
+      <h3>Top 10 Kabupaten/Kota by Pelanggan</h3>
+      <div class="sub">Jumlah pelanggan total</div>
+      <canvas id="chartTopKab" style="max-height:200px;"></canvas>
+      <div class="card-foot"><span class="src">Sumber: DIL PLN UID Jabar</span></div>
+    </div>
+  </div>
+
+  <!-- TABEL -->
+  <div class="sec-head" id="sec-tabel">
+    <h2><span class="tag">03</span> Tabel Distribusi per Kabupaten/Kota</h2>
+    <p>Data lengkap 21 kabupaten/kota dengan cakupan &gt;10.000 pelanggan.</p>
+  </div>
+
+  <div class="card">
+    <div class="table-tools">
+      <div class="search-box">
+        <input type="text" id="searchKab" placeholder="Cari kabupaten/kota…" oninput="renderTable()">
+      </div>
+    </div>
+    <table class="data" id="kabTable">
+      <thead>
+        <tr>
+          <th onclick="sortKab('nama')">Kabupaten/Kota</th>
+          <th onclick="sortKab('total')" class="num-cell sorted">Total</th>
+          <th onclick="sortKab('prabayar')" class="num-cell">Prabayar</th>
+          <th onclick="sortKab('paskabayar')" class="num-cell">Pascabayar</th>
+          <th style="min-width:140px;">% Prabayar</th>
+        </tr>
+      </thead>
+      <tbody id="kabBody"></tbody>
+    </table>
+  </div>
+
+  <div class="note-panel">
+    <h4>Catatan Cakupan Data</h4>
+    <p>
+      Dari 14.107.593 baris total, sekitar <b>2.653.571 baris (18,8%)</b> tidak memiliki nama kabupaten yang teridentifikasi — kemungkinan berasal dari UP3 dengan wilayah lintas administrasi atau encoding berbeda.
+      Beberapa kabupaten (Kab. Cirebon, Kota Bogor, Kota Cimahi, Kab. Bandung Barat, Kab. Kuningan) memiliki jumlah sangat kecil dalam data ini, kemungkinan datanya masuk ke unit UP3 yang berbeda.
+      Analisis ini menggunakan baris yang memiliki JENISLAYANAN = PRABAYAR atau PASKABAYAR (<b>13.919.871 baris, 98,7%</b>).
+    </p>
+  </div>
+
+  <footer>
+    <span>Data Induk Langganan (DIL) PLN UID Jabar — diolah untuk keperluan riset. Tampilan ini hanya menampilkan agregasi anonim; data mentah bersifat sensitif dan terenkripsi.</span>
+    <span id="genDate"></span>
+  </footer>
+</div>
+
+<script>
+// Auth check
+(async () => {
+  const res = await fetch('/api/auth/me');
+  if (!res.ok) window.location.href = '/';
+})();
+
+// Subnav active
+const navLinks = document.querySelectorAll('.subnav a[data-target], .subnav a[href^="#"]');
+window.addEventListener('scroll', () => {
+  const sections = ['sec-ringkasan','sec-peta','sec-tarif','sec-tabel'];
+  let current = sections[0];
+  for (const id of sections) {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= 80) current = id;
+  }
+  document.querySelectorAll('.subnav a').forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+}, {passive:true});
+
+document.getElementById('genDate').textContent = 'Diakses: ' + new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+
+/* ====== DATA ====== */
+const DIL_KAB = [
+  {nama:'Kab. Bekasi',       prabayar:905222,  paskabayar:309470,  total:1214692},
+  {nama:'Kab. Bandung',      prabayar:664325,  paskabayar:385569,  total:1049894},
+  {nama:'Kab. Karawang',     prabayar:576070,  paskabayar:288554,  total:864624},
+  {nama:'Kab. Bogor',        prabayar:561008,  paskabayar:263152,  total:824160},
+  {nama:'Kab. Sukabumi',     prabayar:494714,  paskabayar:286384,  total:781098},
+  {nama:'Kab. Garut',        prabayar:430964,  paskabayar:280369,  total:711333},
+  {nama:'Kab. Cianjur',      prabayar:438681,  paskabayar:256036,  total:694717},
+  {nama:'Kota Bandung',      prabayar:351186,  paskabayar:303638,  total:654824},
+  {nama:'Kota Depok',        prabayar:331810,  paskabayar:257100,  total:588910},
+  {nama:'Kab. Indramayu',    prabayar:270541,  paskabayar:277980,  total:548521},
+  {nama:'Kab. Subang',       prabayar:288847,  paskabayar:242074,  total:530921},
+  {nama:'Kota Bekasi',       prabayar:278838,  paskabayar:158996,  total:437834},
+  {nama:'Kab. Sumedang',     prabayar:219079,  paskabayar:192789,  total:411868},
+  {nama:'Kab. Majalengka',   prabayar:184232,  paskabayar:227174,  total:411406},
+  {nama:'Kab. Tasikmalaya',  prabayar:192473,  paskabayar:193125,  total:385598},
+  {nama:'Kab. Ciamis',       prabayar:135426,  paskabayar:185924,  total:321350},
+  {nama:'Kab. Purwakarta',   prabayar:176030,  paskabayar:120546,  total:296576},
+  {nama:'Kota Tasikmalaya',  prabayar:124708,  paskabayar:112476,  total:237184},
+  {nama:'Kab. Pangandaran',  prabayar:66901,   paskabayar:70314,   total:137215},
+  {nama:'Kota Sukabumi',     prabayar:64270,   paskabayar:51243,   total:115513},
+  {nama:'Kota Banjar',       prabayar:30549,   paskabayar:34799,   total:65348},
+];
+
+const TARIF_GRUP = [
+  {grup:'Rumah Tangga',  jumlah:12754935, color:'#0E7C7B'},
+  {grup:'Bisnis',        jumlah:750780,   color:'#C2760C'},
+  {grup:'Sosial',        jumlah:291295,   color:'#3F7D51'},
+  {grup:'Publik',        jumlah:102128,   color:'#6D5BA8'},
+  {grup:'Industri',      jumlah:17099,    color:'#B3401F'},
+  {grup:'Lain-lain',     jumlah:3634,     color:'#8B99A6'},
+];
+
+const DAYA_DATA = [
+  {daya:'900 VA',    jumlah:5549062},
+  {daya:'450 VA',    jumlah:4687937},
+  {daya:'1.300 VA',  jumlah:2272385},
+  {daya:'2.200 VA',  jumlah:813293},
+  {daya:'3.500 VA',  jumlah:178377},
+  {daya:'5.500 VA',  jumlah:108101},
+  {daya:'4.400 VA',  jumlah:96124},
+  {daya:'Lainnya',   jumlah:214592},
+];
+
+/* map data lookup */
+const MAP_DATA = {};
+DIL_KAB.forEach(d => { MAP_DATA[d.nama] = d; });
+
+/* ====== MAP ====== */
+const JABAR_GEOJSON = {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[107.58873842034204,-6.722208859885989],[107.5611350990099,-6.76834789048905],[107.51052900990099,-6.751259360636064],[107.45072181368137,-6.696576065106512],[107.41391738523852,-6.688031800180019],[107.33570797479749,-6.729044271827183],[107.3127052070207,-6.795689538253826],[107.33110742124212,-6.88454989348935],[107.20229192169217,-6.956321718871888],[107.18388970747074,-7.04689092709271],[107.24829745724573,-7.050308633063307],[107.30810465346535,-7.0861945457545765],[107.25749856435644,-7.188725724872488],[107.34030852835284,-7.205814254725473],[107.35871074257426,-7.236573608460846],[107.41391738523852,-7.257079844284429],[107.47372458145814,-7.250244432343235],[107.57033620612061,-7.262206403240325],[107.60714063456345,-7.308345433843385],[107.66234727722772,-7.279294933093309],[107.71295336633663,-7.301510021902191],[107.73595613411341,-7.274168374137414],[107.70835281278127,-7.222902784578459],[107.74055668766877,-7.168219489048905],[107.8095649909991,-7.135751282328234],[107.8095649909991,-7.0947388106810685],[107.87397274077408,-7.052017486048605],[107.91997827632764,-7.052017486048605],[107.91537772277228,-6.947777453945395],[107.83716831233123,-6.966574836783679],[107.7589589018902,-6.944359747974798],[107.74055668766877,-6.874296775577559],[107.74515724122412,-6.809360362136214],[107.66694783078307,-6.771765596459646],[107.59793952745275,-6.75638591959196],[107.58873842034204,-6.722208859885989]],[[107.55653454545455,-6.932397777077709],[107.57493675967596,-6.882841040504051],[107.6025400810081,-6.84866398079808],[107.63934450945095,-6.893094158415842],[107.69915170567057,-6.91872695319532],[107.6853500450045,-6.971701395739575],[107.58873842034204,-6.969992542754276],[107.55653454545455,-6.932397777077709]]]},"properties":{"daerah":"Kab. Bandung"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[108.65606684518453,-7.347649052505251],[108.58245798829883,-7.34935790549055],[108.55945522052205,-7.313471992799281],[108.5226507920792,-7.352775611461147],[108.4720447029703,-7.356193317431744],[108.49504747074708,-7.410876612961297],[108.57325688118812,-7.421129730873088],[108.65606684518453,-7.347649052505251]]]},"properties":{"daerah":"Kota Banjar"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[107.10107974347434,-5.937845339633964],[107.02747088658866,-5.913921397839784],[106.99526701170117,-6.024996841884189],[107.00446811881189,-6.072844725472548],[106.9722642439244,-6.091642108310832],[106.9722642439244,-6.148034256825683],[106.9722642439244,-6.173667051605161],[107.0136692259226,-6.166831639663967],[107.04587310081008,-6.230059200120013],[107.04587310081008,-6.284742495649565],[107.0228703330333,-6.3530966150615065],[106.98606590459046,-6.377020556855686],[107.04587310081008,-6.400944498649865],[107.07807697569757,-6.435121558355836],[107.17468860036004,-6.494931412841285],[107.21609358235824,-6.459045500150015],[107.2298952430243,-6.305248731473148],[107.26669967146715,-6.284742495649565],[107.29890354635464,-6.206135258325833],[107.29430299279929,-6.142907697869788],[107.14248472547254,-6.057465048604861],[107.08727808280828,-6.001072900090009],[107.10107974347434,-5.937845339633964]]]},"properties":{"daerah":"Kab. Bekasi"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[107.17468860036004,-6.494931412841285],[107.07807697569757,-6.435121558355836],[107.04587310081008,-6.400944498649865],[106.98606590459046,-6.377020556855686],[106.96766369036904,-6.361640879987999],[106.90785649414941,-6.404362204620463],[106.87565261926193,-6.450501235223523],[106.75143767326733,-6.448792382238224],[106.7238343519352,-6.359932027002701],[106.59501885238524,-6.3633497329732975],[106.53061110261027,-6.33771693819382],[106.49840722772277,-6.354805468046806],[106.46620335283528,-6.31379299639964],[106.42939892439244,-6.347970056105611],[106.45700224572457,-6.4317038523852395],[106.40639615661566,-6.45391894119412],[106.39719504950494,-6.505184530753076],[106.42939892439244,-6.583791768076808],[106.42939892439244,-6.696576065106512],[106.51220888838884,-6.766639037503751],[106.58121719171918,-6.7239177128712875],[106.60421995949595,-6.749550507650766],[106.68702992349235,-6.742715095709571],[106.73763601260126,-6.711955741974198],[106.76983988748876,-6.747841654665467],[106.8986553870387,-6.785436420342035],[106.95846258325832,-6.7632213315331535],[106.98606590459046,-6.735879683768378],[106.99066645814581,-6.669234417341735],[107.04127254725472,-6.657272446444645],[107.14248472547254,-6.6658167113711375],[107.19309081458147,-6.643601622562257],[107.22529468946895,-6.599171444944495],[107.17468860036004,-6.544488149414942],[107.17468860036004,-6.494931412841285]],[[106.7652393339334,-6.541070443444345],[106.8158454230423,-6.5393615904590465],[106.83884819081908,-6.633348504650466],[106.82044597659765,-6.67436097629763],[106.74223656615662,-6.564994385238524],[106.7652393339334,-6.541070443444345]]]},"properties":{"daerah":"Kab. Bogor"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[108.38463418541855,-7.07081486888689],[108.36163141764176,-7.052017486048605],[108.16840816831683,-7.063979456945695],[108.21901425742574,-7.0861945457545765],[108.20061204320432,-7.1442955472547265],[108.20061204320432,-7.275877227122713],[108.28802256075608,-7.332269375637564],[108.39383529252925,-7.359611023402341],[108.41683806030603,-7.421129730873088],[108.39383529252925,-7.47752187938794],[108.33862864986499,-7.491192703270327],[108.36163141764176,-7.6603691488148815],[108.31562588208821,-7.689419649564957],[108.33402809630964,-7.815874770477048],[108.44444138163817,-7.819292476447645],[108.49504747074708,-7.795368534653466],[108.49504747074708,-7.720179003300331],[108.51805023852386,-7.697963914491449],[108.5962596489649,-7.682584237623763],[108.66066739873988,-7.694546208520853],[108.69747182718272,-7.675748825682569],[108.7618795769577,-7.697963914491449],[108.78488234473447,-7.667204560756076],[108.73887680918092,-7.617647824182419],[108.75267846984698,-7.561255675667567],[108.7204745949595,-7.492901556255626],[108.7204745949595,-7.433091701770177],[108.65606684518453,-7.347649052505251],[108.57325688118812,-7.421129730873088],[108.49504747074708,-7.410876612961297],[108.4720447029703,-7.356193317431744],[108.5226507920792,-7.352775611461147],[108.55945522052205,-7.313471992799281],[108.58705854185419,-7.217776225622563],[108.5640557740774,-7.193852283828384],[108.5042485778578,-7.132333576357636],[108.43984082808281,-7.120371605460546],[108.38463418541855,-7.07081486888689]]]},"properties":{"daerah":"Kab. Ciamis"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[107.33570797479749,-6.729044271827183],[107.26209911791179,-6.693158359135914],[107.26669967146715,-6.6367662106210625],[107.22529468946895,-6.599171444944495],[107.19309081458147,-6.643601622562257],[107.14248472547254,-6.6658167113711375],[107.04127254725472,-6.657272446444645],[106.99066645814581,-6.669234417341735],[106.98606590459046,-6.735879683768378],[106.95846258325832,-6.7632213315331535],[106.99066645814581,-6.8025249501950205],[107.05047365436543,-6.91872695319532],[107.03207144014402,-6.987081072607261],[107.04127254725472,-7.040055515151516],[106.96306313681369,-7.024675838283829],[106.93545981548155,-7.11695389948995],[106.96306313681369,-7.147713253225323],[106.9814653510351,-7.226320490549055],[106.95386202970298,-7.313471992799281],[106.87105206570658,-7.354484464446445],[106.82044597659765,-7.359611023402341],[106.78824210171017,-7.414294318931894],[106.79744320882088,-7.4365094077407745],[106.88485372637264,-7.434800554755476],[107.12868306480648,-7.458724496549656],[107.18388970747074,-7.475813026402641],[107.42311849234923,-7.504863527152716],[107.43231959945994,-7.416003171917192],[107.4691240279028,-7.398914642064208],[107.4783251350135,-7.352775611461147],[107.45532236723673,-7.306636580858086],[107.47372458145814,-7.250244432343235],[107.41391738523852,-7.257079844284429],[107.35871074257426,-7.236573608460846],[107.34030852835284,-7.205814254725473],[107.25749856435644,-7.188725724872488],[107.30810465346535,-7.0861945457545765],[107.24829745724573,-7.050308633063307],[107.18388970747074,-7.04689092709271],[107.20229192169217,-6.956321718871888],[107.33110742124212,-6.88454989348935],[107.3127052070207,-6.795689538253826],[107.33570797479749,-6.729044271827183]]]},"properties":{"daerah":"Kab. Cianjur"}},{"type":"Feature","geometry":null,"properties":{"daerah":"Kota Cimahi"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[108.54105300630063,-6.515437648664867],[108.51344968496849,-6.515437648664867],[108.4720447029703,-6.566703238223823],[108.43524027452746,-6.517146501650165],[108.36163141764176,-6.55815897329733],[108.32482698919893,-6.62822194569457],[108.36623197119712,-6.6948672121212125],[108.37543307830784,-6.764930184518453],[108.40303639963997,-6.788854126312632],[108.50884913141314,-6.792271832283229],[108.50884913141314,-6.840119715871587],[108.58245798829883,-6.893094158415842],[108.70207238073807,-6.937524336033604],[108.7618795769577,-6.983663366636664],[108.75727902340235,-6.925562365136514],[108.82628732673268,-6.829866597959796],[108.83088788028803,-6.7444239486948705],[108.79868400540055,-6.792271832283229],[108.74807791629163,-6.81448692109211],[108.69287127362736,-6.804233803180319],[108.6790696129613,-6.7632213315331535],[108.61006130963096,-6.76834789048905],[108.58245798829883,-6.73246197779778],[108.56865632763277,-6.708538036003601],[108.54565355985599,-6.592336033003301],[108.54105300630063,-6.515437648664867]]]},"properties":{"daerah":"Kab. Cirebon"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[106.84344874437444,-6.347970056105611],[106.79284265526553,-6.361640879987999],[106.7744404410441,-6.317210702370238],[106.7652393339334,-6.361640879987999],[106.7238343519352,-6.359932027002701],[106.75143767326733,-6.448792382238224],[106.87565261926193,-6.450501235223523],[106.90785649414941,-6.404362204620463],[106.90785649414941,-6.375311703870388],[106.84344874437444,-6.347970056105611]]]},"properties":{"daerah":"Kota Depok"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[108.13160373987398,-7.041764368136814],[108.09019875787578,-6.9973341905190525],[107.98438602610261,-6.978536807680769],[107.91537772277228,-6.947777453945395],[107.91997827632764,-7.052017486048605],[107.87397274077408,-7.052017486048605],[107.8095649909991,-7.0947388106810685],[107.8095649909991,-7.135751282328234],[107.74055668766877,-7.168219489048905],[107.70835281278127,-7.222902784578459],[107.73595613411341,-7.274168374137414],[107.71295336633663,-7.301510021902191],[107.66234727722772,-7.279294933093309],[107.60714063456345,-7.308345433843385],[107.57033620612061,-7.262206403240325],[107.47372458145814,-7.250244432343235],[107.45532236723673,-7.306636580858086],[107.4783251350135,-7.352775611461147],[107.4691240279028,-7.398914642064208],[107.43231959945994,-7.416003171917192],[107.42311849234923,-7.504863527152716],[107.60714063456345,-7.5732176465646575],[107.67154838433844,-7.622774383138315],[107.69455115211521,-7.668913413741375],[107.78656222322232,-7.679166531653166],[107.84636941944194,-7.737267533153316],[107.91077716921693,-7.730432121212122],[107.92457882988299,-7.68600194359436],[107.91077716921693,-7.60568585328533],[107.9337799369937,-7.56979994059406],[107.94298104410441,-7.455306790579058],[107.9337799369937,-7.400623495049506],[107.8923749549955,-7.3681552883288335],[107.9337799369937,-7.3305605226522665],[107.95678270477048,-7.275877227122713],[108.0165899009901,-7.2314470495049505],[108.06259543654366,-7.222902784578459],[108.07179654365437,-7.130624723372337],[108.12240263276328,-7.113536193519352],[108.13160373987398,-7.041764368136814]]]},"properties":{"daerah":"Kab. Garut"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[108.54105300630063,-6.515437648664867],[108.53645245274528,-6.482969441944195],[108.4306397209721,-6.4129064695469555],[108.37083252475247,-6.329172673267327],[108.37543307830784,-6.2949956135613565],[108.29262311431143,-6.245438876987699],[108.24201702520253,-6.240312318031804],[108.13160373987398,-6.3342992322232226],[108.05339432943295,-6.3155018493849395],[107.91997827632764,-6.248856582958297],[107.92457882988299,-6.359932027002701],[107.90157606210622,-6.3838559687968806],[107.8923749549955,-6.455627794179419],[107.91997827632764,-6.484678294929494],[107.91077716921693,-6.537652737473748],[107.85557052655265,-6.578665209120913],[107.90617661566156,-6.594044885988599],[108.0165899009901,-6.6658167113711375],[108.04419322232224,-6.6367662106210625],[108.07179654365437,-6.583791768076808],[108.13620429342934,-6.563285532253226],[108.14540540054006,-6.602589150915092],[108.1914109360936,-6.60429800390039],[108.21441370387039,-6.564994385238524],[108.32482698919893,-6.62822194569457],[108.36163141764176,-6.55815897329733],[108.43524027452746,-6.517146501650165],[108.4720447029703,-6.566703238223823],[108.51344968496849,-6.515437648664867],[108.54105300630063,-6.515437648664867]]]},"properties":{"daerah":"Kab. Indramayu"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[107.63934450945095,-6.212970670267027],[107.45992292079208,-6.136072285928593],[107.39551517101711,-6.023287988898891],[107.34490908190818,-5.970313546354636],[107.28050133213321,-5.958351575457546],[107.17928915391539,-5.98911092919292],[107.14248472547254,-5.9822755172517255],[107.10107974347434,-5.937845339633964],[107.08727808280828,-6.001072900090009],[107.14248472547254,-6.057465048604861],[107.29430299279929,-6.142907697869788],[107.29890354635464,-6.206135258325833],[107.26669967146715,-6.284742495649565],[107.2298952430243,-6.305248731473148],[107.21609358235824,-6.459045500150015],[107.17468860036004,-6.494931412841285],[107.17468860036004,-6.544488149414942],[107.22529468946895,-6.599171444944495],[107.26669967146715,-6.6367662106210625],[107.28970243924392,-6.60429800390039],[107.28510188568858,-6.54619700240024],[107.32650686768677,-6.489804853885389],[107.37251240324032,-6.476134030003001],[107.37251240324032,-6.418033028502851],[107.45072181368137,-6.440248117311731],[107.52893122412242,-6.418033028502851],[107.58413786678668,-6.312084143414342],[107.58413786678668,-6.257400847884789],[107.63934450945095,-6.212970670267027]]]},"properties":{"daerah":"Kab. Karawang"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[107.55653454545455,-6.932397777077709],[107.58873842034204,-6.969992542754276],[107.6853500450045,-6.971701395739575],[107.69915170567057,-6.91872695319532],[107.63934450945095,-6.893094158415842],[107.6025400810081,-6.84866398079808],[107.57493675967596,-6.882841040504051],[107.55653454545455,-6.932397777077709]]]},"properties":{"daerah":"Kota Bandung"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[106.98606590459046,-6.377020556855686],[107.0228703330333,-6.3530966150615065],[107.04587310081008,-6.284742495649565],[107.04587310081008,-6.230059200120013],[107.0136692259226,-6.166831639663967],[106.9722642439244,-6.173667051605161],[106.92165815481547,-6.306957584458447],[106.90785649414941,-6.375311703870388],[106.90785649414941,-6.404362204620463],[106.96766369036904,-6.361640879987999],[106.98606590459046,-6.377020556855686]]]},"properties":{"daerah":"Kota Bekasi"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[106.7652393339334,-6.541070443444345],[106.74223656615662,-6.564994385238524],[106.82044597659765,-6.67436097629763],[106.83884819081908,-6.633348504650466],[106.8158454230423,-6.5393615904590465],[106.7652393339334,-6.541070443444345]]]},"properties":{"daerah":"Kota Bogor"}},{"type":"Feature","geometry":null,"properties":{"daerah":"Kota Cirebon"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[106.90785649414941,-6.908473835283529],[106.88485372637264,-6.975119101710171],[106.95386202970298,-6.978536807680769],[106.93545981548155,-6.908473835283529],[106.90785649414941,-6.908473835283529]]]},"properties":{"daerah":"Kota Sukabumi"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[108.20061204320432,-7.275877227122713],[108.16380761476148,-7.274168374137414],[108.15460650765077,-7.333978228622863],[108.1914109360936,-7.445053672667267],[108.26041923942394,-7.431382848784879],[108.28802256075608,-7.332269375637564],[108.20061204320432,-7.275877227122713]]]},"properties":{"daerah":"Kota Tasikmalaya"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[108.7618795769577,-6.983663366636664],[108.70207238073807,-6.937524336033604],[108.58245798829883,-6.893094158415842],[108.50884913141314,-6.840119715871587],[108.50884913141314,-6.792271832283229],[108.40303639963997,-6.788854126312632],[108.41223750675067,-6.865752510651066],[108.38463418541855,-6.975119101710171],[108.38463418541855,-7.07081486888689],[108.43984082808281,-7.120371605460546],[108.5042485778578,-7.132333576357636],[108.5640557740774,-7.193852283828384],[108.56865632763277,-7.164801783078309],[108.62386297029703,-7.137460135313532],[108.69747182718272,-7.15113095919592],[108.76648013051306,-7.115245046504651],[108.79868400540055,-7.004169602460246],[108.7618795769577,-6.983663366636664]]]},"properties":{"daerah":"Kab. Kuningan"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[108.32482698919893,-6.62822194569457],[108.21441370387039,-6.564994385238524],[108.1914109360936,-6.60429800390039],[108.14540540054006,-6.602589150915092],[108.13620429342934,-6.563285532253226],[108.07179654365437,-6.583791768076808],[108.04419322232224,-6.6367662106210625],[108.14540540054006,-6.710246888988899],[108.20981315031503,-6.935815483048305],[108.16840816831683,-6.973410248724873],[108.13620429342934,-7.041764368136814],[108.16840816831683,-7.063979456945695],[108.36163141764176,-7.052017486048605],[108.38463418541855,-7.07081486888689],[108.38463418541855,-6.975119101710171],[108.41223750675067,-6.865752510651066],[108.40303639963997,-6.788854126312632],[108.37543307830784,-6.764930184518453],[108.36623197119712,-6.6948672121212125],[108.32482698919893,-6.62822194569457]]]},"properties":{"daerah":"Kab. Majalengka"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[107.52893122412242,-6.418033028502851],[107.45072181368137,-6.440248117311731],[107.37251240324032,-6.418033028502851],[107.37251240324032,-6.476134030003001],[107.32650686768677,-6.489804853885389],[107.28510188568858,-6.54619700240024],[107.28970243924392,-6.60429800390039],[107.26669967146715,-6.6367662106210625],[107.26209911791179,-6.693158359135914],[107.33570797479749,-6.729044271827183],[107.41391738523852,-6.688031800180019],[107.45072181368137,-6.696576065106512],[107.51052900990099,-6.751259360636064],[107.5611350990099,-6.76834789048905],[107.58873842034204,-6.722208859885989],[107.6025400810081,-6.658981299429944],[107.58873842034204,-6.594044885988599],[107.5611350990099,-6.556450120312032],[107.56573565256525,-6.484678294929494],[107.52893122412242,-6.418033028502851]]]},"properties":{"daerah":"Kab. Purwakarta"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[107.91997827632764,-6.248856582958297],[107.83716831233123,-6.187337875487549],[107.72215447344735,-6.2368946120612065],[107.66694783078307,-6.245438876987699],[107.63934450945095,-6.212970670267027],[107.58413786678668,-6.257400847884789],[107.58413786678668,-6.312084143414342],[107.52893122412242,-6.418033028502851],[107.56573565256525,-6.484678294929494],[107.5611350990099,-6.556450120312032],[107.58873842034204,-6.594044885988599],[107.6025400810081,-6.658981299429944],[107.58873842034204,-6.722208859885989],[107.59793952745275,-6.75638591959196],[107.66694783078307,-6.771765596459646],[107.74515724122412,-6.809360362136214],[107.8003638838884,-6.807651509150916],[107.83256775877588,-6.7734744494449455],[107.83256775877588,-6.7153734479447955],[107.85557052655265,-6.578665209120913],[107.91077716921693,-6.537652737473748],[107.91997827632764,-6.484678294929494],[107.8923749549955,-6.455627794179419],[107.90157606210622,-6.3838559687968806],[107.92457882988299,-6.359932027002701],[107.91997827632764,-6.248856582958297]]]},"properties":{"daerah":"Kab. Subang"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[106.95846258325832,-6.7632213315331535],[106.8986553870387,-6.785436420342035],[106.76983988748876,-6.747841654665467],[106.73763601260126,-6.711955741974198],[106.68702992349235,-6.742715095709571],[106.60421995949595,-6.749550507650766],[106.58121719171918,-6.7239177128712875],[106.51220888838884,-6.766639037503751],[106.4339994779478,-6.821322333033304],[106.42939892439244,-6.865752510651066],[106.3925944959496,-6.8999295703570365],[106.39719504950494,-6.978536807680769],[106.43860003150316,-6.952904012901291],[106.54441276327633,-6.985372219621963],[106.54441276327633,-7.055435192019202],[106.40179560306031,-7.18701687188719],[106.37419228172817,-7.306636580858086],[106.42479837083708,-7.359611023402341],[106.48920612061207,-7.376699553255326],[106.52140999549955,-7.4074589069906995],[106.79284265526553,-7.4365094077407745],[106.78824210171017,-7.414294318931894],[106.82044597659765,-7.359611023402341],[106.87105206570658,-7.354484464446445],[106.95386202970298,-7.313471992799281],[106.9814653510351,-7.226320490549055],[106.96306313681369,-7.147713253225323],[106.93545981548155,-7.11695389948995],[106.96306313681369,-7.024675838283829],[107.04127254725472,-7.040055515151516],[107.03207144014402,-6.987081072607261],[107.05047365436543,-6.91872695319532],[106.99066645814581,-6.8025249501950205],[106.95846258325832,-6.7632213315331535]],[[106.90785649414941,-6.908473835283529],[106.93545981548155,-6.908473835283529],[106.95386202970298,-6.978536807680769],[106.88485372637264,-6.975119101710171],[106.90785649414941,-6.908473835283529]]]},"properties":{"daerah":"Kab. Sukabumi"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[108.04419322232224,-6.6367662106210625],[108.0165899009901,-6.6658167113711375],[107.90617661566156,-6.594044885988599],[107.85557052655265,-6.578665209120913],[107.83256775877588,-6.7153734479447955],[107.83256775877588,-6.7734744494449455],[107.8003638838884,-6.807651509150916],[107.74515724122412,-6.809360362136214],[107.74055668766877,-6.874296775577559],[107.7589589018902,-6.944359747974798],[107.83716831233123,-6.966574836783679],[107.91537772277228,-6.947777453945395],[107.98438602610261,-6.978536807680769],[108.09019875787578,-6.9973341905190525],[108.13160373987398,-7.041764368136814],[108.13620429342934,-7.041764368136814],[108.16840816831683,-6.973410248724873],[108.20981315031503,-6.935815483048305],[108.14540540054006,-6.710246888988899],[108.04419322232224,-6.6367662106210625]]]},"properties":{"daerah":"Kab. Sumedang"}},{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[108.13620429342934,-7.041764368136814],[108.13160373987398,-7.041764368136814],[108.12240263276328,-7.113536193519352],[108.07179654365437,-7.130624723372337],[108.06259543654366,-7.222902784578459],[108.0165899009901,-7.2314470495049505],[107.95678270477048,-7.275877227122713],[107.9337799369937,-7.3305605226522665],[107.8923749549955,-7.3681552883288335],[107.9337799369937,-7.400623495049506],[107.94298104410441,-7.455306790579058],[107.9337799369937,-7.56979994059406],[107.91077716921693,-7.60568585328533],[107.92457882988299,-7.68600194359436],[107.91077716921693,-7.730432121212122],[108.1500059540954,-7.786824269726973],[108.33402809630964,-7.815874770477048],[108.31562588208821,-7.689419649564957],[108.36163141764176,-7.6603691488148815],[108.33862864986499,-7.491192703270327],[108.39383529252925,-7.47752187938794],[108.41683806030603,-7.421129730873088],[108.39383529252925,-7.359611023402341],[108.28802256075608,-7.332269375637564],[108.26041923942394,-7.431382848784879],[108.1914109360936,-7.445053672667267],[108.15460650765077,-7.333978228622863],[108.16380761476148,-7.274168374137414],[108.20061204320432,-7.275877227122713],[108.20061204320432,-7.1442955472547265],[108.21901425742574,-7.0861945457545765],[108.16840816831683,-7.063979456945695],[108.13620429342934,-7.041764368136814]]]},"properties":{"daerah":"Kab. Tasikmalaya"}}]};
+
+let map, geoLayer, currentMetric = 'total';
+
+function getVal(d, metric) {
+  if (!d) return null;
+  if (metric === 'total') return d.total;
+  if (metric === 'prabayar') return Math.round(d.prabayar / d.total * 100);
+  if (metric === 'paskabayar') return d.paskabayar;
+  return null;
+}
+
+function getColor(val, metric, max) {
+  if (val === null) return '#E8EDF1';
+  const t = val / max;
+  if (metric === 'prabayar') {
+    const r = Math.round(14 + (62 - 14) * t);
+    const g = Math.round(124 + (200 - 124) * (1 - t));
+    const b = Math.round(123 + (170 - 123) * (1 - t));
+    return `rgb(${r},${g},${b})`;
+  }
+  if (metric === 'paskabayar') {
+    const r = Math.round(109 + (100 - 109) * t);
+    const g = Math.round(91 + (50 - 91) * t);
+    const b = Math.round(168 + (220 - 168) * t);
+    return `rgb(${Math.round(230 - 120 * t)},${Math.round(230 - 150 * t)},${Math.round(230 + 20 * t)})`;
+  }
+  // total — teal gradient
+  const r = Math.round(228 - (228 - 8) * t);
+  const g = Math.round(243 - (243 - 80) * t);
+  const b = Math.round(242 - (242 - 100) * t);
+  return `rgb(${r},${g},${b})`;
+}
+
+function fmt(n) { return n ? n.toLocaleString('id-ID') : '-'; }
+function pct(n, total) { return total ? (n/total*100).toFixed(1) + '%' : '-'; }
+
+function renderMap(metric) {
+  currentMetric = metric;
+  const vals = Object.values(MAP_DATA).map(d => getVal(d, metric)).filter(v => v !== null);
+  const maxVal = Math.max(...vals);
+
+  if (geoLayer) geoLayer.remove();
+  geoLayer = L.geoJSON(JABAR_GEOJSON, {
+    style: f => {
+      const d = MAP_DATA[f.properties.daerah];
+      const v = getVal(d, metric);
+      return {fillColor: getColor(v, metric, maxVal), weight: 1, color: '#fff', fillOpacity: 0.85};
+    },
+    onEachFeature: (f, layer) => {
+      const nama = f.properties.daerah;
+      const d = MAP_DATA[nama];
+      layer.on('mouseover', e => {
+        layer.setStyle({weight:2.5, color:'#0B3350', fillOpacity:1});
+        layer.bindPopup(`
+          <div class="popup-title">${nama}</div>
+          ${d ? `
+          <div class="popup-row"><span>Total Pelanggan</span><span>${fmt(d.total)}</span></div>
+          <div class="popup-row"><span>Prabayar</span><span>${fmt(d.prabayar)} (${pct(d.prabayar,d.total)})</span></div>
+          <div class="popup-row"><span>Pascabayar</span><span>${fmt(d.paskabayar)} (${pct(d.paskabayar,d.total)})</span></div>
+          ` : '<div style="color:#8B99A6;font-size:12px;">Data belum tersedia</div>'}
+        `).openPopup(e.latlng);
+      });
+      layer.on('mouseout', () => {
+        geoLayer.resetStyle(layer);
+        layer.closePopup();
+      });
+    }
+  }).addTo(map);
+
+  // legend
+  const lMin = document.getElementById('legendMin');
+  const lMax = document.getElementById('legendMax');
+  const lGrad = document.getElementById('legendGrad');
+  if (metric === 'total') {
+    lMin.textContent = '0'; lMax.textContent = '1,2 juta';
+    lGrad.style.background = 'linear-gradient(to right,#E4F3F2,#0E7C7B)';
+  } else if (metric === 'prabayar') {
+    lMin.textContent = '30%'; lMax.textContent = '80%';
+    lGrad.style.background = 'linear-gradient(to right,#B3EBE8,#0E7C7B)';
+  } else {
+    lMin.textContent = '0'; lMax.textContent = '300 rb';
+    lGrad.style.background = 'linear-gradient(to right,#E8E7F8,#6D5BA8)';
+  }
+}
+
+window.addEventListener('load', () => {
+  map = L.map('pelangganMap', {zoomControl:true}).setView([-7.05, 107.7], 8);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution:'© OpenStreetMap, © CARTO', maxZoom:14
+  }).addTo(map);
+  renderMap('total');
+
+  document.querySelectorAll('.map-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.map-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.background = '';
+        b.style.color = '';
+      });
+      btn.classList.add('active');
+      const m = btn.dataset.metric;
+      const colors = {total:'var(--teal)', prabayar:'#1E9E86', paskabayar:'var(--purple)'};
+      btn.style.background = colors[m];
+      btn.style.color = '#fff';
+      renderMap(m);
+    });
+  });
+});
+
+/* ====== CHARTS ====== */
+const MONO = "'JetBrains Mono', monospace";
+const BODY = "'Inter', sans-serif";
+
+Chart.defaults.font.family = BODY;
+Chart.defaults.color = '#5B6B7A';
+
+new Chart(document.getElementById('chartTarif'), {
+  type: 'doughnut',
+  data: {
+    labels: TARIF_GRUP.map(d => d.grup),
+    datasets: [{
+      data: TARIF_GRUP.map(d => d.jumlah),
+      backgroundColor: TARIF_GRUP.map(d => d.color),
+      borderWidth: 2, borderColor: '#fff'
+    }]
+  },
+  options: {
+    plugins: {
+      legend: {position:'right', labels:{font:{size:12}, padding:12}},
+      tooltip: {callbacks:{label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString('id-ID')}`}}
+    },
+    cutout: '60%'
+  }
+});
+
+new Chart(document.getElementById('chartDaya'), {
+  type: 'bar',
+  data: {
+    labels: DAYA_DATA.map(d => d.daya),
+    datasets: [{
+      label: 'Jumlah Pelanggan',
+      data: DAYA_DATA.map(d => d.jumlah),
+      backgroundColor: '#0E7C7B', borderRadius: 5
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: {legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x.toLocaleString('id-ID')}`}}},
+    scales: {x:{ticks:{font:{family:MONO,size:10}, callback:v=>(v/1e6).toFixed(1)+'jt'}, grid:{display:false}}, y:{ticks:{font:{size:11}}}}
+  }
+});
+
+new Chart(document.getElementById('chartJenis'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Prabayar', 'Pascabayar'],
+    datasets: [{data:[8493584,5426287], backgroundColor:['#0E7C7B','#6D5BA8'], borderWidth:2, borderColor:'#fff'}]
+  },
+  options: {
+    plugins:{
+      legend:{position:'bottom', labels:{font:{size:12}, padding:14}},
+      tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed.toLocaleString('id-ID')}`}}
+    },
+    cutout:'62%'
+  }
+});
+
+const top10 = DIL_KAB.slice(0,10);
+new Chart(document.getElementById('chartTopKab'), {
+  type: 'bar',
+  data: {
+    labels: top10.map(d => d.nama.replace('Kab. ','').replace('Kota ','')),
+    datasets: [
+      {label:'Prabayar',  data:top10.map(d=>d.prabayar),  backgroundColor:'#0E7C7B', borderRadius:4},
+      {label:'Pascabayar',data:top10.map(d=>d.paskabayar), backgroundColor:'#6D5BA8', borderRadius:4}
+    ]
+  },
+  options: {
+    plugins:{legend:{position:'top',labels:{font:{size:11},padding:10}}},
+    scales: {
+      x:{stacked:true, ticks:{font:{size:10}}},
+      y:{stacked:true, ticks:{font:{family:MONO,size:10},callback:v=>(v/1e3).toFixed(0)+'rb'}, grid:{color:'rgba(0,0,0,.05)'}}
+    }
+  }
+});
+
+/* ====== TABLE ====== */
+let sortCol = 'total', sortAsc = false;
+function sortKab(col) {
+  if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = col === 'nama'; }
+  document.querySelectorAll('#kabTable thead th').forEach(th => th.classList.remove('sorted'));
+  renderTable();
+}
+
+function renderTable() {
+  const q = document.getElementById('searchKab').value.toLowerCase();
+  let rows = DIL_KAB.filter(d => d.nama.toLowerCase().includes(q));
+  rows.sort((a, b) => {
+    const va = sortCol === 'nama' ? a.nama : a[sortCol];
+    const vb = sortCol === 'nama' ? b.nama : b[sortCol];
+    return sortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+  });
+  const maxTotal = DIL_KAB[0].total;
+  document.getElementById('kabBody').innerHTML = rows.map(d => {
+    const pctPra = (d.prabayar / d.total * 100).toFixed(1);
+    const barW = Math.round(d.prabayar / d.total * 90);
+    const barWPas = 90 - barW;
+    return `<tr>
+      <td><b>${d.nama}</b></td>
+      <td class="num-cell">${d.total.toLocaleString('id-ID')}</td>
+      <td class="num-cell">${d.prabayar.toLocaleString('id-ID')}</td>
+      <td class="num-cell">${d.paskabayar.toLocaleString('id-ID')}</td>
+      <td>
+        <div class="pct-bar-wrap">
+          <div style="display:flex;gap:2px;width:90px;">
+            <div class="pct-bar" style="width:${barW}px;"></div>
+            <div class="pct-bar paska" style="width:${barWPas}px;"></div>
+          </div>
+          <span style="font-family:var(--font-mono);font-size:11px;">${pctPra}%</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+renderTable();
+</script>
+</body>
+</html>

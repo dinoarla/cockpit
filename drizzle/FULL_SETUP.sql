@@ -199,7 +199,7 @@ INSERT INTO domains (slug, nama, deskripsi, is_active) VALUES
 INSERT INTO domain_modules (domain_id, slug, nama, route_path, sensitivitas, status)
 SELECT id, 'mdp',          'Bauran Energi Jawa Barat',        '/modules/energi-jabar/mdp/',          'internal',  'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'ruptl',        'RUPTL PLN 2025-2034',             '/modules/energi-jabar/ruptl/',        'publik',    'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
-SELECT id, 'pelanggan',    'Data Induk Langganan PLN Jabar',  '/modules/energi-jabar/pelanggan/',    'sensitif',  'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'pelanggan',    'Data Induk Langganan PLN Jabar',  '/modules/energi-jabar/pelanggan/',    'sensitif',  'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'olap-tagihan', 'Data OLAP Tagihan Listrik Jabar', '/modules/energi-jabar/olap-tagihan/', 'sensitif',  'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'pencurian',    'Data Pencurian Tenaga Listrik',   '/modules/energi-jabar/pencurian/',    'sensitif',  'draft' FROM domains WHERE slug='energi-jabar';
 
