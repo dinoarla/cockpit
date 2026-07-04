@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Data Pendukung — Adaptasi MDP Energi Terbarukan Berkeadilan, Jawa Barat</title>
+<title>Bauran Energi Jawa Barat — RE &amp; NRE — COCKPIT</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
@@ -380,9 +380,9 @@
 <header class="top">
   <div class="top-inner">
     <a href="/menu.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali ke Menu</a>
-    <div class="eyebrow">Studi Kasus &middot; Jawa Barat &middot; RKPD, RUPTL &amp; Data Operasional PLN</div>
-    <h1>Data Pendukung: Adaptasi MDP Perencanaan Energi Terbarukan Berkeadilan untuk Jawa Barat</h1>
-    <p class="top-sub">Rekap data kuantitatif hasil ekstraksi dari RKPD Provinsi Jawa Barat 2026, RUPTL PLN 2025-2034, dan data operasional gangguan jaringan PLN UID Jabar — disusun untuk mendukung riset adaptasi kerangka MDP equity-aware ke konteks Jawa Barat.</p>
+    <div class="eyebrow">Bauran Energi &middot; Jawa Barat &middot; RKPD 2026, RUPTL 2025-2034 &amp; Operasional PLN UID Jabar</div>
+    <h1>Bauran Energi Primer Jawa Barat: Energi Terbarukan (RE) &amp; Non-Terbarukan (NRE)</h1>
+    <p class="top-sub">Rekap data kuantitatif bauran energi Jawa Barat — distribusi RE vs NRE, keandalan jaringan, dan ekuitas akses listrik — diekstraksi dari RKPD Provinsi Jawa Barat 2026, RUPTL PLN 2025-2034, dan data operasional gangguan jaringan PLN UID Jabar.</p>
     <div class="top-actions">
       <button class="btn primary" onclick="window.print()">⤓ Export / Cetak PDF</button>
       <button class="btn" onclick="exportAllJSON()">⤓ Export Semua Data (JSON)</button>
@@ -468,7 +468,7 @@
 
   <div class="section-head" id="sec-01">
     <h2><span class="num">01</span> Kondisi & Target Ketenagalistrikan Provinsi</h2>
-    <p>Tren konsumsi dan komposisi bauran energi — dasar untuk mengisi state variable "demand" dan "supply RE/NRE" pada model MDP.</p>
+    <p>Tren konsumsi dan komposisi bauran energi Jawa Barat — porsi Energi Terbarukan (RE) vs Non-Terbarukan (NRE) serta target transisi energi provinsi.</p>
   </div>
   <div class="grid-2">
     <div class="card">
@@ -502,7 +502,7 @@
 
   <div class="section-head" id="sec-02">
     <h2><span class="num">02</span> Anggaran Kementerian ESDM 2026</h2>
-    <p>Pagu anggaran per program — kandidat langsung untuk parameter <em>budget constraint</em> pada MDP.</p>
+    <p>Pagu anggaran per program ESDM — gambaran alokasi investasi energi terbarukan (RE) vs ketenagalistrikan konvensional di Jawa Barat.</p>
   </div>
   <div class="grid-2">
     <div class="card">
@@ -525,7 +525,7 @@
 
   <div class="section-head" id="sec-03">
     <h2><span class="num">03</span> Sorotan Ekuitas: 7 Wilayah Kerja Cabang Kementerian ESDM</h2>
-    <p>Setiap wilayah kerja punya target identik 100% "pembangunan sarana listrik daerah belum berkembang, terpencil & perdesaan" — kandidat unit spasial untuk state variable region pada MDP (paralel dengan 8 kota pada paper asli).</p>
+    <p>Setiap wilayah kerja punya target identik 100% pembangunan sarana listrik daerah belum berkembang, terpencil & perdesaan — gambaran distribusi infrastruktur energi dan ekuitas akses listrik antar wilayah Jawa Barat.</p>
   </div>
   <div class="wilayah-row" id="wilayahRow"></div>
 
@@ -549,7 +549,7 @@
 
   <div class="section-head" id="sec-04">
     <h2><span class="num">04</span> Kemiskinan & Populasi per Kabupaten/Kota</h2>
-    <p>Proxy equity-index / social vulnerability untuk 27 kabupaten/kota, dilengkapi jumlah penduduk (2025) — state variable inti pada reward function equity-aware.</p>
+    <p>Proxy kerentanan sosial dan ekuitas akses energi untuk 27 kabupaten/kota, dilengkapi data populasi (2025) — dasar analisis distribusi dan keadilan akses listrik.</p>
   </div>
   <section class="kpis" style="margin-top:0;">
     <div class="kpi">
@@ -772,9 +772,9 @@
   </div>
   <div class="callouts" style="margin-top:16px;">
     <div class="callout">
-      <div class="tag">Implikasi untuk MDP</div>
-      <h4>Proxy risiko keandalan per region</h4>
-      <p>Data gangguan per UP3 bisa jadi state variable "risk of outage" per wilayah — melengkapi equity-index dari kemiskinan. UP3 dengan gangguan tinggi + kemiskinan tinggi (mis. Garut, Sukabumi) jadi kandidat prioritas ganda.</p>
+      <div class="tag">Indikator Keandalan Distribusi</div>
+      <h4>Proxy risiko gangguan per wilayah</h4>
+      <p>Data gangguan per UP3 sebagai indikator keandalan jaringan distribusi — UP3 dengan gangguan tinggi sekaligus kemiskinan tinggi (mis. Garut, Sukabumi) menjadi prioritas dalam perencanaan transisi energi berkeadilan.</p>
     </div>
     <div class="callout c2">
       <div class="tag">Penyebab Alam vs Teknis</div>
@@ -854,7 +854,7 @@
 
   <div class="section-head" id="sec-10">
     <h2><span class="num">10</span> Investasi Penyambungan (AI Sar) per UP3 &amp; Kab/Kota</h2>
-    <p>Realisasi Anggaran Investasi Pemasaran (Jasa + MDU) 2025 — proxy parsial untuk komponen "biaya" di MDP, dipecah ke kab/kota dengan metodologi sama seperti demand energi.</p>
+    <p>Realisasi Anggaran Investasi Pemasaran (Jasa + MDU) 2025 — proxy biaya ekspansi jaringan distribusi per wilayah, dipecah ke kab/kota dengan metodologi sama seperti demand energi.</p>
   </div>
   <section class="kpis" style="margin-top:0;">
     <div class="kpi">
@@ -896,7 +896,7 @@
     <div class="callout" style="border-left-color:var(--red);">
       <div class="tag" style="color:var(--red);">Catatan Penting</div>
       <h4>Ini biaya sambungan, bukan biaya bangun pembangkit</h4>
-      <p>AI Sar adalah belanja <b>penyambungan pelanggan</b> (kabel, trafo, meter) — bukan capex pembangkit EBT/NRE yang dibutuhkan komponen "Biaya tambah fasilitas" di MDP. Nilainya nyerempet, bukan pas — tetap berguna sebagai proxy biaya ekspansi jaringan per wilayah, bukan pengganti data capex pembangkit yang masih jadi gap.</p>
+      <p>AI Sar adalah belanja <b>penyambungan pelanggan</b> (kabel, trafo, meter) — bukan capex pembangkit EBT/NRE. Nilainya nyerempet, bukan pas — tetap berguna sebagai proxy biaya ekspansi jaringan per wilayah, bukan pengganti data capex pembangkit yang masih jadi gap.</p>
     </div>
   </div>
 
@@ -906,7 +906,7 @@
   </div>
   <div class="gap-panel">
     <h3>⚠ Data yang Masih Dibutuhkan</h3>
-    <p>Dicek ulang terhadap tabel kebutuhan data model MDP — berikut yang masih kosong atau baru sebagian, sedang dilengkapi paralel.</p>
+    <p>Berikut data yang masih kosong atau baru sebagian, sedang dilengkapi paralel.</p>
     <p style="background:#FDF6E8;border:1px solid #EBD9AE;border-radius:8px;padding:10px 14px;margin:0 0 16px;font-size:12px;color:#7A5A1A;">
       <b>Catatan granularitas wilayah:</b> tiga sumber data pakai unit spasial berbeda — RKPD Kementerian ESDM pakai 7 wilayah kerja, data gangguan PLN pakai 18 UP3, sementara data kemiskinan pakai 27 kab/kota. Belum ada pemetaan resmi antar ketiganya.
     </p>
