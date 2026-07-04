@@ -5,6 +5,7 @@ import { Hono } from "hono";
 import { securityHeaders, requireAuth } from "./middleware/auth.js";
 import { authRoutes } from "./routes/auth.js";
 import { mdpRoutes } from "./routes/mdp.js";
+import { ruptlRoutes } from "./routes/ruptl.js";
 
 const app = new Hono();
 
@@ -13,6 +14,7 @@ app.use("*", securityHeaders);
 // --- API routes ---
 app.route("/api/auth", authRoutes);
 app.route("/api/mdp", mdpRoutes);
+app.route("/api/ruptl", ruptlRoutes);
 
 // Tambahkan modul baru di sini seiring berkembangnya portal, contoh:
 // app.route("/api/pelanggan", pelangganRoutes);

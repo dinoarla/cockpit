@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RUPTL PLN 2025–2034 — Pusat Data PLN & Jawa Barat</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0B3350;--navy-2:#123A5E;--teal:#0E7C7B;--teal-light:#E4F3F2;
+  --amber:#C2760C;--amber-light:#FBF0DE;--red:#B3401F;--red-light:#FBEAE4;
+  --green:#3F7D51;--green-light:#EBF4EC;--purple:#6D5BA8;
+  --bg:#F3F5F7;--card:#FFFFFF;--line:#E3E7EB;--ink:#182430;--ink-2:#5B6B7A;
+  --radius:14px;--shadow:0 1px 2px rgba(15,35,55,.04),0 4px 16px rgba(15,35,55,.06);
+  --font-display:'Space Grotesk',sans-serif;--font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);font-family:var(--font-body);color:var(--ink);-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1280px;margin:0 auto;padding:0 24px 80px;}
+
+/* HEADER */
+header.top{background:linear-gradient(160deg,var(--navy) 0%,var(--navy-2) 55%,#0A4A5E 100%);color:#EAF1F6;padding:36px 24px 0;}
+.top-inner{max-width:1280px;margin:0 auto;}
+.eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8FB4C9;margin-bottom:10px;}
+h1{font-family:var(--font-display);font-size:28px;line-height:1.25;margin:0 0 10px;font-weight:700;color:#fff;}
+.top-sub{font-size:14px;color:#C4D7E2;max-width:660px;line-height:1.6;margin-bottom:22px;}
+.top-nav{display:flex;gap:8px;margin-bottom:0;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:0;}
+.top-nav a{font-size:13px;font-weight:600;color:#8FB4C9;text-decoration:none;padding:10px 14px;border-bottom:2.5px solid transparent;white-space:nowrap;}
+.top-nav a.active,.top-nav a:hover{color:#fff;border-bottom-color:#1E9E86;}
+.btn-back{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#8FB4C9;text-decoration:none;margin-bottom:16px;}
+.btn-back:hover{color:#fff;}
+
+/* KPIs */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0 28px;}
+.kpi{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border-top:3px solid var(--teal);}
+.kpi.k2{border-top-color:#1E9E86;}.kpi.k3{border-top-color:var(--amber);}.kpi.k4{border-top-color:var(--red);}
+.kpi.k5{border-top-color:var(--purple);}.kpi.k6{border-top-color:var(--green);}
+.kpi-label{font-size:11.5px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:8px;}
+.kpi-value{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--ink);}
+.kpi-value span{font-size:14px;font-weight:600;color:var(--ink-2);}
+.kpi-note{font-size:11.5px;color:var(--ink-2);margin-top:5px;line-height:1.4;}
+
+/* SECTION */
+.sec-head{margin:36px 0 16px;}
+.sec-head h2{font-family:var(--font-display);font-size:18px;margin:0 0 4px;display:flex;align-items:center;gap:10px;}
+.sec-head .tag{font-family:var(--font-mono);font-size:11px;color:var(--teal);background:var(--teal-light);padding:3px 9px;border-radius:20px;font-weight:600;}
+.sec-head p{font-size:13px;color:var(--ink-2);margin:0;line-height:1.6;}
+
+/* CARDS & GRID */
+.grid-2{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;}
+.grid-2b{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.card{background:var(--card);border-radius:var(--radius);padding:20px 22px 16px;box-shadow:var(--shadow);}
+.card h3{font-size:13.5px;margin:0 0 3px;font-weight:600;}
+.card .sub{font-size:11.5px;color:var(--ink-2);margin-bottom:14px;}
+.card canvas{max-height:280px;}
+.card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
+.src{font-size:10.5px;color:#8B99A6;font-family:var(--font-mono);}
+
+/* PROVINSI TABLE */
+.prov-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+.prov-controls input{padding:9px 14px;border:1px solid var(--line);border-radius:8px;font-size:13px;width:220px;font-family:var(--font-body);}
+.seg-btns{display:flex;gap:4px;}
+.seg-btn{font-size:12px;font-weight:600;padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--ink-2);}
+.seg-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+table.data{width:100%;border-collapse:collapse;font-size:12.5px;}
+table.data thead th{text-align:left;padding:9px 12px;border-bottom:2px solid var(--line);color:var(--ink-2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;white-space:nowrap;}
+table.data thead th:hover{color:var(--ink);}
+table.data thead th.sorted::after{content:" ▾";font-size:9px;}
+table.data tbody td{padding:8px 12px;border-bottom:1px solid #F0F2F4;}
+table.data tbody tr:hover{background:#FAFBFC;}
+.num-cell{font-family:var(--font-mono);text-align:right;}
+.badge{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-block;font-family:var(--font-mono);}
+.badge.a{background:#E8F4FD;color:#1A6B9A;}
+.badge.b{background:var(--teal-light);color:var(--teal);}
+.badge.c{background:#F0EBF8;color:#5B4B8A;}
+.badge.no-data{background:#F0F2F4;color:var(--ink-2);}
+.badge.has-data{background:var(--green-light);color:var(--green);}
+
+/* DETAIL PANEL */
+.detail-panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-top:16px;}
+.detail-header{background:var(--navy);color:#fff;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;}
+.detail-header h3{font-family:var(--font-display);font-size:17px;margin:0;}
+.detail-header .sub{font-size:12px;color:#9FBAC9;margin-top:3px;}
+.detail-close{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:7px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;}
+.detail-body{padding:20px 24px;}
+.detail-tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--line);}
+.detail-tab{font-size:12.5px;font-weight:600;padding:10px 14px;border:none;background:none;cursor:pointer;color:var(--ink-2);border-bottom:2.5px solid transparent;}
+.detail-tab.active{color:var(--teal);border-bottom-color:var(--teal);}
+.tab-content{display:none;}.tab-content.active{display:block;}
+.empty-state{text-align:center;padding:40px;color:var(--ink-2);font-size:13px;}
+.empty-state .icon{font-size:32px;margin-bottom:10px;}
+
+/* RENCANA NASIONAL */
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.filter-row select{padding:8px 12px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;font-family:var(--font-body);background:#fff;color:var(--ink);}
+.filter-row label{font-size:12px;color:var(--ink-2);font-weight:600;}
+.total-badge{font-family:var(--font-mono);font-size:11px;background:var(--teal-light);color:var(--teal);padding:4px 10px;border-radius:20px;font-weight:700;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .grid-2,.grid-2b,.grid-3{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <a href="/menu.html" class="btn-back">← Kembali ke Menu</a>
+    <div class="eyebrow">RUPTL PLN 2025–2034 &middot; Nasional &middot; 34 Provinsi</div>
+    <h1>Rencana Usaha Penyediaan Tenaga Listrik PLN 2025–2034</h1>
+    <p class="top-sub">Proyeksi kebutuhan, kapasitas eksisting, dan rencana pengembangan pembangkit, transmisi &amp; gardu induk seluruh Indonesia — dua skenario: RE Base &amp; ARED.</p>
+    <nav class="top-nav">
+      <a href="#" class="active" data-tab="overview" onclick="switchTab('overview',this)">Ringkasan Nasional</a>
+      <a href="#" data-tab="provinsi" onclick="switchTab('provinsi',this)">Provinsi</a>
+      <a href="#" data-tab="rencana" onclick="switchTab('rencana',this)">Rencana Pembangkit</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap" id="mainWrap">
+
+<!-- ===== TAB: OVERVIEW ===== -->
+<div id="tab-overview" class="tab-main">
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi"><div class="kpi-label">Rencana Kapasitas Baru</div><div class="kpi-value">69.512<span> MW</span></div><div class="kpi-note">Total RE Base + Fosil + Storage 2025–2034</div></div>
+    <div class="kpi k2"><div class="kpi-label">Target EBT 2034</div><div class="kpi-value">34,3<span>%</span></div><div class="kpi-note">Bauran energi terbarukan akhir RUPTL</div></div>
+    <div class="kpi k3"><div class="kpi-label">Rencana EBT</div><div class="kpi-value">42.569<span> MW</span></div><div class="kpi-note">Pembangkit EBT baru + BESS 10.256 MW</div></div>
+    <div class="kpi k4"><div class="kpi-label">Rata-rata Pertumbuhan</div><div class="kpi-value">5,3<span>%/th</span></div><div class="kpi-note">Proyeksi kebutuhan listrik nasional</div></div>
+  </div>
+  <div class="kpi-grid" style="margin-top:0;">
+    <div class="kpi k5"><div class="kpi-label">Rencana Fosil Baru</div><div class="kpi-value">16.687<span> MW</span></div><div class="kpi-note">Pembangkit berbasis energi fosil</div></div>
+    <div class="kpi k6"><div class="kpi-label">Rencana Transmisi</div><div class="kpi-value">47.758<span> kms</span></div><div class="kpi-note">Jaringan transmisi baru 2025–2034</div></div>
+    <div class="kpi"><div class="kpi-label">Rencana Gardu Induk</div><div class="kpi-value">107.950<span> MVA</span></div><div class="kpi-note">Kapasitas GI baru 2025–2034</div></div>
+    <div class="kpi k2" id="kpiProvinsiData"><div class="kpi-label">Provinsi Terdaftar</div><div class="kpi-value" id="kpiProvCount">34</div><div class="kpi-note" id="kpiProvNote">Memuat data...</div></div>
+  </div>
+
+  <div class="sec-head"><h2><span class="tag">Bauran Rencana</span> Komposisi Kapasitas Baru 2025–2034</h2><p>Pembangkit baru berdasarkan jenis energi — skenario RE Base.</p></div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Rencana Kapasitas Pembangkit per Jenis (RE Base)</h3>
+      <div class="sub">MW total 2025–2034, nasional</div>
+      <canvas id="chartBauranNasional"></canvas>
+      <div class="card-foot"><span class="src">Sumber: RUPTL PLN 2025-2034, Keputusan KESDM 2025</span></div>
+    </div>
+    <div class="card">
+      <h3>Perbandingan EBT vs Non-EBT</h3>
+      <div class="sub">Kapasitas rencana 2025–2034</div>
+      <canvas id="chartEbtVsNre"></canvas>
+      <div class="card-foot"><span class="src">Sumber: RUPTL PLN 2025-2034</span></div>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:32px;"><h2><span class="tag">Beban Puncak 2024</span> Kapasitas per Wilayah</h2><p>Data beban puncak Oktober 2024 per provinsi yang tersedia di RUPTL.</p></div>
+  <div class="grid-2b">
+    <div class="card">
+      <h3>Beban Puncak 2024 — Jawa Madura Bali</h3>
+      <div class="sub">MW, realisasi Oktober 2024</div>
+      <canvas id="chartBebanJMB"></canvas>
+      <div class="card-foot"><span class="src">Sumber: Kondisi Saat Ini tiap Lampiran B</span></div>
+    </div>
+    <div class="card">
+      <h3>Beban Puncak 2024 — Sumatera</h3>
+      <div class="sub">MW, realisasi Oktober 2024 (data tersedia)</div>
+      <canvas id="chartBebanSumatera"></canvas>
+      <div class="card-foot"><span class="src">Sumber: Kondisi Saat Ini tiap Lampiran A</span></div>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:32px;"><h2><span class="tag">Proyeksi</span> Jawa Barat 2025–2034</h2><p>Data proyeksi lengkap tersedia untuk Jawa Barat. Provinsi lain dapat ditambahkan via <code>drizzle/seed_ruptl.sql</code>.</p></div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Proyeksi Beban Puncak Jawa Barat</h3>
+      <div class="sub">MW, 2025–2034</div>
+      <canvas id="chartProyeksiB3"></canvas>
+      <div class="card-foot"><span class="src">Sumber: Tabel B3.8 RUPTL 2025-2034</span></div>
+    </div>
+    <div class="card">
+      <h3>Proyeksi Penjualan Tenaga Listrik Jawa Barat</h3>
+      <div class="sub">GWh, 2025–2034</div>
+      <canvas id="chartSalesB3"></canvas>
+      <div class="card-foot"><span class="src">Sumber: Tabel B3.8 RUPTL 2025-2034</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB: PROVINSI ===== -->
+<div id="tab-provinsi" class="tab-main" style="display:none;">
+  <div class="sec-head"><h2><span class="tag">34 Provinsi</span> Daftar & Status Data</h2><p>Klik baris provinsi untuk melihat detail data. Ikon hijau = data sudah diisi, abu-abu = belum.</p></div>
+  <div class="card" style="padding:16px 20px;">
+    <div class="prov-controls">
+      <input type="text" id="provSearch" placeholder="Cari provinsi…" oninput="renderProvTable()">
+      <div class="seg-btns">
+        <button class="seg-btn active" data-wilayah="SEMUA" onclick="setWilayahFilter('SEMUA',this)">Semua</button>
+        <button class="seg-btn" data-wilayah="JAWA MADURA BALI" onclick="setWilayahFilter('JAWA MADURA BALI',this)">Jawa–Bali</button>
+        <button class="seg-btn" data-wilayah="SUMATERA KALIMANTAN" onclick="setWilayahFilter('SUMATERA KALIMANTAN',this)">Sumatera–Kalimantan</button>
+        <button class="seg-btn" data-wilayah="SULAWESI MALUKU PAPUA NT" onclick="setWilayahFilter('SULAWESI MALUKU PAPUA NT',this)">Sulawesi–Papua–NT</button>
+      </div>
+    </div>
+    <table class="data" id="provTable">
+      <thead><tr>
+        <th onclick="sortProv('kode')">Kode</th>
+        <th onclick="sortProv('nama')">Provinsi</th>
+        <th>Wilayah Sistem</th>
+        <th onclick="sortProv('beban')" class="num-cell">Beban Puncak 2024</th>
+        <th style="text-align:center;">Status Data</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="provTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Detail panel (muncul setelah klik) -->
+  <div class="detail-panel" id="detailPanel" style="display:none;">
+    <div class="detail-header">
+      <div>
+        <h3 id="detailTitle">—</h3>
+        <div class="sub" id="detailSub">—</div>
+      </div>
+      <button class="detail-close" onclick="closeDetail()">Tutup ✕</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-tabs">
+        <button class="detail-tab active" data-dtab="penjualan" onclick="switchDetailTab('penjualan',this)">Penjualan Historis</button>
+        <button class="detail-tab" data-dtab="proyeksi" onclick="switchDetailTab('proyeksi',this)">Proyeksi 2025–2034</button>
+        <button class="detail-tab" data-dtab="pembangkit" onclick="switchDetailTab('pembangkit',this)">Pembangkit Eksisting</button>
+        <button class="detail-tab" data-dtab="rencana" onclick="switchDetailTab('rencana',this)">Rencana Pembangkit</button>
+      </div>
+      <div id="dtab-penjualan" class="tab-content active">
+        <canvas id="chartDetailPenjualan" style="max-height:300px;"></canvas>
+        <div id="detailPenjualanEmpty" class="empty-state" style="display:none;"><div class="icon">📂</div><p>Data penjualan historis belum tersedia untuk provinsi ini.<br>Tambahkan via <code>drizzle/seed_ruptl.sql</code>.</p></div>
+      </div>
+      <div id="dtab-proyeksi" class="tab-content">
+        <canvas id="chartDetailProyeksi" style="max-height:300px;"></canvas>
+        <div id="detailProyeksiEmpty" class="empty-state" style="display:none;"><div class="icon">📂</div><p>Data proyeksi belum tersedia untuk provinsi ini.</p></div>
+      </div>
+      <div id="dtab-pembangkit" class="tab-content">
+        <table class="data" id="detailPembangkitTable">
+          <thead><tr><th>Pemilik</th><th>Jenis</th><th>Sistem</th><th class="num-cell">Jumlah Unit</th><th class="num-cell">Kapasitas (MW)</th><th class="num-cell">Daya Mampu (MW)</th></tr></thead>
+          <tbody id="detailPembangkitBody"></tbody>
+        </table>
+        <div id="detailPembangkitEmpty" class="empty-state" style="display:none;"><div class="icon">📂</div><p>Data pembangkit eksisting belum tersedia.</p></div>
+      </div>
+      <div id="dtab-rencana" class="tab-content">
+        <div class="filter-row">
+          <label>Skenario:</label>
+          <select id="detailSkenarioFilter" onchange="loadDetailRencana()">
+            <option value="">Keduanya</option>
+            <option value="RE_BASE">RE Base</option>
+            <option value="ARED">ARED</option>
+          </select>
+        </div>
+        <table class="data" id="detailRencanaTable">
+          <thead><tr><th>Skenario</th><th>Jenis</th><th>Nama/Keterangan</th><th class="num-cell">Kapasitas (MW)</th><th class="num-cell">COD</th></tr></thead>
+          <tbody id="detailRencanaBody"></tbody>
+        </table>
+        <div id="detailRencanaEmpty" class="empty-state" style="display:none;"><div class="icon">📂</div><p>Data rencana pembangkit belum tersedia.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB: RENCANA NASIONAL ===== -->
+<div id="tab-rencana" class="tab-main" style="display:none;">
+  <div class="sec-head"><h2><span class="tag">Nasional</span> Rencana Pembangunan Pembangkit</h2><p>Seluruh proyek pembangkit dari semua provinsi yang sudah dimasukkan ke database, dua skenario.</p></div>
+  <div class="card" style="padding:16px 20px;">
+    <div class="filter-row">
+      <label>Skenario:</label>
+      <select id="rencanaSkenario" onchange="loadRencanaNasional()">
+        <option value="">Semua</option>
+        <option value="RE_BASE">RE Base</option>
+        <option value="ARED">ARED</option>
+      </select>
+      <label>Jenis:</label>
+      <select id="rencanaJenis" onchange="loadRencanaNasional()">
+        <option value="">Semua</option>
+        <option>PLTS</option><option>PLTA</option><option>PLTB</option>
+        <option>PLTP</option><option>PLTM</option><option>PS</option>
+        <option>BESS</option><option>PLTU</option><option>PLTG</option>
+        <option>PLTGU</option>
+      </select>
+      <label>Tahun COD:</label>
+      <select id="rencanaCod" onchange="loadRencanaNasional()">
+        <option value="">Semua</option>
+        <option>2025</option><option>2026</option><option>2027</option>
+        <option>2028</option><option>2029</option><option>2030</option>
+        <option>2031</option><option>2032</option><option>2033</option>
+        <option>2034</option>
+      </select>
+      <span class="total-badge" id="rencanaTotalBadge">— proyek</span>
+    </div>
+    <table class="data" id="rencanaNasionalTable">
+      <thead><tr>
+        <th>Provinsi</th><th>Wilayah</th><th>Skenario</th><th>Jenis</th>
+        <th>Nama/Keterangan</th><th class="num-cell">MW</th><th class="num-cell">COD</th>
+      </tr></thead>
+      <tbody id="rencanaNasionalBody"></tbody>
+    </table>
+    <div id="rencanaEmpty" class="empty-state" style="display:none;"><div class="icon">📋</div><p>Belum ada data rencana pembangkit. Jalankan <code>drizzle/seed_ruptl.sql</code> untuk mengisi data awal.</p></div>
+  </div>
+</div>
+
+</div><!-- end wrap -->
+
+<script>
+const COLORS={navy:'#0B3350',teal:'#0E7C7B',teal2:'#1E9E86',amber:'#C2760C',red:'#B3401F',green:'#3F7D51',purple:'#6D5BA8',grey:'#5A6B78'};
+Chart.defaults.font.family="'Inter',sans-serif";
+Chart.defaults.color='#5B6B7A';
+Chart.defaults.font.size=11.5;
+
+let allProvinsi=[], provSortCol='kode', provSortAsc=true, wilayahFilter='SEMUA';
+let currentProvKode=null;
+const detailCharts={};
+
+/* ======= NAV TABS ======= */
+function switchTab(name, el){
+  document.querySelectorAll('.tab-main').forEach(t=>t.style.display='none');
+  document.getElementById('tab-'+name).style.display='block';
+  document.querySelectorAll('.top-nav a').forEach(a=>a.classList.remove('active'));
+  el.classList.add('active');
+  if(name==='rencana' && allProvinsi.length>0) loadRencanaNasional();
+}
+
+/* ======= INIT ======= */
+async function init(){
+  const authRes=await fetch('/api/auth/me');
+  if(!authRes.ok){window.location.href='/';return;}
+
+  // Summary nasional
+  const sum=await fetch('/api/ruptl/summary').then(r=>r.json()).catch(()=>null);
+  if(sum){
+    document.getElementById('kpiProvCount').textContent=sum.totalProvinsi;
+    document.getElementById('kpiProvNote').textContent=`${sum.denganData} provinsi sudah ada data beban puncak`;
+  }
+
+  // Load all provinsi
+  const provRes=await fetch('/api/ruptl/provinsi').then(r=>r.json()).catch(()=>[]);
+  allProvinsi=provRes;
+  renderProvTable();
+  buildOverviewCharts();
+  loadJabarDetail();
+}
+
+/* ======= OVERVIEW CHARTS ======= */
+function buildOverviewCharts(){
+  // Bauran rencana nasional (RE Base)
+  new Chart(document.getElementById('chartBauranNasional'),{
+    type:'bar',
+    data:{
+      labels:['EBT (total)','Fosil','Storage/BESS'],
+      datasets:[{data:[42569,16687,10256],backgroundColor:[COLORS.teal2,COLORS.grey,COLORS.amber],borderRadius:4}]
+    },
+    options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw.toLocaleString('id-ID')} MW`}}},scales:{x:{title:{display:true,text:'MW'},grid:{color:'#EEF1F3'}},y:{grid:{display:false}}}}
+  });
+
+  // EBT vs NRE doughnut
+  new Chart(document.getElementById('chartEbtVsNre'),{
+    type:'doughnut',
+    data:{
+      labels:['EBT 42.569 MW','Fosil 16.687 MW','BESS 10.256 MW'],
+      datasets:[{data:[42569,16687,10256],backgroundColor:[COLORS.teal2,COLORS.grey,COLORS.amber],borderWidth:0}]
+    },
+    options:{responsive:true,cutout:'60%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:12}},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw.toLocaleString('id-ID')} MW`}}}}
+  });
+
+  // Beban puncak JMB
+  const jmb=allProvinsi.filter(p=>p.wilayahSistem==='JAWA MADURA BALI'&&p.bebanPuncak2024Mw);
+  new Chart(document.getElementById('chartBebanJMB'),{
+    type:'bar',
+    data:{
+      labels:jmb.map(p=>p.nama),
+      datasets:[{label:'MW',data:jmb.map(p=>parseFloat(p.bebanPuncak2024Mw)),backgroundColor:COLORS.teal+'CC',borderRadius:4}]
+    },
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw.toLocaleString('id-ID')} MW`}}},scales:{y:{title:{display:true,text:'MW'},grid:{color:'#EEF1F3'}},x:{grid:{display:false}}}}
+  });
+
+  // Beban puncak Sumatera
+  const sum=allProvinsi.filter(p=>p.lampiran==='A'&&p.bebanPuncak2024Mw&&parseFloat(p.bebanPuncak2024Mw)>100);
+  new Chart(document.getElementById('chartBebanSumatera'),{
+    type:'bar',
+    data:{
+      labels:sum.map(p=>p.nama),
+      datasets:[{label:'MW',data:sum.map(p=>parseFloat(p.bebanPuncak2024Mw)),backgroundColor:COLORS.amber+'CC',borderRadius:4}]
+    },
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${c.raw.toLocaleString('id-ID')} MW`}}},scales:{y:{title:{display:true,text:'MW'},grid:{color:'#EEF1F3'}},x:{grid:{display:false},ticks:{maxRotation:30}}}}
+  });
+}
+
+async function loadJabarDetail(){
+  const proy=await fetch('/api/ruptl/provinsi/B3/proyeksi').then(r=>r.json()).catch(()=>[]);
+  if(!proy.length) return;
+
+  new Chart(document.getElementById('chartProyeksiB3'),{
+    type:'line',
+    data:{
+      labels:proy.map(d=>d.tahun),
+      datasets:[{label:'Beban Puncak (MW)',data:proy.map(d=>parseFloat(d.bebanPuncakMw)),borderColor:COLORS.teal,backgroundColor:COLORS.teal+'22',fill:true,tension:.3,pointRadius:4}]
+    },
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'MW'},grid:{color:'#EEF1F3'}},x:{grid:{display:false}}}}
+  });
+
+  new Chart(document.getElementById('chartSalesB3'),{
+    type:'line',
+    data:{
+      labels:proy.map(d=>d.tahun),
+      datasets:[{label:'Sales (GWh)',data:proy.map(d=>parseFloat(d.salesGwh)),borderColor:COLORS.amber,backgroundColor:COLORS.amber+'22',fill:true,tension:.3,pointRadius:4}]
+    },
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'GWh'},grid:{color:'#EEF1F3'}},x:{grid:{display:false}}}}
+  });
+}
+
+/* ======= PROVINSI TABLE ======= */
+function setWilayahFilter(w, el){
+  wilayahFilter=w;
+  document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderProvTable();
+}
+
+function sortProv(col){
+  if(provSortCol===col) provSortAsc=!provSortAsc;
+  else{provSortCol=col;provSortAsc=true;}
+  document.querySelectorAll('#provTable thead th').forEach(th=>{
+    th.classList.remove('sorted');
+    if(th.textContent.toLowerCase().includes(col.toLowerCase())) th.classList.add('sorted');
+  });
+  renderProvTable();
+}
+
+function renderProvTable(){
+  const q=(document.getElementById('provSearch')||{}).value?.toLowerCase()||'';
+  let rows=[...allProvinsi];
+  if(wilayahFilter!=='SEMUA') rows=rows.filter(p=>p.wilayahSistem===wilayahFilter);
+  if(q) rows=rows.filter(p=>p.nama.toLowerCase().includes(q)||p.kode.toLowerCase().includes(q));
+  rows.sort((a,b)=>{
+    let va=a[provSortCol==='beban'?'bebanPuncak2024Mw':'kode'===provSortCol?'kode':'nama']||'';
+    let vb=b[provSortCol==='beban'?'bebanPuncak2024Mw':'kode'===provSortCol?'kode':'nama']||'';
+    if(provSortCol==='beban'){va=parseFloat(va)||0;vb=parseFloat(vb)||0;}
+    if(va<vb) return provSortAsc?-1:1;
+    if(va>vb) return provSortAsc?1:-1;
+    return 0;
+  });
+
+  const tbody=document.getElementById('provTableBody');
+  tbody.innerHTML=rows.map(p=>{
+    const bp=p.bebanPuncak2024Mw?`<span style="font-family:var(--font-mono)">${parseFloat(p.bebanPuncak2024Mw).toLocaleString('id-ID')}</span> MW`:'<span style="color:#aaa">—</span>';
+    const lampBadge=`<span class="badge ${p.lampiran.toLowerCase()}">${p.lampiran}</span>`;
+    const hasData=p.bebanPuncak2024Mw?'<span class="badge has-data">Ada data</span>':'<span class="badge no-data">Belum ada</span>';
+    return `<tr style="cursor:pointer" onclick="openDetail('${p.kode}')">
+      <td>${lampBadge} ${p.kode}</td>
+      <td><b>${p.nama}</b></td>
+      <td><span style="font-size:11px;color:var(--ink-2)">${p.wilayahSistem}</span></td>
+      <td class="num-cell">${bp}</td>
+      <td style="text-align:center">${hasData}</td>
+      <td style="text-align:right"><span style="color:var(--teal);font-size:12px;font-weight:600">Detail →</span></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ======= DETAIL PROVINSI ======= */
+async function openDetail(kode){
+  currentProvKode=kode;
+  const prov=allProvinsi.find(p=>p.kode===kode);
+  if(!prov) return;
+
+  document.getElementById('detailTitle').textContent=prov.nama;
+  document.getElementById('detailSub').textContent=`${prov.kode} · ${prov.wilayahSistem}${prov.bebanPuncak2024Mw?' · Beban Puncak 2024: '+parseFloat(prov.bebanPuncak2024Mw).toLocaleString('id-ID')+' MW':''}`;
+  document.getElementById('detailPanel').style.display='block';
+  document.getElementById('detailPanel').scrollIntoView({behavior:'smooth',block:'start'});
+
+  // Reset tabs
+  document.querySelectorAll('.detail-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelector('[data-dtab="penjualan"]').classList.add('active');
+  document.getElementById('dtab-penjualan').classList.add('active');
+
+  loadDetailPenjualan();
+}
+
+function closeDetail(){
+  document.getElementById('detailPanel').style.display='none';
+  currentProvKode=null;
+}
+
+function switchDetailTab(name, el){
+  document.querySelectorAll('.detail-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('dtab-'+name).classList.add('active');
+  if(name==='penjualan') loadDetailPenjualan();
+  else if(name==='proyeksi') loadDetailProyeksi();
+  else if(name==='pembangkit') loadDetailPembangkit();
+  else if(name==='rencana') loadDetailRencana();
+}
+
+function destroyDetailChart(id){
+  if(detailCharts[id]){detailCharts[id].destroy();delete detailCharts[id];}
+}
+
+async function loadDetailPenjualan(){
+  if(!currentProvKode) return;
+  const rows=await fetch(`/api/ruptl/provinsi/${currentProvKode}/penjualan`).then(r=>r.json()).catch(()=>[]);
+  const empty=document.getElementById('detailPenjualanEmpty');
+
+  if(!rows.length){
+    empty.style.display='block';
+    document.getElementById('chartDetailPenjualan').style.display='none';
+    return;
+  }
+  empty.style.display='none';
+  document.getElementById('chartDetailPenjualan').style.display='block';
+
+  const years=[...new Set(rows.map(r=>r.tahun))].sort();
+  const sektors=['RUMAH_TANGGA','BISNIS','PUBLIK','INDUSTRI'];
+  const labels={'RUMAH_TANGGA':'Rumah Tangga','BISNIS':'Bisnis','PUBLIK':'Publik','INDUSTRI':'Industri'};
+  const bgColors=[COLORS.teal+'CC',COLORS.amber+'CC',COLORS.green+'CC',COLORS.navy+'CC'];
+
+  destroyDetailChart('penjualan');
+  detailCharts['penjualan']=new Chart(document.getElementById('chartDetailPenjualan'),{
+    type:'bar',
+    data:{
+      labels:years,
+      datasets:sektors.map((s,i)=>({
+        label:labels[s],
+        data:years.map(y=>{const r=rows.find(d=>d.tahun===y&&d.sektor===s);return r?parseFloat(r.gwh):0;}),
+        backgroundColor:bgColors[i],borderRadius:3,
+      }))
+    },
+    options:{responsive:true,scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,title:{display:true,text:'GWh'},grid:{color:'#EEF1F3'}}},plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:12}}}}
+  });
+}
+
+async function loadDetailProyeksi(){
+  if(!currentProvKode) return;
+  const rows=await fetch(`/api/ruptl/provinsi/${currentProvKode}/proyeksi`).then(r=>r.json()).catch(()=>[]);
+  const empty=document.getElementById('detailProyeksiEmpty');
+
+  if(!rows.length){
+    empty.style.display='block';
+    document.getElementById('chartDetailProyeksi').style.display='none';
+    return;
+  }
+  empty.style.display='none';
+  document.getElementById('chartDetailProyeksi').style.display='block';
+  rows.sort((a,b)=>a.tahun-b.tahun);
+
+  destroyDetailChart('proyeksi');
+  detailCharts['proyeksi']=new Chart(document.getElementById('chartDetailProyeksi'),{
+    data:{
+      labels:rows.map(r=>r.tahun),
+      datasets:[
+        {type:'bar',label:'Sales (GWh)',data:rows.map(r=>parseFloat(r.salesGwh)||0),backgroundColor:COLORS.teal+'99',borderRadius:3,yAxisID:'y'},
+        {type:'line',label:'Beban Puncak (MW)',data:rows.map(r=>parseFloat(r.bebanPuncakMw)||0),borderColor:COLORS.red,backgroundColor:COLORS.red,tension:.3,pointRadius:4,yAxisID:'y1'}
+      ]
+    },
+    options:{responsive:true,interaction:{mode:'index',intersect:false},scales:{y:{position:'left',title:{display:true,text:'GWh'},grid:{color:'#EEF1F3'}},y1:{position:'right',title:{display:true,text:'MW'},grid:{display:false}}},plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:12}}}}
+  });
+}
+
+async function loadDetailPembangkit(){
+  if(!currentProvKode) return;
+  const rows=await fetch(`/api/ruptl/provinsi/${currentProvKode}/pembangkit-eksisting`).then(r=>r.json()).catch(()=>[]);
+  const empty=document.getElementById('detailPembangkitEmpty');
+  const tbody=document.getElementById('detailPembangkitBody');
+
+  if(!rows.length){empty.style.display='block';tbody.innerHTML='';document.getElementById('detailPembangkitTable').style.display='none';return;}
+  empty.style.display='none';
+  document.getElementById('detailPembangkitTable').style.display='table';
+
+  tbody.innerHTML=rows.map(r=>`<tr>
+    <td><span class="badge" style="background:${r.pemilik==='PLN'?'#EAF1F6':'#F0EBF8'};color:${r.pemilik==='PLN'?'#1A6B9A':'#5B4B8A'}">${r.pemilik}</span></td>
+    <td><b>${r.jenis}</b></td>
+    <td style="font-size:11.5px;color:var(--ink-2)">${r.sistemTenagaListrik||'—'}</td>
+    <td class="num-cell">${r.jumlahUnit||'—'}</td>
+    <td class="num-cell">${r.kapasitasMw?parseFloat(r.kapasitasMw).toLocaleString('id-ID'):'—'}</td>
+    <td class="num-cell">${r.dayaMambuMw?parseFloat(r.dayaMambuMw).toLocaleString('id-ID'):'—'}</td>
+  </tr>`).join('');
+}
+
+async function loadDetailRencana(){
+  if(!currentProvKode) return;
+  const sken=document.getElementById('detailSkenarioFilter').value;
+  const url=`/api/ruptl/provinsi/${currentProvKode}/rencana-pembangkit${sken?'?skenario='+sken:''}`;
+  const rows=await fetch(url).then(r=>r.json()).catch(()=>[]);
+  const empty=document.getElementById('detailRencanaEmpty');
+  const tbody=document.getElementById('detailRencanaBody');
+
+  if(!rows.length){empty.style.display='block';tbody.innerHTML='';return;}
+  empty.style.display='none';
+
+  const skenColor={'RE_BASE':'var(--teal-light)','ARED':'#F0EBF8'};
+  const skenText={'RE_BASE':'RE Base','ARED':'ARED'};
+
+  tbody.innerHTML=rows.sort((a,b)=>(a.codTahun||9999)-(b.codTahun||9999)).map(r=>`<tr>
+    <td><span class="badge" style="background:${skenColor[r.skenario]||'#eee'};color:var(--ink-2)">${skenText[r.skenario]||r.skenario}</span></td>
+    <td><b>${r.jenis}</b></td>
+    <td style="font-size:11.5px;color:var(--ink-2)">${r.nama||r.keterangan||'—'}</td>
+    <td class="num-cell">${r.kapasitasMw?parseFloat(r.kapasitasMw).toLocaleString('id-ID'):'—'}</td>
+    <td class="num-cell">${r.codTahun||'—'}</td>
+  </tr>`).join('');
+}
+
+/* ======= RENCANA NASIONAL ======= */
+async function loadRencanaNasional(){
+  const sken=document.getElementById('rencanaSkenario').value;
+  const jenis=document.getElementById('rencanaJenis').value;
+  const cod=document.getElementById('rencanaCod').value;
+
+  let url='/api/ruptl/rencana-pembangkit?';
+  if(sken) url+='skenario='+sken+'&';
+  if(jenis) url+='jenis='+jenis+'&';
+  if(cod) url+='cod_tahun='+cod+'&';
+
+  const rows=await fetch(url).then(r=>r.json()).catch(()=>[]);
+  const tbody=document.getElementById('rencanaNasionalBody');
+  const empty=document.getElementById('rencanaEmpty');
+
+  document.getElementById('rencanaTotalBadge').textContent=rows.length+' proyek';
+
+  if(!rows.length){empty.style.display='block';tbody.innerHTML='';return;}
+  empty.style.display='none';
+
+  const skenColor={'RE_BASE':'var(--teal-light)','ARED':'#F0EBF8'};
+  const skenText={'RE_BASE':'RE Base','ARED':'ARED'};
+  const wilayahShort={'JAWA MADURA BALI':'JMB','SUMATERA KALIMANTAN':'Sum-Kal','SULAWESI MALUKU PAPUA NT':'Sul-Pap-NT'};
+
+  tbody.innerHTML=rows.map(r=>`<tr>
+    <td><b style="font-size:12px">${r.namaProvinsi}</b></td>
+    <td><span style="font-size:11px;color:var(--ink-2)">${wilayahShort[r.wilayahSistem]||r.wilayahSistem}</span></td>
+    <td><span class="badge" style="background:${skenColor[r.skenario]||'#eee'};color:var(--ink-2)">${skenText[r.skenario]||r.skenario}</span></td>
+    <td><b>${r.jenis}</b></td>
+    <td style="font-size:11.5px;color:var(--ink-2)">${r.nama||r.keterangan||'—'}</td>
+    <td class="num-cell">${r.kapasitasMw?parseFloat(r.kapasitasMw).toLocaleString('id-ID'):'-'}</td>
+    <td class="num-cell">${r.codTahun||'—'}</td>
+  </tr>`).join('');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

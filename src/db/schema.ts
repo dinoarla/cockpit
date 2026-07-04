@@ -2,6 +2,7 @@ import {
   mysqlTable,
   varchar,
   int,
+  decimal,
   timestamp,
   boolean,
   mysqlEnum,
@@ -79,3 +80,113 @@ export const loginAudit = mysqlTable(
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
+
+// ============================================================
+// MODUL RUPTL PLN 2025-2034
+// ============================================================
+
+export const ruptlProvinsi = mysqlTable("ruptl_provinsi", {
+  id: int("id").autoincrement().primaryKey(),
+  kode: varchar("kode", { length: 5 }).notNull().unique(),
+  nama: varchar("nama", { length: 100 }).notNull(),
+  lampiran: varchar("lampiran", { length: 2 }).notNull(),
+  wilayahSistem: varchar("wilayah_sistem", { length: 60 }).notNull(),
+  bebanPuncak2024Mw: decimal("beban_puncak_2024_mw", { precision: 10, scale: 2 }),
+});
+
+export const ruptlPenjualanHistoris = mysqlTable(
+  "ruptl_penjualan_historis",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    provinsiId: int("provinsi_id").notNull(),
+    tahun: int("tahun").notNull(),
+    sektor: mysqlEnum("sektor", ["RUMAH_TANGGA", "BISNIS", "PUBLIK", "INDUSTRI"]).notNull(),
+    gwh: decimal("gwh", { precision: 10, scale: 2 }),
+  },
+  (t) => ({ provTahunIdx: index("penjualan_prov_tahun_idx").on(t.provinsiId, t.tahun) })
+);
+
+export const ruptlPelangganHistoris = mysqlTable(
+  "ruptl_pelanggan_historis",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    provinsiId: int("provinsi_id").notNull(),
+    tahun: int("tahun").notNull(),
+    sektor: mysqlEnum("sektor", ["RUMAH_TANGGA", "BISNIS", "PUBLIK", "INDUSTRI"]).notNull(),
+    jumlahRibu: decimal("jumlah_ribu", { precision: 10, scale: 2 }),
+  },
+  (t) => ({ provTahunIdx: index("pelanggan_prov_tahun_idx").on(t.provinsiId, t.tahun) })
+);
+
+export const ruptlProyeksiKebutuhan = mysqlTable(
+  "ruptl_proyeksi_kebutuhan",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    provinsiId: int("provinsi_id").notNull(),
+    tahun: int("tahun").notNull(),
+    pertumbuhanEkonomiPct: decimal("pertumbuhan_ekonomi_pct", { precision: 5, scale: 2 }),
+    salesGwh: decimal("sales_gwh", { precision: 10, scale: 2 }),
+    produksiGwh: decimal("produksi_gwh", { precision: 10, scale: 2 }),
+    bebanPuncakMw: decimal("beban_puncak_mw", { precision: 10, scale: 2 }),
+    pelanggan: int("pelanggan"),
+  },
+  (t) => ({ provTahunIdx: index("proyeksi_prov_tahun_idx").on(t.provinsiId, t.tahun) })
+);
+
+export const ruptlPembangkitEksisting = mysqlTable(
+  "ruptl_pembangkit_eksisting",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    provinsiId: int("provinsi_id").notNull(),
+    pemilik: mysqlEnum("pemilik", ["PLN", "IPP"]).notNull().default("PLN"),
+    jenis: varchar("jenis", { length: 20 }).notNull(),
+    sistemTenagaListrik: varchar("sistem_tenaga_listrik", { length: 50 }),
+    jumlahUnit: int("jumlah_unit"),
+    kapasitasMw: decimal("kapasitas_mw", { precision: 10, scale: 2 }),
+    dayaMambuMw: decimal("daya_mampu_mw", { precision: 10, scale: 2 }),
+    dmpMw: decimal("dmp_mw", { precision: 10, scale: 2 }),
+  },
+  (t) => ({ provIdx: index("pembangkit_eks_prov_idx").on(t.provinsiId) })
+);
+
+export const ruptlRencanaPembangkit = mysqlTable(
+  "ruptl_rencana_pembangkit",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    provinsiId: int("provinsi_id").notNull(),
+    skenario: mysqlEnum("skenario", ["RE_BASE", "ARED"]).notNull(),
+    jenis: varchar("jenis", { length: 30 }).notNull(),
+    nama: varchar("nama", { length: 200 }),
+    kapasitasMw: decimal("kapasitas_mw", { precision: 10, scale: 2 }),
+    codTahun: int("cod_tahun"),
+    keterangan: varchar("keterangan", { length: 500 }),
+  },
+  (t) => ({
+    provSkenIdx: index("rencana_prov_sken_idx").on(t.provinsiId, t.skenario),
+    codIdx: index("rencana_cod_idx").on(t.codTahun),
+  })
+);
+
+export const ruptlRencanaTransmisi = mysqlTable(
+  "ruptl_rencana_transmisi",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    provinsiId: int("provinsi_id").notNull(),
+    skenario: mysqlEnum("skenario", ["RE_BASE", "ARED"]).notNull(),
+    tahun: int("tahun").notNull(),
+    kms: decimal("kms", { precision: 10, scale: 2 }),
+  },
+  (t) => ({ provSkenTahunIdx: index("transmisi_prov_sken_tahun_idx").on(t.provinsiId, t.skenario, t.tahun) })
+);
+
+export const ruptlRencanaGarduInduk = mysqlTable(
+  "ruptl_rencana_gardu_induk",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    provinsiId: int("provinsi_id").notNull(),
+    skenario: mysqlEnum("skenario", ["RE_BASE", "ARED"]).notNull(),
+    tahun: int("tahun").notNull(),
+    mva: decimal("mva", { precision: 10, scale: 2 }),
+  },
+  (t) => ({ provSkenTahunIdx: index("gi_prov_sken_tahun_idx").on(t.provinsiId, t.skenario, t.tahun) })
+);
