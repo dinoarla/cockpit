@@ -61,7 +61,14 @@ export async function securityHeaders(c: Context, next: Next) {
   c.header("Referrer-Policy", "strict-origin-when-cross-origin");
   c.header(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    [
+      "default-src 'self'",
+      "script-src 'self' https://cdn.jsdelivr.net",
+      "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: https://*.basemaps.cartocdn.com",
+      "connect-src 'self'",
+    ].join("; ")
   );
   c.header("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
   if (process.env.COOKIE_SECURE === "true") {
