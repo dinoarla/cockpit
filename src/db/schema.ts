@@ -7,6 +7,10 @@ import {
   boolean,
   mysqlEnum,
   index,
+  text,
+  date,
+  primaryKey,
+  uniqueIndex,
 } from "drizzle-orm/mysql-core";
 
 /**
@@ -190,3 +194,58 @@ export const ruptlRencanaGarduInduk = mysqlTable(
   },
   (t) => ({ provSkenTahunIdx: index("gi_prov_sken_tahun_idx").on(t.provinsiId, t.skenario, t.tahun) })
 );
+
+// ============================================================
+// ARSITEKTUR DOMAIN & MODUL (§4 PRD v2.x)
+// ============================================================
+
+export const domains = mysqlTable("domains", {
+  id: int("id").autoincrement().primaryKey(),
+  slug: varchar("slug", { length: 50 }).notNull().unique(),
+  nama: varchar("nama", { length: 150 }).notNull(),
+  deskripsi: text("deskripsi"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const domainModules = mysqlTable(
+  "domain_modules",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    domainId: int("domain_id").notNull(),
+    slug: varchar("slug", { length: 50 }).notNull(),
+    nama: varchar("nama", { length: 150 }).notNull(),
+    routePath: varchar("route_path", { length: 100 }).notNull(),
+    sensitivitas: mysqlEnum("sensitivitas", ["publik", "internal", "sensitif"]).notNull().default("internal"),
+    status: mysqlEnum("status", ["aktif", "draft", "arsip"]).notNull().default("draft"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    domainSlugUniq: uniqueIndex("domain_modules_domain_slug_uniq").on(t.domainId, t.slug),
+  })
+);
+
+export const userDomainAccess = mysqlTable(
+  "user_domain_access",
+  {
+    userId: int("user_id").notNull(),
+    domainId: int("domain_id").notNull(),
+    accessLevel: mysqlEnum("access_level", ["read", "write", "admin"]).notNull(),
+    grantedAt: timestamp("granted_at").notNull().defaultNow(),
+    grantedBy: int("granted_by"),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.domainId] }),
+  })
+);
+
+export const datasetSources = mysqlTable("dataset_sources", {
+  id: int("id").autoincrement().primaryKey(),
+  domainModuleId: int("domain_module_id").notNull(),
+  namaSumber: varchar("nama_sumber", { length: 255 }).notNull(),
+  jenisSumber: varchar("jenis_sumber", { length: 100 }),
+  urlAtauReferensi: text("url_atau_referensi"),
+  tanggalAkses: date("tanggal_akses"),
+  catatanMetodologi: text("catatan_metodologi"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});

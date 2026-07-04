@@ -4,6 +4,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { securityHeaders, requireAuth } from "./middleware/auth.js";
 import { authRoutes } from "./routes/auth.js";
+import { domainRoutes } from "./routes/domains.js";
 import { mdpRoutes } from "./routes/mdp.js";
 import { ruptlRoutes } from "./routes/ruptl.js";
 
@@ -13,6 +14,7 @@ app.use("*", securityHeaders);
 
 // --- API routes ---
 app.route("/api/auth", authRoutes);
+app.route("/api/domains", domainRoutes);
 app.route("/api/mdp", mdpRoutes);
 app.route("/api/ruptl", ruptlRoutes);
 

@@ -1,8 +1,8 @@
 import type { Context, Next } from "hono";
 import { getCookie } from "hono/cookie";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "../db/client.js";
-import { users, type User } from "../db/schema.js";
+import { users, domains, userDomainAccess, type User } from "../db/schema.js";
 import { validateSessionToken, SESSION_COOKIE_NAME } from "../auth/session.js";
 
 // Menyimpan user yang sedang login di context, supaya route handler
@@ -49,6 +49,34 @@ export function requireRole(...allowedRoles: Array<User["role"]>) {
     if (!allowedRoles.includes(user.role)) {
       return c.json({ error: "Tidak punya akses ke resource ini." }, 403);
     }
+    return next();
+  };
+}
+
+/**
+ * Middleware akses per-domain (§4.2 PRD).
+ * Admin selalu lolos. Non-admin harus punya entri di user_domain_access.
+ * Pasang SETELAH requireAuth.
+ */
+export function requireDomainAccess(domainSlug: string) {
+  return async (c: Context, next: Next) => {
+    const user = c.get("user");
+    if (user.role === "admin") return next();
+
+    const [domain] = await db
+      .select()
+      .from(domains)
+      .where(eq(domains.slug, domainSlug))
+      .limit(1);
+    if (!domain) return c.json({ error: "Domain tidak ditemukan." }, 404);
+
+    const [access] = await db
+      .select()
+      .from(userDomainAccess)
+      .where(and(eq(userDomainAccess.userId, user.id), eq(userDomainAccess.domainId, domain.id)))
+      .limit(1);
+
+    if (!access) return c.json({ error: "Tidak punya akses ke domain ini." }, 403);
     return next();
   };
 }
