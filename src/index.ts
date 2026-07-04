@@ -22,7 +22,7 @@ const app = new Hono();
 
 app.use("*", securityHeaders);
 
-// Health check — tidak butuh DB, untuk verifikasi app berjalan
+// Health check — tidak butuh DB
 app.get("/healthz", (c) => c.json({ status: "ok", ts: new Date().toISOString() }));
 
 // --- API routes ---
@@ -35,19 +35,17 @@ app.route("/api/ruptl", ruptlRoutes);
 app.use("/menu.html", requireAuth, serveStatic({ root: "./public" }));
 app.use("/modules/*", requireAuth, serveStatic({ root: "./public" }));
 
-// --- Static assets (login page, CSS, dll) ---
+// --- Static assets ---
 app.use("/*", serveStatic({ root: "./public" }));
 
-const port = Number(process.env.PORT ?? 3000);
+// Export untuk Hostinger Hono preset (edge/serverless style)
+export default app;
 
-console.log("[COCKPIT] Env check:", {
-  DB_HOST:  process.env.DB_HOST  ? "SET" : "MISSING",
-  DB_USER:  process.env.DB_USER  ? "SET" : "MISSING",
-  DB_NAME:  process.env.DB_NAME  ? "SET" : "MISSING",
-  PORT:     process.env.PORT     ?? "(default 3000)",
-  NODE_ENV: process.env.NODE_ENV ?? "(not set)",
-});
-
-serve({ fetch: app.fetch, port, hostname: "0.0.0.0" }, (info) => {
-  console.log(`[COCKPIT] Server berjalan di http://${info.address}:${info.port}`);
-});
+// Jalankan HTTP server hanya di local development
+if (process.env.NODE_ENV !== "production") {
+  const port = Number(process.env.PORT ?? 3000);
+  console.log("[COCKPIT] Dev mode — starting local server on port", port);
+  serve({ fetch: app.fetch, port, hostname: "0.0.0.0" }, (info) => {
+    console.log(`[COCKPIT] http://${info.address}:${info.port}`);
+  });
+}
