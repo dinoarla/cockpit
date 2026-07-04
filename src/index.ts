@@ -1,12 +1,11 @@
 import "dotenv/config";
 
-// Tangkap semua crash agar error-nya muncul di runtime logs hosting
 process.on("uncaughtException", (err) => {
-  console.error("[COCKPIT] Uncaught exception:", err.message, "\n", err.stack);
+  console.error("[COCKPIT] uncaughtException:", err.message, err.stack);
   process.exit(1);
 });
 process.on("unhandledRejection", (reason) => {
-  console.error("[COCKPIT] Unhandled rejection:", reason);
+  console.error("[COCKPIT] unhandledRejection:", reason);
   process.exit(1);
 });
 
@@ -23,26 +22,32 @@ const app = new Hono();
 
 app.use("*", securityHeaders);
 
+// Health check — tidak butuh DB, untuk verifikasi app berjalan
+app.get("/healthz", (c) => c.json({ status: "ok", ts: new Date().toISOString() }));
+
 // --- API routes ---
 app.route("/api/auth", authRoutes);
 app.route("/api/domains", domainRoutes);
 app.route("/api/mdp", mdpRoutes);
 app.route("/api/ruptl", ruptlRoutes);
 
-// Tambahkan modul baru di sini seiring berkembangnya portal, contoh:
-// app.route("/api/pelanggan", pelangganRoutes);
-// app.route("/api/olap-tagihan", olapTagihanRoutes);
-// app.route("/api/pencurian", pencurianRoutes);
-// app.route("/api/ruptl", ruptlRoutes);
-
-// --- Halaman terproteksi: requireAuth dulu, baru serve file statis ---
+// --- Halaman terproteksi ---
 app.use("/menu.html", requireAuth, serveStatic({ root: "./public" }));
 app.use("/modules/*", requireAuth, serveStatic({ root: "./public" }));
 
-// --- Static assets (login page, CSS, dll — publik) ---
+// --- Static assets (login page, CSS, dll) ---
 app.use("/*", serveStatic({ root: "./public" }));
 
 const port = Number(process.env.PORT ?? 3000);
 
-console.log(`Server jalan di http://localhost:${port}`);
-serve({ fetch: app.fetch, port });
+console.log("[COCKPIT] Env check:", {
+  DB_HOST:  process.env.DB_HOST  ? "SET" : "MISSING",
+  DB_USER:  process.env.DB_USER  ? "SET" : "MISSING",
+  DB_NAME:  process.env.DB_NAME  ? "SET" : "MISSING",
+  PORT:     process.env.PORT     ?? "(default 3000)",
+  NODE_ENV: process.env.NODE_ENV ?? "(not set)",
+});
+
+serve({ fetch: app.fetch, port, hostname: "0.0.0.0" }, (info) => {
+  console.log(`[COCKPIT] Server berjalan di http://${info.address}:${info.port}`);
+});
