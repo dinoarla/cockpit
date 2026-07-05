@@ -217,6 +217,8 @@ SELECT id, 'company-presentation',  'Company Presentation',    '/modules/energi-
 SELECT id, 'annual-report',         'Annual Reports',          '/modules/energi-jabar/annual-report/',         'publik', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'sustainability-report', 'Sustainability Reports',  '/modules/energi-jabar/sustainability-report/', 'publik', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'statistical-report',    'Statistical Report',      '/modules/energi-jabar/statistical-report/',    'publik', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'tariff-adjustment',     'Tariff Adjustment',       '/modules/energi-jabar/tariff-adjustment/',     'publik', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'financial-information', 'Financial Information',   '/modules/energi-jabar/financial-information/', 'publik', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 -- Section 02: Pembangkitan, Transisi Energi & Energi Hijau
 SELECT id, 'atlas-pembangkit',  'Atlas Kapasitas & Transisi Pembangkit',          '/modules/energi-jabar/atlas-pembangkit/',  'publik',   'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'ekonomi-transisi',  'Ekonomi & Kebijakan Transisi Energi',            '/modules/energi-jabar/ekonomi-transisi/',  'publik',   'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
@@ -230,9 +232,27 @@ SELECT id, 'proteksi-transmisi','Studi Proteksi Sistem Transmisi',              
 SELECT id, 'infrastruktur-distribusi','Infrastruktur & Modernisasi Jaringan Distribusi','/modules/energi-jabar/infrastruktur-distribusi/','internal','draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'keandalan-layanan', 'Keandalan & Kualitas Layanan',                   '/modules/energi-jabar/keandalan-layanan/', 'internal', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'ekonomi-niaga',     'Ekonomi Niaga & Pelanggan',                      '/modules/energi-jabar/ekonomi-niaga/',     'sensitif', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
-SELECT id, 'tarif-listrik',     'Tarif Tenaga Listrik',                           '/modules/energi-jabar/tarif-listrik/',     'publik',   'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'losses-integritas', 'Losses & Integritas Jaringan',                   '/modules/energi-jabar/losses-integritas/', 'sensitif', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'ekuitas-akses',     'Ekuitas & Akses Kelistrikan',                    '/modules/energi-jabar/ekuitas-akses/',     'internal', 'draft' FROM domains WHERE slug='energi-jabar';
+
+-- Domain: Open-Source Data Nasional
+INSERT INTO domains (slug, nama, deskripsi, is_active) VALUES
+('open-data-nasional', 'Open-Source Data Nasional', 'Kumpulan data publik nasional — tata ruang & pemerintahan, iklim & lingkungan, geospasial, dan sosial-kependudukan dari berbagai sumber terbuka', true);
+
+-- Modul domain Open-Source Data Nasional
+INSERT INTO domain_modules (domain_id, slug, nama, route_path, sensitivitas, status)
+-- Section 01: Tata Ruang & Pemerintahan
+SELECT id, 'rkpd-jabar',       'RKPD Jawa Barat',              '/modules/open-data-nasional/rkpd-jabar/',       'publik', 'draft' FROM domains WHERE slug='open-data-nasional' UNION ALL
+SELECT id, 'apbd-jabar',       'APBD Jawa Barat',              '/modules/open-data-nasional/apbd-jabar/',       'publik', 'draft' FROM domains WHERE slug='open-data-nasional' UNION ALL
+-- Section 02: Lingkungan & Iklim
+SELECT id, 'iklim-cuaca',      'Data Iklim dan Cuaca',         '/modules/open-data-nasional/iklim-cuaca/',      'publik', 'draft' FROM domains WHERE slug='open-data-nasional' UNION ALL
+SELECT id, 'indeks-bencana',   'Indeks Risiko Bencana',        '/modules/open-data-nasional/indeks-bencana/',   'publik', 'draft' FROM domains WHERE slug='open-data-nasional' UNION ALL
+-- Section 03: Geospasial
+SELECT id, 'gis-jabar',        'Data Geografis / GIS',         '/modules/open-data-nasional/gis-jabar/',        'publik', 'draft' FROM domains WHERE slug='open-data-nasional' UNION ALL
+SELECT id, 'peta-admin',       'Peta Administrasi Wilayah',    '/modules/open-data-nasional/peta-admin/',       'publik', 'draft' FROM domains WHERE slug='open-data-nasional' UNION ALL
+-- Section 04: Sosial & Kependudukan
+SELECT id, 'kependudukan-bps', 'Data Kependudukan BPS',        '/modules/open-data-nasional/kependudukan-bps/', 'publik', 'draft' FROM domains WHERE slug='open-data-nasional' UNION ALL
+SELECT id, 'data-kemiskinan',  'Data Kemiskinan & Sosial',     '/modules/open-data-nasional/data-kemiskinan/',  'publik', 'draft' FROM domains WHERE slug='open-data-nasional';
 
 -- Provenance: sumber data RUPTL (§4.3 & §12 PRD)
 INSERT INTO dataset_sources (domain_module_id, nama_sumber, jenis_sumber, url_atau_referensi, tanggal_akses, catatan_metodologi)

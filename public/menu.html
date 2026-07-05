@@ -426,100 +426,148 @@
 
 <script>
 const MODULE_ICONS = {
-  // Modul lama
-  'mdp':                    '<i class="fa-solid fa-chart-column"></i>',
-  'ruptl':                  '<i class="fa-solid fa-industry"></i>',
-  'pelanggan':              '<i class="fa-solid fa-users"></i>',
-  'olap-tagihan':           '<i class="fa-solid fa-file-invoice"></i>',
-  'pencurian':              '<i class="fa-solid fa-triangle-exclamation"></i>',
-  // Section 01
-  'atlas-pembangkit':       '<i class="fa-solid fa-solar-panel"></i>',
-  'ekonomi-transisi':       '<i class="fa-solid fa-chart-line"></i>',
-  'atlas-ebt':              '<i class="fa-solid fa-leaf"></i>',
-  'der-storage':            '<i class="fa-solid fa-battery-half"></i>',
-  // Section 02
-  'sistem-transmisi':       '<i class="fa-solid fa-network-wired"></i>',
-  'rencana-transmisi':      '<i class="fa-solid fa-road"></i>',
-  'proteksi-transmisi':     '<i class="fa-solid fa-shield-halved"></i>',
-  // Section 03
+  // energi-jabar: PLN
+  'company-presentation':    '<i class="fa-solid fa-file-powerpoint"></i>',
+  'annual-report':           '<i class="fa-solid fa-file-contract"></i>',
+  'sustainability-report':   '<i class="fa-solid fa-seedling"></i>',
+  'statistical-report':      '<i class="fa-solid fa-chart-bar"></i>',
+  'tariff-adjustment':       '<i class="fa-solid fa-tags"></i>',
+  'financial-information':   '<i class="fa-solid fa-chart-pie"></i>',
+  // energi-jabar: Pembangkitan
+  'mdp':                     '<i class="fa-solid fa-chart-column"></i>',
+  'ruptl':                   '<i class="fa-solid fa-industry"></i>',
+  'atlas-pembangkit':        '<i class="fa-solid fa-solar-panel"></i>',
+  'ekonomi-transisi':        '<i class="fa-solid fa-chart-line"></i>',
+  'atlas-ebt':               '<i class="fa-solid fa-leaf"></i>',
+  'der-storage':             '<i class="fa-solid fa-battery-half"></i>',
+  // energi-jabar: Transmisi
+  'sistem-transmisi':        '<i class="fa-solid fa-network-wired"></i>',
+  'rencana-transmisi':       '<i class="fa-solid fa-road"></i>',
+  'proteksi-transmisi':      '<i class="fa-solid fa-shield-halved"></i>',
+  // energi-jabar: Distribusi
+  'pelanggan':               '<i class="fa-solid fa-users"></i>',
+  'olap-tagihan':            '<i class="fa-solid fa-file-invoice"></i>',
+  'pencurian':               '<i class="fa-solid fa-triangle-exclamation"></i>',
   'infrastruktur-distribusi':'<i class="fa-solid fa-sitemap"></i>',
-  'keandalan-layanan':      '<i class="fa-solid fa-signal"></i>',
-  'ekonomi-niaga':          '<i class="fa-solid fa-coins"></i>',
-  'tarif-listrik':          '<i class="fa-solid fa-tags"></i>',
-  'losses-integritas':      '<i class="fa-solid fa-bolt-lightning"></i>',
-  'ekuitas-akses':          '<i class="fa-solid fa-scale-balanced"></i>',
-  // Section 01 — PLN
-  'company-presentation':   '<i class="fa-solid fa-file-powerpoint"></i>',
-  'annual-report':          '<i class="fa-solid fa-file-contract"></i>',
-  'sustainability-report':  '<i class="fa-solid fa-seedling"></i>',
-  'statistical-report':     '<i class="fa-solid fa-chart-bar"></i>',
+  'keandalan-layanan':       '<i class="fa-solid fa-signal"></i>',
+  'ekonomi-niaga':           '<i class="fa-solid fa-coins"></i>',
+  'losses-integritas':       '<i class="fa-solid fa-bolt-lightning"></i>',
+  'ekuitas-akses':           '<i class="fa-solid fa-scale-balanced"></i>',
+  // open-data-nasional: Tata Ruang & Pemerintahan
+  'rkpd-jabar':              '<i class="fa-solid fa-landmark"></i>',
+  'apbd-jabar':              '<i class="fa-solid fa-receipt"></i>',
+  // open-data-nasional: Lingkungan & Iklim
+  'iklim-cuaca':             '<i class="fa-solid fa-cloud-sun"></i>',
+  'indeks-bencana':          '<i class="fa-solid fa-house-flood-water"></i>',
+  // open-data-nasional: Geospasial
+  'gis-jabar':               '<i class="fa-solid fa-map"></i>',
+  'peta-admin':              '<i class="fa-solid fa-map-location-dot"></i>',
+  // open-data-nasional: Sosial & Kependudukan
+  'kependudukan-bps':        '<i class="fa-solid fa-people-group"></i>',
+  'data-kemiskinan':         '<i class="fa-solid fa-hand-holding-heart"></i>',
 };
 const MODULE_DESC = {
-  // Modul lama
-  'mdp':                    'Bauran energi primer Jawa Barat — RE vs NRE, RKPD 2026, RUPTL 2025-2034, gangguan PLN, kemiskinan',
-  'ruptl':                  'Rencana pengembangan sistem tenaga listrik nasional — 34 provinsi, RE Base & ARED',
-  'pelanggan':              'Master data pelanggan PLN Jawa Barat — akses terbatas, data PII terenkripsi',
-  'olap-tagihan':           'Ringkasan & analisis tagihan listrik — summary table + tren',
-  'pencurian':              'Data gangguan & dugaan pencurian tenaga listrik — role tertentu saja',
-  // Section 01
-  'atlas-pembangkit':       'Inventaris pembangkit RE/NRE, pipeline RUPTL, capacity factor & rencana retirement PLTU',
-  'ekonomi-transisi':       'LCOE, BPP, subsidi listrik, gap RUEN/RUED vs realisasi, skema insentif EBT, NDC & JETP',
-  'atlas-ebt':              'Peta potensi geospasial EBT (surya/angin/air/panas bumi/biomassa), harga lelang, gap realisasi',
-  'der-storage':            'Adopsi PLTS atap per segmen, kuota & utilisasi per UP3, hosting capacity jaringan, pipeline BESS',
-  // Section 02
-  'sistem-transmisi':       'Topologi jaringan 500/275/150/70kV, inventaris gardu induk, peta interkoneksi, keandalan N-1',
-  'rencana-transmisi':      'Proyek transmisi RUPTL, keterkaitan pipeline EBT, estimasi investasi, isu pembebasan lahan (ROW)',
-  'proteksi-transmisi':     'Proteksi petir, arc flash, koordinasi relay, hubung singkat, insulation coordination — data teknis aset',
-  // Section 03
+  // energi-jabar: PLN
+  'company-presentation':    'Investor Presentation Meeting 31 Desember 2025 — arah strategis & kinerja korporat PLN',
+  'annual-report':           'Laporan tahunan PLN: pencapaian, strategi, dan arah bisnis sebagai bentuk akuntabilitas kepada pemegang saham dan publik',
+  'sustainability-report':   'Inisiatif ESG, dampak sosial & lingkungan, dan tata kelola PLN untuk mendukung transisi energi dan keberlanjutan jangka panjang',
+  'statistical-report':      'Statistik ketenagalistrikan: kapasitas pembangkitan, konsumsi energi, dan indikator sektor untuk memahami tren dan potensi',
+  'tariff-adjustment':       'Golongan TDL historis, mekanisme penyesuaian otomatis (kurs/ICP/HBA), cross-subsidy, tarif vs BPP',
+  'financial-information':   'Data kinerja keuangan, indikator kunci, dan informasi relevan PLN sebagai basis transparan untuk keputusan investasi',
+  // energi-jabar: Pembangkitan
+  'mdp':                     'Bauran energi primer Jawa Barat — RE vs NRE, RKPD 2026, RUPTL 2025-2034, gangguan PLN, kemiskinan',
+  'ruptl':                   'Rencana pengembangan sistem tenaga listrik nasional — 34 provinsi, RE Base & ARED',
+  'atlas-pembangkit':        'Inventaris pembangkit RE/NRE, pipeline RUPTL, capacity factor & rencana retirement PLTU',
+  'ekonomi-transisi':        'LCOE, BPP, subsidi listrik, gap RUEN/RUED vs realisasi, skema insentif EBT, NDC & JETP',
+  'atlas-ebt':               'Peta potensi geospasial EBT (surya/angin/air/panas bumi/biomassa), harga lelang, gap realisasi',
+  'der-storage':             'Adopsi PLTS atap per segmen, kuota & utilisasi per UP3, hosting capacity jaringan, pipeline BESS',
+  // energi-jabar: Transmisi
+  'sistem-transmisi':        'Topologi jaringan 500/275/150/70kV, inventaris gardu induk, peta interkoneksi, keandalan N-1',
+  'rencana-transmisi':       'Proyek transmisi RUPTL, keterkaitan pipeline EBT, estimasi investasi, isu pembebasan lahan (ROW)',
+  'proteksi-transmisi':      'Proteksi petir, arc flash, koordinasi relay, hubung singkat, insulation coordination — data teknis aset',
+  // energi-jabar: Distribusi
+  'pelanggan':               'Master data pelanggan PLN Jawa Barat — akses terbatas, data PII terenkripsi',
+  'olap-tagihan':            'Ringkasan & analisis tagihan listrik — summary table + tren',
+  'pencurian':               'Data gangguan & dugaan pencurian tenaga listrik — role tertentu saja',
   'infrastruktur-distribusi':'Inventaris aset JTM/JTR per UP3 & kab/kota, estimasi umur aset, penetrasi smart meter/AMI, SCADA',
-  'keandalan-layanan':      'SAIDI/SAIFI per wilayah, akar penyebab gangguan, kelas layanan ULP, keluhan kualitas tegangan',
-  'ekonomi-niaga':          'Segmentasi pelanggan, OLAP tagihan per segmen & wilayah, insidensi subsidi, kinerja penagihan',
-  'tarif-listrik':          'Golongan TDL historis, mekanisme penyesuaian otomatis (kurs/ICP/HBA), cross-subsidy, tarif vs BPP',
-  'losses-integritas':      'Susut teknis vs non-teknis per wilayah, pola geografis pencurian, efektivitas program P2TL',
-  'ekuitas-akses':          'Rasio elektrifikasi per wilayah, silang keandalan dengan kemiskinan & bencana, demand per kapita',
-  // Section 01 — PLN
-  'company-presentation':   'Investor Presentation Meeting 31 Desember 2025 — arah strategis & kinerja korporat PLN',
-  'annual-report':          'Laporan tahunan PLN: pencapaian, strategi, dan arah bisnis sebagai bentuk akuntabilitas kepada pemegang saham dan publik',
-  'sustainability-report':  'Inisiatif ESG, dampak sosial & lingkungan, dan tata kelola PLN untuk mendukung transisi energi dan keberlanjutan jangka panjang',
-  'statistical-report':     'Statistik ketenagalistrikan: kapasitas pembangkitan, konsumsi energi, dan indikator sektor untuk memahami tren dan potensi',
+  'keandalan-layanan':       'SAIDI/SAIFI per wilayah, akar penyebab gangguan, kelas layanan ULP, keluhan kualitas tegangan',
+  'ekonomi-niaga':           'Segmentasi pelanggan, OLAP tagihan per segmen & wilayah, insidensi subsidi, kinerja penagihan',
+  'losses-integritas':       'Susut teknis vs non-teknis per wilayah, pola geografis pencurian, efektivitas program P2TL',
+  'ekuitas-akses':           'Rasio elektrifikasi per wilayah, silang keandalan dengan kemiskinan & bencana, demand per kapita',
+  // open-data-nasional: Tata Ruang & Pemerintahan
+  'rkpd-jabar':              'Rencana Kerja Pemerintah Daerah Jawa Barat — prioritas pembangunan, target, dan alokasi anggaran tahunan',
+  'apbd-jabar':              'Anggaran Pendapatan dan Belanja Daerah Jawa Barat — realisasi dan struktur belanja per sektor',
+  // open-data-nasional: Lingkungan & Iklim
+  'iklim-cuaca':             'Data iklim & cuaca historis per stasiun BMKG — suhu, curah hujan, kelembaban, kecepatan angin',
+  'indeks-bencana':          'Indeks Risiko Bencana Indonesia (IRBI) per kabupaten/kota — banjir, longsor, gempa, kekeringan',
+  // open-data-nasional: Geospasial
+  'gis-jabar':               'Shapefile & raster data Jawa Barat — topografi, tutupan lahan, jaringan jalan, sungai, pesisir',
+  'peta-admin':              'Batas administrasi wilayah nasional (BPS & BIG) — provinsi, kabupaten/kota, kecamatan, desa',
+  // open-data-nasional: Sosial & Kependudukan
+  'kependudukan-bps':        'Data kependudukan BPS — jumlah penduduk, kepadatan, struktur usia, proyeksi per wilayah',
+  'data-kemiskinan':         'Data kemiskinan & sosial BPS — garis kemiskinan, P0/P1/P2, DTKS, program bantuan sosial',
 };
 
-// Mapping slug → section id
+// Mapping slug → section id (per domain)
 const SECTION_MAP = {
-  // Section 01 — PLN
+  // energi-jabar — Section 01: PLN
   'company-presentation':    1,
   'annual-report':           1,
   'sustainability-report':   1,
   'statistical-report':      1,
-  // Section 02 — Pembangkitan
+  'tariff-adjustment':       1,
+  'financial-information':   1,
+  // energi-jabar — Section 02: Pembangkitan
   'mdp':                     2,
   'ruptl':                   2,
   'atlas-pembangkit':        2,
   'ekonomi-transisi':        2,
   'atlas-ebt':               2,
   'der-storage':             2,
-  // Section 03 — Transmisi
+  // energi-jabar — Section 03: Transmisi
   'sistem-transmisi':        3,
   'rencana-transmisi':       3,
   'proteksi-transmisi':      3,
-  // Section 04 — Distribusi
+  // energi-jabar — Section 04: Distribusi
   'pelanggan':               4,
   'olap-tagihan':            4,
   'pencurian':               4,
   'infrastruktur-distribusi':4,
   'keandalan-layanan':       4,
   'ekonomi-niaga':           4,
-  'tarif-listrik':           4,
   'losses-integritas':       4,
   'ekuitas-akses':           4,
+  // open-data-nasional — Section 01: Tata Ruang & Pemerintahan
+  'rkpd-jabar':              1,
+  'apbd-jabar':              1,
+  // open-data-nasional — Section 02: Lingkungan & Iklim
+  'iklim-cuaca':             2,
+  'indeks-bencana':          2,
+  // open-data-nasional — Section 03: Geospasial
+  'gis-jabar':               3,
+  'peta-admin':              3,
+  // open-data-nasional — Section 04: Sosial & Kependudukan
+  'kependudukan-bps':        4,
+  'data-kemiskinan':         4,
 };
-const SECTIONS = [
-  { id: 1, num: '01', label: 'PLN' },
-  { id: 2, num: '02', label: 'Pembangkitan, Transisi Energi & Energi Hijau' },
-  { id: 3, num: '03', label: 'Transmisi' },
-  { id: 4, num: '04', label: 'Distribusi Tenaga Listrik' },
-];
-const DOMAIN_ICONS = { 'energi-jabar': '<i class="fa-solid fa-bolt-lightning"></i>' };
+const DOMAIN_SECTIONS = {
+  'energi-jabar': [
+    { id: 1, num: '01', label: 'PLN' },
+    { id: 2, num: '02', label: 'Pembangkitan, Transisi Energi & Energi Hijau' },
+    { id: 3, num: '03', label: 'Transmisi' },
+    { id: 4, num: '04', label: 'Distribusi Tenaga Listrik' },
+  ],
+  'open-data-nasional': [
+    { id: 1, num: '01', label: 'Tata Ruang & Pemerintahan' },
+    { id: 2, num: '02', label: 'Lingkungan & Iklim' },
+    { id: 3, num: '03', label: 'Geospasial' },
+    { id: 4, num: '04', label: 'Sosial & Kependudukan' },
+  ],
+};
+const DOMAIN_ICONS = {
+  'energi-jabar':       '<i class="fa-solid fa-bolt-lightning"></i>',
+  'open-data-nasional': '<i class="fa-solid fa-globe"></i>',
+};
 
 // Loading phrases
 const LOADING_PHRASES = [
@@ -645,7 +693,8 @@ function render(domainList, role) {
     sectionsWrap.className = 'sections-wrap';
     domainBody.appendChild(sectionsWrap);
 
-    for (const sec of SECTIONS) {
+    const sections = DOMAIN_SECTIONS[domain.slug] || DOMAIN_SECTIONS['energi-jabar'];
+    for (const sec of sections) {
       const mods = domain.modules.filter(m => (SECTION_MAP[m.slug] || 1) === sec.id);
       const secEl = document.createElement('div');
       secEl.className = 'section-block';
