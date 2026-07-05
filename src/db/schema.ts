@@ -218,6 +218,7 @@ export const domainModules = mysqlTable(
     routePath: varchar("route_path", { length: 100 }).notNull(),
     sensitivitas: mysqlEnum("sensitivitas", ["publik", "internal", "sensitif"]).notNull().default("internal"),
     status: mysqlEnum("status", ["aktif", "draft", "arsip"]).notNull().default("draft"),
+    dataUpdatedAt: timestamp("data_updated_at"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (t) => ({

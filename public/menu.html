@@ -675,6 +675,12 @@ function render(domainList, role) {
           if (isAktif) card.href = mod.routePath;
           const desc = MODULE_DESC[mod.slug] || mod.nama;
           const ico  = MODULE_ICONS[mod.slug] || '<i class="fa-solid fa-folder-open"></i>';
+          const lastUpd = mod.dataUpdatedAt
+            ? new Intl.DateTimeFormat('id-ID', { day:'2-digit', month:'short', year:'numeric', timeZone:'Asia/Jakarta' }).format(new Date(mod.dataUpdatedAt))
+            : null;
+          const footerLeft = lastUpd
+            ? `<span class="module-slug"><i class="fa-regular fa-clock" style="margin-right:4px;opacity:.6;"></i>Update: <b style="color:var(--ink-2)">${lastUpd}</b></span>`
+            : `<span class="module-slug" style="opacity:.45;">Belum ada data</span>`;
           card.innerHTML = `
             <div class="module-card-top">
               <div class="module-icon ${mod.status}">${ico}</div>
@@ -683,7 +689,7 @@ function render(domainList, role) {
             <div class="module-name">${mod.nama}</div>
             <div class="module-desc">${desc}</div>
             <div class="module-card-foot">
-              <span class="module-slug">${domain.slug}/${mod.slug}</span>
+              ${footerLeft}
               <span class="module-arrow"><i class="fa-solid fa-arrow-right"></i></span>
             </div>
           `;
