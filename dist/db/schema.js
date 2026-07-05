@@ -146,6 +146,7 @@ export const domainModules = mysqlTable("domain_modules", {
     routePath: varchar("route_path", { length: 100 }).notNull(),
     sensitivitas: mysqlEnum("sensitivitas", ["publik", "internal", "sensitif"]).notNull().default("internal"),
     status: mysqlEnum("status", ["aktif", "draft", "arsip"]).notNull().default("draft"),
+    dataUpdatedAt: timestamp("data_updated_at"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (t) => ({
     domainSlugUniq: uniqueIndex("domain_modules_domain_slug_uniq").on(t.domainId, t.slug),
