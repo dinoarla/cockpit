@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Information PLN — COCKPIT</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0D1117;--orange:#FF4D00;--orange-lt:rgba(255,77,0,.09);
+  --yellow:#FFD600;--green:#2ECC71;--red:#E74C3C;--blue:#3B82F6;
+  --bg:#FFFBF0;--card:#fff;--line:rgba(17,17,24,.09);
+  --ink:#111118;--ink-2:#555560;--ink-3:#999;
+  --r:10px;--shadow:0 1px 3px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.07);
+  --fd:'Space Grotesk',sans-serif;--fb:'Inter',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);font-family:var(--fb);color:var(--ink);-webkit-font-smoothing:antialiased}
+
+/* HEADER */
+header.top{background:var(--navy);color:#E6EDF3;padding:28px 24px 0}
+.ti{max-width:1280px;margin:0 auto}
+.btn-back{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;
+  color:rgba(230,237,243,.45);text-decoration:none;margin-bottom:12px;transition:color .15s}
+.btn-back:hover{color:#E6EDF3}
+.eyebrow{font-family:var(--fm);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,77,0,.7);margin-bottom:6px}
+h1.pt{font-family:var(--fd);font-size:22px;font-weight:700;color:#fff;margin-bottom:5px;line-height:1.2}
+.ps{font-size:12.5px;color:rgba(230,237,243,.45);max-width:640px;line-height:1.6;margin-bottom:16px}
+.pm{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:0}
+.mc{font-family:var(--fm);font-size:10.5px;color:rgba(230,237,243,.38);display:flex;align-items:center;gap:5px}
+.mc i{color:rgba(255,77,0,.5);font-size:10px}
+.tab-nav{display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,.09);margin-top:16px;overflow-x:auto;scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tb{font-size:12.5px;font-weight:600;color:rgba(230,237,243,.42);padding:10px 15px;
+  border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;transition:all .15s}
+.tb.active,.tb:hover{color:#fff}
+.tb.active{border-bottom-color:var(--orange)}
+
+/* LAYOUT */
+.wrap{max-width:1280px;margin:0 auto;padding:24px 24px 80px}
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.kpi{background:var(--card);border-radius:var(--r);padding:16px 18px;
+  box-shadow:var(--shadow);border-top:3px solid var(--orange)}
+.kpi.k2{border-top-color:var(--yellow)}.kpi.k3{border-top-color:var(--green)}.kpi.k4{border-top-color:var(--blue)}
+.kpi-lbl{font-size:10.5px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:5px}
+.kpi-val{font-family:var(--fd);font-size:20px;font-weight:700;color:var(--ink);line-height:1.2}
+.kpi-val sup{font-size:11px;font-weight:500;color:var(--ink-2)}
+.kpi-note{font-size:10.5px;color:var(--ink-3);margin-top:4px;line-height:1.4}
+.kpi-badge{display:inline-flex;align-items:center;gap:3px;font-family:var(--fm);font-size:9.5px;
+  padding:2px 7px;border-radius:8px;margin-top:4px}
+.kpi-badge.up{background:rgba(46,204,113,.1);color:#1a9150}
+.kpi-badge.dn{background:rgba(231,76,60,.1);color:#c0392b}
+
+/* CARD */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px}
+.ch{padding:14px 18px 12px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ch h2{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:7px}
+.tag{font-family:var(--fm);font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:20px;
+  background:var(--orange-lt);color:var(--orange)}
+.tag.g{background:rgba(46,204,113,.1);color:#1a9150}
+.tag.b{background:rgba(59,130,246,.1);color:#1e40af}
+.cb{padding:18px}
+
+/* TABLE */
+.ft{width:100%;border-collapse:collapse;font-size:12.5px}
+.ft thead th{text-align:left;padding:9px 11px;border-bottom:2px solid var(--line);
+  color:var(--ink-2);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  white-space:nowrap;background:#FAFAF8}
+.ft thead th.num{text-align:right}
+.ft tbody td{padding:9px 11px;border-bottom:1px solid #F4F2EE;vertical-align:middle}
+.ft tbody tr:last-child td{border-bottom:none}
+.ft tbody tr:hover{background:#FDFCF8}
+.ft tbody tr.sub td{background:#FAFAF8;font-weight:600;font-family:var(--fm);font-size:12px}
+.ft tbody tr.ttl td{background:#F5F3EF;font-weight:700;border-top:2px solid var(--line)}
+.ft tbody tr.ttl td.num{color:var(--orange)}
+.num{font-family:var(--fm);text-align:right}
+.pos{color:#1a9150}.neg{color:#c0392b}
+.yr-hdr{background:rgba(255,77,0,.04)!important}
+
+/* CHART WRAPPER */
+.chart-wrap{position:relative;padding:18px}
+.chart-wrap canvas{max-height:320px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-2 .card{margin-bottom:0}
+
+/* SECTION LABEL */
+.sec-lbl{font-family:var(--fm);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--orange);margin-bottom:10px;margin-top:22px;display:flex;align-items:center;gap:8px}
+.sec-lbl::after{content:'';flex:1;height:1px;background:linear-gradient(to right,rgba(255,77,0,.15),transparent)}
+
+/* NOTES */
+.note-box{background:#FAFAF8;border-left:3px solid var(--orange);border-radius:0 8px 8px 0;
+  padding:12px 16px;margin-top:16px;font-size:12px;color:var(--ink-2);line-height:1.7}
+.note-box strong{color:var(--ink);font-weight:600}
+
+/* RATIO GRID */
+.ratio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.ratio-card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:16px 18px;text-align:center}
+.ratio-lbl{font-size:11px;color:var(--ink-2);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.ratio-val{font-family:var(--fd);font-size:26px;font-weight:700;color:var(--ink)}
+.ratio-yr{font-size:10px;color:var(--ink-3);margin-top:3px}
+
+/* RESPONSIVE */
+@media(max-width:1000px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}.ratio-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.kpi-grid{grid-template-columns:1fr 1fr}.ratio-grid{grid-template-columns:1fr 1fr}.ft{font-size:11.5px}.ft thead th,.ft tbody td{padding:7px 8px}}
+</style>
+</head>
+<body>
+
+<header class="top">
+<div class="ti">
+  <a href="/menu.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali ke Menu</a>
+  <div class="eyebrow"><i class="fa-solid fa-chart-pie"></i> &nbsp;PLN · Keuangan Korporat</div>
+  <h1 class="pt">Financial Information PLN</h1>
+  <p class="ps">Laporan keuangan konsolidasian PT PLN (Persero) dan Entitas Anak — posisi keuangan, laba rugi, arus kas, dan rasio kunci 2021–2025. Bersumber dari Laporan Keuangan Audited (PwC/KAP Rintis Jumadi Rianto & Rekan).</p>
+  <div class="pm">
+    <div class="mc"><i class="fa-solid fa-calendar-check"></i> <span>2021 – 2025 (5 Tahun)</span></div>
+    <div class="mc"><i class="fa-solid fa-signature"></i> <span>Audited — PwC Indonesia</span></div>
+    <div class="mc"><i class="fa-solid fa-scale-balanced"></i> <span>PSAK / Indonesian GAAP</span></div>
+    <div class="mc"><i class="fa-solid fa-database"></i> <span>Satuan: Rp Triliun</span></div>
+  </div>
+  <nav class="tab-nav">
+    <button class="tb active" onclick="switchTab('ikhtisar',this)"><i class="fa-solid fa-table-columns"></i> Ikhtisar</button>
+    <button class="tb" onclick="switchTab('labarugi',this)"><i class="fa-solid fa-arrow-trend-up"></i> Laba Rugi</button>
+    <button class="tb" onclick="switchTab('neraca',this)"><i class="fa-solid fa-scale-unbalanced"></i> Neraca</button>
+    <button class="tb" onclick="switchTab('aruskas',this)"><i class="fa-solid fa-water"></i> Arus Kas</button>
+    <button class="tb" onclick="switchTab('rasio',this)"><i class="fa-solid fa-gauge-high"></i> Rasio Keuangan</button>
+  </nav>
+</div>
+</header>
+
+<div class="wrap">
+
+<!-- ═══════════════════════════════════════ TAB: IKHTISAR ═══════════════════════════════════════ -->
+<div id="tab-ikhtisar" class="tab-pane active">
+
+  <div class="kpi-grid" style="margin-top:6px">
+    <div class="kpi">
+      <div class="kpi-lbl">Total Pendapatan 2025</div>
+      <div class="kpi-val">Rp 582,7 <sup>T</sup></div>
+      <div class="kpi-badge dn"><i class="fa-solid fa-arrow-up" style="font-size:8px"></i> +6,8% YoY</div>
+      <div class="kpi-note">Termasuk subsidi Rp 87,5 T & kompensasi Rp 112,7 T</div>
+    </div>
+    <div class="kpi k2">
+      <div class="kpi-lbl">Laba Bersih 2025</div>
+      <div class="kpi-val">Rp 7,3 <sup>T</sup></div>
+      <div class="kpi-badge dn"><i class="fa-solid fa-arrow-down" style="font-size:8px"></i> -65,8% YoY</div>
+      <div class="kpi-note">Turun dari Rp 21,2 T (2024 restated)</div>
+    </div>
+    <div class="kpi k3">
+      <div class="kpi-lbl">Total Aset 2025</div>
+      <div class="kpi-val">Rp 1.837 <sup>T</sup></div>
+      <div class="kpi-badge up"><i class="fa-solid fa-arrow-up" style="font-size:8px"></i> +3,7% YoY</div>
+      <div class="kpi-note">Aset tetap Rp 1.521 T | Aset lancar Rp 225 T</div>
+    </div>
+    <div class="kpi k4">
+      <div class="kpi-lbl">Total Ekuitas 2025</div>
+      <div class="kpi-val">Rp 1.064 <sup>T</sup></div>
+      <div class="kpi-badge dn"><i class="fa-solid fa-arrow-down" style="font-size:8px"></i> -0,5% YoY</div>
+      <div class="kpi-note">DER 0,73x | Modal disetor Rp 150,5 T</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h2><i class="fa-solid fa-chart-bar" style="color:var(--orange)"></i> Tren Kinerja 5 Tahun</h2><span class="tag">2021 – 2025</span></div>
+    <div class="chart-wrap"><canvas id="chartOverview"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><h2><i class="fa-solid fa-table" style="color:var(--orange)"></i> Ringkasan Konsolidasian</h2><span style="font-family:var(--fm);font-size:10.5px;color:var(--ink-3)">Rp Triliun · Audited</span></div>
+    <div style="overflow-x:auto">
+      <table class="ft">
+        <thead>
+          <tr>
+            <th>Indikator</th>
+            <th class="num yr-hdr">2021</th>
+            <th class="num yr-hdr">2022</th>
+            <th class="num yr-hdr">2023</th>
+            <th class="num yr-hdr">2024*</th>
+            <th class="num yr-hdr">2025</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6" style="padding:6px 11px;font-family:var(--fm);font-size:10px;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;background:#FAFAF8">LABA RUGI</td></tr>
+          <tr><td>Total Pendapatan</td><td class="num">368,2</td><td class="num">441,1</td><td class="num">487,4</td><td class="num">545,4</td><td class="num">582,7</td></tr>
+          <tr><td style="padding-left:22px;color:var(--ink-2);font-size:12px">— Penjualan Listrik</td><td class="num">288,9</td><td class="num">311,1</td><td class="num">333,2</td><td class="num">353,2</td><td class="num">367,1</td></tr>
+          <tr><td style="padding-left:22px;color:var(--ink-2);font-size:12px">— Subsidi Pemerintah</td><td class="num">49,8</td><td class="num">58,8</td><td class="num">68,6</td><td class="num">77,0</td><td class="num">87,5</td></tr>
+          <tr><td style="padding-left:22px;color:var(--ink-2);font-size:12px">— Kompensasi</td><td class="num">24,6</td><td class="num">63,6</td><td class="num">74,0</td><td class="num">100,2</td><td class="num">112,7</td></tr>
+          <tr><td>Total Beban Usaha</td><td class="num">323,1</td><td class="num">386,2</td><td class="num">440,2</td><td class="num">484,8</td><td class="num">533,5</td></tr>
+          <tr class="sub"><td>Laba Usaha</td><td class="num pos">45,1</td><td class="num pos">54,9</td><td class="num pos">47,2</td><td class="num pos">60,6</td><td class="num pos">49,2</td></tr>
+          <tr><td>Laba Sebelum Pajak</td><td class="num">23,2</td><td class="num">21,5</td><td class="num">32,4</td><td class="num">28,3</td><td class="num">13,0</td></tr>
+          <tr class="ttl"><td>Laba Bersih Tahun Berjalan</td><td class="num">13,2</td><td class="num">14,4</td><td class="num">22,1</td><td class="num">21,2</td><td class="num">7,3</td></tr>
+          <tr><td colspan="6" style="padding:6px 11px;font-family:var(--fm);font-size:10px;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;background:#FAFAF8">POSISI KEUANGAN</td></tr>
+          <tr><td>Kas & Setara Kas</td><td class="num">38,0</td><td class="num">51,5</td><td class="num">55,9</td><td class="num">61,4</td><td class="num">42,2</td></tr>
+          <tr><td>Total Aset Lancar</td><td class="num">85,9</td><td class="num">119,4</td><td class="num">131,4</td><td class="num">167,4</td><td class="num">225,4</td></tr>
+          <tr><td>Total Aset</td><td class="num">1.613,2</td><td class="num">1.638,1</td><td class="num">1.670,6</td><td class="num">1.772,4</td><td class="num">1.837,4</td></tr>
+          <tr><td>Total Liabilitas</td><td class="num">631,6</td><td class="num">646,7</td><td class="num">655,0</td><td class="num">703,3</td><td class="num">773,2</td></tr>
+          <tr class="ttl"><td>Total Ekuitas</td><td class="num">981,6</td><td class="num">991,5</td><td class="num">1.015,6</td><td class="num">1.069,1</td><td class="num">1.064,2</td></tr>
+          <tr><td colspan="6" style="padding:6px 11px;font-family:var(--fm);font-size:10px;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;background:#FAFAF8">ARUS KAS</td></tr>
+          <tr><td>Kas Bersih dari Operasi</td><td class="num pos">68,6</td><td class="num pos">97,7</td><td class="num pos">87,4</td><td class="num pos">75,4</td><td class="num pos">9,9</td></tr>
+          <tr><td>Kas Bersih dari Investasi</td><td class="num neg">(59,6)</td><td class="num neg">(54,8)</td><td class="num neg">(65,7)</td><td class="num neg">(62,4)</td><td class="num neg">(62,2)</td></tr>
+          <tr><td>Kas Bersih dari Pendanaan</td><td class="num neg">(25,9)</td><td class="num neg">(30,1)</td><td class="num neg">(17,0)</td><td class="num neg">(7,8)</td><td class="num pos">32,9</td></tr>
+          <tr><td colspan="6" style="padding:6px 11px;font-family:var(--fm);font-size:10px;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;background:#FAFAF8">RASIO KUNCI</td></tr>
+          <tr><td>Net Profit Margin</td><td class="num">3,6%</td><td class="num">3,3%</td><td class="num">4,5%</td><td class="num">3,9%</td><td class="num">1,2%</td></tr>
+          <tr><td>Operating Profit Margin</td><td class="num">12,2%</td><td class="num">12,5%</td><td class="num">9,7%</td><td class="num">11,1%</td><td class="num">8,4%</td></tr>
+          <tr><td>Debt-to-Equity</td><td class="num">0,64x</td><td class="num">0,65x</td><td class="num">0,64x</td><td class="num">0,66x</td><td class="num">0,73x</td></tr>
+          <tr><td>Current Ratio</td><td class="num">0,59x</td><td class="num">0,82x</td><td class="num">0,92x</td><td class="num">0,97x</td><td class="num">1,10x</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <strong>Catatan sumber data:</strong> Seluruh angka bersumber dari Laporan Keuangan Konsolidasian Audited PT PLN (Persero) dan Entitas Anak, diaudit oleh PwC Indonesia (KAP Tanudiredja Wibisana Rintis & Rekan / Rintis Jumadi Rianto & Rekan). Satuan Rp Triliun dibulatkan 1 desimal. <strong>2024* = angka 2024 yang telah disajikan kembali (restated)</strong> dalam LK-PLN 2025 karena penyesuaian liabilitas pajak tangguhan; laba bersih 2024 naik dari Rp 17,8 T (original) menjadi Rp 21,2 T (restated). Penurunan tajam kas operasi 2025 disebabkan lonjakan piutang dari Pemerintah (belum dicairkan) dari Rp 43,3 T menjadi Rp 110,7 T.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ TAB: LABA RUGI ═══════════════════════════════════════ -->
+<div id="tab-labarugi" class="tab-pane">
+
+  <div class="sec-lbl">Komposisi Pendapatan & Beban Usaha</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="ch"><h2><i class="fa-solid fa-layer-group" style="color:var(--orange)"></i> Komposisi Pendapatan</h2><span class="tag">Rp T</span></div>
+      <div class="chart-wrap"><canvas id="chartRevCompose"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ch"><h2><i class="fa-solid fa-fire-flame-curved" style="color:var(--red)"></i> Komposisi Beban Usaha</h2><span class="tag">Rp T</span></div>
+      <div class="chart-wrap"><canvas id="chartCostCompose"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-lbl">Profitabilitas & Margin</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="ch"><h2><i class="fa-solid fa-chart-line" style="color:var(--green)"></i> Laba Usaha & Laba Bersih</h2><span class="tag">Rp T</span></div>
+      <div class="chart-wrap"><canvas id="chartProfit"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ch"><h2><i class="fa-solid fa-percent" style="color:var(--blue)"></i> Margin Profitabilitas</h2><span class="tag">%</span></div>
+      <div class="chart-wrap"><canvas id="chartMargin"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-lbl">Tabel Detail Laba Rugi</div>
+  <div class="card">
+    <div class="ch"><h2><i class="fa-solid fa-table-list" style="color:var(--orange)"></i> Laporan Laba Rugi Komprehensif Konsolidasian</h2><span style="font-family:var(--fm);font-size:10.5px;color:var(--ink-3)">Rp Triliun</span></div>
+    <div style="overflow-x:auto">
+      <table class="ft">
+        <thead>
+          <tr><th>Akun</th><th class="num yr-hdr">2021</th><th class="num yr-hdr">2022</th><th class="num yr-hdr">2023</th><th class="num yr-hdr">2024*</th><th class="num yr-hdr">2025</th></tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6" class="sec-sep" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">PENDAPATAN USAHA</td></tr>
+          <tr><td>Penjualan Tenaga Listrik</td><td class="num">288,9</td><td class="num">311,1</td><td class="num">333,2</td><td class="num">353,2</td><td class="num">367,1</td></tr>
+          <tr><td>Penyambungan Pelanggan</td><td class="num">0,5</td><td class="num">0,9</td><td class="num">1,3</td><td class="num">1,7</td><td class="num">2,2</td></tr>
+          <tr><td>Subsidi Listrik Pemerintah</td><td class="num">49,8</td><td class="num">58,8</td><td class="num">68,6</td><td class="num">77,0</td><td class="num">87,5</td></tr>
+          <tr><td>Pendapatan Kompensasi</td><td class="num">24,6</td><td class="num">63,6</td><td class="num">74,0</td><td class="num">100,2</td><td class="num">112,7</td></tr>
+          <tr><td>Pendapatan Lain-lain</td><td class="num">4,4</td><td class="num">6,7</td><td class="num">10,3</td><td class="num">13,2</td><td class="num">13,2</td></tr>
+          <tr class="ttl"><td>Jumlah Pendapatan</td><td class="num">368,2</td><td class="num">441,1</td><td class="num">487,4</td><td class="num">545,4</td><td class="num">582,7</td></tr>
+          <tr><td colspan="6" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">BEBAN USAHA</td></tr>
+          <tr><td>Bahan Bakar & Pelumas</td><td class="num neg">118,4</td><td class="num neg">151,4</td><td class="num neg">164,7</td><td class="num neg">179,3</td><td class="num neg">198,6</td></tr>
+          <tr><td>Pembelian Tenaga Listrik</td><td class="num neg">103,6</td><td class="num neg">130,2</td><td class="num neg">154,8</td><td class="num neg">178,6</td><td class="num neg">195,2</td></tr>
+          <tr><td>Kepegawaian</td><td class="num neg">25,1</td><td class="num neg">24,9</td><td class="num neg">32,4</td><td class="num neg">30,7</td><td class="num neg">36,0</td></tr>
+          <tr><td>Pemeliharaan</td><td class="num neg">22,6</td><td class="num neg">23,9</td><td class="num neg">29,5</td><td class="num neg">31,5</td><td class="num neg">35,7</td></tr>
+          <tr><td>Penyusutan & Amortisasi</td><td class="num neg">41,4</td><td class="num neg">44,1</td><td class="num neg">47,3</td><td class="num neg">50,5</td><td class="num neg">53,4</td></tr>
+          <tr><td>Sewa</td><td class="num neg">4,8</td><td class="num neg">2,8</td><td class="num neg">1,9</td><td class="num neg">2,6</td><td class="num neg">2,8</td></tr>
+          <tr><td>Lain-lain</td><td class="num neg">7,2</td><td class="num neg">8,9</td><td class="num neg">9,6</td><td class="num neg">11,5</td><td class="num neg">11,7</td></tr>
+          <tr class="ttl"><td>Jumlah Beban Usaha</td><td class="num">323,1</td><td class="num">386,2</td><td class="num">440,2</td><td class="num">484,8</td><td class="num">533,5</td></tr>
+          <tr class="sub"><td>Laba Usaha (EBIT)</td><td class="num pos">45,1</td><td class="num pos">54,9</td><td class="num pos">47,2</td><td class="num pos">60,6</td><td class="num pos">49,2</td></tr>
+          <tr><td colspan="6" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">NON-OPERASIONAL</td></tr>
+          <tr><td>Pendapatan (Beban) Keuangan — bersih</td><td class="num neg">(19,6)</td><td class="num neg">(16,4)</td><td class="num neg">(20,1)</td><td class="num neg">(23,4)</td><td class="num neg">(24,2)</td></tr>
+          <tr><td>Keuntungan (Kerugian) Kurs Valas</td><td class="num pos">2,7</td><td class="num neg">(19,8)</td><td class="num pos">3,7</td><td class="num neg">(6,8)</td><td class="num neg">(12,5)</td></tr>
+          <tr><td>Lain-lain — bersih</td><td class="num neg">(4,9)</td><td class="num pos">2,8</td><td class="num pos">1,5</td><td class="num neg">(2,1)</td><td class="num pos">0,4</td></tr>
+          <tr class="sub"><td>Laba Sebelum Pajak</td><td class="num pos">23,2</td><td class="num pos">21,5</td><td class="num pos">32,4</td><td class="num pos">28,3</td><td class="num pos">13,0</td></tr>
+          <tr><td>Beban Pajak Penghasilan</td><td class="num neg">(10,0)</td><td class="num neg">(7,1)</td><td class="num neg">(10,3)</td><td class="num neg">(7,0)</td><td class="num neg">(5,7)</td></tr>
+          <tr class="ttl"><td>Laba Bersih Tahun Berjalan</td><td class="num pos">13,2</td><td class="num pos">14,4</td><td class="num pos">22,1</td><td class="num pos">21,2</td><td class="num pos">7,3</td></tr>
+          <tr><td>Penghasilan Komprehensif Lain</td><td class="num pos">24,0</td><td class="num neg">(9,0)</td><td class="num pos">4,3</td><td class="num pos">30,9</td><td class="num neg">(8,8)</td></tr>
+          <tr class="ttl"><td>Total Komprehensif Tahun Berjalan</td><td class="num pos">37,2</td><td class="num pos">5,4</td><td class="num pos">26,4</td><td class="num pos">52,1</td><td class="num neg">(1,5)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <strong>Catatan Analitis:</strong> Beban BBM + Pembelian Listrik mendominasi struktur biaya (~73% total beban 2025), dipengaruhi harga komoditas global dan volume energi yang dibeli dari IPP. Lonjakan <strong>kerugian kurs 2022 (Rp 19,8 T)</strong> disebabkan pelemahan rupiah terhadap USD dan JPY; sebagian kewajiban PLN denominasi valuta asing. <strong>Pendapatan kompensasi</strong> (hak PLN atas tarif di bawah keekonomian yang dibayar pemerintah) tumbuh signifikan: Rp 24,6 T (2021) → Rp 112,7 T (2025), menunjukkan gap tarif listrik vs biaya pokok penyediaan yang makin melebar.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ TAB: NERACA ═══════════════════════════════════════ -->
+<div id="tab-neraca" class="tab-pane">
+
+  <div class="sec-lbl">Struktur Aset & Pendanaan</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="ch"><h2><i class="fa-solid fa-building-columns" style="color:var(--orange)"></i> Total Aset — Komposisi</h2><span class="tag">Rp T</span></div>
+      <div class="chart-wrap"><canvas id="chartAssets"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ch"><h2><i class="fa-solid fa-percent" style="color:var(--blue)"></i> Struktur Pendanaan 2025</h2><span class="tag">Donut</span></div>
+      <div class="chart-wrap" style="display:flex;align-items:center;justify-content:center"><canvas id="chartFunding" style="max-height:280px;max-width:280px"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="ch"><h2><i class="fa-solid fa-shield-halved" style="color:var(--green)"></i> Ekuitas vs Liabilitas</h2><span class="tag">Rp T</span></div>
+      <div class="chart-wrap"><canvas id="chartEquity"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ch"><h2><i class="fa-solid fa-coins" style="color:var(--yellow)"></i> Aset Lancar & Kas</h2><span class="tag">Rp T</span></div>
+      <div class="chart-wrap"><canvas id="chartCurrent"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-lbl">Tabel Detail Neraca</div>
+  <div class="card">
+    <div class="ch"><h2><i class="fa-solid fa-table-list" style="color:var(--orange)"></i> Laporan Posisi Keuangan Konsolidasian</h2><span style="font-family:var(--fm);font-size:10.5px;color:var(--ink-3)">Rp Triliun · Per 31 Desember</span></div>
+    <div style="overflow-x:auto">
+      <table class="ft">
+        <thead>
+          <tr><th>Pos Neraca</th><th class="num yr-hdr">2021</th><th class="num yr-hdr">2022</th><th class="num yr-hdr">2023</th><th class="num yr-hdr">2024*</th><th class="num yr-hdr">2025</th></tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">ASET TIDAK LANCAR</td></tr>
+          <tr><td>Aset Tetap (bersih)</td><td class="num">1.427,1</td><td class="num">1.433,0</td><td class="num">1.449,0</td><td class="num">1.511,9</td><td class="num">1.521,4</td></tr>
+          <tr><td>Aset Hak Guna</td><td class="num">29,8</td><td class="num">29,0</td><td class="num">30,6</td><td class="num">29,4</td><td class="num">26,7</td></tr>
+          <tr><td>Investasi & Aset Keuangan Lainnya</td><td class="num">70,5</td><td class="num">56,8</td><td class="num">59,7</td><td class="num">63,6</td><td class="num">63,9</td></tr>
+          <tr class="ttl"><td>Total Aset Tidak Lancar</td><td class="num">1.527,3</td><td class="num">1.518,7</td><td class="num">1.539,3</td><td class="num">1.604,9</td><td class="num">1.612,0</td></tr>
+          <tr><td colspan="6" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">ASET LANCAR</td></tr>
+          <tr><td>Kas & Setara Kas</td><td class="num">38,0</td><td class="num">51,5</td><td class="num">55,9</td><td class="num">61,4</td><td class="num">42,2</td></tr>
+          <tr><td>Piutang dari Pemerintah (lancar)</td><td class="num">8,3</td><td class="num">18,9</td><td class="num">22,4</td><td class="num">43,3</td><td class="num">110,7</td></tr>
+          <tr><td>Piutang Usaha (pihak ketiga)</td><td class="num">21,7</td><td class="num">22,5</td><td class="num">24,4</td><td class="num">25,1</td><td class="num">25,9</td></tr>
+          <tr><td>Persediaan</td><td class="num">10,4</td><td class="num">17,5</td><td class="num">17,9</td><td class="num">20,1</td><td class="num">22,6</td></tr>
+          <tr><td>Lain-lain</td><td class="num">7,5</td><td class="num">8,9</td><td class="num">10,7</td><td class="num">17,5</td><td class="num">24,0</td></tr>
+          <tr class="ttl"><td>Total Aset Lancar</td><td class="num">85,9</td><td class="num">119,4</td><td class="num">131,4</td><td class="num">167,4</td><td class="num">225,4</td></tr>
+          <tr class="sub"><td>TOTAL ASET</td><td class="num">1.613,2</td><td class="num">1.638,1</td><td class="num">1.670,6</td><td class="num">1.772,4</td><td class="num">1.837,4</td></tr>
+          <tr><td colspan="6" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">LIABILITAS JANGKA PANJANG</td></tr>
+          <tr><td>Utang Bank (jangka panjang)</td><td class="num">—</td><td class="num">122,4</td><td class="num">127,9</td><td class="num">135,4</td><td class="num">153,5</td></tr>
+          <tr><td>Utang Obligasi & Sukuk Ijarah</td><td class="num">—</td><td class="num">198,5</td><td class="num">192,0</td><td class="num">188,5</td><td class="num">194,3</td></tr>
+          <tr><td>Liabilitas Imbalan Kerja</td><td class="num">—</td><td class="num">65,0</td><td class="num">62,8</td><td class="num">70,5</td><td class="num">81,8</td></tr>
+          <tr><td>Liabilitas Pajak Tangguhan</td><td class="num">—</td><td class="num">48,4</td><td class="num">58,2</td><td class="num">62,1</td><td class="num">61,2</td></tr>
+          <tr><td>Lainnya</td><td class="num">—</td><td class="num">67,3</td><td class="num">71,0</td><td class="num">74,8</td><td class="num">78,4</td></tr>
+          <tr class="ttl"><td>Total Liabilitas Jangka Panjang</td><td class="num">485,1</td><td class="num">501,6</td><td class="num">511,8</td><td class="num">531,3</td><td class="num">569,2</td></tr>
+          <tr><td colspan="6" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">LIABILITAS JANGKA PENDEK</td></tr>
+          <tr><td>Utang Usaha</td><td class="num">—</td><td class="num">51,1</td><td class="num">57,1</td><td class="num">63,5</td><td class="num">65,6</td></tr>
+          <tr><td>Utang Bank & Obligasi Jatuh Tempo</td><td class="num">—</td><td class="num">32,8</td><td class="num">26,5</td><td class="num">32,3</td><td class="num">59,8</td></tr>
+          <tr><td>Uang Jaminan Langganan</td><td class="num">—</td><td class="num">16,5</td><td class="num">17,2</td><td class="num">—</td><td class="num">—</td></tr>
+          <tr><td>Lainnya</td><td class="num">—</td><td class="num">44,7</td><td class="num">42,4</td><td class="num">76,3</td><td class="num">78,6</td></tr>
+          <tr class="ttl"><td>Total Liabilitas Jangka Pendek</td><td class="num">146,5</td><td class="num">145,1</td><td class="num">143,2</td><td class="num">172,1</td><td class="num">204,0</td></tr>
+          <tr class="sub"><td>TOTAL LIABILITAS</td><td class="num">631,6</td><td class="num">646,7</td><td class="num">655,0</td><td class="num">703,3</td><td class="num">773,2</td></tr>
+          <tr><td colspan="6" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">EKUITAS</td></tr>
+          <tr><td>Modal Disetor</td><td class="num">150,5</td><td class="num">150,5</td><td class="num">150,5</td><td class="num">150,5</td><td class="num">150,5</td></tr>
+          <tr><td>Saldo Laba (ditentukan & belum)</td><td class="num">—</td><td class="num">—</td><td class="num">184,3</td><td class="num">207,4</td><td class="num">213,3</td></tr>
+          <tr><td>Penghasilan Komprehensif Lain</td><td class="num">—</td><td class="num">—</td><td class="num">679,6</td><td class="num">709,9</td><td class="num">698,9</td></tr>
+          <tr class="ttl"><td>TOTAL EKUITAS</td><td class="num">981,6</td><td class="num">991,5</td><td class="num">1.015,6</td><td class="num">1.069,1</td><td class="num">1.064,2</td></tr>
+          <tr class="sub"><td>TOTAL LIABILITAS & EKUITAS</td><td class="num">1.613,2</td><td class="num">1.638,1</td><td class="num">1.670,6</td><td class="num">1.772,4</td><td class="num">1.837,4</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <strong>Catatan Neraca:</strong> <strong>Aset tetap</strong> (properti, pembangkit, jaringan transmisi & distribusi) mendominasi 82–83% total aset, mencerminkan sifat PLN sebagai kapital-intensif. <strong>Lonjakan piutang dari Pemerintah</strong> (Rp 110,7 T per akhir 2025 vs Rp 43,3 T akhir 2024) mencerminkan kompensasi/subsidi yang belum dibayar Pemerintah—risiko likuiditas utama. <strong>Utang obligasi</strong> PLN termasuk Global Bond denominasi USD; fluktuasi kurs berdampak signifikan pada nilai kewajiban.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ TAB: ARUS KAS ═══════════════════════════════════════ -->
+<div id="tab-aruskas" class="tab-pane">
+
+  <div class="sec-lbl">Analisis Arus Kas Konsolidasian</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="ch"><h2><i class="fa-solid fa-droplet" style="color:var(--blue)"></i> Arus Kas 3 Aktivitas</h2><span class="tag">Rp T</span></div>
+      <div class="chart-wrap"><canvas id="chartCF3"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ch"><h2><i class="fa-solid fa-piggy-bank" style="color:var(--green)"></i> Kas Akhir Periode</h2><span class="tag">Rp T</span></div>
+      <div class="chart-wrap"><canvas id="chartCashEnd"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-lbl">Tabel Detail Arus Kas</div>
+  <div class="card">
+    <div class="ch"><h2><i class="fa-solid fa-table-list" style="color:var(--orange)"></i> Laporan Arus Kas Konsolidasian</h2><span style="font-family:var(--fm);font-size:10.5px;color:var(--ink-3)">Rp Triliun</span></div>
+    <div style="overflow-x:auto">
+      <table class="ft">
+        <thead>
+          <tr><th>Pos Arus Kas</th><th class="num yr-hdr">2021</th><th class="num yr-hdr">2022</th><th class="num yr-hdr">2023</th><th class="num yr-hdr">2024*</th><th class="num yr-hdr">2025</th></tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">AKTIVITAS OPERASI</td></tr>
+          <tr><td>Penerimaan dari Pelanggan</td><td class="num pos">301,1</td><td class="num pos">—</td><td class="num pos">352,8</td><td class="num pos">378,7</td><td class="num pos">379,1</td></tr>
+          <tr><td>Penerimaan Kompensasi</td><td class="num pos">—</td><td class="num pos">—</td><td class="num pos">72,3</td><td class="num pos">80,6</td><td class="num pos">65,3</td></tr>
+          <tr><td>Penerimaan Subsidi Listrik</td><td class="num pos">46,2</td><td class="num pos">—</td><td class="num pos">68,7</td><td class="num pos">75,8</td><td class="num pos">81,0</td></tr>
+          <tr><td>Pembayaran ke Pemasok & Karyawan</td><td class="num neg">(268,7)</td><td class="num neg">—</td><td class="num neg">(384,2)</td><td class="num neg">(429,1)</td><td class="num neg">(482,0)</td></tr>
+          <tr><td>Pembayaran Bunga & Pajak</td><td class="num neg">(20,2)</td><td class="num neg">—</td><td class="num neg">(22,3)</td><td class="num neg">(27,8)</td><td class="num neg">(33,0)</td></tr>
+          <tr class="ttl"><td>Kas Bersih — Operasi</td><td class="num pos">68,6</td><td class="num pos">97,7</td><td class="num pos">87,4</td><td class="num pos">75,4</td><td class="num pos">9,9</td></tr>
+          <tr><td colspan="6" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">AKTIVITAS INVESTASI</td></tr>
+          <tr><td>Perolehan Aset Tetap & Proyek</td><td class="num neg">(59,6)</td><td class="num neg">—</td><td class="num neg">(63,9)</td><td class="num neg">(63,5)</td><td class="num neg">(63,7)</td></tr>
+          <tr><td>Rekening Bank Dibatasi (bersih)</td><td class="num">—</td><td class="num">—</td><td class="num neg">(0,4)</td><td class="num pos">0,8</td><td class="num pos">1,1</td></tr>
+          <tr><td>Lainnya — bersih</td><td class="num">0,0</td><td class="num">—</td><td class="num neg">(1,4)</td><td class="num pos">0,3</td><td class="num pos">0,4</td></tr>
+          <tr class="ttl"><td>Kas Bersih — Investasi</td><td class="num neg">(59,6)</td><td class="num neg">(54,8)</td><td class="num neg">(65,7)</td><td class="num neg">(62,4)</td><td class="num neg">(62,2)</td></tr>
+          <tr><td colspan="6" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">AKTIVITAS PENDANAAN</td></tr>
+          <tr><td>Penerimaan Utang Bank & Obligasi</td><td class="num pos">31,4</td><td class="num pos">—</td><td class="num pos">53,9</td><td class="num pos">66,9</td><td class="num pos">125,2</td></tr>
+          <tr><td>Pembayaran Utang Bank & Obligasi</td><td class="num neg">(38,8)</td><td class="num neg">—</td><td class="num neg">(56,4)</td><td class="num neg">(65,6)</td><td class="num neg">(88,2)</td></tr>
+          <tr><td>Pembayaran Sewa & Dividen</td><td class="num neg">—</td><td class="num neg">—</td><td class="num neg">(7,7)</td><td class="num neg">(6,0)</td><td class="num neg">(7,4)</td></tr>
+          <tr><td>Lainnya</td><td class="num neg">(18,5)</td><td class="num neg">—</td><td class="num neg">(6,8)</td><td class="num neg">(3,1)</td><td class="num pos">3,3</td></tr>
+          <tr class="ttl"><td>Kas Bersih — Pendanaan</td><td class="num neg">(25,9)</td><td class="num neg">(30,1)</td><td class="num neg">(17,0)</td><td class="num neg">(7,8)</td><td class="num pos">32,9</td></tr>
+          <tr><td colspan="6" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">REKONSILIASI KAS</td></tr>
+          <tr><td>Kenaikan (Penurunan) Bersih Kas</td><td class="num neg">(16,8)</td><td class="num pos">12,9</td><td class="num pos">4,7</td><td class="num pos">5,1</td><td class="num neg">(19,4)</td></tr>
+          <tr><td>Kas Awal Tahun</td><td class="num">54,7</td><td class="num">38,0</td><td class="num">51,5</td><td class="num">55,9</td><td class="num">61,4</td></tr>
+          <tr class="sub"><td>Kas & Setara Kas Akhir Tahun</td><td class="num pos">38,0</td><td class="num pos">51,5</td><td class="num pos">55,9</td><td class="num pos">61,4</td><td class="num pos">42,2</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <strong>Catatan Kritis — Penurunan Tajam Kas Operasi 2025 (Rp 9,9 T vs Rp 75,4 T pada 2024):</strong> Penurunan disebabkan oleh kombinasi: (1) piutang dari Pemerintah melonjak Rp 67,4 T (kompensasi/subsidi belum dibayar), sehingga penerimaan kompensasi kas turun dari Rp 80,6 T menjadi Rp 65,3 T meski pendapatan kompensasi akrual naik; (2) beban operasional tunai (pembayaran ke pemasok bahan bakar, IPP, karyawan) terus meningkat. PLN menutup kesenjangan dengan menarik utang bank jangka pendek lebih besar (Rp 84,9 T pada 2025). Ini adalah risiko likuiditas yang perlu dipantau.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ TAB: RASIO ═══════════════════════════════════════ -->
+<div id="tab-rasio" class="tab-pane">
+
+  <div class="sec-lbl">Rasio Profitabilitas (2025)</div>
+  <div class="ratio-grid">
+    <div class="ratio-card"><div class="ratio-lbl">Net Profit Margin</div><div class="ratio-val">1,2%</div><div class="ratio-yr">2025 | puncak: 4,5% (2023)</div></div>
+    <div class="ratio-card"><div class="ratio-lbl">Operating Margin</div><div class="ratio-val">8,4%</div><div class="ratio-yr">2025 | puncak: 12,5% (2022)</div></div>
+    <div class="ratio-card"><div class="ratio-lbl">ROE</div><div class="ratio-val">0,7%</div><div class="ratio-yr">2025 | puncak: 2,2% (2023)</div></div>
+    <div class="ratio-card"><div class="ratio-lbl">ROA</div><div class="ratio-val">0,4%</div><div class="ratio-yr">2025 | puncak: 1,3% (2023)</div></div>
+    <div class="ratio-card"><div class="ratio-lbl">Debt-to-Equity</div><div class="ratio-val">0,73x</div><div class="ratio-yr">2025 | terendah: 0,64x (2021)</div></div>
+    <div class="ratio-card"><div class="ratio-lbl">Current Ratio</div><div class="ratio-val">1,10x</div><div class="ratio-yr">2025 | pertama kali >1x</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="ch"><h2><i class="fa-solid fa-chart-line" style="color:var(--orange)"></i> Margin Profitabilitas</h2><span class="tag">% · 5 Tahun</span></div>
+      <div class="chart-wrap"><canvas id="chartRatioMargin"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ch"><h2><i class="fa-solid fa-balance-scale" style="color:var(--blue)"></i> Leverage & Likuiditas</h2><span class="tag">x · 5 Tahun</span></div>
+      <div class="chart-wrap"><canvas id="chartRatioLev"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-lbl">Tabel Rasio Keuangan Lengkap</div>
+  <div class="card">
+    <div class="ch"><h2><i class="fa-solid fa-table" style="color:var(--orange)"></i> Matriks Rasio Keuangan Konsolidasian</h2></div>
+    <div style="overflow-x:auto">
+      <table class="ft">
+        <thead>
+          <tr><th>Rasio</th><th>Definisi</th><th class="num yr-hdr">2021</th><th class="num yr-hdr">2022</th><th class="num yr-hdr">2023</th><th class="num yr-hdr">2024*</th><th class="num yr-hdr">2025</th></tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="7" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">PROFITABILITAS</td></tr>
+          <tr><td>Gross Revenue Growth</td><td style="font-size:11.5px;color:var(--ink-2)">ΔPendapatan YoY</td><td class="num">—</td><td class="num">+19,8%</td><td class="num">+10,5%</td><td class="num">+11,9%</td><td class="num">+6,8%</td></tr>
+          <tr><td>Operating Profit Margin</td><td style="font-size:11.5px;color:var(--ink-2)">EBIT / Pendapatan</td><td class="num">12,2%</td><td class="num">12,5%</td><td class="num">9,7%</td><td class="num">11,1%</td><td class="num">8,4%</td></tr>
+          <tr><td>Net Profit Margin</td><td style="font-size:11.5px;color:var(--ink-2)">Laba Bersih / Pendapatan</td><td class="num">3,6%</td><td class="num">3,3%</td><td class="num">4,5%</td><td class="num">3,9%</td><td class="num">1,2%</td></tr>
+          <tr><td>Return on Equity (ROE)</td><td style="font-size:11.5px;color:var(--ink-2)">Laba Bersih / Ekuitas</td><td class="num">1,3%</td><td class="num">1,5%</td><td class="num">2,2%</td><td class="num">2,0%</td><td class="num">0,7%</td></tr>
+          <tr><td>Return on Assets (ROA)</td><td style="font-size:11.5px;color:var(--ink-2)">Laba Bersih / Total Aset</td><td class="num">0,8%</td><td class="num">0,9%</td><td class="num">1,3%</td><td class="num">1,2%</td><td class="num">0,4%</td></tr>
+          <tr><td>EBITDA Approx.</td><td style="font-size:11.5px;color:var(--ink-2)">EBIT + Penyusutan</td><td class="num">Rp 86,5 T</td><td class="num">Rp 99,0 T</td><td class="num">Rp 94,5 T</td><td class="num">Rp 111,1 T</td><td class="num">Rp 102,6 T</td></tr>
+          <tr><td colspan="7" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">LIKUIDITAS</td></tr>
+          <tr><td>Current Ratio</td><td style="font-size:11.5px;color:var(--ink-2)">Aset Lancar / Liab Pendek</td><td class="num">0,59x</td><td class="num">0,82x</td><td class="num">0,92x</td><td class="num">0,97x</td><td class="num">1,10x</td></tr>
+          <tr><td>Cash Ratio</td><td style="font-size:11.5px;color:var(--ink-2)">Kas / Liab Pendek</td><td class="num">0,26x</td><td class="num">0,35x</td><td class="num">0,39x</td><td class="num">0,36x</td><td class="num">0,21x</td></tr>
+          <tr><td>Operating Cash Flow Ratio</td><td style="font-size:11.5px;color:var(--ink-2)">Kas Operasi / Liab Pendek</td><td class="num">0,47x</td><td class="num">0,67x</td><td class="num">0,61x</td><td class="num">0,44x</td><td class="num">0,05x</td></tr>
+          <tr><td colspan="7" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">LEVERAGE & SOLVABILITAS</td></tr>
+          <tr><td>Debt-to-Equity Ratio</td><td style="font-size:11.5px;color:var(--ink-2)">Total Liab / Total Ekuitas</td><td class="num">0,64x</td><td class="num">0,65x</td><td class="num">0,64x</td><td class="num">0,66x</td><td class="num">0,73x</td></tr>
+          <tr><td>Debt-to-Assets Ratio</td><td style="font-size:11.5px;color:var(--ink-2)">Total Liab / Total Aset</td><td class="num">0,39x</td><td class="num">0,39x</td><td class="num">0,39x</td><td class="num">0,40x</td><td class="num">0,42x</td></tr>
+          <tr><td>Equity Multiplier</td><td style="font-size:11.5px;color:var(--ink-2)">Total Aset / Total Ekuitas</td><td class="num">1,64x</td><td class="num">1,65x</td><td class="num">1,64x</td><td class="num">1,66x</td><td class="num">1,73x</td></tr>
+          <tr><td colspan="7" style="padding:5px 11px;background:#F9F7F3;font-family:var(--fm);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase">INVESTASI & EFISIENSI</td></tr>
+          <tr><td>Capex / Total Aset</td><td style="font-size:11.5px;color:var(--ink-2)">Perolehan Aset Tetap / Aset</td><td class="num">3,7%</td><td class="num">—</td><td class="num">3,8%</td><td class="num">3,6%</td><td class="num">3,5%</td></tr>
+          <tr><td>Capex / Kas Operasi</td><td style="font-size:11.5px;color:var(--ink-2)">Kebutuhan capex vs kas</td><td class="num">0,87x</td><td class="num">0,56x</td><td class="num">0,73x</td><td class="num">0,84x</td><td class="num">6,43x</td></tr>
+          <tr><td>Aset Turnover</td><td style="font-size:11.5px;color:var(--ink-2)">Pendapatan / Total Aset</td><td class="num">0,23x</td><td class="num">0,27x</td><td class="num">0,29x</td><td class="num">0,31x</td><td class="num">0,32x</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <strong>Interpretasi Rasio:</strong> PLN sebagai BUMN kelistrikan memiliki ROE/ROA rendah (wajar untuk utilitas padat modal). <strong>Current Ratio pertama kali melampaui 1x (1,10x) pada 2025</strong>, namun ini terutama karena piutang dari Pemerintah yang belum dicairkan (bukan kas nyata), sehingga <strong>Cash Ratio justru turun ke 0,21x</strong>. <strong>Capex/Kas Operasi = 6,43x (2025)</strong> menunjukkan PLN tidak dapat membiayai investasi dari kas operasi—memerlukan utang eksternal secara substansial. DER yang stabil ~0,64–0,73x mencerminkan struktur permodalan yang relatif konservatif, didukung ekuitas besar dari penyertaan modal pemerintah.
+  </div>
+</div>
+
+</div><!-- /.wrap -->
+
+<script>
+const LABELS = ['2021','2022','2023','2024*','2025'];
+const CLR = {
+  orange:'#FF4D00', orangeLt:'rgba(255,77,0,.15)',
+  yellow:'#FFD600', yellowLt:'rgba(255,214,0,.2)',
+  green:'#2ECC71',  greenLt:'rgba(46,204,113,.18)',
+  blue:'#3B82F6',   blueLt:'rgba(59,130,246,.18)',
+  red:'#E74C3C',    redLt:'rgba(231,76,60,.18)',
+  ink:'#111118',    navy:'#0D1117',
+};
+
+Chart.defaults.font.family = "'JetBrains Mono', monospace";
+Chart.defaults.font.size   = 11;
+Chart.defaults.color       = '#888';
+
+const GRID = { color:'rgba(17,17,24,.06)', drawBorder:false };
+const TICK = { maxTicksLimit:6 };
+
+// ── Helper: triliun (nilai dalam Rp juta) ──
+const T = v => (v/1e6).toFixed(1);
+const Ti = arr => arr.map(v => v/1e6);
+
+// ── DATA (Rp juta) ──
+const REV  = [368174270,441131943,487384064,545380993,582681870];
+const SELL = [288862726,311057224,333191062,353176020,367087729];
+const SUBS = [49796949, 58831960, 68636731, 77045335, 87460664];
+const KOMP = [24594425, 63649821, 73991897,100184044,112734817];
+const LAIN = [4920170,  8592938, 12076374, 14975614, 15399310];
+
+const BEBAN_TOT = [323119125,386193802,440183990,484759987,533455857];
+const BEBAN_BBM = [118419490,151376726,164731578,179290971,198611362];
+const BEBAN_BEL = [103553472,130230383,154831184,178626777,195214313];
+const BEBAN_PEG = [25092756, 24884860, 32355934, 30709373, 36015779];
+const BEBAN_PELI= [22600774, 23948698, 29518324, 31546011, 35741226];
+const BEBAN_PEN = [41441271, 44056635, 47314247, 50495013, 53368630];
+const BEBAN_LAIN= [12011362,  11696500, 11432723, 13892812, 14673287]; // sewa+lain
+
+const OP_PROF = [45055145, 54938141, 47200074, 60621006, 49226013];
+const NET_PROF = [13174877, 14414720, 22071458, 21231284,  7260708];
+
+const ASET_L  = [85911375, 119391382,131383486,167446389,225401312];
+const ASET_NL = [1527305081,1518747894,1539256218,1604928877,1612008596];
+const ASET_TOT= [1613216456,1638139276,1670639704,1772375266,1837409908];
+const LIAB_TOT= [631609333, 646688710, 655008305, 703309796, 773202295];
+const EKU_TOT = [981607123, 991450566,1015631399,1069065470,1064207613];
+const KAS     = [37968399,  51503096,  55920541,  61364446,  42204282];
+
+const CF_OP = [68621074,  97710224,  87389971,  75359028,   9915032];
+const CF_INV= [-59552028, -54763962, -65667486, -62441438, -62169715];
+const CF_PND= [-25880660, -30092064, -17029832,  -7830344,  32862593];
+const CF_KAS= [37968399,  51503096,  55920541,   61364446,  42204282];
+
+// ── Overview Chart ──
+new Chart(document.getElementById('chartOverview'),{
+  type:'bar',
+  data:{
+    labels:LABELS,
+    datasets:[
+      {type:'bar',label:'Total Pendapatan',data:Ti(REV),backgroundColor:CLR.orangeLt,borderColor:CLR.orange,borderWidth:1.5,borderRadius:3,order:2},
+      {type:'bar',label:'Total Beban',data:Ti(BEBAN_TOT),backgroundColor:'rgba(100,100,120,.12)',borderColor:'rgba(100,100,120,.35)',borderWidth:1,borderRadius:3,order:2},
+      {type:'line',label:'Laba Usaha',data:Ti(OP_PROF),borderColor:CLR.yellow,backgroundColor:'transparent',borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.yellow,order:1},
+      {type:'line',label:'Laba Bersih',data:Ti(NET_PROF),borderColor:CLR.green,backgroundColor:'transparent',borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.green,order:1},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:2.6,interaction:{mode:'index'},
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:14,font:{size:11}}}},
+    scales:{y:{grid:GRID,ticks:{...TICK,callback:v=>'Rp '+v.toFixed(0)+'T'}},x:{grid:{display:false}}}
+  }
+});
+
+// ── Revenue Composition ──
+new Chart(document.getElementById('chartRevCompose'),{
+  type:'bar',
+  data:{labels:LABELS,datasets:[
+    {label:'Penjualan Listrik',data:Ti(SELL),backgroundColor:'#FF4D00',borderRadius:2,stack:'r'},
+    {label:'Subsidi Pemerintah',data:Ti(SUBS),backgroundColor:'#F59E0B',borderRadius:2,stack:'r'},
+    {label:'Kompensasi',data:Ti(KOMP),backgroundColor:'#8B5CF6',borderRadius:2,stack:'r'},
+    {label:'Lain-lain',data:Ti(LAIN),backgroundColor:'rgba(100,100,120,.3)',borderRadius:2,stack:'r'},
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.8,
+    plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:10,font:{size:10}}}},
+    scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:GRID,ticks:{...TICK,callback:v=>v+'T'}}}
+  }
+});
+
+// ── Cost Composition ──
+new Chart(document.getElementById('chartCostCompose'),{
+  type:'bar',
+  data:{labels:LABELS,datasets:[
+    {label:'BBM & Pelumas',data:Ti(BEBAN_BBM),backgroundColor:'#EF4444',borderRadius:2,stack:'c'},
+    {label:'Pembelian Listrik (IPP)',data:Ti(BEBAN_BEL),backgroundColor:'#F97316',borderRadius:2,stack:'c'},
+    {label:'Kepegawaian',data:Ti(BEBAN_PEG),backgroundColor:'#3B82F6',borderRadius:2,stack:'c'},
+    {label:'Pemeliharaan',data:Ti(BEBAN_PELI),backgroundColor:'#10B981',borderRadius:2,stack:'c'},
+    {label:'Penyusutan',data:Ti(BEBAN_PEN),backgroundColor:'#6366F1',borderRadius:2,stack:'c'},
+    {label:'Lainnya',data:Ti(BEBAN_LAIN),backgroundColor:'rgba(100,100,120,.3)',borderRadius:2,stack:'c'},
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.8,
+    plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:10,font:{size:10}}}},
+    scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:GRID,ticks:{...TICK,callback:v=>v+'T'}}}
+  }
+});
+
+// ── Profit Chart ──
+new Chart(document.getElementById('chartProfit'),{
+  type:'bar',
+  data:{labels:LABELS,datasets:[
+    {type:'bar',label:'Laba Usaha',data:Ti(OP_PROF),backgroundColor:CLR.yellowLt,borderColor:CLR.yellow,borderWidth:1.5,borderRadius:4},
+    {type:'line',label:'Laba Bersih',data:Ti(NET_PROF),borderColor:CLR.green,backgroundColor:CLR.greenLt,fill:true,borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.green},
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.9,interaction:{mode:'index'},
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,font:{size:11}}}},
+    scales:{y:{grid:GRID,ticks:{...TICK,callback:v=>'Rp '+v+'T'}},x:{grid:{display:false}}}
+  }
+});
+
+// ── Margin Chart ──
+const OPM = OP_PROF.map((v,i)=>+(v/REV[i]*100).toFixed(1));
+const NPM = NET_PROF.map((v,i)=>+(v/REV[i]*100).toFixed(1));
+new Chart(document.getElementById('chartMargin'),{
+  type:'line',
+  data:{labels:LABELS,datasets:[
+    {label:'Operating Margin %',data:OPM,borderColor:CLR.yellow,backgroundColor:CLR.yellowLt,fill:true,borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.yellow},
+    {label:'Net Margin %',data:NPM,borderColor:CLR.green,backgroundColor:CLR.greenLt,fill:true,borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.green},
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.9,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,font:{size:11}}}},
+    scales:{y:{grid:GRID,ticks:{...TICK,callback:v=>v+'%'}},x:{grid:{display:false}}}
+  }
+});
+
+// ── Assets Composition ──
+new Chart(document.getElementById('chartAssets'),{
+  type:'bar',
+  data:{labels:LABELS,datasets:[
+    {label:'Aset Tidak Lancar',data:Ti(ASET_NL),backgroundColor:'rgba(255,77,0,.22)',borderColor:CLR.orange,borderWidth:1.5,borderRadius:3,stack:'a'},
+    {label:'Aset Lancar',data:Ti(ASET_L),backgroundColor:CLR.blueLt,borderColor:CLR.blue,borderWidth:1.5,borderRadius:3,stack:'a'},
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.8,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,font:{size:11}}}},
+    scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:GRID,ticks:{...TICK,callback:v=>v+'T'}}}
+  }
+});
+
+// ── Funding Donut 2025 ──
+new Chart(document.getElementById('chartFunding'),{
+  type:'doughnut',
+  data:{labels:['Liab. Jangka Panjang','Liab. Jangka Pendek','Ekuitas'],
+    datasets:[{data:[569.2,204.0,1064.2],backgroundColor:['#EF4444','#F97316','#2ECC71'],borderWidth:0,hoverOffset:8}]
+  },
+  options:{responsive:true,maintainAspectRatio:true,cutout:'60%',
+    plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:12,font:{size:11}}},
+      tooltip:{callbacks:{label:ctx=>' Rp '+ctx.parsed.toFixed(1)+' T ('+((ctx.parsed/1837.4)*100).toFixed(1)+'%)'}}
+    }
+  }
+});
+
+// ── Equity vs Liabilities ──
+new Chart(document.getElementById('chartEquity'),{
+  type:'bar',
+  data:{labels:LABELS,datasets:[
+    {label:'Total Ekuitas',data:Ti(EKU_TOT),backgroundColor:CLR.greenLt,borderColor:CLR.green,borderWidth:1.5,borderRadius:3,stack:'e'},
+    {label:'Total Liabilitas',data:Ti(LIAB_TOT),backgroundColor:CLR.redLt,borderColor:CLR.red,borderWidth:1.5,borderRadius:3,stack:'e'},
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.8,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,font:{size:11}}}},
+    scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:GRID,ticks:{...TICK,callback:v=>v+'T'}}}
+  }
+});
+
+// ── Current Assets & Cash ──
+new Chart(document.getElementById('chartCurrent'),{
+  type:'line',
+  data:{labels:LABELS,datasets:[
+    {label:'Total Aset Lancar',data:Ti(ASET_L),borderColor:CLR.blue,backgroundColor:CLR.blueLt,fill:true,borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.blue},
+    {label:'Kas & Setara Kas',data:Ti(KAS),borderColor:CLR.green,backgroundColor:'transparent',borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.green,borderDash:[5,3]},
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.8,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,font:{size:11}}}},
+    scales:{y:{grid:GRID,ticks:{...TICK,callback:v=>v+'T'}},x:{grid:{display:false}}}
+  }
+});
+
+// ── Cash Flow 3 Activities ──
+new Chart(document.getElementById('chartCF3'),{
+  type:'bar',
+  data:{labels:LABELS,datasets:[
+    {label:'Kas Operasi',data:Ti(CF_OP),backgroundColor:CLR.greenLt,borderColor:CLR.green,borderWidth:1.5,borderRadius:3},
+    {label:'Kas Investasi',data:Ti(CF_INV),backgroundColor:CLR.redLt,borderColor:CLR.red,borderWidth:1.5,borderRadius:3},
+    {label:'Kas Pendanaan',data:Ti(CF_PND),backgroundColor:CLR.blueLt,borderColor:CLR.blue,borderWidth:1.5,borderRadius:3},
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.9,interaction:{mode:'index'},
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,font:{size:11}}}},
+    scales:{y:{grid:GRID,ticks:{...TICK,callback:v=>'Rp '+v+'T'}},x:{grid:{display:false}}}
+  }
+});
+
+// ── Cash End of Year ──
+new Chart(document.getElementById('chartCashEnd'),{
+  type:'line',
+  data:{labels:LABELS,datasets:[
+    {label:'Kas & Setara Kas Akhir Tahun',data:Ti(CF_KAS),borderColor:CLR.green,backgroundColor:CLR.greenLt,fill:true,borderWidth:2.5,tension:.4,pointRadius:5,pointBackgroundColor:CLR.green},
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.9,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,font:{size:11}}}},
+    scales:{y:{grid:GRID,ticks:{...TICK,callback:v=>'Rp '+v+'T'}},x:{grid:{display:false}}}
+  }
+});
+
+// ── Ratio: Margin ──
+new Chart(document.getElementById('chartRatioMargin'),{
+  type:'line',
+  data:{labels:LABELS,datasets:[
+    {label:'Operating Margin',data:[12.2,12.5,9.7,11.1,8.4],borderColor:CLR.orange,backgroundColor:'transparent',borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.orange},
+    {label:'Net Margin',data:[3.6,3.3,4.5,3.9,1.2],borderColor:CLR.green,backgroundColor:'transparent',borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.green},
+    {label:'ROE',data:[1.3,1.5,2.2,2.0,0.7],borderColor:CLR.blue,backgroundColor:'transparent',borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.blue,borderDash:[5,3]},
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:2,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,font:{size:11}}}},
+    scales:{y:{grid:GRID,ticks:{...TICK,callback:v=>v+'%'}},x:{grid:{display:false}}}
+  }
+});
+
+// ── Ratio: Leverage ──
+new Chart(document.getElementById('chartRatioLev'),{
+  type:'line',
+  data:{labels:LABELS,datasets:[
+    {label:'Debt-to-Equity (x)',data:[0.64,0.65,0.64,0.66,0.73],borderColor:CLR.red,backgroundColor:'transparent',borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.red},
+    {label:'Current Ratio (x)',data:[0.59,0.82,0.92,0.97,1.10],borderColor:CLR.blue,backgroundColor:'transparent',borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.blue},
+  ]},
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:2,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,font:{size:11}}}},
+    scales:{y:{grid:GRID,ticks:{...TICK,callback:v=>v+'x'},min:0},x:{grid:{display:false}}}
+  }
+});
+
+// ── Tab Switch ──
+function switchTab(id, btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
