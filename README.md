@@ -1,351 +1,440 @@
-# COCKPIT — Pusat Data Riset Pribadi
-### Product Requirements Document (PRD)
+<div align="center">
 
-**Domain:** cockpit.dinoarla.com
-**Versi dokumen:** 2.3
-**Status:** Living document — update tiap ada perubahan requirement, jangan biarkan basi
-**Pemilik & Hak Cipta:** © 2026 Dino Arla. Seluruh data, kode, dan dokumen ini adalah milik pribadi untuk keperluan riset dan studi PhD — bukan untuk didistribusikan tanpa izin tertulis dari pemilik.
+```
+ ██████╗ ██████╗  ██████╗██╗  ██╗██████╗ ██╗████████╗
+██╔════╝██╔═══██╗██╔════╝██║ ██╔╝██╔══██╗██║╚══██╔══╝
+██║     ██║   ██║██║     █████╔╝ ██████╔╝██║   ██║   
+██║     ██║   ██║██║     ██╔═██╗ ██╔═══╝ ██║   ██║   
+╚██████╗╚██████╔╝╚██████╗██║  ██╗██║     ██║   ██║   
+ ╚═════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚═╝     ╚═╝   ╚═╝   
+```
 
-> Dokumen ini adalah *single source of truth*. Kalau ada pertentangan antara dokumen ini dan kode yang sudah jalan, dokumen ini yang benar — perbaiki kodenya, bukan sebaliknya. Kalau requirement berubah, update dokumen ini dulu sebelum ubah kode.
+**Pusat Data Riset Pribadi — Dino Arla**
+
+[![Node.js](https://img.shields.io/badge/Node.js-18+-FF4D00?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-FF4D00?style=flat-square&logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![Hono](https://img.shields.io/badge/Hono-4.x-FF4D00?style=flat-square&logo=hono&logoColor=white)](https://hono.dev)
+[![MySQL](https://img.shields.io/badge/MySQL-8.x-FF4D00?style=flat-square&logo=mysql&logoColor=white)](https://mysql.com)
+[![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-0.45-FF4D00?style=flat-square&logoColor=white)](https://orm.drizzle.team)
+[![License](https://img.shields.io/badge/License-Proprietary-161B22?style=flat-square)](LICENSE)
+
+*Satu portal terpusat, aman, dan extensible untuk semua dataset riset PhD.*
+
+</div>
 
 ---
 
-## 1. Ringkasan Eksekutif
+## Daftar Isi
+
+- [Tentang COCKPIT](#-tentang-cockpit)
+- [Modul yang Tersedia](#-modul-yang-tersedia)
+- [Tech Stack](#-tech-stack)
+- [Arsitektur](#-arsitektur)
+- [Keamanan](#-keamanan)
+- [Struktur Folder](#-struktur-folder)
+- [Database Schema](#-database-schema)
+- [Instalasi & Setup](#-instalasi--setup)
+- [Environment Variables](#-environment-variables)
+- [Deployment ke Hostinger](#-deployment-ke-hostinger)
+- [Roadmap](#-roadmap)
+- [Changelog](#-changelog)
+- [Hak Cipta](#-hak-cipta)
+
+---
+
+## ⚡ Tentang COCKPIT
 
 **COCKPIT bukan portal data PLN Jawa Barat — itu cuma domain data pertama yang masuk.**
 
-COCKPIT adalah pusat data riset pribadi: satu tempat terpusat, aman, dan bisa terus berkembang untuk menampung seluruh dataset yang menunjang riset dan studi PhD pemilik portal ini. Domain PLN/ketenagalistrikan Jawa Barat adalah kumpulan data pertama yang dimasukkan (karena riset yang sedang berjalan sekarang di area itu), tapi arsitekturnya harus dari awal dirancang **domain-agnostic** — siap menerima dataset riset lain di masa depan yang mungkin sama sekali tidak berhubungan dengan kelistrikan (data demografi, data kesehatan, data ekonomi, hasil survei, dataset dari kolaborasi riset lain, dll), tanpa perlu bongkar ulang fondasinya.
+COCKPIT adalah **pusat data riset pribadi**: satu tempat terpusat, aman, dan extensible untuk menampung seluruh dataset yang menunjang riset dan studi PhD. Domain Energi & Ketenagalistrikan Jawa Barat adalah kumpulan data pertama karena riset yang sedang berjalan, tapi arsitekturnya dirancang **domain-agnostic** — siap menerima dataset riset lain di masa depan tanpa bongkar ulang fondasi.
 
-**Implikasi desain penting dari framing ini:**
-- Struktur "modul" TIDAK boleh di-hardcode seolah-olah semuanya soal PLN. Modul adalah unit generik: "satu dataset/topik riset = satu modul", apa pun isinya.
-- Skema database & routing harus punya pola yang gampang direplikasi ke domain baru, bukan pola yang cuma masuk akal untuk data ketenagalistrikan.
-- Karena ini menunjang PhD, pertimbangan **provenance data** (dari mana, kapan diambil, metodologi apa) jadi penting — bukan cuma soal keamanan/kecepatan, tapi juga soal kerapian riset akademik yang bisa dipertanggungjawabkan.
+### Prinsip Desain ⚡
 
-**Prinsip desain utama** (urutan prioritas kalau ada trade-off):
-1. **Keamanan** — sebagian data (pelanggan, finansial, investigatif) sensitif; sebagian lagi mungkin data riset yang belum dipublikasikan (perlu dijaga sebelum sempat publish).
-2. **Ekstensibilitas** — nambah domain riset baru harus semudah mungkin, tidak menganggu domain yang sudah ada.
-3. **Kecepatan muat (fast load)** — tiap modul harus terasa instan.
-4. **User-friendly** — dipakai sehari-hari untuk kerja riset sendiri, jangan sampai app-nya sendiri jadi hambatan.
-5. **Provenance & reprodusibilitas** — tiap dataset idealnya tercatat sumber & metodologinya, memudahkan sitasi/verifikasi saat penulisan disertasi.
+```
+1. KEAMANAN       Sebagian data bersifat sensitif — enkripsi & akses berlapis dari awal
+2. EKSTENSIBILITAS Nambah domain riset baru semudah mungkin, tidak ganggu yang sudah ada
+3. FAST LOAD      Tiap modul harus terasa instan — anggaran <300KB & <1.5s TTI
+4. PROVENANCE     Tiap dataset tercatat sumber & metodologinya untuk kebutuhan akademik
+```
+
+### Fitur Utama ✨
+
+| Kategori | Fitur |
+|----------|-------|
+| 🗂 **Multi-Domain** | Arsitektur domain-agnostic — tiap topik riset jadi satu domain mandiri |
+| 🔐 **Auth & Akses** | Bcrypt-12, session token SHA-256, CSRF, rate limiter, akses per-modul |
+| 🛡 **Enkripsi** | AES-256-GCM untuk field PII & data belum dipublikasikan |
+| 📊 **Visualisasi** | Peta choropleth Leaflet, Chart.js, tabel interaktif per modul |
+| 👤 **Admin Panel** | User management, monitor aktivitas login, security dashboard |
+| 📋 **Provenance** | Setiap dataset tercatat asal, metodologi, dan tanggal akses |
 
 ---
 
-## 2. Target Pengguna
+## 📦 Modul yang Tersedia
 
-Ini bukan aplikasi tim/organisasi — target utamanya **satu peneliti (pemilik)**, dengan kemungkinan akses terbatas untuk:
-- Pembimbing/promotor PhD (kemungkinan perlu lihat data tertentu, read-only)
-- Kolaborator riset spesifik per proyek (akses dibatasi per-domain, bukan otomatis semua data)
-- Diri sendiri di masa depan (tahun ke-2, ke-3 PhD) — jadi dokumentasi & konsistensi struktur data itu investasi jangka panjang, bukan formalitas
+### Domain: Energi & Ketenagalistrikan
 
-Implikasi: role `admin/editor/viewer` yang sudah ada di §5 tetap relevan, tapi tambahkan konsep **akses per-domain** (lihat §4) — pembimbing yang diberi akses ke domain "Energi Jabar" belum tentu otomatis bisa lihat domain riset lain yang ditambahkan belakangan.
+| Modul | Status | Deskripsi |
+|-------|--------|-----------|
+| **Bauran Energi Jawa Barat** | ✅ Aktif | Peta & data RE vs NRE, RKPD 2026, RUPTL 2025-2034, gangguan PLN |
+| **RUPTL PLN 2025-2034** | ✅ Aktif | Data 34 provinsi — penjualan, proyeksi, pembangkit, skenario RE Base & ARED |
+| **Data Induk Langganan** | ✅ Aktif | Statistik 13,9 juta pelanggan PLN UID Jabar — hanya agregasi anonim |
+| **OLAP Tagihan Listrik** | 🔜 Draft | Ringkasan tagihan bulanan per UP3 & golongan tarif |
+| **Data Pencurian** | 🔜 Draft | Temuan & dugaan pencurian tenaga listrik — akses terbatas |
 
----
+### Panel Admin (Admin Only)
 
-## 3. Tech Stack
-
-*(Tidak berubah dari versi sebelumnya — keputusan teknologi ini domain-agnostic, cocok dipakai untuk data apa pun, bukan spesifik PLN.)*
-
-| Layer | Pilihan | Kenapa |
-|---|---|---|
-| Runtime | **Node.js** (≥18 LTS) | Wajib sesuai requirement — pastikan hosting expose versi ini lewat Node.js Selector/VPS |
-| Bahasa | **TypeScript** (strict mode) | Type-safety mencegah banyak bug sebelum runtime, terutama di layer yang sentuh data sensitif |
-| Web framework | **Hono** | Jauh lebih ringan dari Express/NestJS, native TypeScript, cold-start cepat |
-| Database | **MySQL** (5.7+/8.0) | Sesuai yang sudah ada di hosting |
-| ORM | **Drizzle ORM** | Pure TypeScript, query ter-parameterisasi otomatis (proteksi SQL injection bawaan) |
-| DB driver | **mysql2** | Driver paling stabil di ekosistem Node untuk MySQL |
-| Hash password | **Argon2id** (`argon2` package) | Rekomendasi OWASP #1 untuk implementasi baru |
-| Sesi | Token random 256-bit, **di-hash SHA-256** sebelum disimpan ke DB | Kebocoran database ≠ otomatis kebocoran sesi aktif |
-| Enkripsi field | **AES-256-GCM** (built-in Node `crypto`) | Untuk field sensitif di domain manapun yang butuh (PII, data belum publikasi, dll) |
-| Frontend | **HTML + vanilla JS per halaman** (bukan SPA) | Tiap modul cuma load yang dia butuh — kunci "fast load" |
-| Styling | CSS custom properties, tanpa framework berat | Konsisten & ringan |
-| Charts | **Chart.js** | Ringan, cukup untuk kebutuhan dashboard riset |
+| Modul | Deskripsi |
+|-------|-----------|
+| **User Management** | Buat user, atur role, set akses per-modul, reset password |
+| **Monitor Aktivitas** | Log login real-time, sesi aktif, filter berhasil/gagal |
+| **Security Dashboard** | Threat level, top IP gagal, status enkripsi & HTTP headers |
 
 ---
 
-## 4. Arsitektur Domain & Modul (Generik, Bukan Spesifik PLN)
+## 🛠 Tech Stack
 
-Ini bagian yang paling berubah dari versi 1.0. Sebelumnya modul dianggap = "bagian dari data PLN". Sekarang:
-
-### 4.1 Konsep "Domain Riset"
-Satu **domain** = satu topik riset atau satu sumber data besar yang berdiri sendiri. PLN/Energi Jabar adalah SATU domain, bukan keseluruhan sistem.
+### Core
 
 ```
-domains
-  id                  INT PK AUTO_INCREMENT
-  slug                VARCHAR(50) UNIQUE NOT NULL   -- contoh: "energi-jabar", "riset-lain-x"
-  nama                VARCHAR(150) NOT NULL
-  deskripsi           TEXT
-  is_active           BOOLEAN DEFAULT true
-  created_at          TIMESTAMP DEFAULT NOW()
+Runtime      Node.js ≥18 LTS                 Wajib sesuai requirement hosting
+Bahasa       TypeScript 5.x (strict mode)    Type-safety mencegah bug di layer data sensitif
+Framework    Hono 4.x                        Ringan, native TypeScript, cold-start cepat
+Database     MySQL 8.x                       Sesuai yang sudah ada di hosting
+ORM          Drizzle ORM 0.45                Pure TypeScript, query ter-parameterisasi otomatis
+Frontend     HTML + Vanilla JS per halaman   Tiap modul hanya load yang dibutuhkan
+Charts       Chart.js 4.x + Leaflet 1.9     Visualisasi data & peta choropleth
 ```
 
-Tiap domain berisi satu atau lebih **modul** (dataset/tampilan spesifik dalam domain itu):
+### Security
 
 ```
-domain_modules
-  id                  INT PK AUTO_INCREMENT
-  domain_id           INT NOT NULL REFERENCES domains(id)
-  slug                VARCHAR(50) NOT NULL          -- contoh: "mdp", "pelanggan", "ruptl"
-  nama                VARCHAR(150) NOT NULL
-  route_path          VARCHAR(100) NOT NULL         -- contoh: "/modules/energi-jabar/mdp/"
-  sensitivitas        ENUM('publik','internal','sensitif') DEFAULT 'internal'
-  status              ENUM('aktif','draft','arsip') DEFAULT 'draft'
-  created_at          TIMESTAMP DEFAULT NOW()
-  UNIQUE KEY (domain_id, slug)
-```
-
-### 4.2 Akses per-domain (bukan cuma role global)
-```
-user_domain_access
-  user_id             INT NOT NULL REFERENCES users(id)
-  domain_id           INT NOT NULL REFERENCES domains(id)
-  access_level        ENUM('read','write','admin') NOT NULL
-  granted_at          TIMESTAMP DEFAULT NOW()
-  granted_by          INT REFERENCES users(id)
-  PRIMARY KEY (user_id, domain_id)
-```
-Ini yang memungkinkan nanti kasih pembimbing akses "read" ke domain Energi Jabar saja, tanpa otomatis bisa lihat domain riset lain yang sifatnya belum siap dipublikasikan/dibagikan.
-
-### 4.3 Provenance dataset (penting untuk kerja PhD)
-Setiap dataset yang masuk ke suatu modul sebaiknya tercatat asal-usulnya — ini yang nanti memudahkan penulisan bab metodologi disertasi, dan memudahkan diri sendiri kalau lupa "data ini dari mana ya" enam bulan kemudian.
-
-```
-dataset_sources
-  id                  INT PK AUTO_INCREMENT
-  domain_module_id    INT NOT NULL REFERENCES domain_modules(id)
-  nama_sumber         VARCHAR(255) NOT NULL         -- contoh: "RUPTL PLN 2025-2034"
-  jenis_sumber        VARCHAR(100)                  -- "dokumen resmi", "open data", "hasil kompilasi", dll
-  url_atau_referensi  TEXT
-  tanggal_akses       DATE
-  catatan_metodologi  TEXT                          -- cara ekstraksi/transformasi, asumsi yang dipakai
-  created_at          TIMESTAMP DEFAULT NOW()
-```
-
-### 4.4 Struktur folder mengikuti pola domain
-```
-public/modules/
-  energi-jabar/           <- domain PLN/energi (yang sudah dibangun)
-    mdp/index.html
-    pelanggan/index.html  (nanti)
-    ruptl/index.html      (nanti)
-  [domain-riset-lain]/    <- domain baru di masa depan, pola sama persis
-    [modul]/index.html
-
-src/routes/
-  energi-jabar/
-    mdp.ts
-    pelanggan.ts
-  [domain-riset-lain]/
-    [modul].ts
-```
-
-**Aturan menambah domain baru:** copy pola folder yang sudah ada, jangan desain ulang dari nol tiap kali. Kalau pola ini mulai terasa tidak cukup fleksibel untuk domain baru, itu sinyal untuk revisi §4 dulu — bukan langsung improvisasi kode.
-
----
-
-### 4.5 Visi Jangka Panjang: COCKPIT sebagai AI Agent
-
-Ke depan, setelah data dari berbagai domain riset terkumpul cukup banyak, COCKPIT diarahkan berkembang jadi **AI Agent** — bisa dipanggil kapan pun, di mana pun, dari perangkat apa pun, bukan cuma dibuka lewat browser di komputer.
-
-**Yang TIDAK perlu dilakukan sekarang:** membangun agent-nya. Ini murni prinsip desain supaya jalan ke sana nanti tidak butuh bongkar ulang fondasi — fokus saat ini tetap di §4.1-4.4 (struktur domain), keamanan (§5), dan provenance data (§12), karena AI agent yang bagus itu cuma sebaik data & API yang dia panggil.
-
-**Keputusan arsitektural yang perlu dijaga MULAI SEKARANG:**
-
-- **API harus benar-benar berdiri sendiri dari frontend.** Pola yang sudah dipakai (Hono API + halaman HTML statis terpisah) itu sudah pas — pertahankan disiplin ini. Jangan taruh logic penting di frontend JS yang harusnya ada di API, karena nanti "client" dari API ini bukan cuma browser, tapi bisa AI agent, aplikasi mobile, atau integrasi lain yang belum kebayang sekarang.
-- **Autentikasi perlu jalur kedua di luar session cookie**, disiapkan nanti (bukan sekarang): cookie httpOnly cocok untuk browser, tapi AI agent/aplikasi lain butuh cara akses yang tidak bergantung ke cookie (API key atau token per-aplikasi/per-agent). Desain tabel `users`/sesi sekarang jangan sampai diam-diam mengasumsikan "satu-satunya cara login = form HTML" — cukup dijaga saja, belum perlu dibangun.
-- **Provenance (§4.3, §12) jadi makin krusial.** Kalau nanti AI agent menjawab pertanyaan berbasis data ini, dia butuh tahu dan bisa menyebutkan dari mana angka itu berasal — supaya jawabannya bisa dipertanggungjawabkan, bukan cuma "angka ajaib" tanpa sumber.
-- **Pertimbangkan protokol standar untuk AI agent** saat waktunya tiba, seperti **MCP (Model Context Protocol)** — COCKPIT bisa suatu saat expose dirinya sebagai MCP server, supaya asisten AI (termasuk Claude) bisa langsung "connect" dan query data COCKPIT sebagai tool, tanpa integrasi custom tiap kali.
-- **Kontrol akses untuk agent perlu lebih ketat daripada akses manusia, secara default.** Agent yang bisa dipanggil "kapan pun, di mana pun" berarti permukaan aksesnya lebih luas. Domain/modul sensitif (§4.2) sebaiknya default TIDAK bisa diakses agent kecuali diberi izin eksplisit — beda perlakuan dari akses manusia yang sudah melalui login browser biasa.
-
----
-
-## 5. Arsitektur Keamanan (Tidak berubah — tetap prioritas tertinggi)
-
-### 5.1 Password
-- Hash pakai **Argon2id**: `memoryCost: 19456` (~19MB), `timeCost: 2`, `parallelism: 1`.
-- Validasi kekuatan minimum: ≥12 karakter, kombinasi huruf besar+kecil+angka.
-
-### 5.2 Sesi Login
-- Token 32 byte random → cookie httpOnly+secure+sameSite=lax.
-- Yang disimpan di DB adalah **SHA-256 hash dari token**, bukan token asli — kebocoran database tidak otomatis = kebocoran sesi aktif.
-- Durasi via `SESSION_DURATION_HOURS` (default 12 jam).
-
-### 5.3 Proteksi Brute-Force
-- Lockout setelah `MAX_LOGIN_ATTEMPTS` (default 5), durasi `LOCKOUT_DURATION_MINUTES` (default 15), disimpan di DB (bukan in-memory).
-- Response "user tidak ada" vs "password salah" harus identik (mencegah timing/enumeration attack).
-
-### 5.4 CSRF Protection
-- Pola double-submit cookie, wajib di semua endpoint yang mengubah state.
-
-### 5.5 Enkripsi Data Sensitif
-- AES-256-GCM untuk field PII atau data riset yang belum siap dipublikasikan.
-- `FIELD_ENCRYPTION_KEY` disimpan terpisah dari database.
-
-### 5.6 Role & Akses
-- Role global: `admin`, `editor`, `viewer` (tabel `users`).
-- **Ditambah** akses per-domain lewat `user_domain_access` (§4.2) — role global menentukan bisa apa secara umum, akses per-domain menentukan boleh lihat domain mana saja.
-
-### 5.7 Header, Transport, Audit
-- Security headers wajib (CSP, X-Frame-Options, HSTS, dll).
-- HTTPS wajib di production; `COOKIE_SECURE=true` hanya kalau sudah HTTPS.
-- `login_audit` mencatat semua percobaan login (sukses/gagal, IP, waktu, alasan).
-
----
-
-## 6. Skema Database — Ringkasan Lengkap
-
-```
--- Inti sistem (semua domain)
-users, sessions, login_audit          -- lihat detail struktur di README v1.0 / kode aktual
-domains, domain_modules               -- §4.1
-user_domain_access                    -- §4.2
-dataset_sources                       -- §4.3
-
--- Domain "energi-jabar" (domain pertama)
-  Modul MDP: sudah aktif, data di-embed langsung di HTML (belum dipindah ke tabel — lihat §11 fase 2)
-  Modul Pelanggan (rencana):
-    pelanggan (id_pelanggan, nama_terenkripsi, alamat_terenkripsi, nik_terenkripsi, up3, ulp, daya_tersambung_va, golongan_tarif, status)
-  Modul OLAP Tagihan (rencana):
-    tagihan_ringkasan_bulanan (up3, bulan, golongan_tarif, total_pelanggan, total_tagihan_rp, total_tunggakan_rp, refreshed_at)
-    -- WAJIB tabel ringkasan hasil cron job, JANGAN query live ke data transaksi mentah
-  Modul Pencurian (rencana):
-    temuan_pencurian (id_pelanggan, up3, tanggal_temuan, jenis_pelanggaran, status_kasus, catatan_terenkripsi, created_by)
-  Modul RUPTL (rencana): data referensi RUPTL PLN 2025-2034, sebagian besar publik
-
--- Domain riset lain (masa depan)
-  Struktur tabel didesain saat domain itu mulai dibangun, ikuti pola §4.4
+Password     bcryptjs · 12 salt rounds       OWASP-compliant, pure JS (no native binary)
+Session      32-byte CSPRNG → SHA-256 hash   Kebocoran DB ≠ kebocoran sesi aktif
+Enkripsi     AES-256-GCM (Node built-in)     IV acak per enkripsi, untuk field PII
+CSRF         Double-submit cookie pattern    Token 10 menit, wajib semua state-mutating request
+Rate Limit   DB-based lockout                Max 3 percobaan → kunci 15 menit
+Headers      CSP, X-Frame-Options, HSTS      Diapply global via middleware
 ```
 
 ---
 
-## 7. Struktur Folder Lengkap
+## 🏗 Arsitektur
+
+### Layer Architecture
+
+```
+┌────────────────────────────────────────────────────────┐
+│                 🌐 Browser (HTML + Vanilla JS)         │
+│        Fetch API → /api/* (same-origin, httpOnly)      │
+└──────────────────────────┬─────────────────────────────┘
+                           │  HTTPS
+┌──────────────────────────▼─────────────────────────────┐
+│              ⚡ Hono Server (Node.js)                   │
+│   securityHeaders → requireAuth → requireRole          │
+│   /api/auth · /api/domains · /api/admin · /api/mdp    │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+┌──────────────────────────▼─────────────────────────────┐
+│              🗃 Drizzle ORM + MySQL                     │
+│   users · sessions · login_audit                       │
+│   domains · domain_modules · user_domain_access       │
+│   user_module_access · dataset_sources · ruptl_*      │
+└────────────────────────────────────────────────────────┘
+```
+
+### Konsep Domain & Modul
+
+```
+COCKPIT
+├── Domain: energi-jabar          ← domain pertama (aktif)
+│   ├── Modul: mdp                   /modules/energi-jabar/mdp/
+│   ├── Modul: ruptl                 /modules/energi-jabar/ruptl/
+│   └── Modul: pelanggan             /modules/energi-jabar/pelanggan/
+├── Domain: [riset-lain]          ← domain riset berikutnya (pola sama)
+│   └── Modul: [dataset]             /modules/[riset-lain]/[dataset]/
+└── Admin: user, aktivitas, keamanan  /admin/*/
+```
+
+**Aturan:** `satu dataset/topik riset = satu modul`. Tambah domain baru = copy pola folder, tidak perlu desain ulang.
+
+---
+
+## 🔐 Keamanan
+
+```
+Lapisan      Implementasi                    Keterangan
+─────────────────────────────────────────────────────────────────
+Password     bcrypt · 12 rounds              Min 12 karakter, huruf besar+kecil+angka
+Session      SHA-256(random token) di DB     httpOnly · Secure · SameSite=Lax
+CSRF         Double-submit cookie            Cek di semua POST/PATCH/DELETE
+Rate Limit   DB lockout (bukan in-memory)    Tahan restart — MAX_LOGIN_ATTEMPTS konfigurabel
+Enkripsi     AES-256-GCM per field           IV unik tiap enkripsi, key terpisah dari DB
+Headers      CSP · X-Frame-Options · HSTS   Di-set global sebelum semua response
+Audit        login_audit table               Rekam semua login sukses/gagal + IP + alasan
+Sesi         SESSION_DURATION_HOURS          Default 12 jam, configurable
+```
+
+**Akses berlapis:**
+- Role global: `admin` · `editor` · `viewer`
+- Akses per-domain: `user_domain_access` — bisa beri pembimbing akses ke 1 domain saja
+- Akses per-modul: `user_module_access` — granular hingga level modul spesifik
+
+---
+
+## 📁 Struktur Folder
 
 ```
 cockpit/
 ├── src/
+│   ├── auth/
+│   │   ├── csrf.ts               CSRF token — double-submit cookie
+│   │   ├── fieldEncryption.ts    AES-256-GCM untuk field PII
+│   │   ├── password.ts           bcrypt hash & validasi kekuatan
+│   │   ├── rateLimiter.ts        DB-based lockout & audit log
+│   │   └── session.ts            Buat / validasi / hapus sesi
 │   ├── db/
-│   │   ├── schema.ts              # tabel inti + re-export schema per domain
-│   │   ├── schemas/
-│   │   │   └── energi-jabar.ts    # tabel spesifik domain ini, terpisah dari inti
-│   │   ├── client.ts
-│   │   └── migrate.ts
-│   ├── auth/                      # password.ts, session.ts, rateLimiter.ts, csrf.ts, fieldEncryption.ts
+│   │   ├── client.ts             Drizzle + mysql2 connection
+│   │   ├── migrate.ts            Runner migrasi
+│   │   └── schema.ts             Semua definisi tabel
 │   ├── middleware/
-│   │   └── auth.ts                # requireAuth, requireRole, requireDomainAccess (baru), security headers
+│   │   └── auth.ts               requireAuth, requireRole, requireDomainAccess
 │   ├── routes/
-│   │   ├── auth.ts
-│   │   ├── domains.ts             # baru: daftar domain & modul yang bisa diakses user ybs
-│   │   └── energi-jabar/
-│   │       ├── mdp.ts
-│   │       └── ...
+│   │   ├── admin.ts              /api/admin/* (users, audit, sessions, security)
+│   │   ├── auth.ts               /api/auth/* (login, logout, me, csrf-token)
+│   │   ├── domains.ts            /api/domains (daftar domain + modul per user)
+│   │   ├── mdp.ts                /api/mdp/*
+│   │   └── ruptl.ts              /api/ruptl/*
 │   ├── scripts/
-│   │   └── createAdmin.ts
-│   └── index.ts
+│   │   └── createAdmin.ts        Script buat akun admin pertama
+│   └── index.ts                  Entry point Hono + static serve
 ├── public/
-│   ├── index.html                 # login
-│   ├── menu.html                  # sekarang: daftar DOMAIN dulu, baru modul di dalamnya
+│   ├── index.html                Halaman login
+│   ├── menu.html                 Dashboard utama — domain & modul
+│   ├── admin/
+│   │   ├── users/index.html      User management
+│   │   ├── aktivitas/index.html  Monitor aktivitas & log
+│   │   └── keamanan/index.html   Security dashboard
 │   └── modules/
 │       └── energi-jabar/
-│           └── mdp/index.html
-├── .env.example
+│           ├── mdp/index.html
+│           ├── ruptl/index.html
+│           └── pelanggan/index.html
+├── drizzle/
+│   └── FULL_SETUP.sql            Satu-satunya file SQL — schema + semua seed data
+├── dist/                         Output TypeScript build (di-generate, jangan edit)
+├── .env                          Kredensial lokal (jangan di-commit)
+├── .env.example                  Template environment variables
 ├── drizzle.config.ts
 ├── package.json
-├── tsconfig.json
-└── README.md
-```
-
-**Perubahan dari v1.0:** `menu.html` sekarang perlu dua tingkat — pilih domain dulu (kalau user akses ke >1 domain), baru pilih modul di dalam domain itu. Untuk sekarang (baru ada 1 domain aktif), boleh langsung tampilkan modul-modul domain "energi-jabar" tanpa halaman pemilihan domain — tapi jangan hardcode asumsi "cuma akan selalu ada 1 domain" di kode navigasinya.
-
----
-
-## 8. Environment Variables
-
-*(Tidak berubah dari v1.0)*
-
-```
-DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, DB_SSL
-SESSION_SECRET, FIELD_ENCRYPTION_KEY
-NODE_ENV, PORT, COOKIE_SECURE, COOKIE_DOMAIN
-SESSION_DURATION_HOURS, MAX_LOGIN_ATTEMPTS, LOCKOUT_DURATION_MINUTES
+├── server.js                     Entry point Hostinger (load dist/index.js)
+└── tsconfig.json
 ```
 
 ---
 
-## 9. Frontend Guidelines — Smooth, User-Friendly, Fast Load
+## 🗄 Database Schema
 
-*(Prinsip tidak berubah dari v1.0, berlaku untuk domain manapun)*
+### Tabel Inti
 
-- Anggaran performa: **<300KB** per halaman modul, **<1.5 detik** time-to-interactive di 4G biasa.
-- Feedback instan di setiap aksi (tombol disable + ubah teks saat proses).
-- Pesan error dalam Bahasa Indonesia yang jelas, bukan pesan teknis mentah.
-- Semua modul baru wajib pakai `public/assets/style.css` yang sama — supaya terasa satu produk walau domainnya beda-beda.
-- **Tambahan untuk multi-domain:** halaman menu perlu bisa nampilin banyak domain tanpa terasa berantakan — pertimbangkan pengelompokan visual per-domain (bukan cuma grid modul rata semua) begitu domain kedua mulai dibangun.
+```sql
+users               -- Auth: username, passwordHash, role, isActive, failedLoginCount
+sessions            -- SHA-256 token, userId, ipAddress, expiresAt
+login_audit         -- Semua percobaan login (sukses/gagal), IP, alasan
 
----
+domains             -- Daftar domain riset (slug, nama, isActive)
+domain_modules      -- Modul per domain (slug, nama, routePath, status, sensitivitas)
+user_domain_access  -- Akses per domain per user (accessLevel: read/write/admin)
+user_module_access  -- Akses granular per modul per user
+dataset_sources     -- Provenance: sumber & metodologi tiap dataset
 
-## 10. Known Deployment Pitfalls
+ruptl_provinsi      -- 34 provinsi RUPTL PLN 2025-2034
+ruptl_penjualan_historis   -- Historis penjualan per sektor 2015-2024
+ruptl_proyeksi_kebutuhan   -- Proyeksi demand 2025-2034
+ruptl_pembangkit_eksisting -- Pembangkit terpasang per provinsi
+ruptl_rencana_pembangkit   -- Pipeline RE Base & ARED
+ruptl_rencana_transmisi    -- Rencana transmisi per tahun
+ruptl_rencana_gardu_induk  -- Rencana gardu induk per tahun
+```
 
-*(Tidak berubah dari v1.0 — ini murni soal infrastruktur Node.js/MySQL, domain-agnostic)*
-
-Ringkasan (detail lengkap ada di riwayat dokumen/kode):
-1. Native binding `argon2` gagal install di shared hosting → fallback `@node-rs/argon2` atau `bcryptjs`
-2. ESM vs CommonJS di Node.js Selector cPanel → pastikan startup file arahkan ke `dist/index.js` hasil build
-3. Port hardcode vs `process.env.PORT`
-4. `.env` tidak ikut ter-upload (karena `.gitignore`) → buat manual di server
-5. MySQL butuh SSL tapi `DB_SSL` belum di-set
-6. Proses mati setelah sesi terminal ditutup → pakai PM2 atau Application Manager hosting
-
-*(Update bagian ini tiap kali nemu error deploy baru — termasuk nanti kalau error spesifik ke domain riset baru.)*
-
----
-
-## 11. Roadmap
-
-| Fase | Cakupan |
-|---|---|
-| **Fase 1** (selesai) | Sistem auth lengkap + modul MDP di domain Energi Jabar |
-| **Fase 2** | Migrasi data MDP dari hardcoded HTML ke tabel database + implementasi struktur `domains`/`domain_modules`/`user_domain_access` (§4) — **lakukan ini sebelum nambah domain riset baru**, supaya domain kedua tidak mewarisi pola lama yang belum generik |
-| **Fase 3** | Modul RUPTL (masih domain Energi Jabar, data publik — risiko rendah untuk validasi pola) |
-| **Fase 4** | Modul Data Induk Langganan (skema enkripsi PII final dulu sebelum coding) |
-| **Fase 5** | Modul OLAP Tagihan (strategi tabel ringkasan + cron refresh) |
-| **Fase 6** | Modul Pencurian Tenaga Listrik |
-| **Fase 7+** | Domain riset baru di luar PLN/energi — pakai pola §4.4, evaluasi apakah §4 masih cukup fleksibel atau perlu direvisi |
-| **Fase 8+** | Eksplorasi COCKPIT sebagai AI Agent (§4.5) — token/API key untuk akses non-browser, eksplorasi MCP server, kontrol akses khusus agent. Baru relevan setelah data dari beberapa domain riset benar-benar terkumpul, jangan diburu-buru sebelum fondasinya (Fase 1-7) solid |
+**Fresh install:** jalankan `FULL_SETUP.sql` — sudah berisi schema + data B1, B2, B3, B4.
 
 ---
 
-## 12. Provenance & Reprodusibilitas (untuk kebutuhan PhD)
+## 🚀 Instalasi & Setup
 
-Karena portal ini menunjang riset akademik, beberapa kebiasaan yang sebaiknya dipegang sejak dini:
+```bash
+# 1. Clone
+git clone https://github.com/dinoarla/cockpit.git
+cd cockpit
 
-- **Isi `dataset_sources` (§4.3) setiap kali menambah dataset baru** — walau terasa formalitas sekarang, ini akan sangat menghemat waktu saat menulis metodologi disertasi atau ketika reviewer/promotor tanya "data ini dari mana".
-- **Jangan overwrite dataset lama tanpa versioning.** Kalau suatu dataset direvisi (misal angka RUPTL ternyata perlu dikoreksi), pertimbangkan simpan versi lama juga (kolom `version` atau tabel `_history`) — riset butuh audit trail, bukan cuma "angka terbaru".
-- **Pisahkan data mentah dari data olahan.** Kalau suatu modul menampilkan hasil agregasi/perhitungan (seperti proporsi/estimasi yang sudah dilakukan di modul MDP), field asumsi & metodologinya harus tetap tercatat di `dataset_sources.catatan_metodologi`, bukan cuma hidup di kepala sendiri.
+# 2. Install dependencies
+npm install
+
+# 3. Setup environment variables
+cp .env.example .env
+# ← isi kredensial DB, session secret, encryption key
+
+# 4. Import database (di server atau lokal)
+mysql -u USER -p DB_NAME < drizzle/FULL_SETUP.sql
+
+# 5. Buat akun admin pertama
+npm run create-admin
+
+# 6. Build TypeScript
+npm run build
+
+# 7. Jalankan
+npm start          # production
+npm run dev        # development (tsx watch)
+```
 
 ---
 
-## 13. Kepemilikan & Hak Cipta
+## ⚙️ Environment Variables
+
+```bash
+# ── Database MySQL ───────────────────────────────────────────
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=username
+DB_PASSWORD=password
+DB_NAME=database_name
+DB_SSL=false               # set true jika hosting butuh SSL
+
+# ── Session & Enkripsi ───────────────────────────────────────
+SESSION_SECRET=            # generate: openssl rand -hex 32
+FIELD_ENCRYPTION_KEY=      # generate: openssl rand -hex 32
+
+# ── Cookie ───────────────────────────────────────────────────
+COOKIE_SECURE=false        # set true di production (HTTPS)
+# COOKIE_DOMAIN=           # opsional, isi domain jika perlu
+
+# ── Server ───────────────────────────────────────────────────
+PORT=3000
+NODE_ENV=production
+
+# ── Session & Rate Limiting ──────────────────────────────────
+SESSION_DURATION_HOURS=12
+MAX_LOGIN_ATTEMPTS=3
+LOCKOUT_DURATION_MINUTES=15
+```
+
+---
+
+## 🖥 Deployment ke Hostinger
+
+### Prasyarat
+
+```bash
+node --version   # v18+
+npm --version    # v9+
+# Akses SSH ke server Hostinger
+# MySQL database sudah dibuat via hPanel
+```
+
+### Deploy
+
+```bash
+# 1. SSH ke server
+ssh user@server
+
+# 2. Clone / pull kode
+git clone https://github.com/dinoarla/cockpit.git
+cd cockpit
+
+# 3. Install & build
+npm install
+npm run build
+
+# 4. Setup .env di server (tidak ikut git)
+nano .env
+# ← isi dengan kredensial production
+
+# 5. Import database
+mysql -u USER -p DB_NAME < drizzle/FULL_SETUP.sql
+
+# 6. Buat admin
+npm run create-admin
+
+# 7. Jalankan via PM2 atau Application Manager hosting
+pm2 start server.js --name cockpit
+pm2 save
+pm2 startup
+```
+
+### Update Deploy
+
+```bash
+git pull origin main
+npm install
+npm run build
+pm2 reload cockpit   # zero-downtime reload
+```
+
+### Catatan Hostinger
+
+```
+⚠ argon2 native binary gagal di shared hosting → sudah diganti bcryptjs (pure JS)
+⚠ Entry point harus ke server.js (bukan src/index.ts)
+⚠ .env TIDAK ter-upload via git — buat manual di server setiap kali fresh deploy
+⚠ Pastikan Node.js Selector di hPanel diset ke versi 18+
+```
+
+---
+
+## 📋 Roadmap
+
+| Fase | Status | Cakupan |
+|------|--------|---------|
+| **Fase 1** | ✅ Selesai | Auth lengkap, modul MDP & RUPTL domain Energi Jabar |
+| **Fase 2** | ✅ Selesai | Arsitektur domain generik, modul Pelanggan (statistik DIL), admin panel |
+| **Fase 3** | 🔜 Planned | Modul OLAP Tagihan — strategi tabel ringkasan + cron refresh |
+| **Fase 4** | 🔜 Planned | Modul Pencurian Tenaga Listrik — enkripsi PII final |
+| **Fase 5** | 🔜 Planned | Ekspansi RUPTL — data lengkap 34 provinsi (Lampiran A & C) |
+| **Fase 6+** | 💡 Vision | Domain riset baru di luar PLN/energi — pakai pola domain generik |
+| **Fase 7+** | 💡 Vision | COCKPIT sebagai AI Agent — API key, MCP server, non-browser auth |
+
+---
+
+## 📋 Changelog
+
+### v0.1.0 — Juli 2026
+
+- ⚡ Initial release **COCKPIT** — Pusat Data Pribadi Dino Arla
+- ✅ Auth: bcrypt-12, session SHA-256, CSRF, rate limiter, login audit
+- ✅ Arsitektur multi-domain: `domains`, `domain_modules`, `user_domain_access`, `user_module_access`
+- ✅ Domain Energi & Ketenagalistrikan:
+  - Modul Bauran Energi Jawa Barat — peta choropleth, RE/NRE, RKPD, RUPTL, gangguan PLN
+  - Modul RUPTL PLN 2025-2034 — 34 provinsi, RE Base & ARED (B1/B2/B3/B4 lengkap)
+  - Modul Data Induk Langganan — statistik 13,9 juta pelanggan PLN UID Jabar
+- ✅ Admin Panel: user management, monitor aktivitas, security dashboard
+- ✅ Enkripsi field sensitif AES-256-GCM
+- ✅ Security headers: CSP, X-Frame-Options, HSTS, Permissions-Policy
+- ✅ Single SQL file deployment: `drizzle/FULL_SETUP.sql`
+
+---
+
+## 🔒 Hak Cipta
 
 **© 2026 Dino Arla. Hak cipta dilindungi.**
 
-COCKPIT — Pusat Data Riset Pribadi, beserta seluruh kode sumber, skema database, dokumen ini, dan dataset yang dikumpulkan di dalamnya, adalah milik pribadi **Dino Arla** untuk keperluan riset dan studi PhD.
+COCKPIT — Pusat Data Riset Pribadi, beserta seluruh kode sumber, skema database, dan dataset yang dikumpulkan di dalamnya, adalah milik pribadi **Dino Arla** untuk keperluan riset dan studi PhD.
 
-- Sebagian dataset (mis. RKPD, RUPTL, data Open Data Jabar) bersumber dari dokumen/data publik dan tetap tunduk pada lisensi/ketentuan sumber aslinya masing-masing — kepemilikan COCKPIT atas dataset tersebut terbatas pada bentuk kompilasi, pengolahan, dan penyajiannya, bukan atas data mentah itu sendiri.
-- Data yang bersifat internal/sensitif (pelanggan, tagihan, temuan investigasi) tidak untuk didistribusikan, dipublikasikan, atau dibagikan ke pihak ketiga tanpa izin tertulis dari pemilik.
-- Akses oleh pembimbing/kolaborator (§2, §4.2) diberikan terbatas untuk keperluan riset yang disepakati, bukan hak kepemilikan atas sistem atau datanya.
-
-Untuk pertanyaan perizinan atau kolaborasi, hubungi langsung pemilik.
+- Dataset yang bersumber dari dokumen publik (RKPD, RUPTL, Open Data Jabar) tetap tunduk pada lisensi sumber aslinya — kepemilikan COCKPIT terbatas pada bentuk kompilasi, pengolahan, dan penyajiannya.
+- Data internal/sensitif (pelanggan PLN, tagihan, temuan investigasi) tidak untuk didistribusikan atau dibagikan tanpa izin tertulis.
+- Akses oleh pembimbing/kolaborator PhD diberikan terbatas untuk keperluan riset yang disepakati.
 
 ---
 
-## 14. Versioning Dokumen
+<div align="center">
 
-| Versi | Tanggal | Perubahan |
-|---|---|---|
-| 1.0 | 2026-07-04 | Dokumen awal — framing sebagai portal data PLN Jawa Barat |
-| 2.0 | 2026-07-04 | **Reframing besar:** COCKPIT adalah pusat data riset pribadi untuk PhD, PLN/Energi Jabar cuma domain pertama. Tambah §4 (arsitektur domain generik), §12 (provenance riset). Update §2, §6, §7, §11 menyesuaikan. |
-| 2.1 | 2026-07-04 | Tambah §13 Kepemilikan & Hak Cipta — © Dino Arla |
-| 2.2 | 2026-07-04 | Tambah §4.5 Visi Jangka Panjang: COCKPIT sebagai AI Agent — prinsip desain API-first, autentikasi non-browser, MCP, kontrol akses agent. Update roadmap Fase 8+. |
-| 2.3 | 2026-07-04 | **Rename proyek:** TERANG → COCKPIT, domain terang.dinoarla.com → cockpit.dinoarla.com. Tidak ada perubahan arsitektur/requirement, murni penggantian nama (termasuk retroaktif di riwayat versi sebelumnya, demi konsistensi dokumen). |
+⚡ ⚡ ⚡
 
-Setiap perubahan requirement signifikan, tambahkan baris baru di tabel ini — jangan timpa versi lama tanpa jejak, ini juga bagian dari provenance (§12).
+**COCKPIT** — dibangun untuk mendukung riset PhD Dino Arla
+
+[Laporkan Bug](../../issues) · [PRD Lengkap](README.md) · [cockpit.dinoarla.com](https://cockpit.dinoarla.com)
+
+*"Satu portal untuk semua data riset — aman, cepat, dan siap berkembang."*
+
+</div>
