@@ -233,10 +233,12 @@
 
   /* ── FOOTER ── */
   .footer{
+    position:fixed;bottom:0;left:0;right:0;z-index:90;
     background:var(--navy);border-top:1px solid rgba(255,255,255,.06);
-    padding:14px 28px;display:flex;align-items:center;justify-content:space-between;
+    padding:10px 28px;display:flex;align-items:center;justify-content:space-between;
     flex-wrap:wrap;gap:10px;
   }
+  .main{padding-bottom:56px;}
   .footer-copy{
     font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:600;
     color:rgba(230,237,243,.5);letter-spacing:.01em;
@@ -669,33 +671,27 @@ async function loadFooterStats() {
     const t1 = performance.now();
     const data = await res.json();
     const ms = Math.round(t1 - t0);
-    const serverDt = new Date(data.ts);
-    const fmt = new Intl.DateTimeFormat('id-ID', {
+
+    const dtFmt = new Intl.DateTimeFormat('id-ID', {
       timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short',
       year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit',
     });
-    document.getElementById('footer-servertime').textContent = fmt.format(serverDt) + ' WIB';
+    const dateFmt = new Intl.DateTimeFormat('id-ID', {
+      timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', year: 'numeric',
+    });
+
+    document.getElementById('footer-servertime').textContent = dtFmt.format(new Date(data.ts)) + ' WIB';
     document.getElementById('footer-response').textContent   = ms + ' ms';
+    document.getElementById('footer-lastupdate').textContent =
+      data.lastUpdate ? dateFmt.format(new Date(data.lastUpdate)) : '—';
   } catch(e) {
     document.getElementById('footer-servertime').textContent = '—';
     document.getElementById('footer-response').textContent   = '—';
-  }
-}
-
-async function loadLastUpdate() {
-  try {
-    const now = new Date();
-    const fmt = new Intl.DateTimeFormat('id-ID', {
-      timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', year: 'numeric',
-    });
-    document.getElementById('footer-lastupdate').textContent = fmt.format(now);
-  } catch(e) {
     document.getElementById('footer-lastupdate').textContent = '—';
   }
 }
 
 loadFooterStats();
-loadLastUpdate();
 
 // Admin panel collapse
 const adminCollapseKey = 'cockpit_domain_admin';
