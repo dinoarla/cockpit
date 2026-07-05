@@ -220,14 +220,14 @@ SELECT id, 'der-storage',       'Energi Terdistribusi & Storage',               
 -- Section 02: Transmisi
 SELECT id, 'sistem-transmisi',  'Topologi & Keandalan Sistem Transmisi',          '/modules/energi-jabar/sistem-transmisi/',  'internal', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'rencana-transmisi', 'Rencana Pengembangan & Investasi Transmisi',     '/modules/energi-jabar/rencana-transmisi/', 'internal', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
-SELECT id, 'proteksi-transmisi','Studi Proteksi Sistem Transmisi',                '/modules/energi-jabar/proteksi-transmisi/','internal', 'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'proteksi-transmisi','Studi Proteksi Sistem Transmisi',                '/modules/energi-jabar/proteksi-transmisi/','internal', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 -- Section 03: Distribusi Tenaga Listrik
-SELECT id, 'infrastruktur-distribusi','Infrastruktur & Modernisasi Jaringan Distribusi','/modules/energi-jabar/infrastruktur-distribusi/','internal','aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
-SELECT id, 'keandalan-layanan', 'Keandalan & Kualitas Layanan',                   '/modules/energi-jabar/keandalan-layanan/', 'internal', 'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
-SELECT id, 'ekonomi-niaga',     'Ekonomi Niaga & Pelanggan',                      '/modules/energi-jabar/ekonomi-niaga/',     'sensitif', 'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'infrastruktur-distribusi','Infrastruktur & Modernisasi Jaringan Distribusi','/modules/energi-jabar/infrastruktur-distribusi/','internal','draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'keandalan-layanan', 'Keandalan & Kualitas Layanan',                   '/modules/energi-jabar/keandalan-layanan/', 'internal', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'ekonomi-niaga',     'Ekonomi Niaga & Pelanggan',                      '/modules/energi-jabar/ekonomi-niaga/',     'sensitif', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'tarif-listrik',     'Tarif Tenaga Listrik',                           '/modules/energi-jabar/tarif-listrik/',     'publik',   'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'losses-integritas', 'Losses & Integritas Jaringan',                   '/modules/energi-jabar/losses-integritas/', 'sensitif', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
-SELECT id, 'ekuitas-akses',     'Ekuitas & Akses Kelistrikan',                    '/modules/energi-jabar/ekuitas-akses/',     'internal', 'aktif' FROM domains WHERE slug='energi-jabar';
+SELECT id, 'ekuitas-akses',     'Ekuitas & Akses Kelistrikan',                    '/modules/energi-jabar/ekuitas-akses/',     'internal', 'draft' FROM domains WHERE slug='energi-jabar';
 
 -- Provenance: sumber data RUPTL (§4.3 & §12 PRD)
 INSERT INTO dataset_sources (domain_module_id, nama_sumber, jenis_sumber, url_atau_referensi, tanggal_akses, catatan_metodologi)
