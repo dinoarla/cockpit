@@ -6,7 +6,7 @@
 <title>Dashboard — COCKPIT</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -48,7 +48,7 @@
     display:flex;align-items:center;justify-content:center;
     font-size:14px;box-shadow:2px 2px 0 #111118;color:#fff;
   }
-  .topbar-brand-name{font-family:'Fraunces',serif;font-weight:900;font-size:.95rem;color:var(--topbar-ink);letter-spacing:.04em;}
+  .topbar-brand-name{font-family:'DM Sans',sans-serif;font-weight:800;font-size:.95rem;color:var(--topbar-ink);letter-spacing:.02em;}
   .topbar-version{font-family:'DM Mono',monospace;font-size:.58rem;color:rgba(230,237,243,.3);letter-spacing:.08em;}
   .topbar-status{
     display:flex;align-items:center;gap:6px;
@@ -102,7 +102,7 @@
     display:flex;align-items:center;justify-content:center;
     font-size:18px;box-shadow:var(--shadow-sm);flex-shrink:0;color:#fff;
   }
-  .domain-name{font-family:'Fraunces',serif;font-weight:900;font-size:1.05rem;color:#fff;}
+  .domain-name{font-family:'DM Sans',sans-serif;font-weight:800;font-size:1.05rem;color:#fff;}
   .domain-desc{font-family:'DM Mono',monospace;font-size:.58rem;color:rgba(230,237,243,.4);margin-top:3px;letter-spacing:.03em;}
   .domain-meta{display:flex;align-items:center;gap:8px;}
   .domain-tag{
@@ -133,6 +133,13 @@
   }
   .section-line{flex:1;height:1px;background:linear-gradient(to right,rgba(17,17,24,.12),transparent);}
   .section-count{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--ink-3);}
+  .section-toggle{
+    background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:6px;
+    color:var(--ink-3);font-size:.7rem;line-height:1;transition:all .15s;flex-shrink:0;
+  }
+  .section-toggle:hover{background:rgba(17,17,24,.06);color:var(--ink-2);}
+  .section-body{overflow:hidden;transition:max-height .25s ease, opacity .2s ease;}
+  .section-body.collapsed{max-height:0 !important;opacity:0;}
 
   /* ── MODULE GRID ── */
   .module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
@@ -332,7 +339,7 @@
       <div class="topbar-brand-mark"><i class="fa-solid fa-bolt"></i></div>
       <div>
         <div class="topbar-brand-name">COCKPIT</div>
-        <div class="topbar-version"><span id="versionBtn" title="Lihat riwayat versi" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;">v0.1.0</span> · Pusat Data Pribadi Dino Arla</div>
+        <div class="topbar-version"><span id="versionBtn" title="Lihat riwayat versi" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;">v0.1.0</span> · Pusat Data Pribadi <a href="https://dinoarla.com" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline dotted;text-underline-offset:3px;">Dino Arla</a></div>
       </div>
     </div>
     <div class="topbar-status">
@@ -554,23 +561,41 @@ function render(domainList, role) {
       const mods = domain.modules.filter(m => (SECTION_MAP[m.slug] || 1) === sec.id);
       const secEl = document.createElement('div');
       secEl.className = 'section-block';
+      const collapseKey = `cockpit_sec_${domain.slug}_${sec.id}`;
+      const isCollapsed = localStorage.getItem(collapseKey) === '1';
 
       const modCount = mods.length;
       secEl.innerHTML = `
-        <div class="section-label">
+        <div class="section-label" style="cursor:pointer;" data-collapse="${collapseKey}">
           <span class="section-num">${sec.num}</span>
           <span class="section-title">${sec.label}</span>
           <div class="section-line"></div>
           <span class="section-count">${modCount ? modCount + ' modul' : 'belum ada'}</span>
+          <button class="section-toggle" tabindex="-1">
+            <i class="fa-solid fa-chevron-${isCollapsed ? 'down' : 'up'}"></i>
+          </button>
         </div>
       `;
 
+      const body = document.createElement('div');
+      body.className = 'section-body' + (isCollapsed ? ' collapsed' : '');
+
+      const label = secEl.querySelector('.section-label');
+      label.addEventListener('click', () => {
+        const collapsed = body.classList.toggle('collapsed');
+        label.querySelector('i').className = `fa-solid fa-chevron-${collapsed ? 'down' : 'up'}`;
+        body.style.maxHeight = collapsed ? '0' : body.scrollHeight + 'px';
+        localStorage.setItem(collapseKey, collapsed ? '1' : '0');
+      });
+
       if (!mods.length) {
-        secEl.innerHTML += `
+        body.innerHTML = `
           <div class="section-empty">
             <i class="fa-regular fa-circle-dot" style="font-size:1.2rem;opacity:.2;margin-bottom:8px;display:block;"></i>
             <div class="label">Modul untuk seksi ini belum tersedia</div>
           </div>`;
+        body.style.maxHeight = isCollapsed ? '0' : '200px';
+        secEl.appendChild(body);
       } else {
         const grid = document.createElement('div');
         grid.className = 'module-grid';
@@ -606,7 +631,12 @@ function render(domainList, role) {
           grid.appendChild(addCard);
         }
 
-        secEl.appendChild(grid);
+        body.appendChild(grid);
+        body.style.maxHeight = isCollapsed ? '0' : body.scrollHeight + 'px';
+        secEl.appendChild(body);
+
+        // recalculate after grid renders
+        if (!isCollapsed) requestAnimationFrame(() => { body.style.maxHeight = body.scrollHeight + 'px'; });
       }
 
       sectionsWrap.appendChild(secEl);
@@ -651,13 +681,11 @@ async function loadFooterStats() {
 
 async function loadLastUpdate() {
   try {
-    const res = await fetch('/api/domains');
-    const domains = await res.json();
     const now = new Date();
     const fmt = new Intl.DateTimeFormat('id-ID', {
-      timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit',
+      timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', year: 'numeric',
     });
-    document.getElementById('footer-lastupdate').textContent = fmt.format(now) + ' WIB';
+    document.getElementById('footer-lastupdate').textContent = fmt.format(now);
   } catch(e) {
     document.getElementById('footer-lastupdate').textContent = '—';
   }
@@ -668,7 +696,7 @@ loadLastUpdate();
 </script>
 
 <footer class="footer">
-  <div class="footer-copy">© 2026 <span>COCKPIT</span> · by Dino Arla</div>
+  <div class="footer-copy">© 2026 <span>COCKPIT</span> · by <a href="https://dinoarla.com" target="_blank" rel="noopener" style="color:rgba(230,237,243,.5);text-decoration:underline dotted;text-underline-offset:3px;">Dino Arla</a></div>
   <div class="footer-stats">
     <div class="footer-stat">
       <i class="fa-solid fa-server"></i>
