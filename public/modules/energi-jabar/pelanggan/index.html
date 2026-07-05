@@ -23,8 +23,6 @@
 html{scroll-behavior:smooth;}
 body{margin:0;background:#FFFBF0;font-family:var(--font-body);color:var(--ink);-webkit-font-smoothing:antialiased;}
 .wrap{max-width:1240px;margin:0 auto;padding:0 24px 80px;}
-
-/* HEADER */
 header.top{background:#0D1117;color:#EAF1F6;padding:36px 24px 0;}
 .top-inner{max-width:1240px;margin:0 auto;}
 .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8FB4C9;margin-bottom:10px;}
@@ -35,8 +33,6 @@ h1{font-family:var(--font-display);font-size:28px;line-height:1.25;margin:0 0 10
   padding:4px 10px;border-radius:20px;margin-bottom:20px;letter-spacing:.06em;}
 .btn-back{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#8FB4C9;text-decoration:none;margin-bottom:16px;}
 .btn-back:hover{color:#fff;}
-
-/* SUBNAV */
 .subnav-wrap{position:sticky;top:0;z-index:50;background:rgba(255,251,240,.96);
   backdrop-filter:blur(8px);border-bottom:1px solid var(--line);box-shadow:0 2px 10px rgba(15,35,55,.05);}
 .subnav{max-width:1240px;margin:0 auto;padding:0 24px;display:flex;align-items:center;
@@ -49,8 +45,6 @@ h1{font-family:var(--font-display);font-size:28px;line-height:1.25;margin:0 0 10
 .subnav a.active{color:var(--teal);border-bottom-color:var(--teal);}
 .subnav a .n{font-family:var(--font-mono);font-size:10px;color:#A7B4BF;margin-right:5px;}
 .subnav a.active .n{color:var(--teal);}
-
-/* KPI */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0 28px;}
 .kpi{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border-top:3px solid var(--teal);}
 .kpi.k2{border-top-color:var(--purple);}
@@ -60,14 +54,10 @@ h1{font-family:var(--font-display);font-size:28px;line-height:1.25;margin:0 0 10
 .kpi-value{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--ink);}
 .kpi-value span{font-size:13px;font-weight:600;color:var(--ink-2);}
 .kpi-note{font-size:11px;color:var(--ink-2);margin-top:5px;line-height:1.4;}
-
-/* SECTION HEAD */
 .sec-head{margin:36px 0 16px;scroll-margin-top:56px;}
 .sec-head h2{font-family:var(--font-display);font-size:18px;margin:0 0 4px;display:flex;align-items:center;gap:10px;}
 .sec-head .tag{font-family:var(--font-mono);font-size:11px;color:var(--teal);background:var(--teal-light);padding:3px 9px;border-radius:20px;font-weight:600;}
 .sec-head p{font-size:13px;color:var(--ink-2);margin:0;max-width:680px;line-height:1.6;}
-
-/* CARDS */
 .grid-2{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;}
 .grid-2b{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
@@ -78,8 +68,6 @@ h1{font-family:var(--font-display);font-size:28px;line-height:1.25;margin:0 0 10
 .card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;
   padding-top:10px;border-top:1px dashed var(--line);}
 .src{font-size:10.5px;color:rgba(17,17,24,.35);font-family:var(--font-mono);}
-
-/* MAP */
 .map-card{background:var(--card);border-radius:var(--radius);padding:20px 22px 18px;
   box-shadow:var(--shadow);margin-top:16px;}
 .map-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:14px;}
@@ -98,8 +86,6 @@ h1{font-family:var(--font-display);font-size:28px;line-height:1.25;margin:0 0 10
 .popup-row{display:flex;justify-content:space-between;gap:16px;padding:3px 0;border-bottom:1px solid #F0F2F4;}
 .popup-row:last-child{border-bottom:none;}
 .popup-row span:last-child{font-family:var(--font-mono);font-weight:600;}
-
-/* TABLE */
 .table-tools{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
 .search-box{position:relative;}
 .search-box input{padding:9px 14px 9px 34px;border:1px solid var(--line);border-radius:8px;
@@ -112,30 +98,28 @@ table.data thead th{text-align:left;padding:10px 12px;border-bottom:2px solid va
   letter-spacing:.04em;cursor:pointer;user-select:none;white-space:nowrap;}
 table.data thead th:hover{color:var(--ink);}
 table.data thead th.sorted::after{content:" ▾";font-size:9px;}
+table.data thead th.sorted.asc::after{content:" ▴";font-size:9px;}
 table.data tbody td{padding:9px 12px;border-bottom:1px solid #F0F2F4;}
 table.data tbody tr:hover{background:#FAFBFC;}
 .num-cell{font-family:var(--font-mono);text-align:right;}
 .pct-bar-wrap{display:flex;align-items:center;gap:8px;}
 .pct-bar{height:6px;border-radius:3px;background:var(--teal);flex-shrink:0;}
 .pct-bar.paska{background:var(--purple);}
-
-/* CATATAN */
 .note-panel{background:#FFFCF6;border:1px dashed #E3B968;border-radius:var(--radius);padding:18px 22px;margin-top:20px;}
 .note-panel h4{font-family:var(--font-display);font-size:14px;margin:0 0 6px;color:#8A5A0A;}
 .note-panel p{font-size:12.5px;color:var(--ink-2);margin:0;line-height:1.7;}
-
-/* PROGRESS BAR (prabayar vs paskabayar) */
 .split-bar{display:flex;height:28px;border-radius:8px;overflow:hidden;margin:12px 0 4px;}
 .split-seg{display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);
   font-size:11.5px;font-weight:500;color:#fff;white-space:nowrap;}
 .split-pra{background:var(--teal);}
 .split-pas{background:var(--purple);}
+.split-other{background:#8B99A6;}
 .split-caption{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-2);
   font-family:var(--font-mono);padding:4px 2px 16px;}
-
+.tag-special{display:inline-block;font-family:var(--font-mono);font-size:10px;background:#F0EEF9;
+  color:var(--purple);border-radius:4px;padding:1px 6px;margin-left:4px;}
 footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
   font-size:11.5px;color:var(--ink-2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-
 @media(max-width:900px){
   .kpi-grid{grid-template-columns:repeat(2,1fr);}
   .grid-2,.grid-2b,.grid-3{grid-template-columns:1fr;}
@@ -150,15 +134,16 @@ footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
     <a href="/menu.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali ke Menu</a>
     <div class="eyebrow">Master Data Pelanggan &middot; PLN UID Jawa Barat &middot; Data Agregat</div>
     <h1>Data Induk Langganan PLN Jawa Barat</h1>
-    <p class="top-sub">Statistik dan peta sebaran 13,9 juta pelanggan PLN di Provinsi Jawa Barat — distribusi per kabupaten/kota, tarif, daya, dan jenis layanan. Data mentah bersifat sensitif (PII); halaman ini hanya menampilkan agregasi anonim.</p>
+    <p class="top-sub">Statistik 14,1 juta pelanggan PLN di 73 UNITUP (ULP) Jawa Barat — distribusi daya tersambung, jenis layanan, keperluan, dan peta sebaran per kabupaten/kota. Data mentah bersifat sensitif (PII); halaman ini hanya menampilkan agregasi anonim.</p>
     <div class="badge-sensitive"><i class="fa-solid fa-lock"></i> AKSES TERBATAS — DATA PII TERENKRIPSI</div>
 
     <div class="split-bar">
-      <div class="split-seg split-pra" style="width:61.0%">Prabayar 61,0%</div>
-      <div class="split-seg split-pas" style="width:39.0%">Pascabayar 39,0%</div>
+      <div class="split-seg split-pra" style="width:60.2%">Prabayar 60,2%</div>
+      <div class="split-seg split-pas" style="width:38.5%">Paskabayar 38,5%</div>
+      <div class="split-seg split-other" style="width:1.3%"></div>
     </div>
     <div class="split-caption">
-      <span>Komposisi jenis layanan — 13.919.871 pelanggan total</span>
+      <span>Komposisi jenis layanan — 14.107.573 record total (1,3% status CNTG/DCL)</span>
       <span>Sumber: Data Induk Langganan PLN UID Jabar</span>
     </div>
   </div>
@@ -168,8 +153,10 @@ footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
   <nav class="subnav">
     <a href="#sec-ringkasan" class="active"><span class="n">•</span>Ringkasan</a>
     <a href="#sec-peta"><span class="n">01</span>Peta Sebaran</a>
-    <a href="#sec-tarif"><span class="n">02</span>Tarif & Daya</a>
-    <a href="#sec-tabel"><span class="n">03</span>Tabel Kabupaten</a>
+    <a href="#sec-unitup"><span class="n">02</span>Per UNITUP</a>
+    <a href="#sec-tarif"><span class="n">03</span>Tarif &amp; Daya</a>
+    <a href="#sec-keperluan"><span class="n">04</span>Keperluan</a>
+    <a href="#sec-tabel"><span class="n">05</span>Tabel Kabupaten</a>
   </nav>
 </div>
 
@@ -178,38 +165,38 @@ footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
   <!-- KPI -->
   <section class="kpi-grid" id="sec-ringkasan" style="scroll-margin-top:56px;">
     <div class="kpi">
-      <div class="kpi-label">Total Pelanggan</div>
-      <div class="kpi-value">13,92<span>juta</span></div>
+      <div class="kpi-label">Total Record</div>
+      <div class="kpi-value">14,11<span>juta</span></div>
       <div class="kpi-note">Data Induk Langganan — PLN UID Jabar</div>
     </div>
     <div class="kpi k2">
-      <div class="kpi-label">Prabayar</div>
-      <div class="kpi-value">8,49<span>juta</span></div>
-      <div class="kpi-note">61,0% dari total — token listrik</div>
+      <div class="kpi-label">Total Daya Tersambung</div>
+      <div class="kpi-value">28,44<span>GVA</span></div>
+      <div class="kpi-note">28.440 MVA — seluruh 73 UNITUP</div>
     </div>
     <div class="kpi k3">
-      <div class="kpi-label">Pascabayar</div>
-      <div class="kpi-value">5,43<span>juta</span></div>
-      <div class="kpi-note">39,0% dari total — tagihan bulanan</div>
+      <div class="kpi-label">Prabayar</div>
+      <div class="kpi-value">60,2<span>%</span></div>
+      <div class="kpi-note">8,49 juta dari 13,92 juta valid</div>
     </div>
     <div class="kpi k4">
-      <div class="kpi-label">Kabupaten Terbesar</div>
-      <div class="kpi-value" style="font-size:18px;">Kab. Bekasi</div>
-      <div class="kpi-note">1.214.692 pelanggan (8,7% total)</div>
+      <div class="kpi-label">Jumlah UNITUP</div>
+      <div class="kpi-value">73<span>unit</span></div>
+      <div class="kpi-note">Unit Layanan Pelanggan aktif di Jabar</div>
     </div>
   </section>
 
   <!-- PETA -->
   <div class="sec-head" id="sec-peta">
     <h2><span class="tag">01</span> Peta Sebaran Pelanggan — 27 Kabupaten/Kota</h2>
-    <p>Klik wilayah untuk detail. Warna menunjukkan jumlah pelanggan per kabupaten/kota. Beberapa wilayah memiliki cakupan data parsial (lihat catatan).</p>
+    <p>Klik wilayah untuk detail. Warna menunjukkan jumlah pelanggan per kabupaten/kota.</p>
   </div>
 
   <div class="map-card">
     <div class="map-head">
       <div>
         <h3>Distribusi Pelanggan PLN per Kabupaten/Kota</h3>
-        <div class="sub">Klik area untuk melihat detail. Pangandaran & Bandung Barat: batas wilayah atau data belum lengkap.</div>
+        <div class="sub">Klik area untuk melihat detail. Pangandaran &amp; Bandung Barat: batas wilayah atau data belum lengkap.</div>
       </div>
       <div class="map-toggle">
         <button class="map-btn active" data-metric="total" style="background:var(--teal);color:#fff;">Total Pelanggan</button>
@@ -225,9 +212,39 @@ footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
     </div>
   </div>
 
+  <!-- PER UNITUP -->
+  <div class="sec-head" id="sec-unitup">
+    <h2><span class="tag">02</span> Distribusi per UNITUP (ULP)</h2>
+    <p>Data 73 kode UNITUP aktif. Total daya dalam MVA (mega volt-ampere). Klik header kolom untuk mengurutkan.</p>
+  </div>
+
+  <div class="card">
+    <div class="table-tools">
+      <div class="search-box">
+        <input type="text" id="searchUnitup" placeholder="Cari kode UNITUP…" oninput="renderUnitupTable()">
+      </div>
+      <span id="unitupCount" style="font-size:12px;color:var(--ink-2);font-family:var(--font-mono);"></span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="data" id="unitupTable">
+      <thead>
+        <tr>
+          <th onclick="sortUnitup('kode')">UNITUP</th>
+          <th onclick="sortUnitup('total')" class="num-cell sorted">Pelanggan</th>
+          <th onclick="sortUnitup('pra')" class="num-cell">Prabayar</th>
+          <th onclick="sortUnitup('pas')" class="num-cell">Pascabayar</th>
+          <th style="min-width:120px;">% Prabayar</th>
+          <th onclick="sortUnitup('daya')" class="num-cell">Total Daya (MVA)</th>
+        </tr>
+      </thead>
+      <tbody id="unitupBody"></tbody>
+    </table>
+    </div>
+  </div>
+
   <!-- TARIF & DAYA -->
   <div class="sec-head" id="sec-tarif">
-    <h2><span class="tag">02</span> Distribusi Tarif & Daya</h2>
+    <h2><span class="tag">03</span> Distribusi Tarif &amp; Daya</h2>
     <p>Komposisi pelanggan berdasarkan golongan tarif PLN dan kapasitas daya tersambung.</p>
   </div>
 
@@ -261,16 +278,37 @@ footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
     </div>
   </div>
 
-  <!-- TABEL -->
+  <!-- KEPERLUAN -->
+  <div class="sec-head" id="sec-keperluan">
+    <h2><span class="tag">04</span> Keperluan Listrik (KET_KEPERLUAN)</h2>
+    <p>Dari 14,1 juta record, 5,35 juta (37,9%) memiliki keterangan keperluan. Total 1.558 jenis keperluan unik.</p>
+  </div>
+
+  <div class="grid-2b">
+    <div class="card">
+      <h3>Komposisi Keperluan Terisi</h3>
+      <div class="sub">5.347.950 record dengan keterangan keperluan</div>
+      <canvas id="chartKet"></canvas>
+      <div class="card-foot"><span class="src">Sumber: DIL PLN UID Jabar</span></div>
+    </div>
+    <div class="card">
+      <h3>Top 10 Keperluan Terbanyak</h3>
+      <div class="sub">Dari 1.558 jenis keperluan unik</div>
+      <canvas id="chartKetBar" style="max-height:280px;"></canvas>
+      <div class="card-foot"><span class="src">Sumber: DIL PLN UID Jabar</span></div>
+    </div>
+  </div>
+
+  <!-- TABEL KABUPATEN -->
   <div class="sec-head" id="sec-tabel">
-    <h2><span class="tag">03</span> Tabel Distribusi per Kabupaten/Kota</h2>
+    <h2><span class="tag">05</span> Tabel Distribusi per Kabupaten/Kota</h2>
     <p>Data lengkap 21 kabupaten/kota dengan cakupan &gt;10.000 pelanggan.</p>
   </div>
 
   <div class="card">
     <div class="table-tools">
       <div class="search-box">
-        <input type="text" id="searchKab" placeholder="Cari kabupaten/kota…" oninput="renderTable()">
+        <input type="text" id="searchKab" placeholder="Cari kabupaten/kota…" oninput="renderKabTable()">
       </div>
     </div>
     <table class="data" id="kabTable">
@@ -290,9 +328,9 @@ footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
   <div class="note-panel">
     <h4>Catatan Cakupan Data</h4>
     <p>
-      Dari 14.107.593 baris total, sekitar <b>2.653.571 baris (18,8%)</b> tidak memiliki nama kabupaten yang teridentifikasi — kemungkinan berasal dari UP3 dengan wilayah lintas administrasi atau encoding berbeda.
-      Beberapa kabupaten (Kab. Cirebon, Kota Bogor, Kota Cimahi, Kab. Bandung Barat, Kab. Kuningan) memiliki jumlah sangat kecil dalam data ini, kemungkinan datanya masuk ke unit UP3 yang berbeda.
-      Analisis ini menggunakan baris yang memiliki JENISLAYANAN = PRABAYAR atau PASKABAYAR (<b>13.919.871 baris, 98,7%</b>).
+      Dari 14.107.573 record total, <b>187.702 record (1,3%)</b> memiliki status JENISLAYANAN = CNTG atau DCL (pelanggan putus/khusus), seluruhnya pada UNITUP 53251.
+      Sekitar <b>8.759.642 record (62,1%)</b> tidak memiliki KET_KEPERLUAN — umumnya pelanggan prabayar rumah tangga kecil.
+      Beberapa UNITUP (53476, 53577, 53771, 53536) memiliki jumlah pelanggan sangat kecil dengan total daya sangat besar — kemungkinan merupakan aggregasi pelanggan industri besar atau transmisi.
     </p>
   </div>
 
@@ -303,16 +341,13 @@ footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
 </div>
 
 <script>
-// Auth check
 (async () => {
   const res = await fetch('/api/auth/me');
   if (!res.ok) window.location.href = '/';
 })();
 
-// Subnav active
-const navLinks = document.querySelectorAll('.subnav a[data-target], .subnav a[href^="#"]');
+const sections = ['sec-ringkasan','sec-peta','sec-unitup','sec-tarif','sec-keperluan','sec-tabel'];
 window.addEventListener('scroll', () => {
-  const sections = ['sec-ringkasan','sec-peta','sec-tarif','sec-tabel'];
   let current = sections[0];
   for (const id of sections) {
     const el = document.getElementById(id);
@@ -325,7 +360,7 @@ window.addEventListener('scroll', () => {
 
 document.getElementById('genDate').textContent = 'Diakses: ' + new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
 
-/* ====== DATA ====== */
+/* ====== DATA KABUPATEN ====== */
 const DIL_KAB = [
   {nama:'Kab. Bekasi',       prabayar:905222,  paskabayar:309470,  total:1214692},
   {nama:'Kab. Bandung',      prabayar:664325,  paskabayar:385569,  total:1049894},
@@ -350,6 +385,84 @@ const DIL_KAB = [
   {nama:'Kota Banjar',       prabayar:30549,   paskabayar:34799,   total:65348},
 ];
 
+/* ====== DATA UNITUP ====== */
+const DIL_UNITUP = [
+  {kode:'53704', total:410299, pra:295229, pas:115070, daya:982088855},
+  {kode:'53703', total:365575, pra:285320, pas:80255,  daya:1862691296},
+  {kode:'53873', total:355703, pra:246448, pas:109255, daya:617130632},
+  {kode:'53871', total:345568, pra:193524, pas:152044, daya:757404500},
+  {kode:'53475', total:344311, pra:238990, pas:105321, daya:484350664},
+  {kode:'53241', total:337355, pra:186818, pas:150537, daya:444852900},
+  {kode:'53425', total:316313, pra:171786, pas:144527, daya:566129850},
+  {kode:'53511', total:289940, pra:131836, pas:158104, daya:318747000},
+  {kode:'53221', total:281827, pra:137688, pas:144139, daya:245504635},
+  {kode:'53865', total:281430, pra:196691, pas:84739,  daya:852354600},
+  {kode:'53461', total:280423, pra:165361, pas:115062, daya:311016810},
+  {kode:'53742', total:272193, pra:210919, pas:61274,  daya:449750700},
+  {kode:'53521', total:268049, pra:118334, pas:149715, daya:302092400},
+  {kode:'53732', total:259517, pra:182238, pas:77279,  daya:325050650},
+  {kode:'53468', total:254734, pra:174454, pas:80280,  daya:273213670},
+  {kode:'53661', total:244691, pra:163280, pas:81411,  daya:288107394},
+  {kode:'53444', total:244589, pra:150405, pas:94184,  daya:981008390},
+  {kode:'53411', total:236606, pra:137472, pas:99134,  daya:279711160},
+  {kode:'53741', total:236301, pra:157410, pas:78891,  daya:462839420},
+  {kode:'53861', total:235033, pra:160032, pas:75001,  daya:947374030},
+  {kode:'53631', total:226423, pra:139280, pas:87143,  daya:211683800},
+  {kode:'53711', total:225125, pra:132326, pas:92799,  daya:407353650},
+  {kode:'53482', total:224246, pra:146533, pas:77713,  daya:177126650},
+  {kode:'53702', total:222754, pra:164698, pas:58056,  daya:971784450},
+  {kode:'53571', total:222662, pra:138010, pas:84652,  daya:352469900},
+  {kode:'53701', total:220303, pra:132155, pas:88148,  daya:405592630},
+  {kode:'53231', total:217216, pra:99336,  pas:117880, daya:219665670},
+  {kode:'53532', total:213502, pra:136956, pas:76546,  daya:268083640},
+  {kode:'53261', total:202904, pra:116968, pas:85936,  daya:179471360},
+  {kode:'53641', total:201650, pra:125262, pas:76388,  daya:287836150},
+  {kode:'53293', total:200167, pra:120571, pas:79596,  daya:224870975},
+  {kode:'53867', total:199295, pra:143848, pas:55447,  daya:258475200},
+  {kode:'53872', total:196825, pra:123663, pas:73162,  daya:449807103},
+  {kode:'53611', total:196634, pra:109672, pas:86962,  daya:275299400},
+  {kode:'53621', total:196061, pra:128836, pas:67225,  daya:226796750},
+  {kode:'53535', total:189315, pra:124552, pas:64763,  daya:228834855},
+  {kode:'53534', total:188972, pra:120556, pas:68416,  daya:200096128},
+  {kode:'53251', total:187702, pra:0,      pas:0,      daya:171853325, special:'CNTG/DCL'},
+  {kode:'53531', total:184895, pra:105417, pas:79478,  daya:244379300},
+  {kode:'53681', total:184403, pra:117332, pas:67071,  daya:211631150},
+  {kode:'53401', total:182372, pra:94838,  pas:87534,  daya:174858790},
+  {kode:'53875', total:179164, pra:111844, pas:67320,  daya:237417668},
+  {kode:'53533', total:178414, pra:106925, pas:71489,  daya:200397411},
+  {kode:'53276', total:176983, pra:115492, pas:61491,  daya:123489471},
+  {kode:'53551', total:175062, pra:99107,  pas:75955,  daya:458965180},
+  {kode:'53265', total:174806, pra:85672,  pas:89134,  daya:141264200},
+  {kode:'53563', total:173263, pra:88990,  pas:84273,  daya:339764890},
+  {kode:'53271', total:173257, pra:102082, pas:71175,  daya:221152420},
+  {kode:'53527', total:160512, pra:71546,  pas:88966,  daya:270959250},
+  {kode:'53567', total:158242, pra:95496,  pas:62746,  daya:291347000},
+  {kode:'53517', total:158208, pra:101583, pas:56625,  daya:500982300},
+  {kode:'53559', total:156216, pra:81808,  pas:74408,  daya:430313505},
+  {kode:'53402', total:151668, pra:75342,  pas:76326,  daya:159884950},
+  {kode:'53691', total:150125, pra:94506,  pas:55619,  daya:96922450},
+  {kode:'53671', total:144187, pra:82622,  pas:61565,  daya:181755792},
+  {kode:'53286', total:139330, pra:81005,  pas:58325,  daya:122008758},
+  {kode:'53404', total:137687, pra:66499,  pas:71188,  daya:155226620},
+  {kode:'53211', total:134504, pra:75370,  pas:59134,  daya:153828300},
+  {kode:'53555', total:133510, pra:69978,  pas:63532,  daya:331912380},
+  {kode:'53403', total:133106, pra:70904,  pas:62202,  daya:183103300},
+  {kode:'53277', total:125891, pra:80005,  pas:45886,  daya:88888125},
+  {kode:'53431', total:125072, pra:80788,  pas:44284,  daya:152657270},
+  {kode:'53731', total:124043, pra:73939,  pas:50104,  daya:226766555},
+  {kode:'53575', total:121261, pra:76862,  pas:44399,  daya:288078635},
+  {kode:'53659', total:107293, pra:69381,  pas:37912,  daya:196403950},
+  {kode:'53874', total:98905,  pra:51630,  pas:47275,  daya:255165316},
+  {kode:'53695', total:96214,  pra:58949,  pas:37265,  daya:67759500},
+  {kode:'53651', total:95183,  pra:60723,  pas:34460,  daya:151505840},
+  {kode:'53421', total:79144,  pra:39489,  pas:39655,  daya:97686850},
+  {kode:'53476', total:791,    pra:3,      pas:788,    daya:2241589800, special:'Industri Besar'},
+  {kode:'53577', total:754,    pra:0,      pas:754,    daya:849072000,  special:'Industri Besar'},
+  {kode:'53771', total:486,    pra:0,      pas:486,    daya:733504600,  special:'Industri Besar'},
+  {kode:'53536', total:409,    pra:0,      pas:409,    daya:590455000,  special:'Industri Besar'},
+];
+
+/* ====== DATA TARIF ====== */
 const TARIF_GRUP = [
   {grup:'Rumah Tangga',  jumlah:12754935, color:'#0E7C7B'},
   {grup:'Bisnis',        jumlah:750780,   color:'#C2760C'},
@@ -360,17 +473,31 @@ const TARIF_GRUP = [
 ];
 
 const DAYA_DATA = [
-  {daya:'900 VA',    jumlah:5549062},
-  {daya:'450 VA',    jumlah:4687937},
-  {daya:'1.300 VA',  jumlah:2272385},
-  {daya:'2.200 VA',  jumlah:813293},
-  {daya:'3.500 VA',  jumlah:178377},
-  {daya:'5.500 VA',  jumlah:108101},
-  {daya:'4.400 VA',  jumlah:96124},
-  {daya:'Lainnya',   jumlah:214592},
+  {daya:'900 VA',    jumlah:5632994},
+  {daya:'450 VA',    jumlah:4771671},
+  {daya:'1.300 VA',  jumlah:2283996},
+  {daya:'2.200 VA',  jumlah:817284},
+  {daya:'3.500 VA',  jumlah:179403},
+  {daya:'5.500 VA',  jumlah:108897},
+  {daya:'4.400 VA',  jumlah:96553},
+  {daya:'Lainnya',   jumlah:216775},
 ];
 
-/* map data lookup */
+const KET_DATA = [
+  {label:'Rumah Pribadi',         jumlah:4241619},
+  {label:'Kos / Kontrak / Sewa',  jumlah:362614},
+  {label:'Rumah Toko (Ruko)',      jumlah:78451},
+  {label:'Toko',                   jumlah:70187},
+  {label:'Masjid / Musholla',      jumlah:61962},
+  {label:'Warung (> 900 VA)',      jumlah:40165},
+  {label:'Lampu Jalan / Taman',   jumlah:37466},
+  {label:'Warung Makan',           jumlah:19141},
+  {label:'Tower / BTS',            jumlah:14736},
+  {label:'Pedagang Eceran Mkn',   jumlah:13117},
+  {label:'Lainnya (1.548 jenis)',  jumlah:436345},
+];
+
+/* ====== MAP DATA ====== */
 const MAP_DATA = {};
 DIL_KAB.forEach(d => { MAP_DATA[d.nama] = d; });
 
@@ -391,21 +518,14 @@ function getColor(val, metric, max) {
   if (val === null) return '#E8EDF1';
   const t = val / max;
   if (metric === 'prabayar') {
-    const r = Math.round(14 + (62 - 14) * t);
-    const g = Math.round(124 + (200 - 124) * (1 - t));
-    const b = Math.round(123 + (170 - 123) * (1 - t));
-    return `rgb(${r},${g},${b})`;
+    return `rgb(${Math.round(14+48*t)},${Math.round(124+76*(1-t))},${Math.round(123+47*(1-t))})`;
   }
   if (metric === 'paskabayar') {
-    const r = Math.round(109 + (100 - 109) * t);
-    const g = Math.round(91 + (50 - 91) * t);
-    const b = Math.round(168 + (220 - 168) * t);
-    return `rgb(${Math.round(230 - 120 * t)},${Math.round(230 - 150 * t)},${Math.round(230 + 20 * t)})`;
+    return `rgb(${Math.round(230-120*t)},${Math.round(230-150*t)},${Math.round(230+20*t)})`;
   }
-  // total — teal gradient
-  const r = Math.round(228 - (228 - 8) * t);
-  const g = Math.round(243 - (243 - 80) * t);
-  const b = Math.round(242 - (242 - 100) * t);
+  const r = Math.round(228-(228-8)*t);
+  const g = Math.round(243-(243-80)*t);
+  const b = Math.round(242-(242-100)*t);
   return `rgb(${r},${g},${b})`;
 }
 
@@ -416,13 +536,12 @@ function renderMap(metric) {
   currentMetric = metric;
   const vals = Object.values(MAP_DATA).map(d => getVal(d, metric)).filter(v => v !== null);
   const maxVal = Math.max(...vals);
-
   if (geoLayer) geoLayer.remove();
   geoLayer = L.geoJSON(JABAR_GEOJSON, {
     style: f => {
       const d = MAP_DATA[f.properties.daerah];
       const v = getVal(d, metric);
-      return {fillColor: getColor(v, metric, maxVal), weight: 1, color: '#fff', fillOpacity: 0.85};
+      return {fillColor: getColor(v, metric, maxVal), weight:1, color:'#fff', fillOpacity:0.85};
     },
     onEachFeature: (f, layer) => {
       const nama = f.properties.daerah;
@@ -438,57 +557,100 @@ function renderMap(metric) {
           ` : '<div style="color:#8B99A6;font-size:12px;">Data belum tersedia</div>'}
         `).openPopup(e.latlng);
       });
-      layer.on('mouseout', () => {
-        geoLayer.resetStyle(layer);
-        layer.closePopup();
-      });
+      layer.on('mouseout', () => { geoLayer.resetStyle(layer); layer.closePopup(); });
     }
   }).addTo(map);
-
-  // legend
   const lMin = document.getElementById('legendMin');
   const lMax = document.getElementById('legendMax');
   const lGrad = document.getElementById('legendGrad');
   if (metric === 'total') {
-    lMin.textContent = '0'; lMax.textContent = '1,2 juta';
-    lGrad.style.background = 'linear-gradient(to right,#E4F3F2,#0E7C7B)';
+    lMin.textContent='0'; lMax.textContent='1,2 juta';
+    lGrad.style.background='linear-gradient(to right,#E4F3F2,#0E7C7B)';
   } else if (metric === 'prabayar') {
-    lMin.textContent = '30%'; lMax.textContent = '80%';
-    lGrad.style.background = 'linear-gradient(to right,#B3EBE8,#0E7C7B)';
+    lMin.textContent='30%'; lMax.textContent='80%';
+    lGrad.style.background='linear-gradient(to right,#B3EBE8,#0E7C7B)';
   } else {
-    lMin.textContent = '0'; lMax.textContent = '300 rb';
-    lGrad.style.background = 'linear-gradient(to right,#E8E7F8,#6D5BA8)';
+    lMin.textContent='0'; lMax.textContent='300 rb';
+    lGrad.style.background='linear-gradient(to right,#E8E7F8,#6D5BA8)';
   }
 }
 
 window.addEventListener('load', () => {
-  map = L.map('pelangganMap', {zoomControl:true}).setView([-7.05, 107.7], 8);
+  map = L.map('pelangganMap', {zoomControl:true}).setView([-7.05,107.7],8);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution:'© OpenStreetMap, © CARTO', maxZoom:14
   }).addTo(map);
   renderMap('total');
-
   document.querySelectorAll('.map-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.map-btn').forEach(b => {
-        b.classList.remove('active');
-        b.style.background = '';
-        b.style.color = '';
-      });
+      document.querySelectorAll('.map-btn').forEach(b => { b.classList.remove('active'); b.style.background=''; b.style.color=''; });
       btn.classList.add('active');
       const m = btn.dataset.metric;
       const colors = {total:'var(--teal)', prabayar:'#FF4D00', paskabayar:'var(--purple)'};
-      btn.style.background = colors[m];
-      btn.style.color = '#fff';
+      btn.style.background = colors[m]; btn.style.color = '#fff';
       renderMap(m);
     });
   });
 });
 
+/* ====== UNITUP TABLE ====== */
+let unitupSortCol = 'total', unitupSortAsc = false;
+
+function sortUnitup(col) {
+  if (unitupSortCol === col) unitupSortAsc = !unitupSortAsc;
+  else { unitupSortCol = col; unitupSortAsc = col === 'kode'; }
+  document.querySelectorAll('#unitupTable thead th').forEach(th => {
+    th.classList.remove('sorted','asc');
+  });
+  const thMap = {kode:0, total:1, pra:2, pas:3, daya:5};
+  const idx = thMap[col];
+  if (idx !== undefined) {
+    const th = document.querySelectorAll('#unitupTable thead th')[idx];
+    th.classList.add('sorted');
+    if (unitupSortAsc) th.classList.add('asc');
+  }
+  renderUnitupTable();
+}
+
+function renderUnitupTable() {
+  const q = document.getElementById('searchUnitup').value.toLowerCase();
+  let rows = DIL_UNITUP.filter(d => d.kode.includes(q));
+  rows.sort((a, b) => {
+    const va = unitupSortCol === 'kode' ? a.kode : a[unitupSortCol];
+    const vb = unitupSortCol === 'kode' ? b.kode : b[unitupSortCol];
+    return unitupSortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+  });
+  document.getElementById('unitupCount').textContent = rows.length + ' dari ' + DIL_UNITUP.length + ' UNITUP';
+  const totalDaya = DIL_UNITUP.reduce((s,d) => s+d.daya, 0);
+  document.getElementById('unitupBody').innerHTML = rows.map(d => {
+    const validTotal = d.pra + d.pas;
+    const pctPra = validTotal > 0 ? (d.pra / validTotal * 100) : null;
+    const barW = pctPra !== null ? Math.round(pctPra * 80 / 100) : 0;
+    const dayaMva = (d.daya / 1e6).toFixed(1);
+    const dayaPct = (d.daya / totalDaya * 100).toFixed(2);
+    const specialBadge = d.special ? `<span class="tag-special">${d.special}</span>` : '';
+    return `<tr>
+      <td><b style="font-family:var(--font-mono)">${d.kode}</b>${specialBadge}</td>
+      <td class="num-cell">${d.total.toLocaleString('id-ID')}</td>
+      <td class="num-cell">${d.pra > 0 ? d.pra.toLocaleString('id-ID') : '—'}</td>
+      <td class="num-cell">${d.pas > 0 ? d.pas.toLocaleString('id-ID') : '—'}</td>
+      <td>
+        ${pctPra !== null ? `<div class="pct-bar-wrap">
+          <div style="display:flex;gap:2px;width:82px;">
+            <div class="pct-bar" style="width:${barW}px;"></div>
+            <div class="pct-bar paska" style="width:${80-barW}px;"></div>
+          </div>
+          <span style="font-family:var(--font-mono);font-size:11px;">${pctPra.toFixed(1)}%</span>
+        </div>` : '<span style="font-size:11px;color:var(--ink-2);">—</span>'}
+      </td>
+      <td class="num-cell">${dayaMva}</td>
+    </tr>`;
+  }).join('');
+}
+
 /* ====== CHARTS ====== */
 const MONO = "'JetBrains Mono', monospace";
 const BODY = "'Inter', sans-serif";
-
 Chart.defaults.font.family = BODY;
 Chart.defaults.color = '#5B6B7A';
 
@@ -496,11 +658,7 @@ new Chart(document.getElementById('chartTarif'), {
   type: 'doughnut',
   data: {
     labels: TARIF_GRUP.map(d => d.grup),
-    datasets: [{
-      data: TARIF_GRUP.map(d => d.jumlah),
-      backgroundColor: TARIF_GRUP.map(d => d.color),
-      borderWidth: 2, borderColor: '#fff'
-    }]
+    datasets: [{data: TARIF_GRUP.map(d => d.jumlah), backgroundColor: TARIF_GRUP.map(d => d.color), borderWidth:2, borderColor:'#fff'}]
   },
   options: {
     plugins: {
@@ -515,11 +673,7 @@ new Chart(document.getElementById('chartDaya'), {
   type: 'bar',
   data: {
     labels: DAYA_DATA.map(d => d.daya),
-    datasets: [{
-      label: 'Jumlah Pelanggan',
-      data: DAYA_DATA.map(d => d.jumlah),
-      backgroundColor: '#0E7C7B', borderRadius: 5
-    }]
+    datasets: [{label:'Jumlah Pelanggan', data: DAYA_DATA.map(d => d.jumlah), backgroundColor:'#0E7C7B', borderRadius:5}]
   },
   options: {
     indexAxis: 'y',
@@ -531,8 +685,8 @@ new Chart(document.getElementById('chartDaya'), {
 new Chart(document.getElementById('chartJenis'), {
   type: 'doughnut',
   data: {
-    labels: ['Prabayar', 'Pascabayar'],
-    datasets: [{data:[8493584,5426287], backgroundColor:['#0E7C7B','#6D5BA8'], borderWidth:2, borderColor:'#fff'}]
+    labels: ['Prabayar', 'Pascabayar', 'CNTG/DCL'],
+    datasets: [{data:[8493584,5426287,187702], backgroundColor:['#0E7C7B','#6D5BA8','#8B99A6'], borderWidth:2, borderColor:'#fff'}]
   },
   options: {
     plugins:{
@@ -543,14 +697,14 @@ new Chart(document.getElementById('chartJenis'), {
   }
 });
 
-const top10 = DIL_KAB.slice(0,10);
+const top10kab = DIL_KAB.slice(0,10);
 new Chart(document.getElementById('chartTopKab'), {
   type: 'bar',
   data: {
-    labels: top10.map(d => d.nama.replace('Kab. ','').replace('Kota ','')),
+    labels: top10kab.map(d => d.nama.replace('Kab. ','').replace('Kota ','')),
     datasets: [
-      {label:'Prabayar',  data:top10.map(d=>d.prabayar),  backgroundColor:'#0E7C7B', borderRadius:4},
-      {label:'Pascabayar',data:top10.map(d=>d.paskabayar), backgroundColor:'#6D5BA8', borderRadius:4}
+      {label:'Prabayar',   data:top10kab.map(d=>d.prabayar),  backgroundColor:'#0E7C7B', borderRadius:4},
+      {label:'Pascabayar', data:top10kab.map(d=>d.paskabayar), backgroundColor:'#6D5BA8', borderRadius:4}
     ]
   },
   options: {
@@ -562,27 +716,64 @@ new Chart(document.getElementById('chartTopKab'), {
   }
 });
 
-/* ====== TABLE ====== */
-let sortCol = 'total', sortAsc = false;
+/* Keperluan charts */
+new Chart(document.getElementById('chartKet'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Terisi (37,9%)', 'Tidak Terisi (62,1%)'],
+    datasets: [{data:[5347950, 8759642], backgroundColor:['#0E7C7B','#E8EDF1'], borderWidth:2, borderColor:'#fff'}]
+  },
+  options: {
+    plugins:{
+      legend:{position:'bottom', labels:{font:{size:12}, padding:14}},
+      tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed.toLocaleString('id-ID')}`}}
+    },
+    cutout:'55%'
+  }
+});
+
+new Chart(document.getElementById('chartKetBar'), {
+  type: 'bar',
+  data: {
+    labels: KET_DATA.map(d => d.label),
+    datasets: [{
+      label:'Jumlah',
+      data: KET_DATA.map(d => d.jumlah),
+      backgroundColor: KET_DATA.map((_,i) => i === KET_DATA.length-1 ? '#C2C9D0' : '#0E7C7B'),
+      borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x.toLocaleString('id-ID')}`}}},
+    scales:{
+      x:{ticks:{font:{family:MONO,size:10}, callback:v=>v>=1e6?(v/1e6).toFixed(1)+'jt':(v/1e3).toFixed(0)+'rb'}, grid:{display:false}},
+      y:{ticks:{font:{size:11}}}
+    }
+  }
+});
+
+/* ====== KABUPATEN TABLE ====== */
+let sortKabCol = 'total', sortKabAsc = false;
+
 function sortKab(col) {
-  if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = col === 'nama'; }
+  if (sortKabCol === col) sortKabAsc = !sortKabAsc;
+  else { sortKabCol = col; sortKabAsc = col === 'nama'; }
   document.querySelectorAll('#kabTable thead th').forEach(th => th.classList.remove('sorted'));
-  renderTable();
+  renderKabTable();
 }
 
-function renderTable() {
+function renderKabTable() {
   const q = document.getElementById('searchKab').value.toLowerCase();
   let rows = DIL_KAB.filter(d => d.nama.toLowerCase().includes(q));
   rows.sort((a, b) => {
-    const va = sortCol === 'nama' ? a.nama : a[sortCol];
-    const vb = sortCol === 'nama' ? b.nama : b[sortCol];
-    return sortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+    const va = sortKabCol === 'nama' ? a.nama : a[sortKabCol];
+    const vb = sortKabCol === 'nama' ? b.nama : b[sortKabCol];
+    return sortKabAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
   });
-  const maxTotal = DIL_KAB[0].total;
   document.getElementById('kabBody').innerHTML = rows.map(d => {
     const pctPra = (d.prabayar / d.total * 100).toFixed(1);
     const barW = Math.round(d.prabayar / d.total * 90);
-    const barWPas = 90 - barW;
     return `<tr>
       <td><b>${d.nama}</b></td>
       <td class="num-cell">${d.total.toLocaleString('id-ID')}</td>
@@ -592,7 +783,7 @@ function renderTable() {
         <div class="pct-bar-wrap">
           <div style="display:flex;gap:2px;width:90px;">
             <div class="pct-bar" style="width:${barW}px;"></div>
-            <div class="pct-bar paska" style="width:${barWPas}px;"></div>
+            <div class="pct-bar paska" style="width:${90-barW}px;"></div>
           </div>
           <span style="font-family:var(--font-mono);font-size:11px;">${pctPra}%</span>
         </div>
@@ -601,7 +792,8 @@ function renderTable() {
   }).join('');
 }
 
-renderTable();
+renderUnitupTable();
+renderKabTable();
 </script>
 </body>
 </html>
