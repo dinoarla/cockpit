@@ -212,7 +212,12 @@ SELECT id, 'ruptl',        'RUPTL PLN 2025-2034',             '/modules/energi-j
 SELECT id, 'pelanggan',    'Data Induk Langganan PLN Jabar',  '/modules/energi-jabar/pelanggan/',    'sensitif',  'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'olap-tagihan', 'Data OLAP Tagihan Listrik Jabar', '/modules/energi-jabar/olap-tagihan/', 'sensitif',  'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'pencurian',    'Data Pencurian Tenaga Listrik',   '/modules/energi-jabar/pencurian/',    'sensitif',  'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
--- Section 01: Pembangkitan, Transisi Energi & Energi Hijau
+-- Section 01: PLN
+SELECT id, 'company-presentation',  'Company Presentation',    '/modules/energi-jabar/company-presentation/',  'publik', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'annual-report',         'Annual Reports',          '/modules/energi-jabar/annual-report/',         'publik', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'sustainability-report', 'Sustainability Reports',  '/modules/energi-jabar/sustainability-report/', 'publik', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'statistical-report',    'Statistical Report',      '/modules/energi-jabar/statistical-report/',    'publik', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+-- Section 02: Pembangkitan, Transisi Energi & Energi Hijau
 SELECT id, 'atlas-pembangkit',  'Atlas Kapasitas & Transisi Pembangkit',          '/modules/energi-jabar/atlas-pembangkit/',  'publik',   'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'ekonomi-transisi',  'Ekonomi & Kebijakan Transisi Energi',            '/modules/energi-jabar/ekonomi-transisi/',  'publik',   'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'atlas-ebt',         'Atlas Potensi & Pengembangan EBT',               '/modules/energi-jabar/atlas-ebt/',         'publik',   'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL

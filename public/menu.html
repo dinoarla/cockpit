@@ -448,6 +448,11 @@ const MODULE_ICONS = {
   'tarif-listrik':          '<i class="fa-solid fa-tags"></i>',
   'losses-integritas':      '<i class="fa-solid fa-bolt-lightning"></i>',
   'ekuitas-akses':          '<i class="fa-solid fa-scale-balanced"></i>',
+  // Section 01 — PLN
+  'company-presentation':   '<i class="fa-solid fa-file-powerpoint"></i>',
+  'annual-report':          '<i class="fa-solid fa-file-contract"></i>',
+  'sustainability-report':  '<i class="fa-solid fa-seedling"></i>',
+  'statistical-report':     '<i class="fa-solid fa-chart-bar"></i>',
 };
 const MODULE_DESC = {
   // Modul lama
@@ -472,37 +477,47 @@ const MODULE_DESC = {
   'tarif-listrik':          'Golongan TDL historis, mekanisme penyesuaian otomatis (kurs/ICP/HBA), cross-subsidy, tarif vs BPP',
   'losses-integritas':      'Susut teknis vs non-teknis per wilayah, pola geografis pencurian, efektivitas program P2TL',
   'ekuitas-akses':          'Rasio elektrifikasi per wilayah, silang keandalan dengan kemiskinan & bencana, demand per kapita',
+  // Section 01 — PLN
+  'company-presentation':   'Investor Presentation Meeting 31 Desember 2025 — arah strategis & kinerja korporat PLN',
+  'annual-report':          'Laporan tahunan PLN: pencapaian, strategi, dan arah bisnis sebagai bentuk akuntabilitas kepada pemegang saham dan publik',
+  'sustainability-report':  'Inisiatif ESG, dampak sosial & lingkungan, dan tata kelola PLN untuk mendukung transisi energi dan keberlanjutan jangka panjang',
+  'statistical-report':     'Statistik ketenagalistrikan: kapasitas pembangkitan, konsumsi energi, dan indikator sektor untuk memahami tren dan potensi',
 };
 
-// Mapping slug → section (1/2/3)
+// Mapping slug → section id
 const SECTION_MAP = {
-  // Modul lama
-  'mdp':                    1,
-  'ruptl':                  1,
-  'pelanggan':              3,
-  'olap-tagihan':           3,
-  'pencurian':              3,
-  // Section 01
-  'atlas-pembangkit':       1,
-  'ekonomi-transisi':       1,
-  'atlas-ebt':              1,
-  'der-storage':            1,
-  // Section 02
-  'sistem-transmisi':       2,
-  'rencana-transmisi':      2,
-  'proteksi-transmisi':     2,
-  // Section 03
-  'infrastruktur-distribusi':3,
-  'keandalan-layanan':      3,
-  'ekonomi-niaga':          3,
-  'tarif-listrik':          3,
-  'losses-integritas':      3,
-  'ekuitas-akses':          3,
+  // Section 01 — PLN
+  'company-presentation':    1,
+  'annual-report':           1,
+  'sustainability-report':   1,
+  'statistical-report':      1,
+  // Section 02 — Pembangkitan
+  'mdp':                     2,
+  'ruptl':                   2,
+  'atlas-pembangkit':        2,
+  'ekonomi-transisi':        2,
+  'atlas-ebt':               2,
+  'der-storage':             2,
+  // Section 03 — Transmisi
+  'sistem-transmisi':        3,
+  'rencana-transmisi':       3,
+  'proteksi-transmisi':      3,
+  // Section 04 — Distribusi
+  'pelanggan':               4,
+  'olap-tagihan':            4,
+  'pencurian':               4,
+  'infrastruktur-distribusi':4,
+  'keandalan-layanan':       4,
+  'ekonomi-niaga':           4,
+  'tarif-listrik':           4,
+  'losses-integritas':       4,
+  'ekuitas-akses':           4,
 };
 const SECTIONS = [
-  { id: 1, num: '01', label: 'Pembangkitan, Transisi Energi & Energi Hijau' },
-  { id: 2, num: '02', label: 'Transmisi' },
-  { id: 3, num: '03', label: 'Distribusi Tenaga Listrik' },
+  { id: 1, num: '01', label: 'PLN' },
+  { id: 2, num: '02', label: 'Pembangkitan, Transisi Energi & Energi Hijau' },
+  { id: 3, num: '03', label: 'Transmisi' },
+  { id: 4, num: '04', label: 'Distribusi Tenaga Listrik' },
 ];
 const DOMAIN_ICONS = { 'energi-jabar': '<i class="fa-solid fa-bolt-lightning"></i>' };
 
