@@ -98,6 +98,27 @@ html,body{min-height:100%;background:var(--navy);color:var(--ink);font-family:'D
   <a href="/menu.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Menu</a>
 </header>
 
+<!-- Modal: Konfirmasi Hapus User -->
+<div class="modal-bd" id="modalDeleteConfirm">
+  <div class="modal" style="width:380px;">
+    <div class="modal-head">
+      <h3><i class="fa-solid fa-triangle-exclamation" style="color:var(--red);margin-right:6px;"></i>Konfirmasi Hapus</h3>
+      <button class="modal-close" data-close="modalDeleteConfirm">×</button>
+    </div>
+    <div class="modal-body" style="padding:20px 22px;">
+      <p style="font-size:.85rem;color:var(--ink-2);line-height:1.6;margin-bottom:16px;">
+        Hapus user <b id="deleteConfirmName" style="color:var(--ink);"></b>?<br>
+        Semua sesi aktif dan akses modul user ini akan dihapus.<br>
+        <span style="color:var(--red);font-size:.78rem;">Tindakan ini tidak bisa dibatalkan.</span>
+      </p>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button class="btn-primary btn-sm btn-ghost" data-close="modalDeleteConfirm">Batal</button>
+        <button class="btn-primary btn-sm btn-danger" onclick="confirmDelete()"><i class="fa-solid fa-trash"></i> Ya, Hapus</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <main class="main">
   <div class="section-head">
     <h1><i class="fa-solid fa-users" style="margin-right:8px;"></i>Manajemen Pengguna</h1>
@@ -279,12 +300,24 @@ async function toggleActive(id, current) {
   loadUsers();
 }
 
-async function deleteUser(id, username) {
-  if (!confirm(`Hapus user "${username}"? Semua sesi dan akses user ini akan dihapus. Tindakan ini tidak bisa dibatalkan.`)) return;
-  const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
-  const data = await res.json();
+let pendingDeleteId = null, pendingDeleteName = null;
+
+function deleteUser(id, username) {
+  pendingDeleteId = id;
+  pendingDeleteName = username;
+  document.getElementById('deleteConfirmName').textContent = username;
+  document.getElementById('modalDeleteConfirm').classList.add('open');
+}
+
+async function confirmDelete() {
+  if (!pendingDeleteId) return;
+  document.getElementById('modalDeleteConfirm').classList.remove('open');
+  // Gunakan POST dengan _method=DELETE untuk menghindari hosting yang blokir DELETE
+  const res = await fetch(`/api/admin/users/${pendingDeleteId}/delete`, { method: 'POST' });
+  const data = await res.json().catch(() => ({}));
   if (!res.ok) { showGlobalAlert(data.error || 'Gagal menghapus user.', false); return; }
-  showGlobalAlert(`User <b>${username}</b> berhasil dihapus.`, true);
+  showGlobalAlert(`User <b>${pendingDeleteName}</b> berhasil dihapus.`, true);
+  pendingDeleteId = null; pendingDeleteName = null;
   loadUsers();
 }
 

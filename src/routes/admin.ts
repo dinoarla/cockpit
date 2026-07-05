@@ -98,10 +98,10 @@ adminRoutes.post("/users", async (c) => {
   return c.json({ ok: true, userId: newUserId });
 });
 
-adminRoutes.delete("/users/:id", async (c) => {
+async function doDeleteUser(c: any, id: number) {
   const me = c.get("user");
-  const id = Number(c.req.param("id"));
   if (id === me.id) return c.json({ error: "Tidak bisa menghapus akun sendiri." }, 400);
+  if (!id || isNaN(id)) return c.json({ error: "ID user tidak valid." }, 400);
 
   await db.delete(userModuleAccess).where(eq(userModuleAccess.userId, id));
   await db.delete(userDomainAccess).where(eq(userDomainAccess.userId, id));
@@ -109,7 +109,12 @@ adminRoutes.delete("/users/:id", async (c) => {
   await db.delete(users).where(eq(users.id, id));
 
   return c.json({ ok: true });
-});
+}
+
+// DELETE method (standard)
+adminRoutes.delete("/users/:id", (c) => doDeleteUser(c, Number(c.req.param("id"))));
+// POST fallback (untuk hosting yang blokir DELETE method)
+adminRoutes.post("/users/:id/delete", (c) => doDeleteUser(c, Number(c.req.param("id"))));
 
 adminRoutes.patch("/users/:id", async (c) => {
   const id = Number(c.req.param("id"));
