@@ -133,13 +133,14 @@
   }
   .section-line{flex:1;height:1px;background:linear-gradient(to right,rgba(17,17,24,.12),transparent);}
   .section-count{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--ink-3);}
-  .section-toggle{
-    background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:6px;
-    color:var(--ink-3);font-size:.7rem;line-height:1;transition:all .15s;flex-shrink:0;
-  }
-  .section-toggle:hover{background:rgba(17,17,24,.06);color:var(--ink-2);}
-  .section-body{overflow:hidden;transition:max-height .25s ease, opacity .2s ease;}
-  .section-body.collapsed{max-height:0 !important;opacity:0;}
+
+  /* ── DOMAIN COLLAPSE ── */
+  .domain-header{cursor:pointer;user-select:none;}
+  .domain-header:hover .domain-collapse-icon{color:rgba(230,237,243,.7);}
+  .domain-collapse-icon{color:rgba(230,237,243,.3);font-size:.75rem;transition:transform .25s ease, color .15s;}
+  .domain-collapse-icon.collapsed{transform:rotate(180deg);}
+  .domain-body{overflow:hidden;transition:max-height .3s ease, opacity .25s ease;}
+  .domain-body.collapsed{max-height:0 !important;opacity:0;}
 
   /* ── MODULE GRID ── */
   .module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
@@ -360,7 +361,7 @@
 <main class="main">
   <div id="adminPanel" style="display:none;margin-bottom:16px;">
     <div class="domain-panel">
-      <div class="domain-header">
+      <div class="domain-header" id="adminHeader">
         <div class="domain-header-left">
           <div class="domain-icon" style="background:#1a1a2e;border-color:#222;"><i class="fa-solid fa-shield-halved" style="color:var(--orange);"></i></div>
           <div>
@@ -368,8 +369,12 @@
             <div class="domain-desc">Manajemen sistem, pengguna, dan keamanan — hanya admin</div>
           </div>
         </div>
-        <span class="domain-tag active">ADMIN ONLY</span>
+        <div class="domain-meta">
+          <span class="domain-tag active">ADMIN ONLY</span>
+          <i class="fa-solid fa-chevron-up domain-collapse-icon" id="adminChevron"></i>
+        </div>
       </div>
+      <div class="domain-body" id="adminBody" style="max-height:600px;">
       <div class="sections-wrap" style="padding:16px 24px;">
         <div class="module-grid">
           <a href="/admin/users/" class="module-card aktif">
@@ -400,6 +405,7 @@
             <div class="module-card-foot"><span class="module-slug">admin/keamanan</span><span class="module-arrow"><i class="fa-solid fa-arrow-right"></i></span></div>
           </a>
         </div>
+      </div>
       </div>
     </div>
   </div>
@@ -534,6 +540,8 @@ function render(domainList, role) {
   for (const domain of domainList) {
     const icon = DOMAIN_ICONS[domain.slug] || '🗂️';
     const activeCount = domain.modules.filter(m => m.status === 'aktif').length;
+    const collapseKey = `cockpit_domain_${domain.slug}`;
+    const isCollapsed = localStorage.getItem(collapseKey) === '1';
 
     const panel = document.createElement('div');
     panel.className = 'domain-panel';
@@ -549,64 +557,57 @@ function render(domainList, role) {
         <div class="domain-meta">
           <span class="domain-tag active">${activeCount} AKTIF</span>
           <span class="domain-tag">${domain.modules.length} MODUL</span>
+          <i class="fa-solid fa-chevron-${isCollapsed ? 'down' : 'up'} domain-collapse-icon ${isCollapsed ? 'collapsed' : ''}"></i>
         </div>
       </div>
-      <div class="sections-wrap" id="sections-${domain.slug}"></div>
+      <div class="domain-body" id="body-${domain.slug}"></div>
     `;
     container.appendChild(panel);
 
-    const sectionsWrap = panel.querySelector(`#sections-${domain.slug}`);
+    const domainBody = panel.querySelector(`#body-${domain.slug}`);
+    const header = panel.querySelector('.domain-header');
+    const chevron = panel.querySelector('.domain-collapse-icon');
+
+    header.addEventListener('click', () => {
+      const collapsed = domainBody.classList.toggle('collapsed');
+      chevron.classList.toggle('collapsed', collapsed);
+      chevron.className = `fa-solid fa-chevron-${collapsed ? 'down' : 'up'} domain-collapse-icon${collapsed ? ' collapsed' : ''}`;
+      domainBody.style.maxHeight = collapsed ? '0' : domainBody.scrollHeight + 'px';
+      localStorage.setItem(collapseKey, collapsed ? '1' : '0');
+    });
+
+    const sectionsWrap = document.createElement('div');
+    sectionsWrap.className = 'sections-wrap';
+    domainBody.appendChild(sectionsWrap);
 
     for (const sec of SECTIONS) {
       const mods = domain.modules.filter(m => (SECTION_MAP[m.slug] || 1) === sec.id);
       const secEl = document.createElement('div');
       secEl.className = 'section-block';
-      const collapseKey = `cockpit_sec_${domain.slug}_${sec.id}`;
-      const isCollapsed = localStorage.getItem(collapseKey) === '1';
-
       const modCount = mods.length;
       secEl.innerHTML = `
-        <div class="section-label" style="cursor:pointer;" data-collapse="${collapseKey}">
+        <div class="section-label">
           <span class="section-num">${sec.num}</span>
           <span class="section-title">${sec.label}</span>
           <div class="section-line"></div>
           <span class="section-count">${modCount ? modCount + ' modul' : 'belum ada'}</span>
-          <button class="section-toggle" tabindex="-1">
-            <i class="fa-solid fa-chevron-${isCollapsed ? 'down' : 'up'}"></i>
-          </button>
         </div>
       `;
 
-      const body = document.createElement('div');
-      body.className = 'section-body' + (isCollapsed ? ' collapsed' : '');
-
-      const label = secEl.querySelector('.section-label');
-      label.addEventListener('click', () => {
-        const collapsed = body.classList.toggle('collapsed');
-        label.querySelector('i').className = `fa-solid fa-chevron-${collapsed ? 'down' : 'up'}`;
-        body.style.maxHeight = collapsed ? '0' : body.scrollHeight + 'px';
-        localStorage.setItem(collapseKey, collapsed ? '1' : '0');
-      });
-
       if (!mods.length) {
-        body.innerHTML = `
+        secEl.innerHTML += `
           <div class="section-empty">
             <i class="fa-regular fa-circle-dot" style="font-size:1.2rem;opacity:.2;margin-bottom:8px;display:block;"></i>
             <div class="label">Modul untuk seksi ini belum tersedia</div>
           </div>`;
-        body.style.maxHeight = isCollapsed ? '0' : '200px';
-        secEl.appendChild(body);
       } else {
         const grid = document.createElement('div');
         grid.className = 'module-grid';
-
         for (const mod of mods) {
           const isAktif = mod.status === 'aktif';
           const card = document.createElement(isAktif ? 'a' : 'div');
           card.className = `module-card ${mod.status}`;
-          if (isAktif) {
-            card.href = mod.routePath;
-          }
+          if (isAktif) card.href = mod.routePath;
           const desc = MODULE_DESC[mod.slug] || mod.nama;
           const ico  = MODULE_ICONS[mod.slug] || '<i class="fa-solid fa-folder-open"></i>';
           card.innerHTML = `
@@ -623,24 +624,26 @@ function render(domainList, role) {
           `;
           grid.appendChild(card);
         }
-
         if (role === 'admin') {
           const addCard = document.createElement('div');
           addCard.className = 'module-card-add';
           addCard.innerHTML = `<i class="fa-solid fa-plus" style="opacity:.3"></i><span>Modul berikutnya</span>`;
           grid.appendChild(addCard);
         }
-
-        body.appendChild(grid);
-        body.style.maxHeight = isCollapsed ? '0' : body.scrollHeight + 'px';
-        secEl.appendChild(body);
-
-        // recalculate after grid renders
-        if (!isCollapsed) requestAnimationFrame(() => { body.style.maxHeight = body.scrollHeight + 'px'; });
+        secEl.appendChild(grid);
       }
-
       sectionsWrap.appendChild(secEl);
     }
+
+    // Set initial height after content is rendered
+    requestAnimationFrame(() => {
+      if (isCollapsed) {
+        domainBody.classList.add('collapsed');
+        domainBody.style.maxHeight = '0';
+      } else {
+        domainBody.style.maxHeight = domainBody.scrollHeight + 'px';
+      }
+    });
   }
 }
 
@@ -693,6 +696,24 @@ async function loadLastUpdate() {
 
 loadFooterStats();
 loadLastUpdate();
+
+// Admin panel collapse
+const adminCollapseKey = 'cockpit_domain_admin';
+const adminIsCollapsed = localStorage.getItem(adminCollapseKey) === '1';
+const adminBody    = document.getElementById('adminBody');
+const adminHeader  = document.getElementById('adminHeader');
+const adminChevron = document.getElementById('adminChevron');
+if (adminIsCollapsed) {
+  adminBody.classList.add('collapsed');
+  adminBody.style.maxHeight = '0';
+  adminChevron.className = 'fa-solid fa-chevron-down domain-collapse-icon collapsed';
+}
+adminHeader.addEventListener('click', () => {
+  const collapsed = adminBody.classList.toggle('collapsed');
+  adminChevron.className = `fa-solid fa-chevron-${collapsed ? 'down' : 'up'} domain-collapse-icon${collapsed ? ' collapsed' : ''}`;
+  adminBody.style.maxHeight = collapsed ? '0' : adminBody.scrollHeight + 'px';
+  localStorage.setItem(adminCollapseKey, collapsed ? '1' : '0');
+});
 </script>
 
 <footer class="footer">
