@@ -172,6 +172,37 @@ export const userModuleAccess = mysqlTable("user_module_access", {
     pk: primaryKey({ columns: [t.userId, t.moduleId] }),
     userIdx: index("uma_user_idx").on(t.userId),
 }));
+// ============================================================
+// TARIFF ADJUSTMENT (Penetapan Penyesuaian Tarif per Kuartal)
+// ============================================================
+export const tariffPeriods = mysqlTable("tariff_periods", {
+    id: int("id").autoincrement().primaryKey(),
+    period: varchar("period", { length: 20 }).notNull(), // "Q3-2026"
+    periodLabel: varchar("period_label", { length: 100 }).notNull(), // "Juli - September 2026"
+    effectiveDate: date("effective_date").notNull(), // 2026-07-01
+    signedBy: varchar("signed_by", { length: 150 }),
+    isCurrent: boolean("is_current").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+export const tariffRates = mysqlTable("tariff_rates", {
+    id: int("id").autoincrement().primaryKey(),
+    periodId: int("period_id").notNull(),
+    no: int("no").notNull(),
+    golongan: varchar("golongan", { length: 30 }).notNull(), // "R-1/TR"
+    kategori: mysqlEnum("kategori", ["R", "B", "I", "P", "L"]).notNull(),
+    batasDaya: varchar("batas_daya", { length: 80 }), // "900 VA-RTM"
+    rmType: varchar("rm_type", { length: 5 }), // "RM1", "RM2", "RM3", null = tidak ada RM
+    // Tarif flat (WBP = LWBP, tanpa multiplier) — untuk golongan sederhana
+    tarifFlat: decimal("tarif_flat", { precision: 10, scale: 2 }),
+    // Tarif WBP/LWBP — untuk golongan dengan pembeda waktu pemakaian
+    tarifWbp: decimal("tarif_wbp", { precision: 10, scale: 2 }),
+    tarifLwbp: decimal("tarif_lwbp", { precision: 10, scale: 2 }),
+    tarifKvarh: decimal("tarif_kvarh", { precision: 10, scale: 2 }),
+    multiplierWbp: varchar("multiplier_wbp", { length: 5 }), // "K", "N", atau null
+    multiplierKvarh: varchar("multiplier_kvarh", { length: 5 }), // "K", "N", atau null
+    // Prabayar
+    tarifPrabayar: decimal("tarif_prabayar", { precision: 10, scale: 2 }),
+});
 export const datasetSources = mysqlTable("dataset_sources", {
     id: int("id").autoincrement().primaryKey(),
     domainModuleId: int("domain_module_id").notNull(),

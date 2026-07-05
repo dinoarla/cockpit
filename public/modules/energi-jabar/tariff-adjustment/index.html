@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tariff Adjustment — COCKPIT</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+<style>
+:root{
+  --navy:#0D1117;--orange:#FF4D00;--orange-light:rgba(255,77,0,.08);
+  --yellow:#FFD600;--green:#2ECC71;--red:#E74C3C;
+  --bg:#FFFBF0;--card:#FFFFFF;--line:rgba(17,17,24,.1);
+  --ink:#111118;--ink-2:#555560;--ink-3:#999;
+  --radius:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.07);
+  --font-display:'Space Grotesk',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);font-family:var(--font-body);color:var(--ink);-webkit-font-smoothing:antialiased;}
+
+/* ── HEADER ── */
+header.top{background:var(--navy);color:#E6EDF3;padding:32px 24px 0;}
+.top-inner{max-width:1200px;margin:0 auto;}
+.btn-back{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+  color:rgba(230,237,243,.5);text-decoration:none;margin-bottom:14px;transition:color .15s;}
+.btn-back:hover{color:#E6EDF3;}
+.eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,77,0,.7);margin-bottom:8px;}
+h1.page-title{font-family:var(--font-display);font-size:24px;font-weight:700;color:#fff;
+  margin-bottom:6px;line-height:1.2;}
+.page-sub{font-size:13px;color:rgba(230,237,243,.5);max-width:600px;line-height:1.6;margin-bottom:20px;}
+.top-meta{display:flex;align-items:center;gap:16px;margin-bottom:0;flex-wrap:wrap;}
+.meta-chip{font-family:var(--font-mono);font-size:11px;color:rgba(230,237,243,.4);
+  display:flex;align-items:center;gap:5px;}
+.meta-chip i{color:rgba(255,77,0,.5);font-size:10px;}
+
+/* TAB NAV */
+.tab-nav{display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,.1);margin-top:18px;}
+.tab-btn{font-size:13px;font-weight:600;color:rgba(230,237,243,.45);padding:11px 16px;
+  border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent;
+  white-space:nowrap;transition:all .15s;}
+.tab-btn.active,.tab-btn:hover{color:#fff;}
+.tab-btn.active{border-bottom-color:var(--orange);}
+
+/* ── MAIN WRAP ── */
+.wrap{max-width:1200px;margin:0 auto;padding:28px 24px 80px;}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.kpi{background:var(--card);border-radius:var(--radius);padding:18px 20px;
+  box-shadow:var(--shadow);border-top:3px solid var(--orange);}
+.kpi.k2{border-top-color:var(--yellow)}.kpi.k3{border-top-color:var(--green)}.kpi.k4{border-top-color:var(--red)}
+.kpi-label{font-size:11px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em;
+  font-weight:600;margin-bottom:6px;}
+.kpi-value{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--ink);line-height:1.2;}
+.kpi-value span{font-size:12px;font-weight:500;color:var(--ink-2);}
+.kpi-note{font-size:11px;color:var(--ink-3);margin-top:5px;line-height:1.4;}
+
+/* ── CARD ── */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px;}
+.card-head{padding:16px 20px 14px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.card-head h2{font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--ink);
+  display:flex;align-items:center;gap:8px;}
+.card-head .tag{font-family:var(--font-mono);font-size:10px;font-weight:700;padding:3px 9px;
+  border-radius:20px;background:var(--orange-light);color:var(--orange);}
+.card-body{padding:20px;}
+
+/* ── TARIFF TABLE ── */
+.tariff-table{width:100%;border-collapse:collapse;font-size:13px;}
+.tariff-table thead th{text-align:left;padding:10px 12px;border-bottom:2px solid var(--line);
+  color:var(--ink-2);font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;white-space:nowrap;background:#FAFAF8;}
+.tariff-table tbody td{padding:10px 12px;border-bottom:1px solid #F0EDE8;vertical-align:middle;}
+.tariff-table tbody tr:last-child td{border-bottom:none;}
+.tariff-table tbody tr:hover{background:#FDFCF8;}
+.num{font-family:var(--font-mono);text-align:right;}
+.kat-badge{display:inline-block;font-family:var(--font-mono);font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:10px;}
+.kat-R{background:#EBF4FF;color:#1A5EA8;}
+.kat-B{background:#FFF3E8;color:#B85C00;}
+.kat-I{background:#F0EBF8;color:#5B3BA8;}
+.kat-P{background:#E8F6F0;color:#1A7A4A;}
+.kat-L{background:#FDF0F0;color:#A81A1A;}
+.golongan-cell{font-family:var(--font-mono);font-weight:600;font-size:12px;color:var(--ink);}
+.batas-cell{font-size:12px;color:var(--ink-2);}
+.rm-badge{font-family:var(--font-mono);font-size:10px;color:var(--ink-3);}
+.tarif-cell{font-family:var(--font-mono);font-weight:600;color:var(--ink);font-size:13px;}
+.tarif-wbp{color:var(--orange);}
+.tarif-mult{font-size:11px;color:var(--ink-3);font-weight:400;}
+.tarif-na{color:var(--ink-3);font-size:12px;}
+.tarif-prabayar{font-family:var(--font-mono);font-size:12px;color:#1A5EA8;}
+
+/* ── SEGMEN VIEW ── */
+.segmen-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.seg-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+.seg-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;}
+.seg-head .seg-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;}
+.seg-icon.R{background:#1A5EA8;} .seg-icon.B{background:#B85C00;}
+.seg-icon.I{background:#5B3BA8;} .seg-icon.P{background:#1A7A4A;} .seg-icon.L{background:#A81A1A;}
+.seg-head h3{font-family:var(--font-display);font-size:14px;font-weight:700;}
+.seg-body{padding:14px 18px;}
+.seg-row{display:flex;justify-content:space-between;align-items:center;
+  padding:6px 0;border-bottom:1px dashed var(--line);font-size:12.5px;}
+.seg-row:last-child{border-bottom:none;}
+.seg-row .label{color:var(--ink-2);}
+.seg-row .val{font-family:var(--font-mono);font-weight:600;font-size:13px;color:var(--ink);}
+
+/* ── NOTES ── */
+.notes-list{list-style:none;display:flex;flex-direction:column;gap:12px;}
+.note-item{display:flex;gap:12px;font-size:13px;line-height:1.6;color:var(--ink-2);}
+.note-mark{font-family:var(--font-mono);font-weight:700;color:var(--orange);
+  background:var(--orange-light);padding:1px 7px;border-radius:6px;
+  font-size:11px;white-space:nowrap;align-self:flex-start;margin-top:2px;}
+.def-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.def-item{display:flex;gap:10px;background:#FAFAF8;border-radius:8px;padding:10px 12px;font-size:12.5px;}
+.def-key{font-family:var(--font-mono);font-weight:700;color:var(--orange);white-space:nowrap;}
+.def-val{color:var(--ink-2);line-height:1.5;}
+
+/* ── FOOTER DOC ── */
+.doc-footer{display:flex;justify-content:space-between;align-items:flex-end;
+  margin-top:20px;padding-top:16px;border-top:1px solid var(--line);flex-wrap:wrap;gap:10px;}
+.doc-footer .signed{font-size:12px;color:var(--ink-2);}
+.doc-footer .signed strong{color:var(--ink);font-weight:600;}
+.doc-footer .source-info{font-family:var(--font-mono);font-size:11px;color:var(--ink-3);}
+
+/* ── LOADING / ERROR ── */
+.state-box{text-align:center;padding:60px 24px;font-family:var(--font-mono);font-size:12px;color:var(--ink-3);}
+.state-box i{font-size:28px;margin-bottom:12px;display:block;opacity:.3;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .segmen-grid{grid-template-columns:1fr;}
+  .def-grid{grid-template-columns:1fr;}
+}
+@media(max-width:600px){
+  .kpi-grid{grid-template-columns:1fr 1fr;}
+  .tariff-table{font-size:11.5px;}
+  .tariff-table thead th,.tariff-table tbody td{padding:8px 8px;}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <a href="/menu.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali ke Menu</a>
+    <div class="eyebrow"><i class="fa-solid fa-tags"></i> &nbsp;PLN · Tariff Adjustment</div>
+    <h1 class="page-title">Penyesuaian Tarif Tenaga Listrik</h1>
+    <p class="page-sub">Penetapan tarif listrik per golongan dan batas daya sesuai Keputusan Direksi PT PLN (Persero) — diperbarui setiap kuartal.</p>
+    <div class="top-meta" id="topMeta">
+      <div class="meta-chip"><i class="fa-solid fa-calendar"></i> <span id="metaPeriod">Memuat…</span></div>
+      <div class="meta-chip"><i class="fa-solid fa-signature"></i> <span id="metaSigned">—</span></div>
+      <div class="meta-chip"><i class="fa-solid fa-list"></i> <span id="metaCount">—</span></div>
+    </div>
+    <nav class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('tabel', this)">Tabel Tarif</button>
+      <button class="tab-btn" onclick="switchTab('segmen', this)">Per Segmen</button>
+      <button class="tab-btn" onclick="switchTab('catatan', this)">Catatan & Definisi</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- KPI -->
+<div class="kpi-grid" id="kpiGrid">
+  <div class="kpi"><div class="kpi-label">Tarif Tertinggi</div><div class="kpi-value" id="kpiMax">—</div><div class="kpi-note" id="kpiMaxNote">—</div></div>
+  <div class="kpi k2"><div class="kpi-label">Tarif Terendah</div><div class="kpi-value" id="kpiMin">—</div><div class="kpi-note" id="kpiMinNote">—</div></div>
+  <div class="kpi k3"><div class="kpi-label">Berlaku</div><div class="kpi-value" id="kpiPeriod" style="font-size:16px;">—</div><div class="kpi-note">Periode tarif aktif</div></div>
+  <div class="kpi k4"><div class="kpi-label">Golongan Tarif</div><div class="kpi-value" id="kpiCount">—</div><div class="kpi-note">Total golongan yang ditetapkan</div></div>
+</div>
+
+<!-- ── TAB: TABEL ── -->
+<div id="tab-tabel" class="tab-content">
+  <div class="card">
+    <div class="card-head">
+      <h2><i class="fa-solid fa-table-list" style="color:var(--orange)"></i> Tabel Penetapan Tarif Lengkap <span class="tag" id="cardPeriodTag">—</span></h2>
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--ink-3);">Rp/kWh &amp; Rp/kVArh</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tariff-table">
+        <thead>
+          <tr>
+            <th style="width:30px">No.</th>
+            <th>Segmen</th>
+            <th>Golongan</th>
+            <th>Batas Daya</th>
+            <th>Biaya Beban</th>
+            <th class="num">WBP (Rp/kWh)</th>
+            <th class="num">LWBP (Rp/kWh)</th>
+            <th class="num">kVArh (Rp/kVArh)</th>
+            <th class="num">Prabayar (Rp/kWh)</th>
+          </tr>
+        </thead>
+        <tbody id="tariffTableBody">
+          <tr><td colspan="9" class="state-box"><i class="fa-solid fa-spinner fa-spin"></i>Memuat data…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="padding:14px 20px;border-top:1px solid var(--line);">
+      <div class="doc-footer">
+        <div class="signed">Ditetapkan oleh <strong id="footSigned">—</strong> &middot; Jakarta, <strong id="footDate">—</strong></div>
+        <div class="source-info">Sumber: Penetapan Direksi PT PLN (Persero)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TAB: SEGMEN ── -->
+<div id="tab-segmen" class="tab-content" style="display:none;">
+  <div class="segmen-grid" id="segmenGrid">
+    <div class="state-box" style="grid-column:1/-1;"><i class="fa-solid fa-spinner fa-spin"></i>Memuat…</div>
+  </div>
+</div>
+
+<!-- ── TAB: CATATAN ── -->
+<div id="tab-catatan" class="tab-content" style="display:none;">
+  <div class="card">
+    <div class="card-head"><h2><i class="fa-solid fa-circle-info" style="color:var(--orange)"></i> Catatan & Ketentuan</h2></div>
+    <div class="card-body">
+      <ul class="notes-list">
+        <li class="note-item">
+          <span class="note-mark">*</span>
+          <div>Diterapkan <strong>Rekening Minimum (RM1)</strong>:<br>
+          RM1 = 40 × Jam Nyala × Daya Tersambung (kVA) × Biaya Pemakaian.<br>
+          <em style="font-size:12px;color:var(--ink-3);">Berlaku untuk golongan R-1, R-2, R-3, B-2, P-1, P-3.</em></div>
+        </li>
+        <li class="note-item">
+          <span class="note-mark">**</span>
+          <div>Diterapkan <strong>Rekening Minimum (RM2)</strong>:<br>
+          RM2 = 40 × Jam Nyala × Daya Tersambung (kVA) × Biaya Pemakaian LWBP.<br>
+          Jam Nyala = kWh per bulan ÷ kVA tersambung.<br>
+          <em style="font-size:12px;color:var(--ink-3);">Berlaku untuk golongan B-3, I-3, P-2.</em></div>
+        </li>
+        <li class="note-item">
+          <span class="note-mark">***</span>
+          <div>Diterapkan <strong>Rekening Minimum (RM3)</strong>:<br>
+          RM3 = 40 × Jam Nyala × Daya Tersambung (kVA) × Biaya Pemakaian WBP dan LWBP.<br>
+          Jam Nyala = kWh per bulan ÷ kVA tersambung.<br>
+          <em style="font-size:12px;color:var(--ink-3);">Berlaku untuk golongan I-4.</em></div>
+        </li>
+        <li class="note-item">
+          <span class="note-mark">****</span>
+          <div>Biaya kelebihan pemakaian daya reaktif (kVArh) dikenakan apabila <strong>faktor daya rata-rata setiap bulan kurang dari 0,85</strong> (delapan puluh lima per seratus).</div>
+        </li>
+      </ul>
+
+      <div style="margin-top:22px;margin-bottom:10px;font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--ink);">Definisi &amp; Singkatan</div>
+      <div class="def-grid">
+        <div class="def-item"><span class="def-key">K</span><span class="def-val">Faktor perbandingan harga WBP dan LWBP sesuai karakteristik beban sistem setempat (1,4 ≤ K ≤ 2), ditetapkan Direksi PT PLN.</span></div>
+        <div class="def-item"><span class="def-key">N</span><span class="def-val">Faktor pengali untuk golongan Layanan Khusus (L), ditetapkan berdasarkan negosiasi antara PLN dan pelanggan.</span></div>
+        <div class="def-item"><span class="def-key">WBP</span><span class="def-val">Waktu Beban Puncak — jam-jam saat beban sistem listrik di atas rata-rata.</span></div>
+        <div class="def-item"><span class="def-key">LWBP</span><span class="def-val">Luar Waktu Beban Puncak — jam-jam di luar periode WBP.</span></div>
+        <div class="def-item"><span class="def-key">TR</span><span class="def-val">Tegangan Rendah (di bawah 1 kV).</span></div>
+        <div class="def-item"><span class="def-key">TM</span><span class="def-val">Tegangan Menengah (1 kV – 36 kV).</span></div>
+        <div class="def-item"><span class="def-key">TT</span><span class="def-val">Tegangan Tinggi (di atas 36 kV).</span></div>
+        <div class="def-item"><span class="def-key">kVArh</span><span class="def-val">Kilovolt-Ampere Reaktif jam — satuan pengukuran energi reaktif yang dikenakan biaya jika faktor daya &lt; 0,85.</span></div>
+      </div>
+
+      <div style="margin-top:22px;padding:14px 16px;background:#FFF8E8;border-radius:8px;border-left:3px solid var(--yellow);font-size:12.5px;color:var(--ink-2);line-height:1.6;">
+        <strong style="color:var(--ink);">Golongan Tarif:</strong> R = Rumah Tangga &nbsp;·&nbsp; B = Bisnis &nbsp;·&nbsp; I = Industri &nbsp;·&nbsp; P = Pemerintah &nbsp;·&nbsp; L = Layanan Khusus<br>
+        Penetapan ini berlaku satu kuartal dan diperbarui berdasarkan pergerakan kurs IDR/USD, ICP (Indonesian Crude Price), dan HBA (Harga Batubara Acuan).
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── HELPERS ──
+const fmt = (n) => n == null ? null : new Intl.NumberFormat('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+const SEG_LABEL = { R:'Rumah Tangga', B:'Bisnis', I:'Industri', P:'Pemerintah', L:'Layanan Khusus' };
+const SEG_ICON  = { R:'fa-house', B:'fa-store', I:'fa-industry', P:'fa-landmark', L:'fa-star' };
+
+// ── TAB ──
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).style.display = 'block';
+  btn.classList.add('active');
+}
+
+// ── RENDER ──
+function formatTarifCell(r) {
+  if (r.tarifFlat != null) {
+    return { wbp: fmt(r.tarifFlat), lwbp: fmt(r.tarifFlat) };
+  }
+  const wbpPrefix = r.multiplierWbp ? `<span class="tarif-mult">${r.multiplierWbp} × </span>` : '';
+  return {
+    wbp:  r.tarifWbp  != null ? wbpPrefix + fmt(r.tarifWbp)  : '<span class="tarif-na">—</span>',
+    lwbp: r.tarifLwbp != null ? fmt(r.tarifLwbp) : '<span class="tarif-na">—</span>',
+  };
+}
+function formatKvarh(r) {
+  if (r.tarifKvarh == null) return '<span class="tarif-na">—</span>';
+  const pre = r.multiplierKvarh ? `<span class="tarif-mult">${r.multiplierKvarh} × </span>` : '';
+  return pre + fmt(r.tarifKvarh);
+}
+
+function renderTable(rates) {
+  const tbody = document.getElementById('tariffTableBody');
+  tbody.innerHTML = rates.map(r => {
+    const { wbp, lwbp } = formatTarifCell(r);
+    const kvarh = formatKvarh(r);
+    const prabayar = r.tarifPrabayar != null
+      ? `<span class="tarif-prabayar">${fmt(r.tarifPrabayar)}</span>`
+      : '<span class="tarif-na">—</span>';
+    return `<tr>
+      <td style="color:var(--ink-3);font-family:var(--font-mono);font-size:11px">${r.no}</td>
+      <td><span class="kat-badge kat-${r.kategori}">${SEG_LABEL[r.kategori]}</span></td>
+      <td class="golongan-cell">${r.golongan}</td>
+      <td class="batas-cell">${r.batasDaya || '—'}</td>
+      <td><span class="rm-badge">${r.rmType || '—'}</span></td>
+      <td class="num tarif-cell tarif-wbp">${wbp}</td>
+      <td class="num tarif-cell">${lwbp}</td>
+      <td class="num tarif-cell">${kvarh}</td>
+      <td class="num">${prabayar}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSegmen(rates) {
+  const grid = document.getElementById('segmenGrid');
+  const byKat = {};
+  rates.forEach(r => { if (!byKat[r.kategori]) byKat[r.kategori] = []; byKat[r.kategori].push(r); });
+  grid.innerHTML = ['R','B','I','P','L'].filter(k => byKat[k]).map(k => {
+    const rows = byKat[k];
+    const flats = rows.filter(r => r.tarifFlat != null).map(r => parseFloat(r.tarifFlat));
+    const lwbps = rows.filter(r => r.tarifLwbp != null).map(r => parseFloat(r.tarifLwbp));
+    const all = [...flats, ...lwbps];
+    const minT = all.length ? Math.min(...all) : null;
+    const maxT = all.length ? Math.max(...all) : null;
+    return `
+    <div class="seg-card">
+      <div class="seg-head">
+        <div class="seg-icon ${k}"><i class="fa-solid ${SEG_ICON[k]}"></i></div>
+        <div>
+          <h3>${SEG_LABEL[k]}</h3>
+          <div style="font-size:11px;color:var(--ink-3);font-family:var(--font-mono)">${rows.length} golongan</div>
+        </div>
+      </div>
+      <div class="seg-body">
+        ${rows.map(r => {
+          const display = r.tarifFlat != null ? fmt(r.tarifFlat) : (r.multiplierLwbp || '') + fmt(r.tarifLwbp);
+          return `<div class="seg-row">
+            <span class="label">${r.golongan}${r.batasDaya ? ' · ' + r.batasDaya : ''}</span>
+            <span class="val">${display} <span style="font-size:10px;font-weight:400;color:var(--ink-3)">Rp/kWh</span></span>
+          </div>`;
+        }).join('')}
+        ${minT !== null && minT !== maxT ? `
+        <div style="margin-top:10px;padding:8px 10px;background:#FAFAF8;border-radius:6px;font-size:11.5px;color:var(--ink-2);display:flex;justify-content:space-between">
+          <span>Rentang</span>
+          <span style="font-family:var(--font-mono);font-weight:600">${fmt(minT)} – ${fmt(maxT)}</span>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── LOAD DATA ──
+async function loadData() {
+  try {
+    const res  = await fetch('/api/tariff/current');
+    if (!res.ok) throw new Error('API error');
+    const { period, rates } = await res.json();
+
+    // Meta
+    document.getElementById('metaPeriod').textContent = period.periodLabel;
+    document.getElementById('metaSigned').textContent = period.signedBy || '—';
+    document.getElementById('metaCount').textContent  = rates.length + ' golongan tarif';
+    document.getElementById('cardPeriodTag').textContent = period.period;
+    document.getElementById('footSigned').textContent = period.signedBy || '—';
+    const eff = new Date(period.effectiveDate);
+    document.getElementById('footDate').textContent = new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'long',year:'numeric'}).format(eff);
+
+    // KPI
+    const flats = rates.filter(r => r.tarifFlat  != null).map(r => parseFloat(r.tarifFlat));
+    const lwbps = rates.filter(r => r.tarifLwbp  != null).map(r => parseFloat(r.tarifLwbp));
+    const all   = [...flats, ...lwbps];
+    const maxV  = Math.max(...all);
+    const minV  = Math.min(...all);
+    const maxR  = rates.find(r => parseFloat(r.tarifFlat||r.tarifLwbp) === maxV);
+    const minR  = rates.find(r => parseFloat(r.tarifFlat||r.tarifLwbp) === minV);
+    document.getElementById('kpiMax').innerHTML = fmt(maxV) + '<span> Rp/kWh</span>';
+    document.getElementById('kpiMaxNote').textContent = maxR ? maxR.golongan + (maxR.batasDaya ? ' · ' + maxR.batasDaya : '') : '';
+    document.getElementById('kpiMin').innerHTML = fmt(minV) + '<span> Rp/kWh</span>';
+    document.getElementById('kpiMinNote').textContent = minR ? minR.golongan + (minR.batasDaya ? ' · ' + minR.batasDaya : '') : '';
+    document.getElementById('kpiPeriod').innerHTML = period.periodLabel;
+    document.getElementById('kpiCount').innerHTML = rates.length + '<span> gol.</span>';
+
+    renderTable(rates);
+    renderSegmen(rates);
+
+  } catch(e) {
+    document.getElementById('tariffTableBody').innerHTML =
+      `<tr><td colspan="9" class="state-box"><i class="fa-solid fa-circle-exclamation"></i>Gagal memuat data. Coba muat ulang.</td></tr>`;
+  }
+}
+
+// Auth check + load
+fetch('/api/auth/me').then(r => { if (!r.ok) window.location.href='/'; }).then(() => loadData());
+</script>
+</body>
+</html>
