@@ -38,6 +38,15 @@ CREATE TABLE `user_domain_access` (
 	CONSTRAINT `user_domain_access_pk` PRIMARY KEY(`user_id`, `domain_id`)
 );
 
+CREATE TABLE `user_module_access` (
+	`user_id` int NOT NULL,
+	`module_id` int NOT NULL,
+	`granted_at` timestamp NOT NULL DEFAULT (now()),
+	`granted_by` int,
+	CONSTRAINT `user_module_access_pk` PRIMARY KEY(`user_id`, `module_id`),
+	INDEX `uma_user_idx` (`user_id`)
+);
+
 CREATE TABLE `dataset_sources` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`domain_module_id` int NOT NULL,
