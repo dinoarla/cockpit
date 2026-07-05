@@ -77,7 +77,8 @@
   .btn-logout:hover{background:rgba(255,77,0,.12);border-color:var(--orange);color:var(--orange);}
 
   /* ── MAIN (cream background) ── */
-  .main{max-width:1200px;margin:0 auto;padding:32px 28px 80px;}
+  .page-wrap{display:flex;align-items:flex-start;}
+  .main{flex:1;min-width:0;padding:32px 28px 80px;}
 
   /* ── DOMAIN PANEL ── */
   .domain-panel{
@@ -277,6 +278,83 @@
     .footer-stats{gap:12px;}
   }
 
+  /* ── SERVER SIDEBAR ── */
+  .server-sidebar{
+    width:218px;flex-shrink:0;
+    position:sticky;top:56px;
+    height:calc(100vh - 56px);
+    overflow-y:auto;overflow-x:hidden;
+    background:#0D1117;
+    border-right:1px solid rgba(255,255,255,.06);
+    padding:18px 14px 80px;
+    scrollbar-width:none;
+  }
+  .server-sidebar::-webkit-scrollbar{display:none;}
+  .ss-hd{
+    display:flex;align-items:center;gap:7px;
+    font-family:'DM Mono',monospace;font-size:.52rem;font-weight:500;
+    color:rgba(230,237,243,.25);letter-spacing:.14em;text-transform:uppercase;
+    margin-bottom:14px;padding-bottom:12px;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .ss-hd i{color:rgba(255,77,0,.6);font-size:.62rem;}
+  .ss-block{
+    margin-bottom:10px;padding:11px;
+    background:rgba(255,255,255,.025);
+    border:1px solid rgba(255,255,255,.055);
+    border-radius:7px;
+  }
+  .ss-lbl{
+    font-family:'DM Mono',monospace;font-size:.46rem;
+    color:rgba(230,237,243,.22);letter-spacing:.14em;text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .ss-val-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px;}
+  .ss-big{
+    font-family:'DM Mono',monospace;font-size:1rem;font-weight:500;
+    color:var(--orange);line-height:1;
+  }
+  .ss-dim{font-family:'DM Mono',monospace;font-size:.5rem;color:rgba(230,237,243,.28);}
+  .ss-mid{
+    font-family:'DM Mono',monospace;font-size:.72rem;font-weight:500;
+    color:rgba(230,237,243,.7);
+  }
+  .ss-bar-track{
+    height:3px;background:rgba(255,255,255,.07);border-radius:2px;
+    overflow:hidden;margin-bottom:7px;
+  }
+  .ss-bar-fill{height:100%;border-radius:2px;background:var(--orange);transition:width .6s ease,background .3s;}
+  .ss-block canvas{
+    display:block;border-radius:3px;
+    background:rgba(0,0,0,.2);
+    margin-top:4px;
+  }
+  .ss-load-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:8px;
+  }
+  .ss-load-cell{
+    background:rgba(255,255,255,.04);border-radius:5px;
+    padding:5px 4px;text-align:center;
+  }
+  .ss-load-val{
+    display:block;font-family:'DM Mono',monospace;
+    font-size:.68rem;font-weight:500;color:rgba(230,237,243,.75);
+  }
+  .ss-load-sub{
+    font-family:'DM Mono',monospace;font-size:.43rem;
+    color:rgba(230,237,243,.2);letter-spacing:.06em;
+  }
+  .ss-foot{
+    display:flex;align-items:center;gap:6px;
+    font-family:'DM Mono',monospace;font-size:.47rem;
+    color:rgba(230,237,243,.18);margin-top:6px;
+  }
+  .ss-dot{
+    width:5px;height:5px;border-radius:50%;flex-shrink:0;
+    background:rgba(46,204,113,.3);transition:background .4s;
+  }
+  @media(max-width:960px){.server-sidebar{display:none;}}
+
   /* ── CHANGELOG MODAL ── */
   .modal-backdrop{
     display:none;position:fixed;inset:0;z-index:1000;
@@ -379,6 +457,47 @@
   </div>
 </header>
 
+<div class="page-wrap">
+
+<aside class="server-sidebar">
+  <div class="ss-hd"><i class="fa-solid fa-server"></i>Server Stats</div>
+
+  <div class="ss-block">
+    <div class="ss-lbl">Memori</div>
+    <div class="ss-val-row">
+      <span class="ss-big" id="ss-mem-pct">—</span>
+      <span class="ss-dim" id="ss-mem-sub">… MB</span>
+    </div>
+    <div class="ss-bar-track"><div class="ss-bar-fill" id="ss-mem-bar" style="width:0%"></div></div>
+    <canvas id="ss-mem-cv" width="160" height="40"></canvas>
+  </div>
+
+  <div class="ss-block">
+    <div class="ss-lbl">CPU Load Avg</div>
+    <div class="ss-load-grid">
+      <div class="ss-load-cell"><span class="ss-load-val" id="ss-l1">—</span><span class="ss-load-sub">1m</span></div>
+      <div class="ss-load-cell"><span class="ss-load-val" id="ss-l5">—</span><span class="ss-load-sub">5m</span></div>
+      <div class="ss-load-cell"><span class="ss-load-val" id="ss-l15">—</span><span class="ss-load-sub">15m</span></div>
+    </div>
+    <canvas id="ss-load-cv" width="160" height="40"></canvas>
+  </div>
+
+  <div class="ss-block">
+    <div class="ss-lbl">Uptime</div>
+    <div class="ss-mid" id="ss-uptime">—</div>
+  </div>
+
+  <div class="ss-block">
+    <div class="ss-lbl">CPU</div>
+    <div class="ss-mid" id="ss-cpu">—</div>
+  </div>
+
+  <div class="ss-foot">
+    <span class="ss-dot" id="ss-dot"></span>
+    <span id="ss-ts">Memuat…</span>
+  </div>
+</aside>
+
 <main class="main">
   <div id="adminPanel" style="display:none;margin-bottom:16px;">
     <div class="domain-panel">
@@ -437,6 +556,7 @@
     </div>
   </div>
 </main>
+</div><!-- /.page-wrap -->
 
 <script>
 const MODULE_ICONS = {
@@ -807,6 +927,109 @@ document.getElementById('versionBtn').addEventListener('click', () => modal.clas
 document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
 modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classList.remove('open'); });
+
+// ── SERVER STATS SIDEBAR ──
+const _memHist  = [];
+const _loadHist = [];
+const SS_PTS    = 20;
+
+function _sparkline(canvasId, data, color) {
+  const cv = document.getElementById(canvasId);
+  if (!cv || data.length < 2) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.clearRect(0, 0, W, H);
+  const max = Math.max(...data) || 1;
+  const pts = data.map((v, i) => ({
+    x: (i / (data.length - 1)) * W,
+    y: H - (v / max) * (H - 4) - 2
+  }));
+  const gr = ctx.createLinearGradient(0, 0, 0, H);
+  gr.addColorStop(0, color + '44');
+  gr.addColorStop(1, color + '00');
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) {
+    const mx = (pts[i-1].x + pts[i].x) / 2;
+    ctx.bezierCurveTo(mx, pts[i-1].y, mx, pts[i].y, pts[i].x, pts[i].y);
+  }
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  ctx.fillStyle = gr; ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) {
+    const mx = (pts[i-1].x + pts[i].x) / 2;
+    ctx.bezierCurveTo(mx, pts[i-1].y, mx, pts[i].y, pts[i].x, pts[i].y);
+  }
+  ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
+}
+
+function _fmtUptime(sec) {
+  const d = Math.floor(sec / 86400);
+  const h = Math.floor((sec % 86400) / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const parts = [];
+  if (d) parts.push(d + 'd');
+  if (h) parts.push(h + 'j');
+  parts.push(m + 'm');
+  return parts.join(' ');
+}
+
+async function loadServerStats() {
+  const dot = document.getElementById('ss-dot');
+  try {
+    const res = await fetch('/api/server-stats');
+    if (!res.ok) throw new Error('err');
+    const d = await res.json();
+
+    // Memory
+    _memHist.push(d.memory.percent);
+    if (_memHist.length > SS_PTS) _memHist.shift();
+    const memPct = document.getElementById('ss-mem-pct');
+    const memSub = document.getElementById('ss-mem-sub');
+    const memBar = document.getElementById('ss-mem-bar');
+    if (memPct) memPct.textContent = d.memory.percent + '%';
+    if (memSub) memSub.textContent = d.memory.used + ' / ' + d.memory.total + ' MB';
+    if (memBar) {
+      memBar.style.width = d.memory.percent + '%';
+      memBar.style.background = d.memory.percent > 85 ? '#E74C3C' : d.memory.percent > 65 ? '#FFD600' : 'var(--orange)';
+    }
+    _sparkline('ss-mem-cv', _memHist, '#FF4D00');
+
+    // CPU Load
+    _loadHist.push(d.load.m1);
+    if (_loadHist.length > SS_PTS) _loadHist.shift();
+    const el1  = document.getElementById('ss-l1');
+    const el5  = document.getElementById('ss-l5');
+    const el15 = document.getElementById('ss-l15');
+    if (el1)  el1.textContent  = d.load.m1.toFixed(2);
+    if (el5)  el5.textContent  = d.load.m5.toFixed(2);
+    if (el15) el15.textContent = d.load.m15.toFixed(2);
+    _sparkline('ss-load-cv', _loadHist, '#FFD600');
+
+    // Uptime
+    const upEl = document.getElementById('ss-uptime');
+    if (upEl) upEl.textContent = _fmtUptime(d.uptime);
+
+    // CPU
+    const cpuEl = document.getElementById('ss-cpu');
+    if (cpuEl) cpuEl.textContent = d.cpuCount + ' core';
+
+    // Timestamp
+    const now = new Date();
+    const tsEl = document.getElementById('ss-ts');
+    if (tsEl) tsEl.textContent =
+      'Update ' + String(now.getHours()).padStart(2,'0') + ':' +
+      String(now.getMinutes()).padStart(2,'0') + ':' +
+      String(now.getSeconds()).padStart(2,'0');
+    if (dot) dot.style.background = 'rgba(46,204,113,.6)';
+  } catch {
+    if (dot) dot.style.background = 'rgba(231,76,60,.5)';
+  }
+}
+
+loadServerStats();
+setInterval(loadServerStats, 15000);
 
 // Footer stats
 async function loadFooterStats() {

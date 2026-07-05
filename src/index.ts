@@ -1,4 +1,5 @@
 import "dotenv/config";
+import os from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { readFile } from "node:fs/promises";
@@ -30,6 +31,29 @@ app.get("/healthz", async (c) => {
     status: "ok",
     ts: new Date().toISOString(),
     lastUpdate: latest?.lastUpdate ?? null,
+  });
+});
+
+app.get("/api/server-stats", requireAuth, (c) => {
+  const totalMem = os.totalmem();
+  const freeMem  = os.freemem();
+  const usedMem  = totalMem - freeMem;
+  const loadAvg  = os.loadavg();
+  const cpus     = os.cpus();
+  return c.json({
+    memory: {
+      total:   Math.round(totalMem / 1024 / 1024),
+      used:    Math.round(usedMem  / 1024 / 1024),
+      free:    Math.round(freeMem  / 1024 / 1024),
+      percent: Math.round((usedMem / totalMem) * 100),
+    },
+    load: {
+      m1:  Math.round(loadAvg[0] * 100) / 100,
+      m5:  Math.round(loadAvg[1] * 100) / 100,
+      m15: Math.round(loadAvg[2] * 100) / 100,
+    },
+    uptime:   Math.floor(os.uptime()),
+    cpuCount: cpus.length,
   });
 });
 
