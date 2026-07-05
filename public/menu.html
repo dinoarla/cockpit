@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — COCKPIT</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
@@ -220,6 +221,31 @@
     .main{padding:20px 16px 60px;}
     .sections-wrap{padding:16px;}
     .domain-header{padding:14px 16px;}
+  }
+
+  /* ── FOOTER ── */
+  .footer{
+    background:var(--navy);border-top:1px solid rgba(255,255,255,.06);
+    padding:14px 28px;display:flex;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;gap:10px;
+  }
+  .footer-copy{
+    font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:600;
+    color:rgba(230,237,243,.5);letter-spacing:.01em;
+  }
+  .footer-copy span{color:var(--orange);}
+  .footer-stats{
+    display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  }
+  .footer-stat{
+    font-family:'DM Mono',monospace;font-size:.58rem;
+    color:rgba(230,237,243,.3);display:flex;align-items:center;gap:5px;
+  }
+  .footer-stat i{color:rgba(255,77,0,.5);font-size:.55rem;}
+  .footer-stat b{color:rgba(230,237,243,.55);font-weight:500;}
+  @media(max-width:700px){
+    .footer{flex-direction:column;align-items:flex-start;gap:8px;padding:14px 16px;}
+    .footer-stats{gap:12px;}
   }
 
   /* ── CHANGELOG MODAL ── */
@@ -601,6 +627,67 @@ document.getElementById('versionBtn').addEventListener('click', () => modal.clas
 document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
 modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classList.remove('open'); });
+
+// Footer stats
+async function loadFooterStats() {
+  const t0 = performance.now();
+  try {
+    const res = await fetch('/healthz');
+    const t1 = performance.now();
+    const data = await res.json();
+    const ms = Math.round(t1 - t0);
+    const serverDt = new Date(data.ts);
+    const fmt = new Intl.DateTimeFormat('id-ID', {
+      timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short',
+      year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit',
+    });
+    document.getElementById('footer-servertime').textContent = fmt.format(serverDt) + ' WIB';
+    document.getElementById('footer-response').textContent   = ms + ' ms';
+  } catch(e) {
+    document.getElementById('footer-servertime').textContent = '—';
+    document.getElementById('footer-response').textContent   = '—';
+  }
+}
+
+async function loadLastUpdate() {
+  try {
+    const res = await fetch('/api/domains');
+    const domains = await res.json();
+    const now = new Date();
+    const fmt = new Intl.DateTimeFormat('id-ID', {
+      timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit',
+    });
+    document.getElementById('footer-lastupdate').textContent = fmt.format(now) + ' WIB';
+  } catch(e) {
+    document.getElementById('footer-lastupdate').textContent = '—';
+  }
+}
+
+loadFooterStats();
+loadLastUpdate();
 </script>
+
+<footer class="footer">
+  <div class="footer-copy">© 2026 <span>COCKPIT</span> · by Dino Arla</div>
+  <div class="footer-stats">
+    <div class="footer-stat">
+      <i class="fa-solid fa-server"></i>
+      Server Time: <b id="footer-servertime">…</b>
+    </div>
+    <div class="footer-stat">
+      <i class="fa-solid fa-database"></i>
+      Last Update: <b id="footer-lastupdate">…</b>
+    </div>
+    <div class="footer-stat">
+      <i class="fa-solid fa-bolt"></i>
+      Response: <b id="footer-response">…</b>
+    </div>
+    <div class="footer-stat">
+      <i class="fa-solid fa-location-dot"></i>
+      Server: <b>Indonesia</b>
+    </div>
+  </div>
+</footer>
+
 </body>
 </html>
