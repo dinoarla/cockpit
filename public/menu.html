@@ -380,27 +380,78 @@
 
 <script>
 const MODULE_ICONS = {
-  'mdp':          '<i class="fa-solid fa-chart-column"></i>',
-  'ruptl':        '<i class="fa-solid fa-industry"></i>',
-  'pelanggan':    '<i class="fa-solid fa-users"></i>',
-  'olap-tagihan': '<i class="fa-solid fa-file-invoice"></i>',
-  'pencurian':    '<i class="fa-solid fa-triangle-exclamation"></i>',
+  // Modul lama
+  'mdp':                    '<i class="fa-solid fa-chart-column"></i>',
+  'ruptl':                  '<i class="fa-solid fa-industry"></i>',
+  'pelanggan':              '<i class="fa-solid fa-users"></i>',
+  'olap-tagihan':           '<i class="fa-solid fa-file-invoice"></i>',
+  'pencurian':              '<i class="fa-solid fa-triangle-exclamation"></i>',
+  // Section 01
+  'atlas-pembangkit':       '<i class="fa-solid fa-solar-panel"></i>',
+  'ekonomi-transisi':       '<i class="fa-solid fa-chart-line"></i>',
+  'atlas-ebt':              '<i class="fa-solid fa-leaf"></i>',
+  'der-storage':            '<i class="fa-solid fa-battery-half"></i>',
+  // Section 02
+  'sistem-transmisi':       '<i class="fa-solid fa-network-wired"></i>',
+  'rencana-transmisi':      '<i class="fa-solid fa-road"></i>',
+  'proteksi-transmisi':     '<i class="fa-solid fa-shield-halved"></i>',
+  // Section 03
+  'infrastruktur-distribusi':'<i class="fa-solid fa-sitemap"></i>',
+  'keandalan-layanan':      '<i class="fa-solid fa-signal"></i>',
+  'ekonomi-niaga':          '<i class="fa-solid fa-coins"></i>',
+  'tarif-listrik':          '<i class="fa-solid fa-tags"></i>',
+  'losses-integritas':      '<i class="fa-solid fa-bolt-lightning"></i>',
+  'ekuitas-akses':          '<i class="fa-solid fa-scale-balanced"></i>',
 };
 const MODULE_DESC = {
-  'mdp':          'Bauran energi primer Jawa Barat — RE vs NRE, RKPD 2026, RUPTL 2025-2034, gangguan PLN, kemiskinan',
-  'ruptl':        'Rencana pengembangan sistem tenaga listrik nasional — 34 provinsi, RE Base & ARED',
-  'pelanggan':    'Master data pelanggan PLN Jawa Barat — akses terbatas, data PII terenkripsi',
-  'olap-tagihan': 'Ringkasan & analisis tagihan listrik — summary table + tren',
-  'pencurian':    'Data gangguan & dugaan pencurian tenaga listrik — role tertentu saja',
+  // Modul lama
+  'mdp':                    'Bauran energi primer Jawa Barat — RE vs NRE, RKPD 2026, RUPTL 2025-2034, gangguan PLN, kemiskinan',
+  'ruptl':                  'Rencana pengembangan sistem tenaga listrik nasional — 34 provinsi, RE Base & ARED',
+  'pelanggan':              'Master data pelanggan PLN Jawa Barat — akses terbatas, data PII terenkripsi',
+  'olap-tagihan':           'Ringkasan & analisis tagihan listrik — summary table + tren',
+  'pencurian':              'Data gangguan & dugaan pencurian tenaga listrik — role tertentu saja',
+  // Section 01
+  'atlas-pembangkit':       'Inventaris pembangkit RE/NRE, pipeline RUPTL, capacity factor & rencana retirement PLTU',
+  'ekonomi-transisi':       'LCOE, BPP, subsidi listrik, gap RUEN/RUED vs realisasi, skema insentif EBT, NDC & JETP',
+  'atlas-ebt':              'Peta potensi geospasial EBT (surya/angin/air/panas bumi/biomassa), harga lelang, gap realisasi',
+  'der-storage':            'Adopsi PLTS atap per segmen, kuota & utilisasi per UP3, hosting capacity jaringan, pipeline BESS',
+  // Section 02
+  'sistem-transmisi':       'Topologi jaringan 500/275/150/70kV, inventaris gardu induk, peta interkoneksi, keandalan N-1',
+  'rencana-transmisi':      'Proyek transmisi RUPTL, keterkaitan pipeline EBT, estimasi investasi, isu pembebasan lahan (ROW)',
+  'proteksi-transmisi':     'Proteksi petir, arc flash, koordinasi relay, hubung singkat, insulation coordination — data teknis aset',
+  // Section 03
+  'infrastruktur-distribusi':'Inventaris aset JTM/JTR per UP3 & kab/kota, estimasi umur aset, penetrasi smart meter/AMI, SCADA',
+  'keandalan-layanan':      'SAIDI/SAIFI per wilayah, akar penyebab gangguan, kelas layanan ULP, keluhan kualitas tegangan',
+  'ekonomi-niaga':          'Segmentasi pelanggan, OLAP tagihan per segmen & wilayah, insidensi subsidi, kinerja penagihan',
+  'tarif-listrik':          'Golongan TDL historis, mekanisme penyesuaian otomatis (kurs/ICP/HBA), cross-subsidy, tarif vs BPP',
+  'losses-integritas':      'Susut teknis vs non-teknis per wilayah, pola geografis pencurian, efektivitas program P2TL',
+  'ekuitas-akses':          'Rasio elektrifikasi per wilayah, silang keandalan dengan kemiskinan & bencana, demand per kapita',
 };
 
 // Mapping slug → section (1/2/3)
 const SECTION_MAP = {
-  'mdp':          1,
-  'ruptl':        1,
-  'pelanggan':    3,
-  'olap-tagihan': 3,
-  'pencurian':    3,
+  // Modul lama
+  'mdp':                    1,
+  'ruptl':                  1,
+  'pelanggan':              3,
+  'olap-tagihan':           3,
+  'pencurian':              3,
+  // Section 01
+  'atlas-pembangkit':       1,
+  'ekonomi-transisi':       1,
+  'atlas-ebt':              1,
+  'der-storage':            1,
+  // Section 02
+  'sistem-transmisi':       2,
+  'rencana-transmisi':      2,
+  'proteksi-transmisi':     2,
+  // Section 03
+  'infrastruktur-distribusi':3,
+  'keandalan-layanan':      3,
+  'ekonomi-niaga':          3,
+  'tarif-listrik':          3,
+  'losses-integritas':      3,
+  'ekuitas-akses':          3,
 };
 const SECTIONS = [
   { id: 1, num: '01', label: 'Pembangkitan, Transisi Energi & Energi Hijau' },

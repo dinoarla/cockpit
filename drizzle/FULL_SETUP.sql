@@ -206,11 +206,28 @@ INSERT INTO domains (slug, nama, deskripsi, is_active) VALUES
 
 -- Modul-modul domain Energi Jabar
 INSERT INTO domain_modules (domain_id, slug, nama, route_path, sensitivitas, status)
+-- Modul lama (sudah ada)
 SELECT id, 'mdp',          'Bauran Energi Jawa Barat',        '/modules/energi-jabar/mdp/',          'internal',  'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'ruptl',        'RUPTL PLN 2025-2034',             '/modules/energi-jabar/ruptl/',        'publik',    'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'pelanggan',    'Data Induk Langganan PLN Jabar',  '/modules/energi-jabar/pelanggan/',    'sensitif',  'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
 SELECT id, 'olap-tagihan', 'Data OLAP Tagihan Listrik Jabar', '/modules/energi-jabar/olap-tagihan/', 'sensitif',  'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
-SELECT id, 'pencurian',    'Data Pencurian Tenaga Listrik',   '/modules/energi-jabar/pencurian/',    'sensitif',  'draft' FROM domains WHERE slug='energi-jabar';
+SELECT id, 'pencurian',    'Data Pencurian Tenaga Listrik',   '/modules/energi-jabar/pencurian/',    'sensitif',  'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+-- Section 01: Pembangkitan, Transisi Energi & Energi Hijau
+SELECT id, 'atlas-pembangkit',  'Atlas Kapasitas & Transisi Pembangkit',          '/modules/energi-jabar/atlas-pembangkit/',  'publik',   'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'ekonomi-transisi',  'Ekonomi & Kebijakan Transisi Energi',            '/modules/energi-jabar/ekonomi-transisi/',  'publik',   'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'atlas-ebt',         'Atlas Potensi & Pengembangan EBT',               '/modules/energi-jabar/atlas-ebt/',         'publik',   'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'der-storage',       'Energi Terdistribusi & Storage',                 '/modules/energi-jabar/der-storage/',       'internal', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+-- Section 02: Transmisi
+SELECT id, 'sistem-transmisi',  'Topologi & Keandalan Sistem Transmisi',          '/modules/energi-jabar/sistem-transmisi/',  'internal', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'rencana-transmisi', 'Rencana Pengembangan & Investasi Transmisi',     '/modules/energi-jabar/rencana-transmisi/', 'internal', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'proteksi-transmisi','Studi Proteksi Sistem Transmisi',                '/modules/energi-jabar/proteksi-transmisi/','internal', 'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
+-- Section 03: Distribusi Tenaga Listrik
+SELECT id, 'infrastruktur-distribusi','Infrastruktur & Modernisasi Jaringan Distribusi','/modules/energi-jabar/infrastruktur-distribusi/','internal','aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'keandalan-layanan', 'Keandalan & Kualitas Layanan',                   '/modules/energi-jabar/keandalan-layanan/', 'internal', 'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'ekonomi-niaga',     'Ekonomi Niaga & Pelanggan',                      '/modules/energi-jabar/ekonomi-niaga/',     'sensitif', 'aktif' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'tarif-listrik',     'Tarif Tenaga Listrik',                           '/modules/energi-jabar/tarif-listrik/',     'publik',   'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'losses-integritas', 'Losses & Integritas Jaringan',                   '/modules/energi-jabar/losses-integritas/', 'sensitif', 'draft' FROM domains WHERE slug='energi-jabar' UNION ALL
+SELECT id, 'ekuitas-akses',     'Ekuitas & Akses Kelistrikan',                    '/modules/energi-jabar/ekuitas-akses/',     'internal', 'aktif' FROM domains WHERE slug='energi-jabar';
 
 -- Provenance: sumber data RUPTL (§4.3 & §12 PRD)
 INSERT INTO dataset_sources (domain_module_id, nama_sumber, jenis_sumber, url_atau_referensi, tanggal_akses, catatan_metodologi)
