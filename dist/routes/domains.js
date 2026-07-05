@@ -30,12 +30,13 @@ domainRoutes.get("/", async (c) => {
     }
     const result = await Promise.all(accessibleDomains.map(async (domain) => {
         let mods;
+        const tokenUrl = (m, d) => m.urlToken ? `/modules/${d.slug}/${m.urlToken}/` : m.routePath;
         if (user.role === "admin") {
             const adminMods = await db
                 .select()
                 .from(domainModules)
                 .where(and(eq(domainModules.domainId, domain.id), ne(domainModules.status, "arsip")));
-            mods = adminMods.map((m) => ({ ...m, accessible: true }));
+            mods = adminMods.map((m) => ({ ...m, accessible: true, routePath: tokenUrl(m, domain) }));
         }
         else {
             // Cek apakah user punya pembatasan per-modul
@@ -50,7 +51,7 @@ domainRoutes.get("/", async (c) => {
                     .select()
                     .from(domainModules)
                     .where(and(eq(domainModules.domainId, domain.id), eq(domainModules.status, "aktif")));
-                mods = allMods.map((m) => ({ ...m, accessible: allowedIds.has(m.id) }));
+                mods = allMods.map((m) => ({ ...m, accessible: allowedIds.has(m.id), routePath: tokenUrl(m, domain) }));
             }
             else {
                 // Tidak ada pembatasan — semua modul aktif accessible
@@ -58,7 +59,7 @@ domainRoutes.get("/", async (c) => {
                     .select()
                     .from(domainModules)
                     .where(and(eq(domainModules.domainId, domain.id), eq(domainModules.status, "aktif")));
-                mods = allMods.map((m) => ({ ...m, accessible: true }));
+                mods = allMods.map((m) => ({ ...m, accessible: true, routePath: tokenUrl(m, domain) }));
             }
         }
         return { ...domain, modules: mods };

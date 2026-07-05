@@ -214,6 +214,7 @@ export const domainModules = mysqlTable(
     id: int("id").autoincrement().primaryKey(),
     domainId: int("domain_id").notNull(),
     slug: varchar("slug", { length: 50 }).notNull(),
+    urlToken: varchar("url_token", { length: 12 }).unique(),
     nama: varchar("nama", { length: 150 }).notNull(),
     routePath: varchar("route_path", { length: 100 }).notNull(),
     sensitivitas: mysqlEnum("sensitivitas", ["publik", "internal", "sensitif"]).notNull().default("internal"),

@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { readFile } from "node:fs/promises";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
@@ -42,47 +43,55 @@ app.route("/api/tariff", tariffRoutes);
 app.use("/menu.html", requireAuth, serveStatic({ root: publicDir }));
 app.use("/admin/*", requireAuth, serveStatic({ root: publicDir }));
 
-// ── MODULE ACCESS GUARD ──
-// Blok akses langsung via URL jika user tidak punya izin ke modul tersebut
-app.use("/modules/:domainSlug/:moduleSlug/*", requireAuth, async (c, next) => {
-  const user = c.get("user");
-  if (user.role === "admin") return next(); // admin bypass
+// ── TOKEN-BASED MODULE HANDLER ──
+// URL modul menggunakan token acak (url_token), bukan slug asli.
+// Server resolve token → slug → file, sambil cek akses user.
+app.get("/modules/:domainSlug/:token/", requireAuth, async (c) => {
+  const user       = c.get("user");
+  const domainSlug = c.req.param("domainSlug") ?? "";
+  const token      = c.req.param("token") ?? "";
+  if (!domainSlug || !token) return c.redirect("/menu.html");
 
-  const domainSlug  = c.req.param("domainSlug");
-  const moduleSlug  = c.req.param("moduleSlug");
-
-  // Cari domain
+  // Resolve domain
   const [domain] = await db.select().from(domains)
     .where(and(eq(domains.slug, domainSlug), eq(domains.isActive, true)))
     .limit(1);
   if (!domain) return c.redirect("/menu.html");
 
-  // Cek domain access
-  const [domAccess] = await db.select().from(userDomainAccess)
-    .where(and(eq(userDomainAccess.userId, user.id), eq(userDomainAccess.domainId, domain.id)))
-    .limit(1);
-  if (!domAccess) return c.redirect("/menu.html");
-
-  // Cek apakah user punya pembatasan per-modul
-  const modAccessList = await db.select().from(userModuleAccess)
-    .where(eq(userModuleAccess.userId, user.id));
-
-  if (modAccessList.length === 0) return next(); // tidak ada pembatasan = full access
-
-  // Cari module
-  const [mod] = await db.select().from(domainModules)
-    .where(and(eq(domainModules.domainId, domain.id), eq(domainModules.slug, moduleSlug)))
-    .limit(1);
+  // Resolve token → module (urlToken is nullable, filter client-side)
+  const candidates = await db.select().from(domainModules)
+    .where(eq(domainModules.domainId, domain.id));
+  const mod = candidates.find((m) => m.urlToken === token);
   if (!mod) return c.redirect("/menu.html");
 
-  // Cek apakah module ini termasuk yang diizinkan
-  const allowedIds = new Set(modAccessList.map((m) => m.moduleId));
-  if (!allowedIds.has(mod.id)) return c.redirect("/menu.html");
+  // Access check untuk non-admin
+  if (user.role !== "admin") {
+    const [domAccess] = await db.select().from(userDomainAccess)
+      .where(and(eq(userDomainAccess.userId, user.id), eq(userDomainAccess.domainId, domain.id)))
+      .limit(1);
+    if (!domAccess) return c.redirect("/menu.html");
 
-  return next();
+    const modAccessList = await db.select().from(userModuleAccess)
+      .where(eq(userModuleAccess.userId, user.id));
+
+    if (modAccessList.length > 0) {
+      const allowedIds = new Set(modAccessList.map((m) => m.moduleId));
+      if (!allowedIds.has(mod.id)) return c.redirect("/menu.html");
+    }
+  }
+
+  // Serve file dari path asli (slug, bukan token)
+  const filePath = join(publicDir, "modules", domainSlug, mod.slug, "index.html");
+  try {
+    const content = await readFile(filePath, "utf-8");
+    return c.html(content);
+  } catch {
+    return c.redirect("/menu.html");
+  }
 });
 
-app.use("/modules/*", serveStatic({ root: publicDir }));
+// Semua path /modules/* lainnya → redirect (tidak bisa akses langsung via slug)
+app.all("/modules/*", requireAuth, (c) => c.redirect("/menu.html"));
 app.use("/*", serveStatic({ root: publicDir }));
 
 const port = Number(process.env.PORT) || 3000;
