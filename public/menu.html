@@ -215,6 +215,11 @@
     text-align:center;padding:64px 24px;
     font-family:'DM Mono',monospace;font-size:.7rem;color:var(--ink-3);
   }
+  #loadingText{
+    transition:opacity .3s ease;
+    min-height:1.2em;display:inline-block;
+  }
+  #loadingText.fade{opacity:0;}
   .spinner{
     width:20px;height:20px;border:2px solid rgba(17,17,24,.15);
     border-top-color:var(--orange);border-radius:50%;
@@ -414,7 +419,7 @@
   <div id="domainsContainer">
     <div class="loading-state">
       <div class="spinner"></div>
-      Memuat data sistem…
+      <span id="loadingText">Menyeduh kopi untuk server…</span>
     </div>
   </div>
 </main>
@@ -501,6 +506,46 @@ const SECTIONS = [
 ];
 const DOMAIN_ICONS = { 'energi-jabar': '<i class="fa-solid fa-bolt-lightning"></i>' };
 
+// Loading phrases
+const LOADING_PHRASES = [
+  'Menyeduh kopi untuk server…',
+  'Berbisik ke database…',
+  'Membangunkan API dari tidur…',
+  'Menghitung elektron satu per satu…',
+  'Merayu firewall agar membuka pintu…',
+  'Mengumpulkan bit yang berserakan…',
+  'Mengetuk pintu server pelan-pelan…',
+  'Mengirim burung merpati ke pusat data…',
+  'Menyusun ulang piksel dengan penuh kasih…',
+  'Bernegosiasi dengan cache…',
+  'Memanggil jin data dari dalam lamp…',
+  'Mencari kunci di bawah karpet digital…',
+  'Mengajak paket data jalan-jalan…',
+  'Membunyikan klakson di depan server…',
+  'Memohon izin kepada tabel database…',
+  'Menghitung mundur dari tak terhingga…',
+  'Merebus data di suhu yang tepat…',
+  'Mengipasi server yang kepanasan…',
+];
+let _loadingTimer = null;
+function startLoadingAnim() {
+  const el = document.getElementById('loadingText');
+  if (!el) return;
+  let idx = Math.floor(Math.random() * LOADING_PHRASES.length);
+  el.textContent = LOADING_PHRASES[idx];
+  _loadingTimer = setInterval(() => {
+    el.classList.add('fade');
+    setTimeout(() => {
+      idx = (idx + 1) % LOADING_PHRASES.length;
+      el.textContent = LOADING_PHRASES[idx];
+      el.classList.remove('fade');
+    }, 320);
+  }, 1800);
+}
+function stopLoadingAnim() {
+  if (_loadingTimer) { clearInterval(_loadingTimer); _loadingTimer = null; }
+}
+
 // Clock
 function updateClock() {
   const now = new Date();
@@ -513,6 +558,8 @@ updateClock();
 setInterval(updateClock, 10000);
 
 async function init() {
+  startLoadingAnim();
+
   const meRes = await fetch('/api/auth/me');
   if (!meRes.ok) { window.location.href = '/'; return; }
   const user = await meRes.json();
@@ -521,6 +568,7 @@ async function init() {
   if (user.role === 'admin') document.getElementById('adminPanel').style.display = 'block';
 
   const domRes = await fetch('/api/domains');
+  stopLoadingAnim();
   if (!domRes.ok) {
     document.getElementById('domainsContainer').innerHTML =
       '<div class="loading-state">Gagal memuat data. Coba muat ulang halaman.</div>';
