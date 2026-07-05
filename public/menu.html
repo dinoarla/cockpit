@@ -164,6 +164,20 @@
     opacity:.5;border-style:dashed;cursor:default;
     border-left:4px dashed rgba(17,17,24,.2);
   }
+  /* ── LOCKED MODULE ── */
+  .module-card-locked-wrap{position:relative;border-radius:10px;overflow:hidden;}
+  .module-card-locked-wrap .module-card{
+    filter:blur(3.5px);pointer-events:none;user-select:none;opacity:.55;
+  }
+  .lock-overlay{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:6px;
+    background:rgba(255,251,240,.35);border-radius:10px;
+    backdrop-filter:blur(1px);pointer-events:none;
+  }
+  .lock-overlay i{font-size:1.3rem;color:var(--ink-2);opacity:.7;}
+  .lock-overlay span{font-family:'DM Mono',monospace;font-size:.58rem;
+    color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;}
 
   .module-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
   .module-icon{font-size:20px;line-height:1;color:var(--ink-3);width:28px;}
@@ -718,10 +732,8 @@ function render(domainList, role) {
         const grid = document.createElement('div');
         grid.className = 'module-grid';
         for (const mod of mods) {
-          const isAktif = mod.status === 'aktif';
-          const card = document.createElement(isAktif ? 'a' : 'div');
-          card.className = `module-card ${mod.status}`;
-          if (isAktif) card.href = mod.routePath;
+          const isAktif   = mod.status === 'aktif';
+          const isLocked  = mod.accessible === false;
           const desc = MODULE_DESC[mod.slug] || mod.nama;
           const ico  = MODULE_ICONS[mod.slug] || '<i class="fa-solid fa-folder-open"></i>';
           const lastUpd = mod.dataUpdatedAt
@@ -730,7 +742,7 @@ function render(domainList, role) {
           const footerLeft = lastUpd
             ? `<span class="module-slug"><i class="fa-regular fa-clock" style="margin-right:4px;opacity:.6;"></i>Update: <b style="color:var(--ink-2)">${lastUpd}</b></span>`
             : `<span class="module-slug" style="opacity:.45;">Belum ada data</span>`;
-          card.innerHTML = `
+          const cardInner = `
             <div class="module-card-top">
               <div class="module-icon ${mod.status}">${ico}</div>
               <span class="module-status-pill ${mod.status}">${mod.status === 'aktif' ? 'AKTIF' : 'SEGERA'}</span>
@@ -740,9 +752,24 @@ function render(domainList, role) {
             <div class="module-card-foot">
               ${footerLeft}
               <span class="module-arrow"><i class="fa-solid fa-arrow-right"></i></span>
-            </div>
-          `;
-          grid.appendChild(card);
+            </div>`;
+
+          if (isLocked) {
+            const wrap = document.createElement('div');
+            wrap.className = 'module-card-locked-wrap';
+            const card = document.createElement('div');
+            card.className = `module-card aktif`;
+            card.innerHTML = cardInner;
+            wrap.appendChild(card);
+            wrap.innerHTML += `<div class="lock-overlay"><i class="fa-solid fa-lock"></i><span>Akses terbatas</span></div>`;
+            grid.appendChild(wrap);
+          } else {
+            const card = document.createElement(isAktif ? 'a' : 'div');
+            card.className = `module-card ${mod.status}`;
+            if (isAktif) card.href = mod.routePath;
+            card.innerHTML = cardInner;
+            grid.appendChild(card);
+          }
         }
         if (role === 'admin') {
           const addCard = document.createElement('div');

@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { eq, and, ne, inArray } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { domains, domainModules, userDomainAccess, userModuleAccess } from "../db/schema.js";
 import { requireAuth } from "../middleware/auth.js";
@@ -31,10 +31,11 @@ domainRoutes.get("/", async (c) => {
     const result = await Promise.all(accessibleDomains.map(async (domain) => {
         let mods;
         if (user.role === "admin") {
-            mods = await db
+            const adminMods = await db
                 .select()
                 .from(domainModules)
                 .where(and(eq(domainModules.domainId, domain.id), ne(domainModules.status, "arsip")));
+            mods = adminMods.map((m) => ({ ...m, accessible: true }));
         }
         else {
             // Cek apakah user punya pembatasan per-modul
@@ -43,19 +44,21 @@ domainRoutes.get("/", async (c) => {
                 .from(userModuleAccess)
                 .where(eq(userModuleAccess.userId, user.id));
             if (modAccess.length > 0) {
-                // Ada pembatasan spesifik — hanya tampilkan modul yang diizinkan
-                const allowedIds = modAccess.map((m) => m.moduleId);
-                mods = await db
-                    .select()
-                    .from(domainModules)
-                    .where(and(eq(domainModules.domainId, domain.id), eq(domainModules.status, "aktif"), inArray(domainModules.id, allowedIds)));
-            }
-            else {
-                // Tidak ada pembatasan — tampilkan semua modul aktif di domain
-                mods = await db
+                // Ada pembatasan — tampilkan semua modul aktif, tandai yang accessible
+                const allowedIds = new Set(modAccess.map((m) => m.moduleId));
+                const allMods = await db
                     .select()
                     .from(domainModules)
                     .where(and(eq(domainModules.domainId, domain.id), eq(domainModules.status, "aktif")));
+                mods = allMods.map((m) => ({ ...m, accessible: allowedIds.has(m.id) }));
+            }
+            else {
+                // Tidak ada pembatasan — semua modul aktif accessible
+                const allMods = await db
+                    .select()
+                    .from(domainModules)
+                    .where(and(eq(domainModules.domainId, domain.id), eq(domainModules.status, "aktif")));
+                mods = allMods.map((m) => ({ ...m, accessible: true }));
             }
         }
         return { ...domain, modules: mods };
