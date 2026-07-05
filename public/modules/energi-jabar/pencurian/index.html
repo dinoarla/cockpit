@@ -72,7 +72,7 @@ h1.pt{font-family:var(--fd);font-size:22px;font-weight:700;color:#fff;margin-bot
 .grid-2 .card{margin-bottom:0}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px}
 .sec-lbl{font-family:var(--fm);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin-bottom:10px;margin-top:22px;display:flex;align-items:center;gap:8px}
-.sec-lbl::after{content:\'\';flex:1;height:1px;background:linear-gradient(to right,rgba(255,77,0,.15),transparent)}
+.sec-lbl::after{content:'';flex:1;height:1px;background:linear-gradient(to right,rgba(255,77,0,.15),transparent)}
 .note-box{background:#FAFAF8;border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:12px 16px;margin-top:16px;font-size:12px;color:var(--ink-2);line-height:1.7}
 .note-box.alert{border-left-color:var(--red);background:#FFF8F8}
 .note-box strong{color:var(--ink);font-weight:600}
@@ -115,11 +115,11 @@ h1.pt{font-family:var(--fd);font-size:22px;font-weight:700;color:#fff;margin-bot
     <div class="mc"><i class="fa-solid fa-robot"></i> <span>GBC AutoML — PyCaret</span></div>
   </div>
   <nav class="tab-nav">
-    <button class="tb active" onclick="switchTab(\'ringkasan\',this)"><i class="fa-solid fa-table-columns"></i> Ringkasan</button>
-    <button class="tb" onclick="switchTab(\'pemeriksaan\',this)"><i class="fa-solid fa-magnifying-glass"></i> Pemeriksaan P2TL</button>
-    <button class="tb" onclick="switchTab(\'tagsus\',this)"><i class="fa-solid fa-file-invoice-dollar"></i> Tagihan Susulan</button>
-    <button class="tb" onclick="switchTab(\'peta\',this)" id="tab-btn-peta"><i class="fa-solid fa-map"></i> Peta Gardu</button>
-    <button class="tb" onclick="switchTab(\'model\',this)"><i class="fa-solid fa-robot"></i> Model Prediktif</button>
+    <button class="tb active" onclick="switchTab('ringkasan',this)"><i class="fa-solid fa-table-columns"></i> Ringkasan</button>
+    <button class="tb" onclick="switchTab('pemeriksaan',this)"><i class="fa-solid fa-magnifying-glass"></i> Pemeriksaan P2TL</button>
+    <button class="tb" onclick="switchTab('tagsus',this)"><i class="fa-solid fa-file-invoice-dollar"></i> Tagihan Susulan</button>
+    <button class="tb" onclick="switchTab('peta',this)" id="tab-btn-peta"><i class="fa-solid fa-map"></i> Peta Gardu</button>
+    <button class="tb" onclick="switchTab('model',this)"><i class="fa-solid fa-robot"></i> Model Prediktif</button>
   </nav>
 </div>
 </header>
@@ -427,269 +427,269 @@ h1.pt{font-family:var(--fd);font-size:22px;font-weight:700;color:#fff;margin-bot
 </div><!-- /.wrap -->
 
 <script>
-const CLR={orange:\'#FF4D00\',orangeLt:\'rgba(255,77,0,.15)\',yellow:\'#FFD600\',yellowLt:\'rgba(255,214,0,.2)\',green:\'#2ECC71\',greenLt:\'rgba(46,204,113,.18)\',blue:\'#3B82F6\',blueLt:\'rgba(59,130,246,.18)\',red:\'#E74C3C\',redLt:\'rgba(231,76,60,.18)\',purple:\'#8B5CF6\'};
-Chart.defaults.font.family="\'JetBrains Mono\',monospace";
+const CLR={orange:'#FF4D00',orangeLt:'rgba(255,77,0,.15)',yellow:'#FFD600',yellowLt:'rgba(255,214,0,.2)',green:'#2ECC71',greenLt:'rgba(46,204,113,.18)',blue:'#3B82F6',blueLt:'rgba(59,130,246,.18)',red:'#E74C3C',redLt:'rgba(231,76,60,.18)',purple:'#8B5CF6'};
+Chart.defaults.font.family="'JetBrains Mono',monospace";
 Chart.defaults.font.size=11;
-Chart.defaults.color=\'#888\';
-const GRID={color:\'rgba(17,17,24,.06)\',drawBorder:false};
+Chart.defaults.color='#888';
+const GRID={color:'rgba(17,17,24,.06)',drawBorder:false};
 
 // ── UP3 DATA ──
 const UP3=[
-  {n:\'Tasikmalaya\',t:442263,f:96562,r:21.83},
-  {n:\'Cirebon\',t:176887,f:28840,r:16.30},
-  {n:\'Cianjur\',t:290008,f:37123,r:12.80},
-  {n:\'Indramayu\',t:120301,f:12308,r:10.23},
-  {n:\'Sukabumi\',t:498018,f:52991,r:10.64},
-  {n:\'Sumedang\',t:160177,f:15542,r:9.70},
-  {n:\'Cimahi\',t:271783,f:19291,r:7.10},
-  {n:\'Bogor\',t:349306,f:25955,r:7.43},
-  {n:\'Depok\',t:695804,f:42988,r:6.18},
-  {n:\'Karawang\',t:372744,f:22044,r:5.91},
-  {n:\'Garut\',t:305360,f:17128,r:5.61},
-  {n:\'Purwakarta\',t:327776,f:16640,r:5.08},
-  {n:\'Majalaya\',t:346777,f:14370,r:4.14},
-  {n:\'Bandung\',t:622226,f:23086,r:3.71},
-  {n:\'Cikarang\',t:619127,f:20451,r:3.30},
-  {n:\'Bekasi\',t:720743,f:23342,r:3.24},
-  {n:\'Gunung Putri\',t:456334,f:14210,r:3.11},
+  {n:'Tasikmalaya',t:442263,f:96562,r:21.83},
+  {n:'Cirebon',t:176887,f:28840,r:16.30},
+  {n:'Cianjur',t:290008,f:37123,r:12.80},
+  {n:'Indramayu',t:120301,f:12308,r:10.23},
+  {n:'Sukabumi',t:498018,f:52991,r:10.64},
+  {n:'Sumedang',t:160177,f:15542,r:9.70},
+  {n:'Cimahi',t:271783,f:19291,r:7.10},
+  {n:'Bogor',t:349306,f:25955,r:7.43},
+  {n:'Depok',t:695804,f:42988,r:6.18},
+  {n:'Karawang',t:372744,f:22044,r:5.91},
+  {n:'Garut',t:305360,f:17128,r:5.61},
+  {n:'Purwakarta',t:327776,f:16640,r:5.08},
+  {n:'Majalaya',t:346777,f:14370,r:4.14},
+  {n:'Bandung',t:622226,f:23086,r:3.71},
+  {n:'Cikarang',t:619127,f:20451,r:3.30},
+  {n:'Bekasi',t:720743,f:23342,r:3.24},
+  {n:'Gunung Putri',t:456334,f:14210,r:3.11},
 ];
 const UP3S=[...UP3].sort((a,b)=>b.r-a.r);
 
 // Populate UP3 table
-const tbody=document.getElementById(\'up3-table-body\');
+const tbody=document.getElementById('up3-table-body');
 UP3S.forEach(u=>{
   const pct=u.r;
-  const clr=pct>=15?\'#E74C3C\':pct>=10?\'#F59E0B\':pct>=5?\'#3B82F6\':\'#2ECC71\';
-  tbody.innerHTML+=`<tr><td>${u.n}</td><td class="num">${u.t.toLocaleString(\'id-ID\')}</td><td class="num neg">${u.f.toLocaleString(\'id-ID\')}</td><td class="num">${(u.t-u.f).toLocaleString(\'id-ID\')}</td><td class="num" style="color:${clr};font-weight:700">${pct.toFixed(2)}%</td><td><div class="bar-cell"><div class="mini-bar" style="width:${(pct/22)*100}%;background:${clr}"></div></div></td></tr>`;
+  const clr=pct>=15?'#E74C3C':pct>=10?'#F59E0B':pct>=5?'#3B82F6':'#2ECC71';
+  tbody.innerHTML+=`<tr><td>${u.n}</td><td class="num">${u.t.toLocaleString('id-ID')}</td><td class="num neg">${u.f.toLocaleString('id-ID')}</td><td class="num">${(u.t-u.f).toLocaleString('id-ID')}</td><td class="num" style="color:${clr};font-weight:700">${pct.toFixed(2)}%</td><td><div class="bar-cell"><div class="mini-bar" style="width:${(pct/22)*100}%;background:${clr}"></div></div></td></tr>`;
 });
 
 // ── CHART: Tren Tahun ──
-new Chart(document.getElementById(\'chartTrendYear\'),{
-  type:\'bar\',
+new Chart(document.getElementById('chartTrendYear'),{
+  type:'bar',
   data:{
-    labels:[\'2019\',\'2020\',\'2021\',\'2022\',\'2023\'],
+    labels:['2019','2020','2021','2022','2023'],
     datasets:[
-      {type:\'bar\',label:\'Tagihan Susulan\',data:[164019,173559,180431,196061,404307],backgroundColor:CLR.orangeLt,borderColor:CLR.orange,borderWidth:1.5,borderRadius:4,yAxisID:\'y1\'},
-      {type:\'line\',label:\'Nilai Tagsus (Rp M)\',data:[265.3,309.5,510.7,372.0,544.6],borderColor:CLR.yellow,backgroundColor:\'transparent\',borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.yellow,yAxisID:\'y2\'},
+      {type:'bar',label:'Tagihan Susulan',data:[164019,173559,180431,196061,404307],backgroundColor:CLR.orangeLt,borderColor:CLR.orange,borderWidth:1.5,borderRadius:4,yAxisID:'y1'},
+      {type:'line',label:'Nilai Tagsus (Rp M)',data:[265.3,309.5,510.7,372.0,544.6],borderColor:CLR.yellow,backgroundColor:'transparent',borderWidth:2,tension:.35,pointRadius:4,pointBackgroundColor:CLR.yellow,yAxisID:'y2'},
     ]
   },
-  options:{responsive:true,maintainAspectRatio:true,aspectRatio:2,interaction:{mode:\'index\'},
-    plugins:{legend:{position:\'top\',labels:{boxWidth:10,padding:12}}},
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:2,interaction:{mode:'index'},
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12}}},
     scales:{
-      y1:{position:\'left\',grid:GRID,ticks:{callback:v=>v.toLocaleString(\'id-ID\')}},
-      y2:{position:\'right\',grid:{display:false},ticks:{callback:v=>\'Rp \'+v+\'M\'}},
+      y1:{position:'left',grid:GRID,ticks:{callback:v=>v.toLocaleString('id-ID')}},
+      y2:{position:'right',grid:{display:false},ticks:{callback:v=>'Rp '+v+'M'}},
       x:{grid:{display:false}}
     }
   }
 });
 
 // ── CHART: Tarif Donut ──
-new Chart(document.getElementById(\'chartTarifDonut\'),{
-  type:\'doughnut\',
+new Chart(document.getElementById('chartTarifDonut'),{
+  type:'doughnut',
   data:{
-    labels:[\'Pemerintah (54,8%)\',\'Sosial (39,3%)\',\'Bisnis (12,1%)\',\'Multiguna (7,6%)\',\'RT (5,5%)\',\'Industri (2,0%)\'],
-    datasets:[{data:[54.83,39.33,12.11,7.56,5.52,2.00],backgroundColor:[\'#E74C3C\',\'#F97316\',\'#F59E0B\',\'#8B5CF6\',\'#3B82F6\',\'#2ECC71\'],borderWidth:0,hoverOffset:8}]
+    labels:['Pemerintah (54,8%)','Sosial (39,3%)','Bisnis (12,1%)','Multiguna (7,6%)','RT (5,5%)','Industri (2,0%)'],
+    datasets:[{data:[54.83,39.33,12.11,7.56,5.52,2.00],backgroundColor:['#E74C3C','#F97316','#F59E0B','#8B5CF6','#3B82F6','#2ECC71'],borderWidth:0,hoverOffset:8}]
   },
-  options:{responsive:true,maintainAspectRatio:true,cutout:\'58%\',
-    plugins:{legend:{position:\'right\',labels:{boxWidth:10,padding:10,font:{size:10}}},
-      tooltip:{callbacks:{label:ctx=>\'Fraud Rate: \'+ctx.parsed+\'%\'}}
+  options:{responsive:true,maintainAspectRatio:true,cutout:'58%',
+    plugins:{legend:{position:'right',labels:{boxWidth:10,padding:10,font:{size:10}}},
+      tooltip:{callbacks:{label:ctx=>'Fraud Rate: '+ctx.parsed+'%'}}
     }
   }
 });
 
 // ── CHART: UP3 Bar ──
-new Chart(document.getElementById(\'chartUP3\'),{
-  type:\'bar\',
+new Chart(document.getElementById('chartUP3'),{
+  type:'bar',
   data:{
     labels:UP3S.map(u=>u.n),
     datasets:[
-      {type:\'bar\',label:\'Fraud Rate %\',data:UP3S.map(u=>u.r),backgroundColor:UP3S.map(u=>u.r>=15?\'rgba(231,76,60,.7)\':u.r>=10?\'rgba(245,158,11,.7)\':u.r>=5?\'rgba(59,130,246,.6)\':\'rgba(46,204,113,.6)\'),borderWidth:0,borderRadius:3,yAxisID:\'y\'},
-      {type:\'line\',label:\'Temuan (kasus)\',data:UP3S.map(u=>u.f),borderColor:\'rgba(255,77,0,.8)\',backgroundColor:\'transparent\',borderWidth:1.5,tension:.3,pointRadius:3,pointBackgroundColor:CLR.orange,yAxisID:\'y2\'},
+      {type:'bar',label:'Fraud Rate %',data:UP3S.map(u=>u.r),backgroundColor:UP3S.map(u=>u.r>=15?'rgba(231,76,60,.7)':u.r>=10?'rgba(245,158,11,.7)':u.r>=5?'rgba(59,130,246,.6)':'rgba(46,204,113,.6)'),borderWidth:0,borderRadius:3,yAxisID:'y'},
+      {type:'line',label:'Temuan (kasus)',data:UP3S.map(u=>u.f),borderColor:'rgba(255,77,0,.8)',backgroundColor:'transparent',borderWidth:1.5,tension:.3,pointRadius:3,pointBackgroundColor:CLR.orange,yAxisID:'y2'},
     ]
   },
-  options:{responsive:true,maintainAspectRatio:true,aspectRatio:2.2,interaction:{mode:\'index\'},
-    plugins:{legend:{position:\'top\',labels:{boxWidth:10,padding:12}}},
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:2.2,interaction:{mode:'index'},
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12}}},
     scales:{
-      y:{position:\'left\',grid:GRID,title:{display:true,text:\'Fraud Rate (%)\',font:{size:10}},ticks:{callback:v=>v+\'%\'}},
-      y2:{position:\'right\',grid:{display:false},title:{display:true,text:\'Jumlah Temuan\',font:{size:10}},ticks:{callback:v=>v.toLocaleString(\'id-ID\')}},
+      y:{position:'left',grid:GRID,title:{display:true,text:'Fraud Rate (%)',font:{size:10}},ticks:{callback:v=>v+'%'}},
+      y2:{position:'right',grid:{display:false},title:{display:true,text:'Jumlah Temuan',font:{size:10}},ticks:{callback:v=>v.toLocaleString('id-ID')}},
       x:{grid:{display:false}}
     }
   }
 });
 
 // ── CHART: Tarif Bar ──
-new Chart(document.getElementById(\'chartTarifBar\'),{
-  type:\'bar\',
+new Chart(document.getElementById('chartTarifBar'),{
+  type:'bar',
   data:{
-    labels:[\'Pemerintah\',\'Sosial\',\'Bisnis\',\'Multiguna\',\'Rumah Tangga\',\'Industri\'],
+    labels:['Pemerintah','Sosial','Bisnis','Multiguna','Rumah Tangga','Industri'],
     datasets:[{
-      label:\'Fraud Rate %\',
+      label:'Fraud Rate %',
       data:[54.83,39.33,12.11,7.56,5.52,2.00],
-      backgroundColor:[\'#E74C3C\',\'#F97316\',\'#F59E0B\',\'#8B5CF6\',\'#3B82F6\',\'#2ECC71\'],
+      backgroundColor:['#E74C3C','#F97316','#F59E0B','#8B5CF6','#3B82F6','#2ECC71'],
       borderWidth:0,borderRadius:4
     }]
   },
-  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.8,indexAxis:\'y\',
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.8,indexAxis:'y',
     plugins:{legend:{display:false}},
-    scales:{x:{grid:GRID,ticks:{callback:v=>v+\'%\'}},y:{grid:{display:false}}}
+    scales:{x:{grid:GRID,ticks:{callback:v=>v+'%'}},y:{grid:{display:false}}}
   }
 });
 
 // ── CHART: DLPD ──
-new Chart(document.getElementById(\'chartDLPD\'),{
-  type:\'bar\',
+new Chart(document.getElementById('chartDLPD'),{
+  type:'bar',
   data:{
-    labels:[\'Penyalahgunaan Utilitas\',\'Energi/Jam Nyala\',\'Anomali Pembacaan\',\'Meter Malfunction\',\'Normal\',\'Token Behaviour\',\'Meter Event\'],
+    labels:['Penyalahgunaan Utilitas','Energi/Jam Nyala','Anomali Pembacaan','Meter Malfunction','Normal','Token Behaviour','Meter Event'],
     datasets:[{
-      label:\'Fraud Rate %\',
+      label:'Fraud Rate %',
       data:[57.42,9.26,8.90,7.15,6.69,3.37,2.96],
-      backgroundColor:[\'#E74C3C\',\'#F97316\',\'#F59E0B\',\'#8B5CF6\',\'#3B82F6\',\'#6B7280\',\'#9CA3AF\'],
+      backgroundColor:['#E74C3C','#F97316','#F59E0B','#8B5CF6','#3B82F6','#6B7280','#9CA3AF'],
       borderWidth:0,borderRadius:4
     }]
   },
-  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.8,indexAxis:\'y\',
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.8,indexAxis:'y',
     plugins:{legend:{display:false}},
-    scales:{x:{grid:GRID,ticks:{callback:v=>v+\'%\'},max:65},y:{grid:{display:false},ticks:{font:{size:10}}}}
+    scales:{x:{grid:GRID,ticks:{callback:v=>v+'%'},max:65},y:{grid:{display:false},ticks:{font:{size:10}}}}
   }
 });
 
 // ── CHART: Jenis Layanan ──
-new Chart(document.getElementById(\'chartLayanan\'),{
-  type:\'doughnut\',
+new Chart(document.getElementById('chartLayanan'),{
+  type:'doughnut',
   data:{
-    labels:[\'Paskabayar 16,8%\',\'Prabayar 2,4%\'],
-    datasets:[{data:[16.8,2.4],backgroundColor:[\'#E74C3C\',\'#2ECC71\'],borderWidth:0,hoverOffset:6}]
+    labels:['Paskabayar 16,8%','Prabayar 2,4%'],
+    datasets:[{data:[16.8,2.4],backgroundColor:['#E74C3C','#2ECC71'],borderWidth:0,hoverOffset:6}]
   },
-  options:{responsive:true,maintainAspectRatio:true,cutout:\'60%\',
-    plugins:{legend:{position:\'bottom\',labels:{boxWidth:10,padding:10}},
-      tooltip:{callbacks:{label:ctx=>\'Fraud Rate: \'+ctx.parsed+\'%\'}}
+  options:{responsive:true,maintainAspectRatio:true,cutout:'60%',
+    plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:10}},
+      tooltip:{callbacks:{label:ctx=>'Fraud Rate: '+ctx.parsed+'%'}}
     }
   }
 });
 
 // ── CHART: Daya ──
-new Chart(document.getElementById(\'chartDaya\'),{
-  type:\'doughnut\',
+new Chart(document.getElementById('chartDaya'),{
+  type:'doughnut',
   data:{
-    labels:[\'TR (Tegangan Rendah)\',\'TR-3L\',\'TR-3TL\',\'TM (Menengah)\',\'TT (Tinggi)\'],
-    datasets:[{data:[6593542,134963,32920,14184,25],backgroundColor:[\'#FF4D00\',\'#F59E0B\',\'#8B5CF6\',\'#3B82F6\',\'#2ECC71\'],borderWidth:0,hoverOffset:8}]
+    labels:['TR (Tegangan Rendah)','TR-3L','TR-3TL','TM (Menengah)','TT (Tinggi)'],
+    datasets:[{data:[6593542,134963,32920,14184,25],backgroundColor:['#FF4D00','#F59E0B','#8B5CF6','#3B82F6','#2ECC71'],borderWidth:0,hoverOffset:8}]
   },
-  options:{responsive:true,maintainAspectRatio:true,cutout:\'55%\',
-    plugins:{legend:{position:\'right\',labels:{boxWidth:10,padding:10,font:{size:10}}},
-      tooltip:{callbacks:{label:ctx=>ctx.label+\': \'+ctx.parsed.toLocaleString(\'id-ID\')+\' pemeriksaan\'}}
+  options:{responsive:true,maintainAspectRatio:true,cutout:'55%',
+    plugins:{legend:{position:'right',labels:{boxWidth:10,padding:10,font:{size:10}}},
+      tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.parsed.toLocaleString('id-ID')+' pemeriksaan'}}
     }
   }
 });
 
 // ── CHART: Tagihan Susulan ──
-new Chart(document.getElementById(\'chartTagsusTrend\'),{
-  type:\'line\',
-  data:{labels:[\'2019\',\'2020\',\'2021\',\'2022\',\'2023\'],
-    datasets:[{label:\'Kasus Tagihan Susulan\',data:[164019,173559,180431,196061,404307],borderColor:CLR.orange,backgroundColor:CLR.orangeLt,fill:true,borderWidth:2.5,tension:.35,pointRadius:5,pointBackgroundColor:CLR.orange}]
+new Chart(document.getElementById('chartTagsusTrend'),{
+  type:'line',
+  data:{labels:['2019','2020','2021','2022','2023'],
+    datasets:[{label:'Kasus Tagihan Susulan',data:[164019,173559,180431,196061,404307],borderColor:CLR.orange,backgroundColor:CLR.orangeLt,fill:true,borderWidth:2.5,tension:.35,pointRadius:5,pointBackgroundColor:CLR.orange}]
   },
   options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.9,
-    plugins:{legend:{position:\'top\',labels:{boxWidth:10,padding:12}}},
-    scales:{y:{grid:GRID,ticks:{callback:v=>v.toLocaleString(\'id-ID\')}},x:{grid:{display:false}}}
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12}}},
+    scales:{y:{grid:GRID,ticks:{callback:v=>v.toLocaleString('id-ID')}},x:{grid:{display:false}}}
   }
 });
-new Chart(document.getElementById(\'chartTagsusNilai\'),{
-  type:\'bar\',
-  data:{labels:[\'2019\',\'2020\',\'2021\',\'2022\',\'2023\'],
-    datasets:[{label:\'Nilai Tagihan Susulan (Rp Miliar)\',data:[265.3,309.5,510.7,372.0,544.6],backgroundColor:CLR.yellowLt,borderColor:CLR.yellow,borderWidth:1.5,borderRadius:4}]
+new Chart(document.getElementById('chartTagsusNilai'),{
+  type:'bar',
+  data:{labels:['2019','2020','2021','2022','2023'],
+    datasets:[{label:'Nilai Tagihan Susulan (Rp Miliar)',data:[265.3,309.5,510.7,372.0,544.6],backgroundColor:CLR.yellowLt,borderColor:CLR.yellow,borderWidth:1.5,borderRadius:4}]
   },
   options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.9,
     plugins:{legend:{display:false}},
-    scales:{y:{grid:GRID,ticks:{callback:v=>\'Rp \'+v+\'M\'}},x:{grid:{display:false}}}
+    scales:{y:{grid:GRID,ticks:{callback:v=>'Rp '+v+'M'}},x:{grid:{display:false}}}
   }
 });
-new Chart(document.getElementById(\'chartTagsusKwh\'),{
-  type:\'bar\',
-  data:{labels:[\'2019\',\'2020\',\'2021\',\'2022\',\'2023\'],
-    datasets:[{label:\'Total kWh Dicuri (juta kWh)\',data:[243.15,252.06,480.12,342.45,535.82],backgroundColor:CLR.blueLt,borderColor:CLR.blue,borderWidth:1.5,borderRadius:4}]
+new Chart(document.getElementById('chartTagsusKwh'),{
+  type:'bar',
+  data:{labels:['2019','2020','2021','2022','2023'],
+    datasets:[{label:'Total kWh Dicuri (juta kWh)',data:[243.15,252.06,480.12,342.45,535.82],backgroundColor:CLR.blueLt,borderColor:CLR.blue,borderWidth:1.5,borderRadius:4}]
   },
   options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.9,
     plugins:{legend:{display:false}},
-    scales:{y:{grid:GRID,ticks:{callback:v=>v+\' jt kWh\'}},x:{grid:{display:false}}}
+    scales:{y:{grid:GRID,ticks:{callback:v=>v+' jt kWh'}},x:{grid:{display:false}}}
   }
 });
-new Chart(document.getElementById(\'chartTagsusAvg\'),{
-  type:\'line\',
-  data:{labels:[\'2019\',\'2020\',\'2021\',\'2022\',\'2023\'],
-    datasets:[{label:\'Rata-rata Nilai per Kasus (Rp juta)\',data:[1.617,1.783,2.830,1.898,1.347],borderColor:CLR.green,backgroundColor:CLR.greenLt,fill:true,borderWidth:2,tension:.4,pointRadius:4,pointBackgroundColor:CLR.green}]
+new Chart(document.getElementById('chartTagsusAvg'),{
+  type:'line',
+  data:{labels:['2019','2020','2021','2022','2023'],
+    datasets:[{label:'Rata-rata Nilai per Kasus (Rp juta)',data:[1.617,1.783,2.830,1.898,1.347],borderColor:CLR.green,backgroundColor:CLR.greenLt,fill:true,borderWidth:2,tension:.4,pointRadius:4,pointBackgroundColor:CLR.green}]
   },
   options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.9,
     plugins:{legend:{display:false}},
-    scales:{y:{grid:GRID,ticks:{callback:v=>\'Rp \'+v+\'jt\'}},x:{grid:{display:false}}}
+    scales:{y:{grid:GRID,ticks:{callback:v=>'Rp '+v+'jt'}},x:{grid:{display:false}}}
   }
 });
 
 // ── CHART: Model Distribution ──
-new Chart(document.getElementById(\'chartModelDist\'),{
-  type:\'doughnut\',
-  data:{labels:[\'Normal (93,0%)\',\'Temuan — Fraud (7,0%)\'],
-    datasets:[{data:[4439898,334442],backgroundColor:[\'#3B82F6\',\'#E74C3C\'],borderWidth:0,hoverOffset:8}]
+new Chart(document.getElementById('chartModelDist'),{
+  type:'doughnut',
+  data:{labels:['Normal (93,0%)','Temuan — Fraud (7,0%)'],
+    datasets:[{data:[4439898,334442],backgroundColor:['#3B82F6','#E74C3C'],borderWidth:0,hoverOffset:8}]
   },
-  options:{responsive:true,maintainAspectRatio:true,cutout:\'60%\',
-    plugins:{legend:{position:\'bottom\',labels:{boxWidth:10,padding:10}},
-      tooltip:{callbacks:{label:ctx=>ctx.label+\': \'+ctx.parsed.toLocaleString(\'id-ID\')+\' record\'}}
+  options:{responsive:true,maintainAspectRatio:true,cutout:'60%',
+    plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:10}},
+      tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.parsed.toLocaleString('id-ID')+' record'}}
     }
   }
 });
 
 // ── CHART: TFR ──
-new Chart(document.getElementById(\'chartTFR\'),{
-  type:\'bar\',
-  data:{labels:[\'Normal\',\'Temuan (Fraud)\'],
+new Chart(document.getElementById('chartTFR'),{
+  type:'bar',
+  data:{labels:['Normal','Temuan (Fraud)'],
     datasets:[
-      {label:\'TFR (mean)\',data:[6.80,12.54],backgroundColor:[\'rgba(59,130,246,.7)\',\'rgba(231,76,60,.7)\'],borderWidth:0,borderRadius:6},
-      {label:\'PR (mean)\',data:[6.46,7.96],backgroundColor:[\'rgba(59,130,246,.35)\',\'rgba(231,76,60,.35)\'],borderWidth:0,borderRadius:6},
-      {label:\'Susut (mean)\',data:[6.68,7.24],backgroundColor:[\'rgba(59,130,246,.18)\',\'rgba(231,76,60,.18)\'],borderWidth:0,borderRadius:6},
+      {label:'TFR (mean)',data:[6.80,12.54],backgroundColor:['rgba(59,130,246,.7)','rgba(231,76,60,.7)'],borderWidth:0,borderRadius:6},
+      {label:'PR (mean)',data:[6.46,7.96],backgroundColor:['rgba(59,130,246,.35)','rgba(231,76,60,.35)'],borderWidth:0,borderRadius:6},
+      {label:'Susut (mean)',data:[6.68,7.24],backgroundColor:['rgba(59,130,246,.18)','rgba(231,76,60,.18)'],borderWidth:0,borderRadius:6},
     ]
   },
   options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.9,
-    plugins:{legend:{position:\'top\',labels:{boxWidth:10,padding:12}}},
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12}}},
     scales:{y:{grid:GRID},x:{grid:{display:false}}}
   }
 });
 
 // ── CHART: Geo & Beban ──
-new Chart(document.getElementById(\'chartGeoBeban\'),{
-  type:\'bar\',
+new Chart(document.getElementById('chartGeoBeban'),{
+  type:'bar',
   data:{
-    labels:[\'Pantai Selatan\',\'Pantai Utara\',\'Dataran Rendah\',\'Dataran Tinggi\'],
+    labels:['Pantai Selatan','Pantai Utara','Dataran Rendah','Dataran Tinggi'],
     datasets:[
-      {label:\'Fraud Rate (kondisi wilayah)\',data:[13.99,5.28,4.89,4.64],backgroundColor:[\'#E74C3C\',\'#F59E0B\',\'#3B82F6\',\'#2ECC71\'],borderWidth:0,borderRadius:4,yAxisID:\'y\'},
+      {label:'Fraud Rate (kondisi wilayah)',data:[13.99,5.28,4.89,4.64],backgroundColor:['#E74C3C','#F59E0B','#3B82F6','#2ECC71'],borderWidth:0,borderRadius:4,yAxisID:'y'},
     ]
   },
-  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.8,indexAxis:\'y\',
+  options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.8,indexAxis:'y',
     plugins:{legend:{display:false}},
-    scales:{x:{grid:GRID,ticks:{callback:v=>v+\'%\'},max:18},y:{grid:{display:false}}}
+    scales:{x:{grid:GRID,ticks:{callback:v=>v+'%'},max:18},y:{grid:{display:false}}}
   }
 });
 
 // ── CHART: Gardu Distribution ──
-const frBins=[\'0%\',\'1–10%\',\'10–20%\',\'20–30%\',\'30–50%\',\'50–100%\',\'100%\'];
+const frBins=['0%','1–10%','10–20%','20–30%','30–50%','50–100%','100%'];
 const frCounts=[4745,17623,4451,2403,1522,822,197];
-new Chart(document.getElementById(\'chartGarduDist\'),{
-  type:\'bar\',
+new Chart(document.getElementById('chartGarduDist'),{
+  type:'bar',
   data:{labels:frBins,datasets:[{
-    label:\'Jumlah Gardu\',data:frCounts,
-    backgroundColor:[\'#2ECC71\',\'#3B82F6\',\'#F59E0B\',\'#F97316\',\'#EF4444\',\'#DC2626\',\'#991B1B\'],
+    label:'Jumlah Gardu',data:frCounts,
+    backgroundColor:['#2ECC71','#3B82F6','#F59E0B','#F97316','#EF4444','#DC2626','#991B1B'],
     borderWidth:0,borderRadius:4
   }]},
   options:{responsive:true,maintainAspectRatio:true,aspectRatio:1.8,
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y.toLocaleString(\'id-ID\')+\' gardu\'}}},
-    scales:{y:{grid:GRID,ticks:{callback:v=>v.toLocaleString(\'id-ID\')}},x:{grid:{display:false}}}
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y.toLocaleString('id-ID')+' gardu'}}},
+    scales:{y:{grid:GRID,ticks:{callback:v=>v.toLocaleString('id-ID')}},x:{grid:{display:false}}}
   }
 });
 
 // ── TAB SWITCH ──
 function switchTab(id,btn){
-  document.querySelectorAll(\'.tab-pane\').forEach(p=>p.classList.remove(\'active\'));
-  document.querySelectorAll(\'.tb\').forEach(b=>b.classList.remove(\'active\'));
-  document.getElementById(\'tab-\'+id).classList.add(\'active\');
-  btn.classList.add(\'active\');
-  if(id===\'peta\'&&!window._mapInit)initMap();
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='peta'&&!window._mapInit)initMap();
 }
 
 // ── GARDU DATA (31,763 points) ──
@@ -697,7 +697,7 @@ const GARDU_DATA=[{"g":"A","lat":-6.817983,"lng":107.137435,"fr":6.49,"c":"g"},{
 
 // ── GARDU 100% LIST ──
 const g100=GARDU_DATA.filter(g=>g.fr===100);
-const listEl=document.getElementById(\'gardu-100-list\');
+const listEl=document.getElementById('gardu-100-list');
 const seen=new Set();
 g100.forEach(g=>{if(!seen.has(g.g)){seen.add(g.g);listEl.innerHTML+=`<span style="background:#FEE2E2;color:#991B1B;padding:2px 7px;border-radius:4px">${g.g}</span>`;}});
 
@@ -705,10 +705,10 @@ g100.forEach(g=>{if(!seen.has(g.g)){seen.add(g.g);listEl.innerHTML+=`<span style
 window._mapInit=false;
 function initMap(){
   window._mapInit=true;
-  const map=L.map(\'map-pencurian\',{renderer:L.canvas(),zoomControl:true}).setView([-6.9,107.5],8);
-  L.tileLayer(\'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png\',{maxZoom:18,attribution:\'© CartoDB\'}).addTo(map);
+  const map=L.map('map-pencurian',{renderer:L.canvas(),zoomControl:true}).setView([-6.9,107.5],8);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:18,attribution:'© CartoDB'}).addTo(map);
 
-  const cmap={g:\'#2ECC71\',y:\'#FFD600\',r:\'#E74C3C\'};
+  const cmap={g:'#2ECC71',y:'#FFD600',r:'#E74C3C'};
   GARDU_DATA.forEach(g=>{
     const r=Math.max(2.5,Math.min(8,2.5+g.fr*0.08));
     L.circleMarker([g.lat,g.lng],{
@@ -717,13 +717,13 @@ function initMap(){
     }).bindPopup(`<b>${g.g}</b><br>Fraud Rate: <b>${g.fr}%</b>`).addTo(map);
   });
 
-  const legend=L.control({position:\'bottomright\'});
+  const legend=L.control({position:'bottomright'});
   legend.onAdd=()=>{
-    const d=L.DomUtil.create(\'div\',\'map-legend\');
-    d.innerHTML=\'<b style="font-size:11px;display:block;margin-bottom:6px">Fraud Rate Gardu</b>\'+
-      \'<div class="legend-item"><div class="legend-dot" style="background:#2ECC71"></div> 0–10% (Aman)</div>\'+
-      \'<div class="legend-item"><div class="legend-dot" style="background:#FFD600"></div> 10–30% (Waspada)</div>\'+
-      \'<div class="legend-item"><div class="legend-dot" style="background:#E74C3C"></div> &gt;30% (Rawan)</div>\';
+    const d=L.DomUtil.create('div','map-legend');
+    d.innerHTML='<b style="font-size:11px;display:block;margin-bottom:6px">Fraud Rate Gardu</b>'+
+      '<div class="legend-item"><div class="legend-dot" style="background:#2ECC71"></div> 0–10% (Aman)</div>'+
+      '<div class="legend-item"><div class="legend-dot" style="background:#FFD600"></div> 10–30% (Waspada)</div>'+
+      '<div class="legend-item"><div class="legend-dot" style="background:#E74C3C"></div> &gt;30% (Rawan)</div>';
     return d;
   };
   legend.addTo(map);
