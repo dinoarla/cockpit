@@ -153,10 +153,10 @@ footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
   <nav class="subnav">
     <a href="#sec-ringkasan" class="active"><span class="n">•</span>Ringkasan</a>
     <a href="#sec-peta"><span class="n">01</span>Peta Sebaran</a>
-    <a href="#sec-unitup"><span class="n">02</span>Per UNITUP</a>
-    <a href="#sec-tarif"><span class="n">03</span>Tarif &amp; Daya</a>
-    <a href="#sec-keperluan"><span class="n">04</span>Keperluan</a>
-    <a href="#sec-tabel"><span class="n">05</span>Tabel Kabupaten</a>
+    <a href="#sec-tarif"><span class="n">02</span>Tarif &amp; Daya</a>
+    <a href="#sec-keperluan"><span class="n">03</span>Keperluan</a>
+    <a href="#sec-tabel"><span class="n">04</span>Tabel Kabupaten</a>
+    <a href="#sec-unitup"><span class="n">05</span>Per UNITUP</a>
   </nav>
 </div>
 
@@ -212,39 +212,9 @@ footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
     </div>
   </div>
 
-  <!-- PER UNITUP -->
-  <div class="sec-head" id="sec-unitup">
-    <h2><span class="tag">02</span> Distribusi per UNITUP (ULP)</h2>
-    <p>Data 73 kode UNITUP aktif. Total daya dalam MVA (mega volt-ampere). Klik header kolom untuk mengurutkan.</p>
-  </div>
-
-  <div class="card">
-    <div class="table-tools">
-      <div class="search-box">
-        <input type="text" id="searchUnitup" placeholder="Cari kode UNITUP…" oninput="renderUnitupTable()">
-      </div>
-      <span id="unitupCount" style="font-size:12px;color:var(--ink-2);font-family:var(--font-mono);"></span>
-    </div>
-    <div style="overflow-x:auto;">
-    <table class="data" id="unitupTable">
-      <thead>
-        <tr>
-          <th onclick="sortUnitup('kode')">UNITUP</th>
-          <th onclick="sortUnitup('total')" class="num-cell sorted">Pelanggan</th>
-          <th onclick="sortUnitup('pra')" class="num-cell">Prabayar</th>
-          <th onclick="sortUnitup('pas')" class="num-cell">Pascabayar</th>
-          <th style="min-width:120px;">% Prabayar</th>
-          <th onclick="sortUnitup('daya')" class="num-cell">Total Daya (MVA)</th>
-        </tr>
-      </thead>
-      <tbody id="unitupBody"></tbody>
-    </table>
-    </div>
-  </div>
-
   <!-- TARIF & DAYA -->
   <div class="sec-head" id="sec-tarif">
-    <h2><span class="tag">03</span> Distribusi Tarif &amp; Daya</h2>
+    <h2><span class="tag">02</span> Distribusi Tarif &amp; Daya</h2>
     <p>Komposisi pelanggan berdasarkan golongan tarif PLN dan kapasitas daya tersambung.</p>
   </div>
 
@@ -280,7 +250,7 @@ footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
 
   <!-- KEPERLUAN -->
   <div class="sec-head" id="sec-keperluan">
-    <h2><span class="tag">04</span> Keperluan Listrik (KET_KEPERLUAN)</h2>
+    <h2><span class="tag">03</span> Keperluan Listrik (KET_KEPERLUAN)</h2>
     <p>Dari 14,1 juta record, 5,35 juta (37,9%) memiliki keterangan keperluan. Total 1.558 jenis keperluan unik.</p>
   </div>
 
@@ -301,7 +271,7 @@ footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
 
   <!-- TABEL KABUPATEN -->
   <div class="sec-head" id="sec-tabel">
-    <h2><span class="tag">05</span> Tabel Distribusi per Kabupaten/Kota</h2>
+    <h2><span class="tag">04</span> Tabel Distribusi per Kabupaten/Kota</h2>
     <p>Data lengkap 21 kabupaten/kota dengan cakupan &gt;10.000 pelanggan.</p>
   </div>
 
@@ -319,10 +289,42 @@ footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
           <th onclick="sortKab('prabayar')" class="num-cell">Prabayar</th>
           <th onclick="sortKab('paskabayar')" class="num-cell">Pascabayar</th>
           <th style="min-width:140px;">% Prabayar</th>
+          <th onclick="sortKab('daya')" class="num-cell">Total Daya (MVA)</th>
         </tr>
       </thead>
       <tbody id="kabBody"></tbody>
     </table>
+  </div>
+
+  <!-- PER UNITUP -->
+  <div class="sec-head" id="sec-unitup">
+    <h2><span class="tag">05</span> Distribusi per UNITUP (ULP)</h2>
+    <p>Data 73 kode UNITUP aktif dalam 17 UP3. Cari berdasarkan kode UNITUP atau nama UP3. Klik header kolom untuk mengurutkan.</p>
+  </div>
+
+  <div class="card">
+    <div class="table-tools">
+      <div class="search-box">
+        <input type="text" id="searchUnitup" placeholder="Cari UNITUP atau UP3…" oninput="renderUnitupTable()">
+      </div>
+      <span id="unitupCount" style="font-size:12px;color:var(--ink-2);font-family:var(--font-mono);"></span>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="data" id="unitupTable">
+      <thead>
+        <tr>
+          <th onclick="sortUnitup('kode')">UNITUP</th>
+          <th onclick="sortUnitup('up3')">UP3</th>
+          <th onclick="sortUnitup('total')" class="num-cell sorted">Pelanggan</th>
+          <th onclick="sortUnitup('pra')" class="num-cell">Prabayar</th>
+          <th onclick="sortUnitup('pas')" class="num-cell">Pascabayar</th>
+          <th style="min-width:120px;">% Prabayar</th>
+          <th onclick="sortUnitup('daya')" class="num-cell">Total Daya (MVA)</th>
+        </tr>
+      </thead>
+      <tbody id="unitupBody"></tbody>
+    </table>
+    </div>
   </div>
 
   <div class="note-panel">
@@ -346,7 +348,7 @@ footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);
   if (!res.ok) window.location.href = '/';
 })();
 
-const sections = ['sec-ringkasan','sec-peta','sec-unitup','sec-tarif','sec-keperluan','sec-tabel'];
+const sections = ['sec-ringkasan','sec-peta','sec-tarif','sec-keperluan','sec-tabel','sec-unitup'];
 window.addEventListener('scroll', () => {
   let current = sections[0];
   for (const id of sections) {
@@ -362,28 +364,53 @@ document.getElementById('genDate').textContent = 'Diakses: ' + new Date().toLoca
 
 /* ====== DATA KABUPATEN ====== */
 const DIL_KAB = [
-  {nama:'Kab. Bekasi',       prabayar:905222,  paskabayar:309470,  total:1214692},
-  {nama:'Kab. Bandung',      prabayar:664325,  paskabayar:385569,  total:1049894},
-  {nama:'Kab. Karawang',     prabayar:576070,  paskabayar:288554,  total:864624},
-  {nama:'Kab. Bogor',        prabayar:561008,  paskabayar:263152,  total:824160},
-  {nama:'Kab. Sukabumi',     prabayar:494714,  paskabayar:286384,  total:781098},
-  {nama:'Kab. Garut',        prabayar:430964,  paskabayar:280369,  total:711333},
-  {nama:'Kab. Cianjur',      prabayar:438681,  paskabayar:256036,  total:694717},
-  {nama:'Kota Bandung',      prabayar:351186,  paskabayar:303638,  total:654824},
-  {nama:'Kota Depok',        prabayar:331810,  paskabayar:257100,  total:588910},
-  {nama:'Kab. Indramayu',    prabayar:270541,  paskabayar:277980,  total:548521},
-  {nama:'Kab. Subang',       prabayar:288847,  paskabayar:242074,  total:530921},
-  {nama:'Kota Bekasi',       prabayar:278838,  paskabayar:158996,  total:437834},
-  {nama:'Kab. Sumedang',     prabayar:219079,  paskabayar:192789,  total:411868},
-  {nama:'Kab. Majalengka',   prabayar:184232,  paskabayar:227174,  total:411406},
-  {nama:'Kab. Tasikmalaya',  prabayar:192473,  paskabayar:193125,  total:385598},
-  {nama:'Kab. Ciamis',       prabayar:135426,  paskabayar:185924,  total:321350},
-  {nama:'Kab. Purwakarta',   prabayar:176030,  paskabayar:120546,  total:296576},
-  {nama:'Kota Tasikmalaya',  prabayar:124708,  paskabayar:112476,  total:237184},
-  {nama:'Kab. Pangandaran',  prabayar:66901,   paskabayar:70314,   total:137215},
-  {nama:'Kota Sukabumi',     prabayar:64270,   paskabayar:51243,   total:115513},
-  {nama:'Kota Banjar',       prabayar:30549,   paskabayar:34799,   total:65348},
+  {nama:'Kab. Bekasi',       prabayar:905222,  paskabayar:309470,  total:1214692, daya:3584101800},
+  {nama:'Kab. Bandung',      prabayar:664325,  paskabayar:385569,  total:1049894, daya:1555768800},
+  {nama:'Kab. Karawang',     prabayar:576070,  paskabayar:288554,  total:864624,  daya:1952927550},
+  {nama:'Kab. Bogor',        prabayar:561008,  paskabayar:263152,  total:824160,  daya:1718887000},
+  {nama:'Kab. Sukabumi',     prabayar:494714,  paskabayar:286384,  total:781098,  daya:996172550},
+  {nama:'Kab. Garut',        prabayar:430964,  paskabayar:280369,  total:711333,  daya:681699004},
+  {nama:'Kab. Cianjur',      prabayar:438681,  paskabayar:256036,  total:694717,  daya:662033000},
+  {nama:'Kota Bandung',      prabayar:351186,  paskabayar:303638,  total:654824,  daya:1507991650},
+  {nama:'Kota Depok',        prabayar:331810,  paskabayar:257100,  total:588910,  daya:1101871500},
+  {nama:'Kab. Indramayu',    prabayar:270541,  paskabayar:277980,  total:548521,  daya:545152600},
+  {nama:'Kab. Subang',       prabayar:288847,  paskabayar:242074,  total:530921,  daya:708698050},
+  {nama:'Kota Bekasi',       prabayar:278838,  paskabayar:158996,  total:437834,  daya:1024769800},
+  {nama:'Kab. Sumedang',     prabayar:219079,  paskabayar:192789,  total:411868,  daya:763231950},
+  {nama:'Kab. Majalengka',   prabayar:184232,  paskabayar:227174,  total:411406,  daya:548764350},
+  {nama:'Kab. Tasikmalaya',  prabayar:192473,  paskabayar:193125,  total:385598,  daya:324442130},
+  {nama:'Kab. Ciamis',       prabayar:135426,  paskabayar:185924,  total:321350,  daya:294125995},
+  {nama:'Kab. Purwakarta',   prabayar:176030,  paskabayar:120546,  total:296576,  daya:472666750},
+  {nama:'Kota Tasikmalaya',  prabayar:124708,  paskabayar:112476,  total:237184,  daya:343593350},
+  {nama:'Kab. Pangandaran',  prabayar:66901,   paskabayar:70314,   total:137215,  daya:146475800},
+  {nama:'Kota Sukabumi',     prabayar:64270,   paskabayar:51243,   total:115513,  daya:152700450},
+  {nama:'Kota Banjar',       prabayar:30549,   paskabayar:34799,   total:65348,   daya:77241860},
 ];
+
+/* ====== UP3 MAPPING (derived from dominant kabupaten, 17 UP3) ====== */
+const UP3_MAP = {
+  '53211':'Ciamis',    '53221':'Ciamis',    '53231':'Ciamis',
+  '53241':'Tasikmalaya','53251':'Tasikmalaya','53261':'Tasikmalaya','53265':'Tasikmalaya',
+  '53271':'Garut',     '53276':'Garut',     '53277':'Garut',     '53286':'Garut',    '53293':'Garut',
+  '53401':'Indramayu', '53402':'Indramayu', '53403':'Indramayu', '53404':'Indramayu',
+  '53411':'Subang',    '53421':'Subang',    '53425':'Subang',
+  '53431':'Purwakarta','53444':'Purwakarta',
+  '53461':'Karawang',  '53468':'Karawang',  '53475':'Karawang',  '53476':'Karawang',  '53482':'Karawang',
+  '53511':'Sumedang',  '53517':'Sumedang',
+  '53521':'Majalengka','53527':'Majalengka',
+  '53531':'Bandung Selatan','53532':'Bandung Selatan','53533':'Bandung Selatan',
+  '53534':'Bandung Selatan','53535':'Bandung Selatan','53536':'Bandung Selatan',
+  '53551':'Bandung',   '53555':'Bandung',   '53559':'Bandung',   '53563':'Bandung',
+  '53567':'Bandung',   '53571':'Bandung',   '53575':'Bandung',   '53577':'Bandung',
+  '53611':'Sukabumi',  '53621':'Sukabumi',  '53631':'Sukabumi',
+  '53641':'Sukabumi',  '53651':'Sukabumi',  '53659':'Sukabumi',
+  '53661':'Cianjur',   '53671':'Cianjur',   '53681':'Cianjur',   '53691':'Cianjur',   '53695':'Cianjur',
+  '53701':'Bekasi',    '53702':'Bekasi',    '53703':'Bekasi',    '53704':'Bekasi',
+  '53711':'Kota Bekasi','53731':'Kota Bekasi','53732':'Bekasi',
+  '53741':'Kota Bekasi','53742':'Bekasi',   '53771':'Kota Bekasi',
+  '53861':'Bogor',     '53865':'Bogor',     '53867':'Bogor',
+  '53871':'Depok',     '53872':'Bogor',     '53873':'Bogor',     '53874':'Depok',     '53875':'Bogor',
+};
 
 /* ====== DATA UNITUP ====== */
 const DIL_UNITUP = [
@@ -598,11 +625,9 @@ let unitupSortCol = 'total', unitupSortAsc = false;
 
 function sortUnitup(col) {
   if (unitupSortCol === col) unitupSortAsc = !unitupSortAsc;
-  else { unitupSortCol = col; unitupSortAsc = col === 'kode'; }
-  document.querySelectorAll('#unitupTable thead th').forEach(th => {
-    th.classList.remove('sorted','asc');
-  });
-  const thMap = {kode:0, total:1, pra:2, pas:3, daya:5};
+  else { unitupSortCol = col; unitupSortAsc = col === 'kode' || col === 'up3'; }
+  document.querySelectorAll('#unitupTable thead th').forEach(th => th.classList.remove('sorted','asc'));
+  const thMap = {kode:0, up3:1, total:2, pra:3, pas:4, daya:6};
   const idx = thMap[col];
   if (idx !== undefined) {
     const th = document.querySelectorAll('#unitupTable thead th')[idx];
@@ -614,23 +639,29 @@ function sortUnitup(col) {
 
 function renderUnitupTable() {
   const q = document.getElementById('searchUnitup').value.toLowerCase();
-  let rows = DIL_UNITUP.filter(d => d.kode.includes(q));
+  let rows = DIL_UNITUP.filter(d => {
+    const up3 = (UP3_MAP[d.kode] || '').toLowerCase();
+    return d.kode.includes(q) || up3.includes(q);
+  });
   rows.sort((a, b) => {
-    const va = unitupSortCol === 'kode' ? a.kode : a[unitupSortCol];
-    const vb = unitupSortCol === 'kode' ? b.kode : b[unitupSortCol];
+    let va, vb;
+    if (unitupSortCol === 'kode') { va = a.kode; vb = b.kode; }
+    else if (unitupSortCol === 'up3') { va = UP3_MAP[a.kode]||''; vb = UP3_MAP[b.kode]||''; }
+    else { va = a[unitupSortCol]; vb = b[unitupSortCol]; }
     return unitupSortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
   });
   document.getElementById('unitupCount').textContent = rows.length + ' dari ' + DIL_UNITUP.length + ' UNITUP';
   const totalDaya = DIL_UNITUP.reduce((s,d) => s+d.daya, 0);
   document.getElementById('unitupBody').innerHTML = rows.map(d => {
+    const up3 = UP3_MAP[d.kode] || '—';
     const validTotal = d.pra + d.pas;
     const pctPra = validTotal > 0 ? (d.pra / validTotal * 100) : null;
     const barW = pctPra !== null ? Math.round(pctPra * 80 / 100) : 0;
     const dayaMva = (d.daya / 1e6).toFixed(1);
-    const dayaPct = (d.daya / totalDaya * 100).toFixed(2);
     const specialBadge = d.special ? `<span class="tag-special">${d.special}</span>` : '';
     return `<tr>
       <td><b style="font-family:var(--font-mono)">${d.kode}</b>${specialBadge}</td>
+      <td style="font-size:12px;font-weight:600;">${up3}</td>
       <td class="num-cell">${d.total.toLocaleString('id-ID')}</td>
       <td class="num-cell">${d.pra > 0 ? d.pra.toLocaleString('id-ID') : '—'}</td>
       <td class="num-cell">${d.pas > 0 ? d.pas.toLocaleString('id-ID') : '—'}</td>
@@ -774,6 +805,7 @@ function renderKabTable() {
   document.getElementById('kabBody').innerHTML = rows.map(d => {
     const pctPra = (d.prabayar / d.total * 100).toFixed(1);
     const barW = Math.round(d.prabayar / d.total * 90);
+    const dayaMva = d.daya ? (d.daya / 1e6).toFixed(1) : '—';
     return `<tr>
       <td><b>${d.nama}</b></td>
       <td class="num-cell">${d.total.toLocaleString('id-ID')}</td>
@@ -788,6 +820,7 @@ function renderKabTable() {
           <span style="font-family:var(--font-mono);font-size:11px;">${pctPra}%</span>
         </div>
       </td>
+      <td class="num-cell">${dayaMva}</td>
     </tr>`;
   }).join('');
 }
