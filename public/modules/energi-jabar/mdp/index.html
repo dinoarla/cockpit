@@ -14,21 +14,21 @@
   :root{
     --navy:#0B3350;
     --navy-2:#123A5E;
-    --teal:#0E7C7B;
-    --teal-light:#E4F3F2;
-    --amber:#C2760C;
-    --amber-light:#FBF0DE;
+    --teal:#FF4D00;
+    --teal-light:rgba(255,77,0,.08);
+    --amber:#FFD600;
+    --amber-light:rgba(255,214,0,.12);
     --red:#B3401F;
     --red-light:#FBEAE4;
     --green:#3F7D51;
     --green-light:#EBF4EC;
-    --bg:#F3F5F7;
+    --bg:#FFFBF0;
     --card:#FFFFFF;
-    --line:#E3E7EB;
-    --ink:#182430;
-    --ink-2:#5B6B7A;
+    --line:rgba(17,17,24,.12);
+    --ink:#111118;
+    --ink-2:#555560;
     --radius:14px;
-    --shadow:0 1px 2px rgba(15,35,55,.04), 0 4px 16px rgba(15,35,55,.06);
+    --shadow:0 2px 8px rgba(17,17,24,.08);
     --font-display:'Space Grotesk', sans-serif;
     --font-body:'Inter', sans-serif;
     --font-mono:'JetBrains Mono', monospace;
@@ -118,7 +118,7 @@
   }
   .mix-seg{display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:500;color:#fff;white-space:nowrap;}
   .mix-fosil{background:#5A6B78;}
-  .mix-ebt{background:#1E9E86;}
+  .mix-ebt{background:#FF4D00;}
   .mix-caption{
     display:flex;justify-content:space-between;
     font-size:11.5px;color:#9FBAC9;padding:8px 2px 22px;
@@ -139,7 +139,7 @@
     box-shadow:var(--shadow);
     border-top:3px solid var(--teal);
   }
-  .kpi.k2{border-top-color:#1E9E86;}
+  .kpi.k2{border-top-color:#FF4D00;}
   .kpi.k3{border-top-color:var(--amber);}
   .kpi.k4{border-top-color:var(--red);}
   .kpi-label{font-size:12px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:8px;}
@@ -179,7 +179,7 @@
   .card .sub{font-size:11.5px;color:var(--ink-2);margin-bottom:14px;}
   .card canvas{max-height:260px;}
   .card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
-  .src{font-size:10.5px;color:#8B99A6;font-family:var(--font-mono);}
+  .src{font-size:10.5px;color:rgba(17,17,24,.35);font-family:var(--font-mono);}
   .mini-export{font-size:11px;color:var(--teal);background:none;border:none;cursor:pointer;font-weight:600;padding:0;}
 
   /* ===== EQUITY SPOTLIGHT ===== */
@@ -331,7 +331,7 @@
     position:sticky;
     top:0;
     z-index:50;
-    background:rgba(255,255,255,.92);
+    background:rgba(255,251,240,.96);
     backdrop-filter:blur(8px);
     -webkit-backdrop-filter:blur(8px);
     border-bottom:1px solid var(--line);
@@ -1254,7 +1254,7 @@ const DATA = {
 };
 
 /* ============ THEME HELPERS ============ */
-const COLORS = {navy:'#0B3350', teal:'#0E7C7B', tealLine:'#1E9E86', amber:'#C2760C', red:'#B3401F', green:'#3F7D51', grey:'#5A6B78', purple:'#6D5BA8'};
+const COLORS = {navy:'#0B3350', teal:'#0E7C7B', tealLine:'#FF4D00', amber:'#C2760C', red:'#B3401F', green:'#3F7D51', grey:'#5A6B78', purple:'#6D5BA8'};
 Chart.defaults.font.family = "'Inter', sans-serif";
 Chart.defaults.color = '#5B6B7A';
 Chart.defaults.font.size = 11.5;
