@@ -72,8 +72,8 @@ adminRoutes.post("/users", async (c) => {
   if (existing) return c.json({ error: "Username sudah dipakai." }, 409);
 
   const passwordHash = await hashPassword(password);
-  const [inserted] = await db.insert(users).values({ username, email, passwordHash, role });
-  const newUserId = (inserted as any).insertId as number;
+  const insertResult = await db.insert(users).values({ username, email, passwordHash, role });
+  const newUserId = (insertResult as any).insertId as number;
 
   // Grant domain access
   for (const slug of domainSlugs) {
@@ -207,20 +207,20 @@ adminRoutes.get("/security", async (c) => {
 
   // Top IP dengan gagal login (7 hari)
   const topFailIPs = await db
-    .select({ ip: loginAudit.ipAddress, n: count().as("n") })
+    .select({ ip: loginAudit.ipAddress, n: count() })
     .from(loginAudit)
     .where(and(eq(loginAudit.success, false), gte(loginAudit.createdAt, since7d)))
     .groupBy(loginAudit.ipAddress)
-    .orderBy(desc(sql`n`))
+    .orderBy(sql`count(*) DESC`)
     .limit(10);
 
   // Gagal login per alasan
   const failReasons = await db
-    .select({ reason: loginAudit.reason, n: count().as("n") })
+    .select({ reason: loginAudit.reason, n: count() })
     .from(loginAudit)
     .where(and(eq(loginAudit.success, false), gte(loginAudit.createdAt, since7d)))
     .groupBy(loginAudit.reason)
-    .orderBy(desc(sql`n`));
+    .orderBy(sql`count(*) DESC`);
 
   return c.json({
     users:       { total: totalUsers.n, active: activeUsers.n, locked: lockedUsers.n },

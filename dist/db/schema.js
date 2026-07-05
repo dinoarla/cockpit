@@ -159,6 +159,18 @@ export const userDomainAccess = mysqlTable("user_domain_access", {
 }, (t) => ({
     pk: primaryKey({ columns: [t.userId, t.domainId] }),
 }));
+// Akses per-modul (lebih granular dari userDomainAccess).
+// Jika user punya entri di sini, hanya modul yang terdaftar yang ditampilkan
+// dalam domain tersebut. Admin selalu bypass tabel ini.
+export const userModuleAccess = mysqlTable("user_module_access", {
+    userId: int("user_id").notNull(),
+    moduleId: int("module_id").notNull(),
+    grantedAt: timestamp("granted_at").notNull().defaultNow(),
+    grantedBy: int("granted_by"),
+}, (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.moduleId] }),
+    userIdx: index("uma_user_idx").on(t.userId),
+}));
 export const datasetSources = mysqlTable("dataset_sources", {
     id: int("id").autoincrement().primaryKey(),
     domainModuleId: int("domain_module_id").notNull(),

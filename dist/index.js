@@ -9,6 +9,7 @@ import { authRoutes } from "./routes/auth.js";
 import { domainRoutes } from "./routes/domains.js";
 import { mdpRoutes } from "./routes/mdp.js";
 import { ruptlRoutes } from "./routes/ruptl.js";
+import { adminRoutes } from "./routes/admin.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(__dirname, "..", "public");
 const app = new Hono();
@@ -18,8 +19,10 @@ app.route("/api/auth", authRoutes);
 app.route("/api/domains", domainRoutes);
 app.route("/api/mdp", mdpRoutes);
 app.route("/api/ruptl", ruptlRoutes);
+app.route("/api/admin", adminRoutes);
 app.use("/menu.html", requireAuth, serveStatic({ root: publicDir }));
 app.use("/modules/*", requireAuth, serveStatic({ root: publicDir }));
+app.use("/admin/*", requireAuth, serveStatic({ root: publicDir }));
 app.use("/*", serveStatic({ root: publicDir }));
 const port = Number(process.env.PORT) || 3000;
 serve({
