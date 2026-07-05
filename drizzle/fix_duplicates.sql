@@ -64,21 +64,39 @@ INNER JOIN ruptl_rencana_gardu_induk t2
   AND t1.id          > t2.id
 WHERE t1.provinsi_id IN (@b2, @b4);
 
--- ── Verifikasi akhir ─────────────────────────────────────────────────────
-SELECT p.kode, p.nama,
-  COUNT(DISTINCT CONCAT(h.tahun,h.sektor))  AS penjualan_unik,
-  COUNT(DISTINCT k.tahun)                    AS proyeksi_unik,
-  COUNT(DISTINCT CONCAT(e.pemilik,e.jenis))  AS pembangkit_unik,
-  COUNT(DISTINCT rp.id)                      AS rencana_total,
-  COUNT(DISTINCT CONCAT(rt.skenario,rt.tahun)) AS transmisi_unik,
-  COUNT(DISTINCT CONCAT(gi.skenario,gi.tahun)) AS gi_unik
-FROM ruptl_provinsi p
-LEFT JOIN ruptl_penjualan_historis   h  ON h.provinsi_id  = p.id
-LEFT JOIN ruptl_proyeksi_kebutuhan   k  ON k.provinsi_id  = p.id
-LEFT JOIN ruptl_pembangkit_eksisting e  ON e.provinsi_id  = p.id
-LEFT JOIN ruptl_rencana_pembangkit   rp ON rp.provinsi_id = p.id
-LEFT JOIN ruptl_rencana_transmisi    rt ON rt.provinsi_id = p.id
-LEFT JOIN ruptl_rencana_gardu_induk  gi ON gi.provinsi_id = p.id
-WHERE p.kode IN ('B1','B2','B3','B4')
-GROUP BY p.kode, p.nama
-ORDER BY p.kode;
+-- ── Verifikasi akhir (query terpisah agar tidak penuh temp table) ────────
+SELECT 'penjualan_historis' AS tabel, provinsi_id, COUNT(*) AS baris
+FROM ruptl_penjualan_historis
+WHERE provinsi_id IN (@b2, @b4)
+GROUP BY provinsi_id;
+-- Harusnya: B2=40, B4=40
+
+SELECT 'proyeksi_kebutuhan' AS tabel, provinsi_id, COUNT(*) AS baris
+FROM ruptl_proyeksi_kebutuhan
+WHERE provinsi_id IN (@b2, @b4)
+GROUP BY provinsi_id;
+-- Harusnya: B2=10, B4=10
+
+SELECT 'pembangkit_eksisting' AS tabel, provinsi_id, COUNT(*) AS baris
+FROM ruptl_pembangkit_eksisting
+WHERE provinsi_id IN (@b2, @b4)
+GROUP BY provinsi_id;
+-- Harusnya: B2=5, B4=11
+
+SELECT 'rencana_pembangkit' AS tabel, provinsi_id, COUNT(*) AS baris
+FROM ruptl_rencana_pembangkit
+WHERE provinsi_id IN (@b2, @b4)
+GROUP BY provinsi_id;
+-- Harusnya: B2=26, B4=34
+
+SELECT 'rencana_transmisi' AS tabel, provinsi_id, COUNT(*) AS baris
+FROM ruptl_rencana_transmisi
+WHERE provinsi_id IN (@b2, @b4)
+GROUP BY provinsi_id;
+-- Harusnya: B2=12, B4=18
+
+SELECT 'rencana_gardu_induk' AS tabel, provinsi_id, COUNT(*) AS baris
+FROM ruptl_rencana_gardu_induk
+WHERE provinsi_id IN (@b2, @b4)
+GROUP BY provinsi_id;
+-- Harusnya: B2=12, B4=20
