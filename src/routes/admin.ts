@@ -98,6 +98,19 @@ adminRoutes.post("/users", async (c) => {
   return c.json({ ok: true, userId: newUserId });
 });
 
+adminRoutes.delete("/users/:id", async (c) => {
+  const me = c.get("user");
+  const id = Number(c.req.param("id"));
+  if (id === me.id) return c.json({ error: "Tidak bisa menghapus akun sendiri." }, 400);
+
+  await db.delete(userModuleAccess).where(eq(userModuleAccess.userId, id));
+  await db.delete(userDomainAccess).where(eq(userDomainAccess.userId, id));
+  await db.delete(sessions).where(eq(sessions.userId, id));
+  await db.delete(users).where(eq(users.id, id));
+
+  return c.json({ ok: true });
+});
+
 adminRoutes.patch("/users/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const body = await c.req.json<{ isActive?: boolean; role?: "admin"|"editor"|"viewer" }>();
