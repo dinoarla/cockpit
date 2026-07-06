@@ -622,21 +622,62 @@ function buildPeriodTabs(periods) {
   document.getElementById('ftPeriods').textContent = periods.length + ' bulan';
 }
 
+// ── ERROR STATE ───────────────────────────────────────────────────────────────
+function showError(msg) {
+  const errHtml = `<tr><td colspan="7" style="padding:32px;text-align:center;">
+    <div style="font-family:var(--font-m);font-size:12px;color:var(--red);">
+      <i class="fa-solid fa-circle-exclamation" style="font-size:1.5rem;margin-bottom:10px;display:block;opacity:.5;"></i>
+      ${msg}
+    </div></td></tr>`;
+  document.getElementById('tblBody').innerHTML = errHtml;
+  document.getElementById('tarifBody').innerHTML = errHtml;
+  ['kv1','kv2','kv3','kv4'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('skeleton'); el.style = '';
+    el.textContent = '—';
+  });
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
 async function init() {
-  // Auth check
   const meRes = await fetch('/api/auth/me');
   if (!meRes.ok) { window.location.href = '/'; return; }
 
-  const [sumRes, unitapRes, tarifRes] = await Promise.all([
-    fetch('/api/olap-tagihan/summary'),
-    fetch('/api/olap-tagihan/by-unitap'),
-    fetch('/api/olap-tagihan/by-tarif'),
-  ]);
+  let sumRes, unitapRes, tarifRes;
+  try {
+    [sumRes, unitapRes, tarifRes] = await Promise.all([
+      fetch('/api/olap-tagihan/summary'),
+      fetch('/api/olap-tagihan/by-unitap'),
+      fetch('/api/olap-tagihan/by-tarif'),
+    ]);
+  } catch (e) {
+    showError('Gagal menghubungi server. Periksa koneksi dan coba muat ulang.');
+    return;
+  }
 
-  summaryData  = await sumRes.json();
-  byUnitapAll  = await unitapRes.json();
-  byTarifAll   = await tarifRes.json();
+  if (!sumRes.ok || !unitapRes.ok || !tarifRes.ok) {
+    const errBody = await sumRes.json().catch(() => ({}));
+    showError('API error ' + sumRes.status + ' — ' + (errBody?.message ?? errBody?.error ?? 'Tabel data mungkin belum tersedia di database.'));
+    return;
+  }
+
+  const sumJson    = await sumRes.json();
+  const unitapJson = await unitapRes.json();
+  const tarifJson  = await tarifRes.json();
+
+  if (!Array.isArray(sumJson) || !Array.isArray(unitapJson) || !Array.isArray(tarifJson)) {
+    showError('Format data tidak valid. SQL olap_amr_data.sql mungkin belum dijalankan di database production.');
+    return;
+  }
+
+  summaryData = sumJson;
+  byUnitapAll = unitapJson;
+  byTarifAll  = tarifJson;
+
+  if (summaryData.length === 0) {
+    showError('Belum ada data — jalankan olap_amr_data.sql di database production terlebih dahulu.');
+    return;
+  }
 
   const periods = [...new Set(summaryData.map(d => d.thblrek))].sort();
   buildPeriodTabs(periods);
@@ -647,11 +688,13 @@ async function init() {
   buildTarifChart(byTarifAll, 'all');
   buildUp3Chart(byUnitapAll, 'all');
 
-  const totalCombos = byUnitapAll.length;
-  document.getElementById('ftCombo').textContent = totalCombos.toLocaleString('id-ID');
+  document.getElementById('ftCombo').textContent = byUnitapAll.length.toLocaleString('id-ID');
 }
 
-init().catch(err => console.error('Init error:', err));
+init().catch(err => {
+  console.error('Init error:', err);
+  showError('Terjadi kesalahan tidak terduga: ' + err.message);
+});
 </script>
 </body>
 </html>
