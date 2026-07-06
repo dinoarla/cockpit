@@ -2,12 +2,14 @@ import {
   mysqlTable,
   varchar,
   int,
+  bigint,
   decimal,
   timestamp,
   boolean,
   mysqlEnum,
   index,
   text,
+  char,
   date,
   primaryKey,
   uniqueIndex,
@@ -511,6 +513,32 @@ export const tariffRates = mysqlTable("tariff_rates", {
   // Prabayar
   tarifPrabayar: decimal("tarif_prabayar", { precision: 10, scale: 2 }),
 });
+
+export const olapAmrTagihan = mysqlTable(
+  "olap_amr_tagihan",
+  {
+    id:            int("id").autoincrement().primaryKey(),
+    thblrek:       char("thblrek", { length: 6 }).notNull(),
+    unitap:        varchar("unitap", { length: 10 }).notNull(),
+    unitapNama:    varchar("unitap_nama", { length: 50 }).notNull(),
+    unitup:        varchar("unitup", { length: 10 }).notNull(),
+    tarif:         varchar("tarif", { length: 10 }).notNull(),
+    tarifGrup:     varchar("tarif_grup", { length: 20 }).notNull(),
+    jmlPelanggan:  int("jml_pelanggan").notNull().default(0),
+    kwhTotal:      decimal("kwh_total", { precision: 18, scale: 3 }).notNull().default("0"),
+    kwhLwbp:       decimal("kwh_lwbp",  { precision: 18, scale: 3 }).notNull().default("0"),
+    kwhWbp:        decimal("kwh_wbp",   { precision: 18, scale: 3 }).notNull().default("0"),
+    rpPtl:         bigint("rp_ptl",   { mode: "number" }).notNull().default(0),
+    rpPpj:         bigint("rp_ppj",   { mode: "number" }).notNull().default(0),
+    rpTotal:       bigint("rp_total", { mode: "number" }).notNull().default(0),
+    createdAt:     timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    ukOlapAmr: uniqueIndex("uk_olap_amr").on(t.thblrek, t.unitap, t.unitup, t.tarif),
+    idxPeriod:  index("idx_olap_amr_period").on(t.thblrek),
+    idxUnitap:  index("idx_olap_amr_unitap").on(t.unitap),
+  })
+);
 
 export const datasetSources = mysqlTable("dataset_sources", {
   id: int("id").autoincrement().primaryKey(),

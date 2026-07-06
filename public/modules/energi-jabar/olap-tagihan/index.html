@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OLAP Tagihan AMR Jawa Barat — COCKPIT</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0D1117;--orange:#FF4D00;--yellow:#FFD600;--green:#2ECC71;--red:#E74C3C;
+  --blue:#3B82F6;--purple:#8B5CF6;--teal:#14B8A6;
+  --bg:#FFFBF0;--card:#FFFFFF;--line:rgba(17,17,24,.1);
+  --ink:#111118;--ink-2:#555560;--ink-3:#999;
+  --radius:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.07);
+  --font-d:'Space Grotesk',sans-serif;
+  --font-b:'Inter',sans-serif;
+  --font-m:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);font-family:var(--font-b);color:var(--ink);-webkit-font-smoothing:antialiased;}
+
+/* ── HEADER ── */
+header.top{background:var(--navy);color:#E6EDF3;padding:28px 24px 0;}
+.top-inner{max-width:1280px;margin:0 auto;}
+.btn-back{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+  color:rgba(230,237,243,.45);text-decoration:none;margin-bottom:12px;transition:color .15s;}
+.btn-back:hover{color:#E6EDF3;}
+.eyebrow{font-family:var(--font-m);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,77,0,.7);margin-bottom:7px;}
+h1.page-title{font-family:var(--font-d);font-size:22px;font-weight:700;color:#fff;
+  margin-bottom:5px;line-height:1.2;}
+.page-sub{font-size:13px;color:rgba(230,237,243,.5);max-width:680px;line-height:1.6;margin-bottom:16px;}
+.top-meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:0;}
+.meta-chip{font-family:var(--font-m);font-size:11px;color:rgba(230,237,243,.38);
+  display:flex;align-items:center;gap:5px;}
+.meta-chip i{color:rgba(255,77,0,.5);font-size:10px;}
+.meta-chip.gap{color:rgba(255,214,0,.55);}
+.meta-chip.gap i{color:rgba(255,214,0,.6);}
+
+/* PERIOD TABS */
+.period-tabs{display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,.08);margin-top:16px;overflow-x:auto;scrollbar-width:none;}
+.period-tabs::-webkit-scrollbar{display:none;}
+.ptab{font-size:13px;font-weight:600;color:rgba(230,237,243,.4);padding:10px 16px;
+  border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent;
+  white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.ptab:hover{color:rgba(230,237,243,.75);}
+.ptab.active{color:#fff;border-bottom-color:var(--orange);}
+.ptab.all{color:rgba(255,214,0,.7);}
+.ptab.all.active{color:var(--yellow);border-bottom-color:var(--yellow);}
+
+/* ── MAIN ── */
+.wrap{max-width:1280px;margin:0 auto;padding:24px 24px 80px;}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:500px){.kpi-grid{grid-template-columns:1fr;}}
+.kpi{background:var(--card);border-radius:var(--radius);padding:18px 20px;
+  box-shadow:var(--shadow);border-top:3px solid var(--orange);position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;
+  border-radius:0 var(--radius) 0 60px;opacity:.04;}
+.kpi.k2{border-top-color:var(--yellow);}
+.kpi.k2::before{background:var(--yellow);}
+.kpi.k3{border-top-color:var(--green);}
+.kpi.k3::before{background:var(--green);}
+.kpi.k4{border-top-color:var(--blue);}
+.kpi.k4::before{background:var(--blue);}
+.kpi-icon{font-size:22px;color:rgba(255,77,0,.25);margin-bottom:10px;}
+.kpi.k2 .kpi-icon{color:rgba(255,214,0,.3);}
+.kpi.k3 .kpi-icon{color:rgba(46,204,113,.3);}
+.kpi.k4 .kpi-icon{color:rgba(59,130,246,.3);}
+.kpi-label{font-size:11px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em;
+  font-weight:600;margin-bottom:5px;}
+.kpi-value{font-family:var(--font-d);font-size:22px;font-weight:700;color:var(--ink);line-height:1.1;}
+.kpi-sub{font-family:var(--font-m);font-size:11px;color:var(--ink-3);margin-top:4px;}
+.kpi-delta{font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:3px;
+  margin-top:6px;padding:2px 7px;border-radius:20px;}
+.kpi-delta.pos{background:rgba(46,204,113,.1);color:var(--green);}
+.kpi-delta.neg{background:rgba(231,76,60,.1);color:var(--red);}
+
+/* ── 2-COL CHARTS ── */
+.charts-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+@media(max-width:800px){.charts-2{grid-template-columns:1fr;}}
+
+/* ── CARD ── */
+.card{background:var(--card);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.card-title{font-family:var(--font-d);font-size:15px;font-weight:700;color:var(--ink);}
+.card-badge{font-family:var(--font-m);font-size:10px;padding:3px 8px;border-radius:20px;
+  background:rgba(255,77,0,.08);color:var(--orange);border:1px solid rgba(255,77,0,.2);}
+.chart-wrap{position:relative;height:240px;}
+.chart-wrap.tall{height:280px;}
+
+/* ── TABLE ── */
+.tbl-wrap{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:24px;}
+.tbl-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;
+  border-bottom:1px solid var(--line);}
+.tbl-title{font-family:var(--font-d);font-size:15px;font-weight:700;color:var(--ink);}
+.tbl-info{font-family:var(--font-m);font-size:11px;color:var(--ink-3);}
+.tbl-scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--ink-2);padding:11px 14px;background:rgba(17,17,24,.02);
+  border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;}
+thead th:first-child{text-align:left;}
+thead th:nth-child(2){text-align:left;}
+tbody tr{border-bottom:1px solid rgba(17,17,24,.05);transition:background .1s;}
+tbody tr:hover{background:rgba(255,77,0,.025);}
+tbody tr:last-child{border-bottom:none;}
+td{font-size:13px;color:var(--ink);padding:11px 14px;text-align:right;white-space:nowrap;}
+td:first-child{text-align:left;font-weight:600;}
+td:nth-child(2){text-align:left;font-size:12px;color:var(--ink-2);}
+.tbl-total td{font-weight:700;background:rgba(255,77,0,.03);border-top:2px solid rgba(255,77,0,.15);}
+.tbl-total td:first-child{color:var(--orange);}
+.bar-cell{display:flex;align-items:center;gap:8px;justify-content:flex-end;}
+.mini-bar{height:6px;border-radius:3px;background:var(--orange);min-width:3px;transition:width .3s;}
+
+/* ── TARIF LEGEND ── */
+.tarif-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:16px;}
+.tarif-card{background:var(--bg);border-radius:8px;padding:12px 14px;border:1px solid var(--line);}
+.tarif-name{font-family:var(--font-d);font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+.tarif-kwh{font-family:var(--font-m);font-size:12px;color:var(--ink-2);}
+.tarif-pct{font-size:11px;color:var(--ink-3);margin-top:2px;}
+.tarif-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;flex-shrink:0;}
+
+/* ── SECTION LABEL ── */
+.sec-label{font-family:var(--font-m);font-size:11px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--ink-3);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--line);}
+
+/* ── NOTICE GAP ── */
+.notice-gap{background:rgba(255,214,0,.07);border:1px solid rgba(255,214,0,.2);border-radius:8px;
+  padding:10px 14px;font-family:var(--font-m);font-size:11px;color:rgba(255,214,0,.8);
+  display:flex;align-items:center;gap:8px;margin-bottom:20px;}
+
+/* ── SKELETON ── */
+.skeleton{background:linear-gradient(90deg,rgba(17,17,24,.04) 25%,rgba(17,17,24,.08) 50%,rgba(17,17,24,.04) 75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── LOADING STATE ── */
+.loading-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:180px;gap:10px;color:var(--ink-3);font-size:13px;font-family:var(--font-m);}
+.spinner-sm{width:20px;height:20px;border:2px solid rgba(17,17,24,.1);
+  border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── FOOTER ── */
+footer.btm{position:fixed;bottom:0;left:0;right:0;z-index:90;
+  background:var(--navy);border-top:1px solid rgba(255,255,255,.06);
+  padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.ft-left{font-size:12px;color:rgba(230,237,243,.35);font-family:var(--font-m);}
+.ft-right{display:flex;align-items:center;gap:16px;}
+.ft-stat{font-family:var(--font-m);font-size:11px;color:rgba(230,237,243,.3);
+  display:flex;align-items:center;gap:5px;}
+.ft-stat i{color:rgba(255,77,0,.45);font-size:10px;}
+.ft-stat b{color:rgba(230,237,243,.55);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  header.top,.wrap{padding-left:16px;padding-right:16px;}
+  h1.page-title{font-size:18px;}
+  .kpi-value{font-size:18px;}
+  .card{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <a href="/menu.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali ke Menu</a>
+    <div class="eyebrow"><i class="fa-solid fa-file-invoice" style="margin-right:5px;"></i>Distribusi Tenaga Listrik · AMR</div>
+    <h1 class="page-title">Data OLAP Tagihan Listrik AMR Jawa Barat</h1>
+    <p class="page-sub">Ringkasan & analisis tagihan listrik per UP3, ULP, dan golongan tarif — berbasis data Automatic Meter Reading (AMR) Jawa Barat 2026.</p>
+    <div class="top-meta">
+      <span class="meta-chip"><i class="fa-solid fa-calendar-days"></i><span id="metaPeriods">—</span></span>
+      <span class="meta-chip"><i class="fa-solid fa-users"></i><span id="metaPelanggan">—</span> pelanggan</span>
+      <span class="meta-chip"><i class="fa-solid fa-bolt"></i><span id="metaKwh">—</span> kWh</span>
+      <span class="meta-chip gap"><i class="fa-solid fa-triangle-exclamation"></i>Data Mei 2026 belum tersedia</span>
+    </div>
+
+    <div class="period-tabs" id="periodTabs">
+      <button class="ptab all active" data-period="all">Semua Periode</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="notice-gap">
+    <i class="fa-solid fa-circle-info"></i>
+    <span>Data tagihan Mei 2026 (THBLREK 202605) belum tersedia — periode tersebut tidak masuk dalam rekap ini.</span>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi"><div class="kpi-icon"><i class="fa-solid fa-users"></i></div>
+      <div class="kpi-label">Total Pelanggan</div>
+      <div class="kpi-value skeleton" style="height:28px;width:120px;" id="kv1">&nbsp;</div>
+      <div class="kpi-sub" id="ks1">&nbsp;</div></div>
+    <div class="kpi k2"><div class="kpi-icon"><i class="fa-solid fa-bolt"></i></div>
+      <div class="kpi-label">Total Pemakaian</div>
+      <div class="kpi-value skeleton" style="height:28px;width:150px;" id="kv2">&nbsp;</div>
+      <div class="kpi-sub" id="ks2">&nbsp;</div></div>
+    <div class="kpi k3"><div class="kpi-icon"><i class="fa-solid fa-receipt"></i></div>
+      <div class="kpi-label">Total Tagihan</div>
+      <div class="kpi-value skeleton" style="height:28px;width:160px;" id="kv3">&nbsp;</div>
+      <div class="kpi-sub" id="ks3">&nbsp;</div></div>
+    <div class="kpi k4"><div class="kpi-icon"><i class="fa-solid fa-chart-line"></i></div>
+      <div class="kpi-label">Rata-rata / Pelanggan</div>
+      <div class="kpi-value skeleton" style="height:28px;width:130px;" id="kv4">&nbsp;</div>
+      <div class="kpi-sub" id="ks4">&nbsp;</div></div>
+  </div>
+
+  <!-- TREND CHARTS -->
+  <div class="sec-label">Tren Bulanan</div>
+  <div class="charts-2">
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title"><i class="fa-solid fa-bolt" style="color:var(--yellow);margin-right:6px;font-size:13px;"></i>Pemakaian Listrik (GWh)</span>
+        <span class="card-badge">per bulan</span>
+      </div>
+      <div class="chart-wrap"><canvas id="chartKwh"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title"><i class="fa-solid fa-receipt" style="color:var(--green);margin-right:6px;font-size:13px;"></i>Total Tagihan (Triliun Rp)</span>
+        <span class="card-badge">per bulan</span>
+      </div>
+      <div class="chart-wrap"><canvas id="chartTagihan"></canvas></div>
+    </div>
+  </div>
+
+  <!-- TARIF BREAKDOWN + UP3 CHART -->
+  <div class="charts-2">
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title"><i class="fa-solid fa-layer-group" style="color:var(--purple);margin-right:6px;font-size:13px;"></i>Komposisi Tarif</span>
+        <span class="card-badge" id="tarifBadge">semua periode</span>
+      </div>
+      <div class="chart-wrap"><canvas id="chartTarif"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title"><i class="fa-solid fa-map-location-dot" style="color:var(--teal);margin-right:6px;font-size:13px;"></i>Distribusi per UP3 (kWh)</span>
+        <span class="card-badge" id="up3Badge">semua periode</span>
+      </div>
+      <div class="chart-wrap tall"><canvas id="chartUp3"></canvas></div>
+    </div>
+  </div>
+
+  <!-- TABLE BY UP3 -->
+  <div class="sec-label" id="tblSec">Rekap per UP3</div>
+  <div class="tbl-wrap">
+    <div class="tbl-hd">
+      <span class="tbl-title"><i class="fa-solid fa-table" style="color:var(--orange);margin-right:8px;font-size:13px;"></i>Rekap UP3 — <span id="tblPeriodLabel">Semua Periode</span></span>
+      <span class="tbl-info" id="tblRowCount">—</span>
+    </div>
+    <div class="tbl-scroll">
+      <table id="tblUp3">
+        <thead>
+          <tr>
+            <th>UP3</th>
+            <th>Nama</th>
+            <th>Pelanggan</th>
+            <th>kWh Total</th>
+            <th>Tagihan (Rp)</th>
+            <th>Avg/Pelanggan</th>
+            <th style="width:100px;text-align:center;">Proporsi kWh</th>
+          </tr>
+        </thead>
+        <tbody id="tblBody">
+          <tr><td colspan="7"><div class="loading-overlay"><div class="spinner-sm"></div>Memuat data…</div></td></tr>
+        </tbody>
+        <tfoot id="tblFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- TARIF DETAIL TABLE -->
+  <div class="sec-label">Breakdown Golongan Tarif</div>
+  <div class="tbl-wrap">
+    <div class="tbl-hd">
+      <span class="tbl-title"><i class="fa-solid fa-tags" style="color:var(--yellow);margin-right:8px;font-size:13px;"></i>Kelompok Tarif — <span id="tarifPeriodLabel">Semua Periode</span></span>
+      <span class="tbl-info" id="tarifRowCount">—</span>
+    </div>
+    <div class="tbl-scroll">
+      <table id="tblTarif">
+        <thead>
+          <tr>
+            <th>Kelompok</th>
+            <th>Pelanggan</th>
+            <th>kWh Total</th>
+            <th>Tagihan (Rp)</th>
+            <th>% kWh</th>
+            <th>Avg kWh/Pel</th>
+            <th>Avg Tagihan/Pel</th>
+          </tr>
+        </thead>
+        <tbody id="tarifBody">
+          <tr><td colspan="7"><div class="loading-overlay"><div class="spinner-sm"></div>Memuat data…</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer class="btm">
+  <span class="ft-left"><i class="fa-solid fa-database" style="margin-right:4px;"></i>Sumber: Data AMR PLN UP3 Jawa Barat 2026 · Diproses 2026-07-07</span>
+  <div class="ft-right">
+    <div class="ft-stat"><i class="fa-solid fa-table-cells"></i>Kombinasi: <b id="ftCombo">—</b></div>
+    <div class="ft-stat"><i class="fa-solid fa-calendar"></i>Periode: <b id="ftPeriods">5 bulan</b></div>
+  </div>
+</footer>
+
+<script>
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+const fmtInt   = v => Math.round(+v).toLocaleString('id-ID');
+const fmtKwh   = v => {
+  const n = +v;
+  if (n >= 1e9)  return (n/1e9).toFixed(2) + ' GWh';
+  if (n >= 1e6)  return (n/1e6).toFixed(1) + ' MWh';
+  return fmtInt(n) + ' kWh';
+};
+const fmtGwh   = v => ((+v)/1e9).toFixed(3) + ' GWh';
+const fmtRp    = v => {
+  const n = +v;
+  if (n >= 1e12) return 'Rp ' + (n/1e12).toFixed(3) + ' T';
+  if (n >= 1e9)  return 'Rp ' + (n/1e9).toFixed(1) + ' M';
+  if (n >= 1e6)  return 'Rp ' + (n/1e6).toFixed(1) + ' jt';
+  return 'Rp ' + fmtInt(n);
+};
+const fmtRpFull = v => 'Rp ' + Math.round(+v).toLocaleString('id-ID');
+const PERIOD_LABEL = {
+  '202602':'Feb 2026','202603':'Mar 2026','202604':'Apr 2026',
+  '202606':'Jun 2026','202607':'Jul 2026',
+};
+const TARIF_COLOR = {
+  'Rumah Tangga':'#3B82F6','Bisnis':'#FF4D00','Industri':'#FFD600',
+  'Pemerintah':'#2ECC71','Sosial':'#8B5CF6','Traksi':'#14B8A6',
+  'Curah':'#F59E0B','Lainnya':'#9CA3AF',
+};
+const UP3_COLOR = [
+  '#FF4D00','#FF7A33','#FFD600','#2ECC71','#3B82F6','#8B5CF6',
+  '#14B8A6','#F59E0B','#EC4899','#10B981','#6366F1','#EF4444',
+  '#0EA5E9','#A855F7','#22D3EE','#84CC16','#F97316',
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let summaryData    = [];
+let byUnitapAll    = [];
+let byTarifAll     = [];
+let activePeriod   = 'all';
+let chartKwh, chartTagihan, chartTarif, chartUp3;
+
+// ── CHARTS ────────────────────────────────────────────────────────────────────
+Chart.defaults.font.family = "'JetBrains Mono', monospace";
+Chart.defaults.color = '#999';
+
+function buildTrendCharts(data) {
+  const labels  = data.map(d => PERIOD_LABEL[d.thblrek] ?? d.thblrek);
+  const kwhGwh  = data.map(d => +(+d.kwhTotal / 1e9).toFixed(3));
+  const tagT    = data.map(d => +(+d.rpTotal / 1e12).toFixed(4));
+
+  const trendCfg = (label, vals, color) => ({
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label,
+        data: vals,
+        borderColor: color,
+        backgroundColor: color + '18',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: color,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        callbacks: {
+          label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString('id-ID', {minimumFractionDigits:3})
+        }
+      }},
+      scales: {
+        x: { grid: { color: 'rgba(17,17,24,.06)' }, ticks: { font: { size: 11 } } },
+        y: { grid: { color: 'rgba(17,17,24,.06)' }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+
+  if (chartKwh) chartKwh.destroy();
+  if (chartTagihan) chartTagihan.destroy();
+  chartKwh     = new Chart(document.getElementById('chartKwh'),     trendCfg('GWh', kwhGwh, '#FFD600'));
+  chartTagihan = new Chart(document.getElementById('chartTagihan'), trendCfg('Triliun Rp', tagT, '#2ECC71'));
+}
+
+function buildTarifChart(data, period) {
+  // Aggregate by tarif grup
+  const agg = {};
+  const filtered = period === 'all' ? data : data.filter(d => d.thblrek === period);
+  for (const r of filtered) {
+    const g = r.tarifGrup ?? r.tarif_grup ?? 'Lainnya';
+    if (!agg[g]) agg[g] = 0;
+    agg[g] += +(r.kwhTotal ?? r.kwh_total ?? 0);
+  }
+  const sorted = Object.entries(agg).sort((a,b)=>b[1]-a[1]);
+  const labels = sorted.map(x=>x[0]);
+  const vals   = sorted.map(x=>+(x[1]/1e9).toFixed(3));
+  const colors = labels.map(l => TARIF_COLOR[l] ?? '#9CA3AF');
+
+  if (chartTarif) chartTarif.destroy();
+  chartTarif = new Chart(document.getElementById('chartTarif'), {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{ data: vals, backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverOffset: 8 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { font: { size: 11 }, padding: 10 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.label + ': ' + ctx.parsed.toLocaleString('id-ID', {minimumFractionDigits:3}) + ' GWh'
+          }
+        }
+      },
+      cutout: '60%',
+    }
+  });
+  document.getElementById('tarifBadge').textContent = period === 'all' ? 'semua periode' : PERIOD_LABEL[period];
+}
+
+function buildUp3Chart(data, period) {
+  // Aggregate by unitap
+  const agg = {};
+  const aggNama = {};
+  const filtered = period === 'all' ? data : data.filter(d => d.thblrek === period);
+  for (const r of filtered) {
+    const ua = r.unitap; const kwh = +(r.kwhTotal ?? r.kwh_total ?? 0);
+    if (!agg[ua]) { agg[ua] = 0; aggNama[ua] = r.unitapNama ?? r.unitap_nama ?? ua; }
+    agg[ua] += kwh;
+  }
+  const sorted = Object.entries(agg).sort((a,b)=>b[1]-a[1]);
+  const labels = sorted.map(x => aggNama[x[0]].replace('UP3 ',''));
+  const vals   = sorted.map(x => +(x[1]/1e9).toFixed(3));
+
+  if (chartUp3) chartUp3.destroy();
+  chartUp3 = new Chart(document.getElementById('chartUp3'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'GWh',
+        data: vals,
+        backgroundColor: vals.map((_,i) => UP3_COLOR[i % UP3_COLOR.length] + 'CC'),
+        borderColor:     vals.map((_,i) => UP3_COLOR[i % UP3_COLOR.length]),
+        borderWidth: 1.5,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => ctx.parsed.x.toLocaleString('id-ID', {minimumFractionDigits:3}) + ' GWh' }
+        }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(17,17,24,.06)' }, ticks: { font: { size: 10 } } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+  document.getElementById('up3Badge').textContent = period === 'all' ? 'semua periode' : PERIOD_LABEL[period];
+}
+
+// ── TABLE ─────────────────────────────────────────────────────────────────────
+function renderUp3Table(data, period) {
+  const filtered = period === 'all' ? data : data.filter(d => d.thblrek === period);
+  // Aggregate by unitap
+  const agg = {};
+  for (const r of filtered) {
+    const ua = r.unitap;
+    if (!agg[ua]) agg[ua] = { unitap: ua, unitapNama: r.unitapNama ?? r.unitap_nama ?? ua, n:0, kwh:0, rp:0 };
+    agg[ua].n   += +(r.jmlPelanggan ?? r.jml_pelanggan ?? 0);
+    agg[ua].kwh += +(r.kwhTotal ?? r.kwh_total ?? 0);
+    agg[ua].rp  += +(r.rpTotal ?? r.rp_total ?? 0);
+  }
+  const rows = Object.values(agg).sort((a,b) => b.kwh - a.kwh);
+  const totKwh = rows.reduce((s,r)=>s+r.kwh, 0);
+  const totRp  = rows.reduce((s,r)=>s+r.rp, 0);
+  const totN   = rows.reduce((s,r)=>s+r.n, 0);
+
+  const tbody = document.getElementById('tblBody');
+  tbody.innerHTML = rows.map((r,i) => {
+    const barPct = totKwh > 0 ? (r.kwh/totKwh*100).toFixed(1) : 0;
+    const avgRp  = r.n > 0 ? r.rp / r.n : 0;
+    const color  = UP3_COLOR[i % UP3_COLOR.length];
+    return `<tr>
+      <td><span style="font-family:var(--font-m);background:${color}18;color:${color};padding:2px 7px;border-radius:4px;font-size:11px;">${r.unitap}</span></td>
+      <td>${r.unitapNama}</td>
+      <td>${fmtInt(r.n)}</td>
+      <td>${fmtKwh(r.kwh)}</td>
+      <td>${fmtRp(r.rp)}</td>
+      <td>${fmtRp(avgRp)}</td>
+      <td><div class="bar-cell"><div class="mini-bar" style="width:${Math.max(barPct,1)}%;background:${color};max-width:70px;"></div><span style="font-size:11px;font-family:var(--font-m);color:var(--ink-2);">${barPct}%</span></div></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tblFoot').innerHTML = `
+    <tr class="tbl-total">
+      <td>TOTAL</td><td>${rows.length} UP3</td>
+      <td>${fmtInt(totN)}</td><td>${fmtKwh(totKwh)}</td>
+      <td>${fmtRp(totRp)}</td>
+      <td>${fmtRp(totN > 0 ? totRp/totN : 0)}</td>
+      <td>100%</td>
+    </tr>`;
+
+  document.getElementById('tblPeriodLabel').textContent = period === 'all' ? 'Semua Periode' : PERIOD_LABEL[period] ?? period;
+  document.getElementById('tblRowCount').textContent = rows.length + ' UP3';
+}
+
+function renderTarifTable(data, period) {
+  const filtered = period === 'all' ? data : data.filter(d => d.thblrek === period);
+  const agg = {};
+  for (const r of filtered) {
+    const g = r.tarifGrup ?? r.tarif_grup ?? 'Lainnya';
+    if (!agg[g]) agg[g] = { grup: g, n:0, kwh:0, rp:0 };
+    agg[g].n   += +(r.jmlPelanggan ?? r.jml_pelanggan ?? 0);
+    agg[g].kwh += +(r.kwhTotal ?? r.kwh_total ?? 0);
+    agg[g].rp  += +(r.rpTotal ?? r.rp_total ?? 0);
+  }
+  const rows = Object.values(agg).sort((a,b) => b.kwh - a.kwh);
+  const totKwh = rows.reduce((s,r)=>s+r.kwh, 0);
+
+  document.getElementById('tarifBody').innerHTML = rows.map(r => {
+    const pct = totKwh > 0 ? (r.kwh/totKwh*100).toFixed(1) : '0.0';
+    const avgKwh = r.n > 0 ? r.kwh/r.n : 0;
+    const avgRp  = r.n > 0 ? r.rp/r.n  : 0;
+    const color = TARIF_COLOR[r.grup] ?? '#9CA3AF';
+    return `<tr>
+      <td><span class="tarif-dot" style="background:${color};"></span>${r.grup}</td>
+      <td>${fmtInt(r.n)}</td>
+      <td>${fmtKwh(r.kwh)}</td>
+      <td>${fmtRp(r.rp)}</td>
+      <td><b style="color:${color}">${pct}%</b></td>
+      <td>${fmtInt(avgKwh)} kWh</td>
+      <td>${fmtRp(avgRp)}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tarifPeriodLabel').textContent = period === 'all' ? 'Semua Periode' : PERIOD_LABEL[period] ?? period;
+  document.getElementById('tarifRowCount').textContent = rows.length + ' kelompok';
+}
+
+// ── KPI ───────────────────────────────────────────────────────────────────────
+function renderKpi(byUnitap, period) {
+  const filtered = period === 'all' ? byUnitap : byUnitap.filter(d => d.thblrek === period);
+  const totN   = filtered.reduce((s,r) => s + +(r.jmlPelanggan ?? r.jml_pelanggan ?? 0), 0);
+  const totKwh = filtered.reduce((s,r) => s + +(r.kwhTotal ?? r.kwh_total ?? 0), 0);
+  const totRp  = filtered.reduce((s,r) => s + +(r.rpTotal ?? r.rp_total ?? 0), 0);
+  const avgRp  = totN > 0 ? totRp/totN : 0;
+
+  const sk = v => { v.classList.remove('skeleton'); v.style = ''; };
+  const set = (id, val, sub) => {
+    const el = document.getElementById(id); sk(el); el.textContent = val;
+    const sel = document.getElementById(id.replace('kv','ks')); if (sel && sub) sel.textContent = sub;
+  };
+
+  const kwhGwh = (totKwh/1e9).toFixed(3);
+  const tagT   = (totRp/1e12).toFixed(3);
+  const bulan  = period === 'all' ? '5 bulan' : PERIOD_LABEL[period] ?? period;
+
+  set('kv1', fmtInt(totN),          bulan + ' · ' + (period==='all'?'semua UP3':'semua UP3'));
+  set('kv2', kwhGwh + ' GWh',       fmtInt(totKwh) + ' kWh');
+  set('kv3', 'Rp ' + tagT + ' T',   fmtRpFull(totRp));
+  set('kv4', fmtRp(avgRp),          'per pelanggan');
+
+  document.getElementById('metaPelanggan').textContent = fmtInt(totN);
+  document.getElementById('metaKwh').textContent = kwhGwh + ' G';
+}
+
+// ── PERIOD TABS ───────────────────────────────────────────────────────────────
+function switchPeriod(period) {
+  activePeriod = period;
+  document.querySelectorAll('.ptab').forEach(b => b.classList.toggle('active', b.dataset.period === period));
+  renderKpi(byUnitapAll, period);
+  renderUp3Table(byUnitapAll, period);
+  renderTarifTable(byTarifAll, period);
+  buildTarifChart(byTarifAll, period);
+  buildUp3Chart(byUnitapAll, period);
+}
+
+function buildPeriodTabs(periods) {
+  const tabs = document.getElementById('periodTabs');
+  const existing = tabs.querySelector('.ptab.all');
+  for (const p of periods) {
+    const btn = document.createElement('button');
+    btn.className = 'ptab';
+    btn.dataset.period = p;
+    btn.textContent = PERIOD_LABEL[p] ?? p;
+    btn.addEventListener('click', () => switchPeriod(p));
+    tabs.appendChild(btn);
+  }
+  existing.addEventListener('click', () => switchPeriod('all'));
+  document.getElementById('metaPeriods').textContent = periods.map(p=>PERIOD_LABEL[p]??p).join(' · ');
+  document.getElementById('ftPeriods').textContent = periods.length + ' bulan';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function init() {
+  // Auth check
+  const meRes = await fetch('/api/auth/me');
+  if (!meRes.ok) { window.location.href = '/'; return; }
+
+  const [sumRes, unitapRes, tarifRes] = await Promise.all([
+    fetch('/api/olap-tagihan/summary'),
+    fetch('/api/olap-tagihan/by-unitap'),
+    fetch('/api/olap-tagihan/by-tarif'),
+  ]);
+
+  summaryData  = await sumRes.json();
+  byUnitapAll  = await unitapRes.json();
+  byTarifAll   = await tarifRes.json();
+
+  const periods = [...new Set(summaryData.map(d => d.thblrek))].sort();
+  buildPeriodTabs(periods);
+  buildTrendCharts(summaryData);
+  renderKpi(byUnitapAll, 'all');
+  renderUp3Table(byUnitapAll, 'all');
+  renderTarifTable(byTarifAll, 'all');
+  buildTarifChart(byTarifAll, 'all');
+  buildUp3Chart(byUnitapAll, 'all');
+
+  const totalCombos = byUnitapAll.length;
+  document.getElementById('ftCombo').textContent = totalCombos.toLocaleString('id-ID');
+}
+
+init().catch(err => console.error('Init error:', err));
+</script>
+</body>
+</html>
