@@ -637,7 +637,7 @@ INSERT INTO ruptl_penjualan_historis (provinsi_id, tahun, sektor, gwh) VALUES
 (7,2021,'INDUSTRI',175),(7,2022,'INDUSTRI',201),(7,2023,'INDUSTRI',182),
 (7,2024,'INDUSTRI',233);
 
-INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mambu_mw, dmp_mw) VALUES
+INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mampu_mw, dmp_mw) VALUES
 (7,'PLN','PLTMG','Sumatera',11,104.7,93.5,93.5),
 (7,'IPP','PLTMG','Sumatera',1,7.2,7.2,7.2);
 
@@ -708,7 +708,7 @@ INSERT INTO ruptl_penjualan_historis (provinsi_id, tahun, sektor, gwh) VALUES
 (8,2021,'INDUSTRI',998),(8,2022,'INDUSTRI',1211),(8,2023,'INDUSTRI',1110),
 (8,2024,'INDUSTRI',1319);
 
-INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mambu_mw, dmp_mw) VALUES
+INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mampu_mw, dmp_mw) VALUES
 (8,'PLN','PLTD','Sumatera',2,25.0,19.0,19.0),
 (8,'PLN','PLTG','Sumatera',6,126.0,76.5,76.5),
 (8,'PLN','PLTGU','Sumatera',4,160.0,113.0,113.0),
@@ -818,7 +818,7 @@ INSERT INTO ruptl_penjualan_historis (provinsi_id, tahun, sektor, gwh) VALUES
 (9,2021,'INDUSTRI',80),(9,2022,'INDUSTRI',85),(9,2023,'INDUSTRI',83),
 (9,2024,'INDUSTRI',130);
 
-INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mambu_mw, dmp_mw) VALUES
+INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mampu_mw, dmp_mw) VALUES
 (9,'PLN','PLTA','Sumatera',10,236.3,231.6,231.6),
 (9,'PLN','PLTD','Sumatera (Ipuh)',5,2.8,1.4,1.4),
 (9,'PLN','PLTD','Sumatera (Kota Bani)',10,6.6,4.3,4.3),
@@ -894,7 +894,7 @@ INSERT INTO ruptl_penjualan_historis (provinsi_id, tahun, sektor, gwh) VALUES
 (10,2021,'INDUSTRI',1101),(10,2022,'INDUSTRI',1172),(10,2023,'INDUSTRI',1195),
 (10,2024,'INDUSTRI',1312);
 
-INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mambu_mw, dmp_mw) VALUES
+INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mampu_mw, dmp_mw) VALUES
 (10,'PLN','PLTU','Sumatera',4,400.0,320.0,320.0),
 (10,'PLN','PLTA','Sumatera',4,118.6,117.6,117.6),
 (10,'PLN','PLTD','Sumatera',8,61.1,26.9,26.9),
@@ -1008,7 +1008,7 @@ INSERT INTO ruptl_penjualan_historis (provinsi_id, tahun, sektor, gwh) VALUES
 (11,2021,'INDUSTRI',232),(11,2022,'INDUSTRI',233),(11,2023,'INDUSTRI',267),
 (11,2024,'INDUSTRI',286);
 
-INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mambu_mw, dmp_mw) VALUES
+INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mampu_mw, dmp_mw) VALUES
 (11,'PLN','PLTD','Khatulistiwa',23,94.2,64.8,58.6),
 (11,'PLN','PLTD','Putussibau',15,15.4,12.5,11.4),
 (11,'PLN','PLTD','Ketapang',16,27.1,20.1,20.1),
@@ -1140,7 +1140,7 @@ INSERT INTO ruptl_penjualan_historis (provinsi_id, tahun, sektor, gwh) VALUES
 (13,2021,'INDUSTRI',433),(13,2022,'INDUSTRI',561),(13,2023,'INDUSTRI',747),
 (13,2024,'INDUSTRI',820);
 
-INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mambu_mw, dmp_mw) VALUES
+INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mampu_mw, dmp_mw) VALUES
 (13,'PLN','PLTA','Barito',3,30.0,28.5,28.5),
 (13,'PLN','PLTD','Barito',13,73.3,47.4,49.1),
 (13,'PLN','PLTD','Sei Durian',41,6.9,5.5,5.5),
@@ -1221,7 +1221,7 @@ INSERT INTO ruptl_penjualan_historis (provinsi_id, tahun, sektor, gwh) VALUES
 (12,2021,'INDUSTRI',167),(12,2022,'INDUSTRI',189),(12,2023,'INDUSTRI',192),
 (12,2024,'INDUSTRI',236);
 
-INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mambu_mw, dmp_mw) VALUES
+INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mampu_mw, dmp_mw) VALUES
 (12,'PLN','PLTD','Barito',33,56.5,31.7,31.7),
 (12,'PLN','PLTD','Timpah',44,9.9,7.2,5.8),
 (12,'PLN','PLTD','Isolated Tersebar',115,17.2,13.6,13.6),
@@ -1308,7 +1308,7 @@ INSERT INTO ruptl_penjualan_historis (provinsi_id, tahun, sektor, gwh) VALUES
 (14,2021,'INDUSTRI',406),(14,2022,'INDUSTRI',402),(14,2023,'INDUSTRI',540),
 (14,2024,'INDUSTRI',1577);
 
-INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mambu_mw, dmp_mw) VALUES
+INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mampu_mw, dmp_mw) VALUES
 (14,'PLN','PLTD','Mahakam',17,75.6,49.5,49.5),
 (14,'PLN','PLTD','Berau',11,14.4,10.3,10.3),
 (14,'PLN','PLTD','Melak',16,21.3,16.5,16.5),
@@ -1483,7 +1483,7 @@ INSERT INTO ruptl_penjualan_historis (provinsi_id, tahun, sektor, gwh) VALUES
 -- A15 KALIMANTAN UTARA (id=15) - Pembangkit Eksisting
 -- ============================================================
 -- Skip Sewa rows (not in schema)
-INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mambu_mw, dmp_mw) VALUES
+INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mampu_mw, dmp_mw) VALUES
 (15,'PLN','PLTD','Tanjung Selor',2,1.9,1.0,1.0),
 (15,'PLN','PLTD','Nunukan',19,23.7,14.4,14.4),
 (15,'PLN','PLTD','Malinau',10,13.3,10.0,8.1),
@@ -1662,7 +1662,7 @@ INSERT INTO ruptl_penjualan_historis (provinsi_id, tahun, sektor, gwh) VALUES
 -- ============================================================
 -- B2 BANTEN (id=17) - Pembangkit Eksisting
 -- ============================================================
-INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mambu_mw, dmp_mw) VALUES
+INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mampu_mw, dmp_mw) VALUES
 (17,'PLN','PLTD','Jawa Bali',7,1.2,1.2,1.2),
 (17,'PLN','PLTGU','Jawa Bali',1,739,660,660),
 (17,'PLN','PLTU','Jawa Bali',14,5885,5467,4890),
