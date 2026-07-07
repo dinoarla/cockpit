@@ -15,6 +15,7 @@ import { ruptlRoutes } from "./routes/ruptl.js";
 import { adminRoutes } from "./routes/admin.js";
 import { tariffRoutes } from "./routes/tariff.js";
 import { olapTagihanRoutes } from "./routes/olap-tagihan.js";
+import { plnScholarRoutes } from "./routes/pln-scholar.js";
 import { db } from "./db/client.js";
 import { domains, domainModules, userDomainAccess, userModuleAccess, sessions } from "./db/schema.js";
 import { eq, and, sql, gt } from "drizzle-orm";
@@ -39,6 +40,7 @@ app.get("/api/server-stats", requireAuth, async (c) => {
     const loadAvg = os.loadavg();
     const cpus = os.cpus();
     const heap = process.memoryUsage();
+    // Disk usage via fs.statfs (Node ≥ 18.15)
     let disk = null;
     try {
         const stat = fs.statfsSync("/");
@@ -52,7 +54,8 @@ app.get("/api/server-stats", requireAuth, async (c) => {
             percent: Math.round((diskUsed / diskTotal) * 100),
         };
     }
-    catch { }
+    catch { /* statfs tidak tersedia */ }
+    // Active sessions (belum expired)
     let activeSessions = 0;
     try {
         const [row] = await db
@@ -61,7 +64,7 @@ app.get("/api/server-stats", requireAuth, async (c) => {
             .where(gt(sessions.expiresAt, new Date()));
         activeSessions = Number(row?.count ?? 0);
     }
-    catch { }
+    catch { /* skip */ }
     return c.json({
         memory: {
             total: Math.round(totalMem / 1024 / 1024),
@@ -93,6 +96,7 @@ app.route("/api/ruptl", ruptlRoutes);
 app.route("/api/admin", adminRoutes);
 app.route("/api/tariff", tariffRoutes);
 app.route("/api/olap-tagihan", olapTagihanRoutes);
+app.route("/api/pln-scholar", plnScholarRoutes);
 app.use("/menu.html", requireAuth, serveStatic({ root: publicDir }));
 app.use("/admin/*", requireAuth, serveStatic({ root: publicDir }));
 // ── TOKEN-BASED MODULE HANDLER ──

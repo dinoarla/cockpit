@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PLN Scholar</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0f1a;--surface:#111827;--card:#1a2235;--border:#1e2d47;
+  --pln-yellow:#FFD600;--pln-red:#E31E24;--pln-blue:#003087;
+  --text:#e8eaf0;--muted:#6b7fa3;--accent:#3B82F6;
+  --green:#22C55E;--orange:#F97316;
+}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+
+/* HERO */
+.hero{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#020b1a 0%,#001836 40%,#0a1f40 70%,#0d2a50 100%);
+  padding:48px 32px 40px;text-align:center;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 100%,rgba(255,214,0,.06) 0%,transparent 70%),
+             radial-gradient(ellipse 40% 40% at 80% 20%,rgba(59,130,246,.08) 0%,transparent 60%);
+}
+.hero-badge{
+  font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:18px;
+}
+.hero-logo{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:18px}
+.hero-logo img{width:54px;height:54px;object-fit:contain}
+.hero-title{
+  font-size:clamp(28px,5vw,48px);font-weight:800;letter-spacing:2px;
+  background:linear-gradient(90deg,#fff 0%,var(--pln-yellow) 60%,#fff 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-tagline{
+  font-size:13px;letter-spacing:2px;color:#8fa8c8;margin-top:14px;
+  text-transform:uppercase;line-height:1.8;max-width:600px;margin-inline:auto;
+}
+
+/* SEARCH BAR */
+.search-wrap{
+  position:relative;max-width:680px;margin:28px auto 0;z-index:1;
+}
+.search-wrap input{
+  width:100%;padding:16px 56px 16px 20px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);
+  border-radius:12px;color:#fff;font-size:15px;outline:none;
+  transition:.2s border-color,box-shadow;backdrop-filter:blur(8px);
+}
+.search-wrap input::placeholder{color:#6b7fa3}
+.search-wrap input:focus{border-color:var(--pln-yellow);box-shadow:0 0 0 3px rgba(255,214,0,.12)}
+.search-wrap .search-icon{
+  position:absolute;right:18px;top:50%;transform:translateY(-50%);color:#6b7fa3;font-size:18px;pointer-events:none;
+}
+.search-count{
+  position:absolute;left:20px;top:50%;transform:translateY(-50%);
+  color:var(--pln-yellow);font-size:12px;font-weight:600;pointer-events:none;
+  display:none;
+}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;padding:28px 24px 0}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 16px}
+.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px}
+.kpi-val{font-size:28px;font-weight:800;line-height:1}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.kpi.yellow .kpi-val{color:var(--pln-yellow)}
+.kpi.red    .kpi-val{color:var(--pln-red)}
+.kpi.blue   .kpi-val{color:var(--accent)}
+.kpi.green  .kpi-val{color:var(--green)}
+
+/* FILTERS */
+.filters{display:flex;flex-wrap:wrap;gap:10px;padding:20px 24px 8px;align-items:center}
+.filter-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-right:4px}
+select{
+  background:var(--card);border:1px solid var(--border);color:var(--text);
+  padding:8px 14px;border-radius:8px;font-size:13px;outline:none;cursor:pointer;
+  transition:.2s border-color;
+}
+select:focus{border-color:var(--pln-yellow)}
+.btn-reset{
+  background:transparent;border:1px solid var(--border);color:var(--muted);
+  padding:8px 16px;border-radius:8px;font-size:12px;cursor:pointer;
+  transition:.2s all;letter-spacing:.5px;
+}
+.btn-reset:hover{border-color:var(--pln-yellow);color:var(--pln-yellow)}
+.active-filter-count{
+  background:var(--pln-yellow);color:#000;border-radius:20px;
+  font-size:11px;font-weight:700;padding:2px 8px;display:none;
+}
+
+/* CHARTS */
+.charts-row{display:grid;grid-template-columns:1fr 320px;gap:14px;padding:20px 24px 8px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.chart-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:14px}
+.chart-card canvas{max-height:200px}
+
+/* RESULTS */
+.results-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 24px;font-size:12px;color:var(--muted);
+}
+.results-grid{padding:0 24px 24px;display:flex;flex-direction:column;gap:8px}
+.doc-card{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;
+  align-items:start;transition:.15s border-color;
+}
+.doc-card:hover{border-color:#2e4060}
+.doc-badge{
+  padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;
+  letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;
+}
+.badge-holding{background:rgba(255,214,0,.12);color:var(--pln-yellow);border:1px solid rgba(255,214,0,.25)}
+.badge-ip{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.25)}
+.badge-np{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
+.doc-title{font-size:13px;font-weight:500;line-height:1.4;color:var(--text)}
+.doc-meta{font-size:11px;color:var(--muted);margin-top:4px}
+.doc-year{font-size:13px;font-weight:700;color:var(--muted);min-width:36px;text-align:right}
+.doc-code{font-size:10px;color:var(--muted);font-family:monospace;margin-top:2px;text-align:right}
+
+/* PAGINATION */
+.pagination{display:flex;justify-content:center;gap:6px;padding:16px 24px 32px}
+.page-btn{
+  background:var(--card);border:1px solid var(--border);color:var(--text);
+  padding:7px 14px;border-radius:8px;font-size:13px;cursor:pointer;
+  transition:.15s all;
+}
+.page-btn:hover,.page-btn.active{background:var(--pln-yellow);color:#000;border-color:var(--pln-yellow);font-weight:700}
+.page-btn:disabled{opacity:.3;cursor:not-allowed}
+
+/* LOADING / EMPTY */
+.loader{display:flex;align-items:center;justify-content:center;gap:10px;padding:60px;color:var(--muted)}
+.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--pln-yellow);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:60px 24px;color:var(--muted)}
+.empty big{display:block;font-size:40px;margin-bottom:10px;opacity:.3}
+
+@media(max-width:700px){
+  .charts-row{grid-template-columns:1fr}
+  .hero{padding:32px 16px 28px}
+  .kpi-grid,.filters,.results-grid,.results-header,.pagination{padding-inline:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">PLN Group Research Repository</div>
+  <div class="hero-logo">
+    <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+      <rect width="52" height="52" rx="8" fill="#FFD600"/>
+      <path d="M30 8L18 28h10l-6 16 16-22H28z" fill="#E31E24"/>
+    </svg>
+    <div class="hero-title">PLN SCHOLAR</div>
+  </div>
+  <div class="hero-tagline">A simple way to broadly search for PLN literature.<br>Search across a wide variety of disciplines and sources.</div>
+  <div class="search-wrap">
+    <input type="text" id="search-input" placeholder="Cari judul dokumen, topik, teknologi..."/>
+    <div class="search-icon">⌕</div>
+  </div>
+</div>
+
+<!-- KPI -->
+<div class="kpi-grid">
+  <div class="kpi yellow">
+    <div class="kpi-label">Total Dokumen</div>
+    <div class="kpi-val" id="kpi-total">—</div>
+    <div class="kpi-sub">kajian & penelitian</div>
+  </div>
+  <div class="kpi blue">
+    <div class="kpi-label">Rentang Tahun</div>
+    <div class="kpi-val" id="kpi-years">—</div>
+    <div class="kpi-sub" id="kpi-years-sub">—</div>
+  </div>
+  <div class="kpi green">
+    <div class="kpi-label">PLN Holding</div>
+    <div class="kpi-val" id="kpi-holding">—</div>
+    <div class="kpi-sub">Puslitbang + Div. Kantor Pusat</div>
+  </div>
+  <div class="kpi red">
+    <div class="kpi-label">Sub-Holding</div>
+    <div class="kpi-val" id="kpi-subholding">—</div>
+    <div class="kpi-sub">Indonesia Power + Nusantara Power</div>
+  </div>
+</div>
+
+<!-- CHARTS -->
+<div class="charts-row">
+  <div class="chart-card">
+    <div class="chart-title">Distribusi Dokumen per Tahun</div>
+    <canvas id="chart-year"></canvas>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Per Entitas</div>
+    <canvas id="chart-entity"></canvas>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+  <span class="filter-label">Filter:</span>
+  <select id="f-entity">
+    <option value="">Semua Entitas</option>
+    <option value="PLN Holding">PLN Holding</option>
+    <option value="PLN Indonesia Power">PLN Indonesia Power</option>
+    <option value="PLN Nusantara Power">PLN Nusantara Power</option>
+  </select>
+  <select id="f-year"><option value="">Semua Tahun</option></select>
+  <select id="f-bidang">
+    <option value="">Semua Bidang</option>
+    <option value="KIT">KIT — Ketenagalistrikan</option>
+    <option value="TND">TND — Transmisi & Distribusi</option>
+    <option value="RIK">RIK</option>
+    <option value="BIDRIK">BIDRIK</option>
+  </select>
+  <select id="f-unit"><option value="">Semua Unit</option></select>
+  <button class="btn-reset" id="btn-reset">Reset</button>
+  <span class="active-filter-count" id="filter-count">0</span>
+</div>
+
+<!-- RESULTS -->
+<div class="results-header">
+  <span id="results-info">Memuat...</span>
+</div>
+<div id="results-grid" class="results-grid">
+  <div class="loader"><div class="spinner"></div> Memuat dokumen...</div>
+</div>
+<div class="pagination" id="pagination"></div>
+
+<script>
+let statsData = null;
+let currentPage = 1;
+let debounceTimer = null;
+let yearChart = null, entityChart = null;
+
+function badgeClass(entity) {
+  if (entity === 'PLN Holding') return 'badge-holding';
+  if (entity.includes('Indonesia Power')) return 'badge-ip';
+  return 'badge-np';
+}
+function entityShort(entity) {
+  if (entity === 'PLN Holding') return 'Holding';
+  if (entity.includes('Indonesia Power')) return 'IP';
+  return 'NP';
+}
+
+async function loadStats() {
+  const res = await fetch('/api/pln-scholar/stats');
+  if (!res.ok) return;
+  const d = await res.json();
+  statsData = d;
+
+  document.getElementById('kpi-total').textContent = Number(d.totals.total).toLocaleString('id');
+  document.getElementById('kpi-years').textContent = d.totals.minYear + '–' + d.totals.maxYear;
+  document.getElementById('kpi-years-sub').textContent = (d.totals.maxYear - d.totals.minYear + 1) + ' tahun data';
+
+  let holding = 0, subholding = 0;
+  for (const e of d.byEntity) {
+    if (e.entity === 'PLN Holding') holding += Number(e.count);
+    else subholding += Number(e.count);
+  }
+  document.getElementById('kpi-holding').textContent = holding.toLocaleString('id');
+  document.getElementById('kpi-subholding').textContent = subholding.toLocaleString('id');
+
+  // Year dropdown
+  const fYear = document.getElementById('f-year');
+  fYear.innerHTML = '<option value="">Semua Tahun</option>';
+  const years = d.byYear.map(r => r.year).filter(Boolean).sort((a,b)=>b-a);
+  for (const y of years) fYear.innerHTML += `<option value="${y}">${y}</option>`;
+
+  // Unit dropdown
+  const fUnit = document.getElementById('f-unit');
+  fUnit.innerHTML = '<option value="">Semua Unit</option>';
+  for (const u of d.byUnit) {
+    if (u.unit) fUnit.innerHTML += `<option value="${u.unit}">${u.unit} (${u.count})</option>`;
+  }
+
+  renderCharts(d);
+}
+
+function renderCharts(d) {
+  const isDark = true;
+  Chart.defaults.color = '#6b7fa3';
+  Chart.defaults.borderColor = '#1e2d47';
+
+  // Year chart
+  const years = d.byYear.filter(r => r.year).map(r => r.year);
+  const yCounts = d.byYear.filter(r => r.year).map(r => Number(r.count));
+  if (yearChart) yearChart.destroy();
+  yearChart = new Chart(document.getElementById('chart-year'), {
+    type: 'bar',
+    data: {
+      labels: years,
+      datasets: [{
+        data: yCounts,
+        backgroundColor: 'rgba(255,214,0,.7)',
+        borderColor: 'rgba(255,214,0,.9)',
+        borderWidth: 1,
+        borderRadius: 3,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { maxTicksLimit: 10, font: { size: 10 } } },
+        y: { beginAtZero: true, ticks: { font: { size: 10 } } }
+      }
+    }
+  });
+
+  // Entity donut
+  const entityLabels = d.byEntity.map(e => e.entity.replace('PLN ', ''));
+  const entityCounts = d.byEntity.map(e => Number(e.count));
+  const entityColors = ['#FFD600','#3B82F6','#22C55E'];
+  if (entityChart) entityChart.destroy();
+  entityChart = new Chart(document.getElementById('chart-entity'), {
+    type: 'doughnut',
+    data: {
+      labels: entityLabels,
+      datasets: [{ data: entityCounts, backgroundColor: entityColors, borderWidth: 2, borderColor: '#1a2235' }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } }
+      },
+      cutout: '60%'
+    }
+  });
+}
+
+async function search(page = 1) {
+  currentPage = page;
+  const q      = document.getElementById('search-input').value.trim();
+  const entity = document.getElementById('f-entity').value;
+  const year   = document.getElementById('f-year').value;
+  const bidang = document.getElementById('f-bidang').value;
+  const unit   = document.getElementById('f-unit').value;
+
+  // Update active filter badge
+  const activeFilters = [entity, year, bidang, unit].filter(Boolean).length + (q ? 1 : 0);
+  const badge = document.getElementById('filter-count');
+  badge.textContent = activeFilters;
+  badge.style.display = activeFilters > 0 ? 'inline' : 'none';
+
+  const params = new URLSearchParams({ page });
+  if (q) params.set('q', q);
+  if (entity) params.set('entity', entity);
+  if (year) params.set('year', year);
+  if (bidang) params.set('bidang', bidang);
+  if (unit) params.set('unit', unit);
+
+  const grid = document.getElementById('results-grid');
+  grid.innerHTML = '<div class="loader"><div class="spinner"></div> Mencari...</div>';
+
+  const res = await fetch('/api/pln-scholar/search?' + params);
+  if (!res.ok) { grid.innerHTML = '<div class="empty"><big>⚠</big>Gagal memuat data.</div>'; return; }
+  const d = await res.json();
+
+  document.getElementById('results-info').textContent =
+    `${Number(d.total).toLocaleString('id')} dokumen ditemukan · halaman ${d.page} dari ${d.pages}`;
+
+  if (d.rows.length === 0) {
+    grid.innerHTML = '<div class="empty"><big>🔍</big>Tidak ada dokumen yang cocok.</div>';
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  grid.innerHTML = d.rows.map(r => `
+    <div class="doc-card">
+      <span class="doc-badge ${badgeClass(r.entity)}">${entityShort(r.entity)}</span>
+      <div>
+        <div class="doc-title">${esc(r.title || r.filename)}</div>
+        <div class="doc-meta">${esc(r.unit)}${r.bidang ? ' · Bidang ' + r.bidang : ''}${r.docType ? ' · ' + r.docType : ''}</div>
+      </div>
+      <div>
+        <div class="doc-year">${r.year ?? '—'}</div>
+        ${r.docCode ? `<div class="doc-code">${esc(r.docCode)}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  renderPagination(d.page, d.pages);
+}
+
+function renderPagination(page, pages) {
+  const el = document.getElementById('pagination');
+  if (pages <= 1) { el.innerHTML = ''; return; }
+  const btns = [];
+  btns.push(`<button class="page-btn" onclick="search(${page-1})" ${page<=1?'disabled':''}>‹</button>`);
+  const start = Math.max(1, page-2), end = Math.min(pages, page+2);
+  if (start > 1) btns.push(`<button class="page-btn" onclick="search(1)">1</button>`);
+  if (start > 2) btns.push(`<span style="color:var(--muted);padding:0 4px">…</span>`);
+  for (let p = start; p <= end; p++) {
+    btns.push(`<button class="page-btn ${p===page?'active':''}" onclick="search(${p})">${p}</button>`);
+  }
+  if (end < pages-1) btns.push(`<span style="color:var(--muted);padding:0 4px">…</span>`);
+  if (end < pages) btns.push(`<button class="page-btn" onclick="search(${pages})">${pages}</button>`);
+  btns.push(`<button class="page-btn" onclick="search(${page+1})" ${page>=pages?'disabled':''}>›</button>`);
+  el.innerHTML = btns.join('');
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Event listeners
+document.getElementById('search-input').addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => search(1), 350);
+});
+['f-entity','f-year','f-bidang','f-unit'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => search(1));
+});
+document.getElementById('btn-reset').addEventListener('click', () => {
+  document.getElementById('search-input').value = '';
+  ['f-entity','f-year','f-bidang','f-unit'].forEach(id => document.getElementById(id).value = '');
+  search(1);
+});
+
+// Init
+loadStats();
+search(1);
+</script>
+</body>
+</html>

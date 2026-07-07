@@ -540,6 +540,27 @@ export const olapAmrTagihan = mysqlTable(
   })
 );
 
+export const plnScholar = mysqlTable(
+  "pln_scholar",
+  {
+    id:        int("id").autoincrement().primaryKey(),
+    entity:    varchar("entity",   { length: 50  }).notNull(),
+    unit:      varchar("unit",     { length: 50  }).notNull().default(""),
+    bidang:    varchar("bidang",   { length: 20  }).notNull().default(""),
+    docType:   varchar("doc_type", { length: 30  }).notNull().default(""),
+    year:      int("year"),
+    docCode:   varchar("doc_code", { length: 50  }).notNull().default(""),
+    title:     varchar("title",    { length: 500 }).notNull(),
+    filename:  varchar("filename", { length: 500 }).notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    idxEntity: index("idx_scholar_entity").on(t.entity),
+    idxYear:   index("idx_scholar_year").on(t.year),
+    idxBidang: index("idx_scholar_bidang").on(t.bidang),
+  })
+);
+
 export const datasetSources = mysqlTable("dataset_sources", {
   id: int("id").autoincrement().primaryKey(),
   domainModuleId: int("domain_module_id").notNull(),
