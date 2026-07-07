@@ -1076,9 +1076,9 @@ VALUES
 
 -- ── Module registration ──
 INSERT INTO `domain_modules`
-  (`domain_id`, `slug`, `url_token`, `name`, `url`, `visibility`, `status`, `created_at`)
+  (`domain_id`, `slug`, `url_token`, `nama`, `route_path`, `sensitivitas`, `status`, `created_at`)
 VALUES
   (1, 'pln-scholar', 'x8k2mw9vr4nt', 'PLN Scholar',
    '/modules/energi-jabar/x8k2mw9vr4nt/', 'internal', 'aktif', NOW())
 ON DUPLICATE KEY UPDATE
-  `name` = VALUES(`name`), `url` = VALUES(`url`), `status` = VALUES(`status`);
+  `nama` = VALUES(`nama`), `route_path` = VALUES(`route_path`), `status` = VALUES(`status`);

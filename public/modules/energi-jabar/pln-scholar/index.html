@@ -15,6 +15,22 @@
 }
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
 
+/* BACK BUTTON */
+.back-bar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,15,26,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  padding:10px 20px;display:flex;align-items:center;
+}
+.back-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  color:var(--muted);font-size:12px;letter-spacing:.5px;text-transform:uppercase;
+  text-decoration:none;border:none;background:none;cursor:pointer;
+  padding:6px 12px;border-radius:7px;transition:.15s all;
+}
+.back-btn:hover{background:rgba(255,255,255,.06);color:var(--pln-yellow)}
+.back-btn svg{width:14px;height:14px;opacity:.7}
+
 /* HERO */
 .hero{
   position:relative;overflow:hidden;
@@ -148,6 +164,14 @@ select:focus{border-color:var(--pln-yellow)}
 </style>
 </head>
 <body>
+
+<!-- BACK BAR -->
+<div class="back-bar">
+  <a href="/menu.html" class="back-btn">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+    Kembali ke Menu
+  </a>
+</div>
 
 <!-- HERO -->
 <div class="hero">
