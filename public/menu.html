@@ -483,6 +483,30 @@
   </div>
 
   <div class="ss-block">
+    <div class="ss-lbl">Node.js Heap</div>
+    <div class="ss-val-row">
+      <span class="ss-big" id="ss-heap-pct">—</span>
+      <span class="ss-dim" id="ss-heap-sub">… MB</span>
+    </div>
+    <div class="ss-bar-track"><div class="ss-bar-fill" id="ss-heap-bar" style="width:0%;background:#8B5CF6"></div></div>
+    <div class="ss-lbl" style="margin-top:6px;">RSS: <span id="ss-rss">—</span> MB</div>
+  </div>
+
+  <div class="ss-block" id="ss-disk-block" style="display:none;">
+    <div class="ss-lbl">Disk</div>
+    <div class="ss-val-row">
+      <span class="ss-big" id="ss-disk-pct">—</span>
+      <span class="ss-dim" id="ss-disk-sub">… GB</span>
+    </div>
+    <div class="ss-bar-track"><div class="ss-bar-fill" id="ss-disk-bar" style="width:0%;background:#14B8A6"></div></div>
+  </div>
+
+  <div class="ss-block">
+    <div class="ss-lbl">Sesi Aktif</div>
+    <div class="ss-mid" id="ss-sessions">—</div>
+  </div>
+
+  <div class="ss-block">
     <div class="ss-lbl">Uptime</div>
     <div class="ss-mid" id="ss-uptime">—</div>
   </div>
@@ -1010,6 +1034,40 @@ async function loadServerStats() {
     // Uptime
     const upEl = document.getElementById('ss-uptime');
     if (upEl) upEl.textContent = _fmtUptime(d.uptime);
+
+    // Node.js Heap
+    if (d.heap) {
+      const heapPct = document.getElementById('ss-heap-pct');
+      const heapSub = document.getElementById('ss-heap-sub');
+      const heapBar = document.getElementById('ss-heap-bar');
+      const rssEl   = document.getElementById('ss-rss');
+      if (heapPct) heapPct.textContent = d.heap.percent + '%';
+      if (heapSub) heapSub.textContent = d.heap.used + ' / ' + d.heap.total + ' MB';
+      if (heapBar) {
+        heapBar.style.width = d.heap.percent + '%';
+        heapBar.style.background = d.heap.percent > 85 ? '#E74C3C' : d.heap.percent > 65 ? '#FFD600' : '#8B5CF6';
+      }
+      if (rssEl) rssEl.textContent = d.heap.rss;
+    }
+
+    // Disk
+    if (d.disk) {
+      const diskBlock = document.getElementById('ss-disk-block');
+      const diskPct   = document.getElementById('ss-disk-pct');
+      const diskSub   = document.getElementById('ss-disk-sub');
+      const diskBar   = document.getElementById('ss-disk-bar');
+      if (diskBlock) diskBlock.style.display = '';
+      if (diskPct) diskPct.textContent = d.disk.percent + '%';
+      if (diskSub) diskSub.textContent = d.disk.used + ' / ' + d.disk.total + ' GB';
+      if (diskBar) {
+        diskBar.style.width = d.disk.percent + '%';
+        diskBar.style.background = d.disk.percent > 90 ? '#E74C3C' : d.disk.percent > 75 ? '#FFD600' : '#14B8A6';
+      }
+    }
+
+    // Active Sessions
+    const sessEl = document.getElementById('ss-sessions');
+    if (sessEl) sessEl.textContent = (d.activeSessions ?? '—') + ' pengguna';
 
     // CPU
     const cpuEl = document.getElementById('ss-cpu');
