@@ -1,5 +1,6 @@
 import "dotenv/config";
 import os from "node:os";
+import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { readFile } from "node:fs/promises";
@@ -15,8 +16,8 @@ import { adminRoutes } from "./routes/admin.js";
 import { tariffRoutes } from "./routes/tariff.js";
 import { olapTagihanRoutes } from "./routes/olap-tagihan.js";
 import { db } from "./db/client.js";
-import { domains, domainModules, userDomainAccess, userModuleAccess } from "./db/schema.js";
-import { eq, and, sql } from "drizzle-orm";
+import { domains, domainModules, userDomainAccess, userModuleAccess, sessions } from "./db/schema.js";
+import { eq, and, sql, gt } from "drizzle-orm";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(__dirname, "..", "public");
 const app = new Hono();
@@ -31,12 +32,36 @@ app.get("/healthz", async (c) => {
         lastUpdate: latest?.lastUpdate ?? null,
     });
 });
-app.get("/api/server-stats", requireAuth, (c) => {
+app.get("/api/server-stats", requireAuth, async (c) => {
     const totalMem = os.totalmem();
     const freeMem = os.freemem();
     const usedMem = totalMem - freeMem;
     const loadAvg = os.loadavg();
     const cpus = os.cpus();
+    const heap = process.memoryUsage();
+    let disk = null;
+    try {
+        const stat = fs.statfsSync("/");
+        const diskTotal = stat.blocks * stat.bsize;
+        const diskFree = stat.bfree * stat.bsize;
+        const diskUsed = diskTotal - diskFree;
+        disk = {
+            total: Math.round(diskTotal / 1024 / 1024 / 1024 * 10) / 10,
+            used: Math.round(diskUsed / 1024 / 1024 / 1024 * 10) / 10,
+            free: Math.round(diskFree / 1024 / 1024 / 1024 * 10) / 10,
+            percent: Math.round((diskUsed / diskTotal) * 100),
+        };
+    }
+    catch { }
+    let activeSessions = 0;
+    try {
+        const [row] = await db
+            .select({ count: sql `COUNT(*)` })
+            .from(sessions)
+            .where(gt(sessions.expiresAt, new Date()));
+        activeSessions = Number(row?.count ?? 0);
+    }
+    catch { }
     return c.json({
         memory: {
             total: Math.round(totalMem / 1024 / 1024),
@@ -49,6 +74,14 @@ app.get("/api/server-stats", requireAuth, (c) => {
             m5: Math.round(loadAvg[1] * 100) / 100,
             m15: Math.round(loadAvg[2] * 100) / 100,
         },
+        heap: {
+            used: Math.round(heap.heapUsed / 1024 / 1024),
+            total: Math.round(heap.heapTotal / 1024 / 1024),
+            rss: Math.round(heap.rss / 1024 / 1024),
+            percent: Math.round((heap.heapUsed / heap.heapTotal) * 100),
+        },
+        disk,
+        activeSessions,
         uptime: Math.floor(os.uptime()),
         cpuCount: cpus.length,
     });
