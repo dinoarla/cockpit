@@ -502,11 +502,6 @@
   </div>
 
   <div class="ss-block">
-    <div class="ss-lbl">Sesi Aktif</div>
-    <div class="ss-mid" id="ss-sessions">—</div>
-  </div>
-
-  <div class="ss-block">
     <div class="ss-lbl">Uptime</div>
     <div class="ss-mid" id="ss-uptime">—</div>
   </div>
@@ -1066,9 +1061,6 @@ async function loadServerStats() {
     }
 
     // Active Sessions
-    const sessEl = document.getElementById('ss-sessions');
-    if (sessEl) sessEl.textContent = (d.activeSessions ?? '—') + ' pengguna';
-
     // CPU
     const cpuEl = document.getElementById('ss-cpu');
     if (cpuEl) cpuEl.textContent = d.cpuCount + ' core';
