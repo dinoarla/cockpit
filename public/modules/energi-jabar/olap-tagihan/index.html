@@ -182,7 +182,7 @@ footer.btm{position:fixed;bottom:0;left:0;right:0;z-index:90;
       <span class="meta-chip"><i class="fa-solid fa-calendar-days"></i><span id="metaPeriods">—</span></span>
       <span class="meta-chip"><i class="fa-solid fa-users"></i><span id="metaPelanggan">—</span> pelanggan</span>
       <span class="meta-chip"><i class="fa-solid fa-bolt"></i><span id="metaKwh">—</span> kWh</span>
-      <span class="meta-chip gap"><i class="fa-solid fa-triangle-exclamation"></i>Data Mei 2026 belum tersedia</span>
+      <span class="meta-chip"><i class="fa-solid fa-layer-group"></i><span id="metaGrup">8 periode</span></span>
     </div>
 
     <div class="period-tabs" id="periodTabs">
@@ -192,11 +192,6 @@ footer.btm{position:fixed;bottom:0;left:0;right:0;z-index:90;
 </header>
 
 <div class="wrap">
-
-  <div class="notice-gap">
-    <i class="fa-solid fa-circle-info"></i>
-    <span>Data tagihan Mei 2026 (THBLREK 202605) belum tersedia — periode tersebut tidak masuk dalam rekap ini.</span>
-  </div>
 
   <!-- KPI CARDS -->
   <div class="kpi-grid" id="kpiGrid">
@@ -313,10 +308,10 @@ footer.btm{position:fixed;bottom:0;left:0;right:0;z-index:90;
 </div>
 
 <footer class="btm">
-  <span class="ft-left"><i class="fa-solid fa-database" style="margin-right:4px;"></i>Sumber: Data AMR PLN UP3 Jawa Barat 2026 · Diproses 2026-07-07</span>
+  <span class="ft-left"><i class="fa-solid fa-database" style="margin-right:4px;"></i>Sumber: Data AMR PLN UP3 Jawa Barat · Nov 2025 – Jul 2026 · Diproses 2026-07-07</span>
   <div class="ft-right">
     <div class="ft-stat"><i class="fa-solid fa-table-cells"></i>Kombinasi: <b id="ftCombo">—</b></div>
-    <div class="ft-stat"><i class="fa-solid fa-calendar"></i>Periode: <b id="ftPeriods">5 bulan</b></div>
+    <div class="ft-stat"><i class="fa-solid fa-calendar"></i>Periode: <b id="ftPeriods">—</b></div>
   </div>
 </footer>
 
@@ -339,8 +334,9 @@ const fmtRp    = v => {
 };
 const fmtRpFull = v => 'Rp ' + Math.round(+v).toLocaleString('id-ID');
 const PERIOD_LABEL = {
-  '202602':'Feb 2026','202603':'Mar 2026','202604':'Apr 2026',
-  '202606':'Jun 2026','202607':'Jul 2026',
+  '202511':'Nov 2025',
+  '202601':'Jan 2026','202602':'Feb 2026','202603':'Mar 2026','202604':'Apr 2026',
+  '202605':'Mei 2026','202606':'Jun 2026','202607':'Jul 2026',
 };
 const TARIF_COLOR = {
   'Rumah Tangga':'#3B82F6','Bisnis':'#FF4D00','Industri':'#FFD600',
@@ -587,7 +583,7 @@ function renderKpi(byUnitap, period) {
     const periods = Object.values(byPeriod);
     const avgN = periods.length > 0 ? periods.reduce((s,v)=>s+v,0) / periods.length : 0;
     displayN = avgN;
-    pelLabel = 'rata-rata/bulan · ' + periods.length + ' periode';
+    pelLabel = 'rata-rata/bulan · ' + Object.keys(byPeriod).length + ' periode';
   } else {
     displayN = filtered.reduce((s,r) => s + +(r.jmlPelanggan ?? r.jml_pelanggan ?? 0), 0);
     pelLabel = (PERIOD_LABEL[period] ?? period) + ' · semua UP3';
@@ -637,6 +633,7 @@ function buildPeriodTabs(periods) {
   }
   existing.addEventListener('click', () => switchPeriod('all'));
   document.getElementById('metaPeriods').textContent = periods.map(p=>PERIOD_LABEL[p]??p).join(' · ');
+  document.getElementById('metaGrup').textContent = periods.length + ' periode';
   document.getElementById('ftPeriods').textContent = periods.length + ' bulan';
 }
 
