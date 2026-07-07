@@ -3,265 +3,270 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>PLN Scholar</title>
+<title>PLN Scholar — COCKPIT</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0f1a;--surface:#111827;--card:#1a2235;--border:#1e2d47;
-  --pln-yellow:#FFD600;--pln-red:#E31E24;--pln-blue:#003087;
-  --text:#e8eaf0;--muted:#6b7fa3;--accent:#3B82F6;
-  --green:#22C55E;--orange:#F97316;
+  --navy:#0D1117;--orange:#FF4D00;--orange-light:rgba(255,77,0,.08);
+  --yellow:#FFD600;--green:#2ECC71;--red:#E74C3C;--blue:#3B82F6;
+  --bg:#FFFBF0;--card:#FFFFFF;--line:rgba(17,17,24,.1);
+  --ink:#111118;--ink-2:#555560;--ink-3:#999;
+  --radius:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.07);
+  --font-display:'Space Grotesk',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
 }
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);font-family:var(--font-body);color:var(--ink);-webkit-font-smoothing:antialiased;}
 
-/* BACK BUTTON */
-.back-bar{
-  position:sticky;top:0;z-index:100;
-  background:rgba(10,15,26,.92);backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--border);
-  padding:10px 20px;display:flex;align-items:center;
-}
-.back-btn{
-  display:inline-flex;align-items:center;gap:8px;
-  color:var(--muted);font-size:12px;letter-spacing:.5px;text-transform:uppercase;
-  text-decoration:none;border:none;background:none;cursor:pointer;
-  padding:6px 12px;border-radius:7px;transition:.15s all;
-}
-.back-btn:hover{background:rgba(255,255,255,.06);color:var(--pln-yellow)}
-.back-btn svg{width:14px;height:14px;opacity:.7}
+/* ── HEADER ── */
+header.top{background:var(--navy);color:#E6EDF3;padding:32px 24px 0;}
+.top-inner{max-width:1200px;margin:0 auto;}
+.btn-back{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+  color:rgba(230,237,243,.5);text-decoration:none;margin-bottom:14px;transition:color .15s;}
+.btn-back:hover{color:#E6EDF3;}
+.eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,77,0,.7);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.header-brand{display:flex;align-items:center;gap:14px;margin-bottom:6px;}
+.header-logo{width:36px;height:36px;background:var(--yellow);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.header-logo svg{width:22px;height:22px;}
+h1.page-title{font-family:var(--font-display);font-size:26px;font-weight:700;color:#fff;line-height:1.2;}
+.page-sub{font-size:12px;color:rgba(230,237,243,.45);max-width:680px;line-height:1.7;
+  margin-top:6px;margin-bottom:22px;font-family:var(--font-mono);letter-spacing:.04em;text-transform:uppercase;}
+.top-meta{display:flex;align-items:center;gap:16px;margin-bottom:0;flex-wrap:wrap;}
+.meta-chip{font-family:var(--font-mono);font-size:11px;color:rgba(230,237,243,.4);
+  display:flex;align-items:center;gap:5px;}
+.meta-chip i{color:rgba(255,77,0,.5);font-size:10px;}
 
-/* HERO */
-.hero{
-  position:relative;overflow:hidden;
-  background:linear-gradient(135deg,#020b1a 0%,#001836 40%,#0a1f40 70%,#0d2a50 100%);
-  padding:48px 32px 40px;text-align:center;
+/* SEARCH */
+.search-bar-wrap{padding-bottom:22px;padding-top:4px;}
+.search-inner{position:relative;max-width:640px;}
+.search-inner input{
+  width:100%;padding:12px 42px 12px 16px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  border-radius:9px;color:#E6EDF3;font-size:13px;font-family:var(--font-body);outline:none;
+  transition:.2s border-color,box-shadow;
 }
-.hero::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse 80% 60% at 50% 100%,rgba(255,214,0,.06) 0%,transparent 70%),
-             radial-gradient(ellipse 40% 40% at 80% 20%,rgba(59,130,246,.08) 0%,transparent 60%);
-}
-.hero-badge{
-  font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:18px;
-}
-.hero-logo{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:18px}
-.hero-logo img{width:54px;height:54px;object-fit:contain}
-.hero-title{
-  font-size:clamp(28px,5vw,48px);font-weight:800;letter-spacing:2px;
-  background:linear-gradient(90deg,#fff 0%,var(--pln-yellow) 60%,#fff 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.hero-tagline{
-  font-size:13px;letter-spacing:2px;color:#8fa8c8;margin-top:14px;
-  text-transform:uppercase;line-height:1.8;max-width:600px;margin-inline:auto;
-}
+.search-inner input::placeholder{color:rgba(230,237,243,.3)}
+.search-inner input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,77,0,.12)}
+.search-inner .si{position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  color:rgba(230,237,243,.3);font-size:14px;pointer-events:none;}
 
-/* SEARCH BAR */
-.search-wrap{
-  position:relative;max-width:680px;margin:28px auto 0;z-index:1;
-}
-.search-wrap input{
-  width:100%;padding:16px 56px 16px 20px;
-  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);
-  border-radius:12px;color:#fff;font-size:15px;outline:none;
-  transition:.2s border-color,box-shadow;backdrop-filter:blur(8px);
-}
-.search-wrap input::placeholder{color:#6b7fa3}
-.search-wrap input:focus{border-color:var(--pln-yellow);box-shadow:0 0 0 3px rgba(255,214,0,.12)}
-.search-wrap .search-icon{
-  position:absolute;right:18px;top:50%;transform:translateY(-50%);color:#6b7fa3;font-size:18px;pointer-events:none;
-}
-.search-count{
-  position:absolute;left:20px;top:50%;transform:translateY(-50%);
-  color:var(--pln-yellow);font-size:12px;font-weight:600;pointer-events:none;
-  display:none;
-}
+/* ── MAIN ── */
+.wrap{max-width:1200px;margin:0 auto;padding:28px 24px 80px;}
 
 /* KPI */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;padding:28px 24px 0}
-.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 16px}
-.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px}
-.kpi-val{font-size:28px;font-weight:800;line-height:1}
-.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px}
-.kpi.yellow .kpi-val{color:var(--pln-yellow)}
-.kpi.red    .kpi-val{color:var(--pln-red)}
-.kpi.blue   .kpi-val{color:var(--accent)}
-.kpi.green  .kpi-val{color:var(--green)}
-
-/* FILTERS */
-.filters{display:flex;flex-wrap:wrap;gap:10px;padding:20px 24px 8px;align-items:center}
-.filter-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-right:4px}
-select{
-  background:var(--card);border:1px solid var(--border);color:var(--text);
-  padding:8px 14px;border-radius:8px;font-size:13px;outline:none;cursor:pointer;
-  transition:.2s border-color;
-}
-select:focus{border-color:var(--pln-yellow)}
-.btn-reset{
-  background:transparent;border:1px solid var(--border);color:var(--muted);
-  padding:8px 16px;border-radius:8px;font-size:12px;cursor:pointer;
-  transition:.2s all;letter-spacing:.5px;
-}
-.btn-reset:hover{border-color:var(--pln-yellow);color:var(--pln-yellow)}
-.active-filter-count{
-  background:var(--pln-yellow);color:#000;border-radius:20px;
-  font-size:11px;font-weight:700;padding:2px 8px;display:none;
-}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.kpi{background:var(--card);border-radius:var(--radius);padding:18px 20px;
+  box-shadow:var(--shadow);border-top:3px solid var(--orange);}
+.kpi.k2{border-top-color:var(--blue)}
+.kpi.k3{border-top-color:var(--green)}
+.kpi.k4{border-top-color:var(--red)}
+.kpi-label{font-size:11px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em;
+  font-weight:600;margin-bottom:6px;}
+.kpi-value{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--ink);line-height:1.2;}
+.kpi-note{font-size:11px;color:var(--ink-3);margin-top:5px;line-height:1.4;}
 
 /* CHARTS */
-.charts-row{display:grid;grid-template-columns:1fr 320px;gap:14px;padding:20px 24px 8px}
-.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
-.chart-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:14px}
-.chart-card canvas{max-height:200px}
+.charts-row{display:grid;grid-template-columns:1fr 300px;gap:14px;margin-bottom:24px;}
+.chart-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;}
+.chart-title{font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;
+  color:var(--ink-2);margin-bottom:14px;}
+.chart-card canvas{max-height:210px;}
+
+/* FILTERS */
+.filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center;}
+.filter-label{font-size:11px;font-weight:700;color:var(--ink-2);text-transform:uppercase;
+  letter-spacing:.06em;margin-right:4px;}
+select{
+  background:var(--card);border:1px solid var(--line);color:var(--ink);
+  padding:7px 12px;border-radius:8px;font-size:12px;font-family:var(--font-body);
+  outline:none;cursor:pointer;transition:.15s border-color;box-shadow:var(--shadow);
+}
+select:focus{border-color:var(--orange)}
+.btn-reset{
+  background:transparent;border:1px solid var(--line);color:var(--ink-2);
+  padding:7px 14px;border-radius:8px;font-size:11px;cursor:pointer;font-weight:600;
+  transition:.15s all;letter-spacing:.04em;text-transform:uppercase;
+}
+.btn-reset:hover{border-color:var(--orange);color:var(--orange)}
+.filter-count-badge{
+  background:var(--orange);color:#fff;border-radius:20px;
+  font-size:10px;font-weight:700;padding:2px 8px;display:none;
+}
 
 /* RESULTS */
 .results-header{
   display:flex;justify-content:space-between;align-items:center;
-  padding:8px 24px;font-size:12px;color:var(--muted);
+  margin-bottom:10px;
 }
-.results-grid{padding:0 24px 24px;display:flex;flex-direction:column;gap:8px}
-.doc-card{
-  background:var(--card);border:1px solid var(--border);border-radius:10px;
-  padding:14px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;
-  align-items:start;transition:.15s border-color;
+.results-info{font-family:var(--font-mono);font-size:11px;color:var(--ink-3);}
+.results-list{display:flex;flex-direction:column;gap:6px;}
+
+/* DOC ROW */
+.doc-row{
+  background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:13px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;
+  align-items:start;transition:.15s border-color, box-shadow;
+  box-shadow:var(--shadow);
 }
-.doc-card:hover{border-color:#2e4060}
+.doc-row:hover{border-color:rgba(255,77,0,.25);box-shadow:0 2px 12px rgba(255,77,0,.06)}
 .doc-badge{
-  padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;
-  letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;
+  padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--font-mono);
+  letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;align-self:flex-start;margin-top:1px;
 }
-.badge-holding{background:rgba(255,214,0,.12);color:var(--pln-yellow);border:1px solid rgba(255,214,0,.25)}
-.badge-ip{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.25)}
-.badge-np{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
-.doc-title{font-size:13px;font-weight:500;line-height:1.4;color:var(--text)}
-.doc-meta{font-size:11px;color:var(--muted);margin-top:4px}
-.doc-year{font-size:13px;font-weight:700;color:var(--muted);min-width:36px;text-align:right}
-.doc-code{font-size:10px;color:var(--muted);font-family:monospace;margin-top:2px;text-align:right}
+.badge-holding{background:rgba(255,214,0,.12);color:#8a6f00;border:1px solid rgba(255,214,0,.4)}
+.badge-ip     {background:rgba(59,130,246,.1);color:#1d4ed8;border:1px solid rgba(59,130,246,.25)}
+.badge-np     {background:rgba(34,197,94,.1);color:#15803d;border:1px solid rgba(34,197,94,.25)}
+.doc-title{font-size:13px;font-weight:500;line-height:1.45;color:var(--ink);}
+.doc-meta{font-family:var(--font-mono);font-size:10px;color:var(--ink-3);margin-top:3px;}
+.doc-year{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--ink-2);
+  min-width:38px;text-align:right;}
+.doc-code{font-family:var(--font-mono);font-size:9px;color:var(--ink-3);text-align:right;margin-top:2px;}
 
 /* PAGINATION */
-.pagination{display:flex;justify-content:center;gap:6px;padding:16px 24px 32px}
+.pagination{display:flex;justify-content:center;gap:6px;padding-top:20px;}
 .page-btn{
-  background:var(--card);border:1px solid var(--border);color:var(--text);
-  padding:7px 14px;border-radius:8px;font-size:13px;cursor:pointer;
-  transition:.15s all;
+  background:var(--card);border:1px solid var(--line);color:var(--ink-2);
+  padding:7px 13px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;
+  transition:.15s all;box-shadow:var(--shadow);
 }
-.page-btn:hover,.page-btn.active{background:var(--pln-yellow);color:#000;border-color:var(--pln-yellow);font-weight:700}
+.page-btn:hover,.page-btn.active{background:var(--orange);color:#fff;border-color:var(--orange)}
 .page-btn:disabled{opacity:.3;cursor:not-allowed}
 
 /* LOADING / EMPTY */
-.loader{display:flex;align-items:center;justify-content:center;gap:10px;padding:60px;color:var(--muted)}
-.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--pln-yellow);border-radius:50%;animation:spin .7s linear infinite}
+.loader{display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:60px;color:var(--ink-3);background:var(--card);border-radius:var(--radius);
+  border:1px solid var(--line);box-shadow:var(--shadow);}
+.spinner{width:20px;height:20px;border:2px solid var(--line);
+  border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.empty{text-align:center;padding:60px 24px;color:var(--muted)}
-.empty big{display:block;font-size:40px;margin-bottom:10px;opacity:.3}
+.empty{text-align:center;padding:60px 24px;color:var(--ink-3);
+  background:var(--card);border-radius:var(--radius);border:1px solid var(--line);}
+.empty big{display:block;font-size:36px;margin-bottom:10px;opacity:.3}
 
-@media(max-width:700px){
+@media(max-width:768px){
+  .kpi-grid{grid-template-columns:1fr 1fr}
   .charts-row{grid-template-columns:1fr}
-  .hero{padding:32px 16px 28px}
-  .kpi-grid,.filters,.results-grid,.results-header,.pagination{padding-inline:12px}
+  .header-brand{flex-wrap:wrap}
+}
+@media(max-width:480px){
+  .kpi-grid{grid-template-columns:1fr}
+  header.top,.wrap{padding-inline:16px}
 }
 </style>
 </head>
 <body>
 
-<!-- BACK BAR -->
-<div class="back-bar">
-  <a href="/menu.html" class="back-btn">
-    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
-    Kembali ke Menu
-  </a>
-</div>
+<header class="top">
+  <div class="top-inner">
+    <a href="/menu.html" class="btn-back">
+      <i class="fa-solid fa-arrow-left" style="font-size:10px;"></i> Kembali ke Menu
+    </a>
+    <div class="eyebrow">
+      <i class="fa-solid fa-tag"></i> PLN &nbsp;·&nbsp; PLN SCHOLAR
+    </div>
+    <div class="header-brand">
+      <div class="header-logo">
+        <svg viewBox="0 0 22 22" fill="none"><path d="M13 2L5 13h6l-3 7 10-12h-6z" fill="#E31E24"/></svg>
+      </div>
+      <h1 class="page-title">PLN Scholar</h1>
+    </div>
+    <div class="page-sub">A simple way to broadly search for PLN literature.&nbsp; Search across a wide variety of disciplines and sources.</div>
+    <div class="top-meta">
+      <span class="meta-chip"><i class="fa-regular fa-calendar"></i> <span id="meta-years">2004–2022</span></span>
+      <span class="meta-chip"><i class="fa-regular fa-file-lines"></i> <span id="meta-total">—</span> dokumen</span>
+      <span class="meta-chip"><i class="fa-solid fa-building"></i> PLN Holding · Indonesia Power · Nusantara Power</span>
+    </div>
+    <div class="search-bar-wrap" style="margin-top:18px;">
+      <div class="search-inner">
+        <input type="text" id="search-input" placeholder="Cari judul, topik, teknologi..."/>
+        <i class="fa-solid fa-magnifying-glass si"></i>
+      </div>
+    </div>
+  </div>
+</header>
 
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-badge">PLN Group Research Repository</div>
-  <div class="hero-logo">
-    <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-      <rect width="52" height="52" rx="8" fill="#FFD600"/>
-      <path d="M30 8L18 28h10l-6 16 16-22H28z" fill="#E31E24"/>
-    </svg>
-    <div class="hero-title">PLN SCHOLAR</div>
-  </div>
-  <div class="hero-tagline">A simple way to broadly search for PLN literature.<br>Search across a wide variety of disciplines and sources.</div>
-  <div class="search-wrap">
-    <input type="text" id="search-input" placeholder="Cari judul dokumen, topik, teknologi..."/>
-    <div class="search-icon">⌕</div>
-  </div>
-</div>
+<div class="wrap">
 
-<!-- KPI -->
-<div class="kpi-grid">
-  <div class="kpi yellow">
-    <div class="kpi-label">Total Dokumen</div>
-    <div class="kpi-val" id="kpi-total">—</div>
-    <div class="kpi-sub">kajian & penelitian</div>
+  <!-- KPI -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Total Dokumen</div>
+      <div class="kpi-value" id="kpi-total">—</div>
+      <div class="kpi-note">kajian & penelitian</div>
+    </div>
+    <div class="kpi k2">
+      <div class="kpi-label">Rentang Tahun</div>
+      <div class="kpi-value" id="kpi-years">—</div>
+      <div class="kpi-note" id="kpi-years-note">—</div>
+    </div>
+    <div class="kpi k3">
+      <div class="kpi-label">PLN Holding</div>
+      <div class="kpi-value" id="kpi-holding">—</div>
+      <div class="kpi-note">Puslitbang + Div. Kantor Pusat</div>
+    </div>
+    <div class="kpi k4">
+      <div class="kpi-label">Sub-Holding</div>
+      <div class="kpi-value" id="kpi-subholding">—</div>
+      <div class="kpi-note">Indonesia Power + Nusantara Power</div>
+    </div>
   </div>
-  <div class="kpi blue">
-    <div class="kpi-label">Rentang Tahun</div>
-    <div class="kpi-val" id="kpi-years">—</div>
-    <div class="kpi-sub" id="kpi-years-sub">—</div>
-  </div>
-  <div class="kpi green">
-    <div class="kpi-label">PLN Holding</div>
-    <div class="kpi-val" id="kpi-holding">—</div>
-    <div class="kpi-sub">Puslitbang + Div. Kantor Pusat</div>
-  </div>
-  <div class="kpi red">
-    <div class="kpi-label">Sub-Holding</div>
-    <div class="kpi-val" id="kpi-subholding">—</div>
-    <div class="kpi-sub">Indonesia Power + Nusantara Power</div>
-  </div>
-</div>
 
-<!-- CHARTS -->
-<div class="charts-row">
-  <div class="chart-card">
-    <div class="chart-title">Distribusi Dokumen per Tahun</div>
-    <canvas id="chart-year"></canvas>
+  <!-- CHARTS -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">Distribusi Dokumen per Tahun</div>
+      <canvas id="chart-year"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Per Entitas</div>
+      <canvas id="chart-entity"></canvas>
+    </div>
   </div>
-  <div class="chart-card">
-    <div class="chart-title">Per Entitas</div>
-    <canvas id="chart-entity"></canvas>
+
+  <!-- FILTERS -->
+  <div class="filter-bar">
+    <span class="filter-label">Filter:</span>
+    <select id="f-entity">
+      <option value="">Semua Entitas</option>
+      <option value="PLN Holding">PLN Holding</option>
+      <option value="PLN Indonesia Power">PLN Indonesia Power</option>
+      <option value="PLN Nusantara Power">PLN Nusantara Power</option>
+    </select>
+    <select id="f-year"><option value="">Semua Tahun</option></select>
+    <select id="f-bidang">
+      <option value="">Semua Bidang</option>
+      <option value="KIT">KIT — Ketenagalistrikan</option>
+      <option value="TND">TND — Transmisi & Distribusi</option>
+      <option value="RIK">RIK</option>
+      <option value="BIDRIK">BIDRIK</option>
+    </select>
+    <select id="f-unit"><option value="">Semua Unit</option></select>
+    <button class="btn-reset" id="btn-reset">Reset</button>
+    <span class="filter-count-badge" id="filter-count">0</span>
   </div>
-</div>
 
-<!-- FILTERS -->
-<div class="filters">
-  <span class="filter-label">Filter:</span>
-  <select id="f-entity">
-    <option value="">Semua Entitas</option>
-    <option value="PLN Holding">PLN Holding</option>
-    <option value="PLN Indonesia Power">PLN Indonesia Power</option>
-    <option value="PLN Nusantara Power">PLN Nusantara Power</option>
-  </select>
-  <select id="f-year"><option value="">Semua Tahun</option></select>
-  <select id="f-bidang">
-    <option value="">Semua Bidang</option>
-    <option value="KIT">KIT — Ketenagalistrikan</option>
-    <option value="TND">TND — Transmisi & Distribusi</option>
-    <option value="RIK">RIK</option>
-    <option value="BIDRIK">BIDRIK</option>
-  </select>
-  <select id="f-unit"><option value="">Semua Unit</option></select>
-  <button class="btn-reset" id="btn-reset">Reset</button>
-  <span class="active-filter-count" id="filter-count">0</span>
-</div>
+  <!-- RESULTS -->
+  <div class="results-header">
+    <span class="results-info" id="results-info">Memuat...</span>
+  </div>
+  <div id="results-list" class="results-list">
+    <div class="loader"><div class="spinner"></div> Memuat dokumen...</div>
+  </div>
+  <div class="pagination" id="pagination"></div>
 
-<!-- RESULTS -->
-<div class="results-header">
-  <span id="results-info">Memuat...</span>
 </div>
-<div id="results-grid" class="results-grid">
-  <div class="loader"><div class="spinner"></div> Memuat dokumen...</div>
-</div>
-<div class="pagination" id="pagination"></div>
 
 <script>
-let statsData = null;
-let currentPage = 1;
-let debounceTimer = null;
 let yearChart = null, entityChart = null;
+let debounceTimer = null;
 
 function badgeClass(entity) {
   if (entity === 'PLN Holding') return 'badge-holding';
@@ -273,16 +278,21 @@ function entityShort(entity) {
   if (entity.includes('Indonesia Power')) return 'IP';
   return 'NP';
 }
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 async function loadStats() {
   const res = await fetch('/api/pln-scholar/stats');
   if (!res.ok) return;
   const d = await res.json();
-  statsData = d;
 
-  document.getElementById('kpi-total').textContent = Number(d.totals.total).toLocaleString('id');
+  const total = Number(d.totals.total);
+  document.getElementById('kpi-total').textContent = total.toLocaleString('id');
+  document.getElementById('meta-total').textContent = total.toLocaleString('id');
   document.getElementById('kpi-years').textContent = d.totals.minYear + '–' + d.totals.maxYear;
-  document.getElementById('kpi-years-sub').textContent = (d.totals.maxYear - d.totals.minYear + 1) + ' tahun data';
+  document.getElementById('meta-years').textContent = d.totals.minYear + '–' + d.totals.maxYear;
+  document.getElementById('kpi-years-note').textContent = (d.totals.maxYear - d.totals.minYear + 1) + ' tahun data';
 
   let holding = 0, subholding = 0;
   for (const e of d.byEntity) {
@@ -294,13 +304,11 @@ async function loadStats() {
 
   // Year dropdown
   const fYear = document.getElementById('f-year');
-  fYear.innerHTML = '<option value="">Semua Tahun</option>';
-  const years = d.byYear.map(r => r.year).filter(Boolean).sort((a,b)=>b-a);
+  const years = d.byYear.map(r => r.year).filter(Boolean).sort((a,b) => b - a);
   for (const y of years) fYear.innerHTML += `<option value="${y}">${y}</option>`;
 
   // Unit dropdown
   const fUnit = document.getElementById('f-unit');
-  fUnit.innerHTML = '<option value="">Semua Unit</option>';
   for (const u of d.byUnit) {
     if (u.unit) fUnit.innerHTML += `<option value="${u.unit}">${u.unit} (${u.count})</option>`;
   }
@@ -309,22 +317,19 @@ async function loadStats() {
 }
 
 function renderCharts(d) {
-  const isDark = true;
-  Chart.defaults.color = '#6b7fa3';
-  Chart.defaults.borderColor = '#1e2d47';
+  Chart.defaults.color = '#999';
+  Chart.defaults.borderColor = 'rgba(17,17,24,.08)';
 
-  // Year chart
-  const years = d.byYear.filter(r => r.year).map(r => r.year);
-  const yCounts = d.byYear.filter(r => r.year).map(r => Number(r.count));
   if (yearChart) yearChart.destroy();
+  const validYears = d.byYear.filter(r => r.year);
   yearChart = new Chart(document.getElementById('chart-year'), {
     type: 'bar',
     data: {
-      labels: years,
+      labels: validYears.map(r => r.year),
       datasets: [{
-        data: yCounts,
-        backgroundColor: 'rgba(255,214,0,.7)',
-        borderColor: 'rgba(255,214,0,.9)',
+        data: validYears.map(r => Number(r.count)),
+        backgroundColor: 'rgba(255,77,0,.75)',
+        borderColor: '#FF4D00',
         borderWidth: 1,
         borderRadius: 3,
       }]
@@ -339,66 +344,63 @@ function renderCharts(d) {
     }
   });
 
-  // Entity donut
-  const entityLabels = d.byEntity.map(e => e.entity.replace('PLN ', ''));
-  const entityCounts = d.byEntity.map(e => Number(e.count));
-  const entityColors = ['#FFD600','#3B82F6','#22C55E'];
   if (entityChart) entityChart.destroy();
   entityChart = new Chart(document.getElementById('chart-entity'), {
     type: 'doughnut',
     data: {
-      labels: entityLabels,
-      datasets: [{ data: entityCounts, backgroundColor: entityColors, borderWidth: 2, borderColor: '#1a2235' }]
+      labels: d.byEntity.map(e => e.entity.replace('PLN ', '')),
+      datasets: [{
+        data: d.byEntity.map(e => Number(e.count)),
+        backgroundColor: ['#FF4D00','#3B82F6','#2ECC71'],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
     },
     options: {
       responsive: true, maintainAspectRatio: true,
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } }
-      },
-      cutout: '60%'
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 14 } } },
+      cutout: '58%'
     }
   });
 }
 
 async function search(page = 1) {
-  currentPage = page;
   const q      = document.getElementById('search-input').value.trim();
   const entity = document.getElementById('f-entity').value;
   const year   = document.getElementById('f-year').value;
   const bidang = document.getElementById('f-bidang').value;
   const unit   = document.getElementById('f-unit').value;
 
-  // Update active filter badge
-  const activeFilters = [entity, year, bidang, unit].filter(Boolean).length + (q ? 1 : 0);
+  const active = [entity, year, bidang, unit].filter(Boolean).length + (q ? 1 : 0);
   const badge = document.getElementById('filter-count');
-  badge.textContent = activeFilters;
-  badge.style.display = activeFilters > 0 ? 'inline' : 'none';
+  badge.textContent = active;
+  badge.style.display = active > 0 ? 'inline' : 'none';
 
   const params = new URLSearchParams({ page });
-  if (q) params.set('q', q);
+  if (q)      params.set('q', q);
   if (entity) params.set('entity', entity);
-  if (year) params.set('year', year);
+  if (year)   params.set('year', year);
   if (bidang) params.set('bidang', bidang);
-  if (unit) params.set('unit', unit);
+  if (unit)   params.set('unit', unit);
 
-  const grid = document.getElementById('results-grid');
-  grid.innerHTML = '<div class="loader"><div class="spinner"></div> Mencari...</div>';
+  const list = document.getElementById('results-list');
+  list.innerHTML = '<div class="loader"><div class="spinner"></div> Mencari...</div>';
 
   const res = await fetch('/api/pln-scholar/search?' + params);
-  if (!res.ok) { grid.innerHTML = '<div class="empty"><big>⚠</big>Gagal memuat data.</div>'; return; }
+  if (!res.ok) { list.innerHTML = '<div class="empty"><big>⚠</big>Gagal memuat data.</div>'; return; }
   const d = await res.json();
 
   document.getElementById('results-info').textContent =
     `${Number(d.total).toLocaleString('id')} dokumen ditemukan · halaman ${d.page} dari ${d.pages}`;
 
   if (d.rows.length === 0) {
-    grid.innerHTML = '<div class="empty"><big>🔍</big>Tidak ada dokumen yang cocok.</div>';
+    list.innerHTML = '<div class="empty"><big>🔍</big>Tidak ada dokumen yang cocok.</div>';
     document.getElementById('pagination').innerHTML = '';
     return;
   }
 
-  grid.innerHTML = d.rows.map(r => `
-    <div class="doc-card">
+  list.innerHTML = d.rows.map(r => `
+    <div class="doc-row">
       <span class="doc-badge ${badgeClass(r.entity)}">${entityShort(r.entity)}</span>
       <div>
         <div class="doc-title">${esc(r.title || r.filename)}</div>
@@ -420,36 +422,29 @@ function renderPagination(page, pages) {
   const btns = [];
   btns.push(`<button class="page-btn" onclick="search(${page-1})" ${page<=1?'disabled':''}>‹</button>`);
   const start = Math.max(1, page-2), end = Math.min(pages, page+2);
-  if (start > 1) btns.push(`<button class="page-btn" onclick="search(1)">1</button>`);
-  if (start > 2) btns.push(`<span style="color:var(--muted);padding:0 4px">…</span>`);
-  for (let p = start; p <= end; p++) {
+  if (start > 1)   btns.push(`<button class="page-btn" onclick="search(1)">1</button>`);
+  if (start > 2)   btns.push(`<span style="color:var(--ink-3);padding:0 4px">…</span>`);
+  for (let p = start; p <= end; p++)
     btns.push(`<button class="page-btn ${p===page?'active':''}" onclick="search(${p})">${p}</button>`);
-  }
-  if (end < pages-1) btns.push(`<span style="color:var(--muted);padding:0 4px">…</span>`);
-  if (end < pages) btns.push(`<button class="page-btn" onclick="search(${pages})">${pages}</button>`);
+  if (end < pages-1) btns.push(`<span style="color:var(--ink-3);padding:0 4px">…</span>`);
+  if (end < pages)   btns.push(`<button class="page-btn" onclick="search(${pages})">${pages}</button>`);
   btns.push(`<button class="page-btn" onclick="search(${page+1})" ${page>=pages?'disabled':''}>›</button>`);
   el.innerHTML = btns.join('');
 }
 
-function esc(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// Event listeners
 document.getElementById('search-input').addEventListener('input', () => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => search(1), 350);
 });
-['f-entity','f-year','f-bidang','f-unit'].forEach(id => {
-  document.getElementById(id).addEventListener('change', () => search(1));
-});
+['f-entity','f-year','f-bidang','f-unit'].forEach(id =>
+  document.getElementById(id).addEventListener('change', () => search(1))
+);
 document.getElementById('btn-reset').addEventListener('click', () => {
   document.getElementById('search-input').value = '';
   ['f-entity','f-year','f-bidang','f-unit'].forEach(id => document.getElementById(id).value = '');
   search(1);
 });
 
-// Init
 loadStats();
 search(1);
 </script>
