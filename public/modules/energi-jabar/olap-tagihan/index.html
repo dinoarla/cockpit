@@ -571,10 +571,29 @@ function renderTarifTable(data, period) {
 // ── KPI ───────────────────────────────────────────────────────────────────────
 function renderKpi(byUnitap, period) {
   const filtered = period === 'all' ? byUnitap : byUnitap.filter(d => d.thblrek === period);
-  const totN   = filtered.reduce((s,r) => s + +(r.jmlPelanggan ?? r.jml_pelanggan ?? 0), 0);
   const totKwh = filtered.reduce((s,r) => s + +(r.kwhTotal ?? r.kwh_total ?? 0), 0);
   const totRp  = filtered.reduce((s,r) => s + +(r.rpTotal ?? r.rp_total ?? 0), 0);
-  const avgRp  = totN > 0 ? totRp/totN : 0;
+
+  // Pelanggan bukan akumulatif — gunakan snapshot per periode, bukan jumlah kumulatif
+  let displayN, pelLabel;
+  if (period === 'all') {
+    // Rata-rata pelanggan per bulan (sum per period / jumlah period)
+    const byPeriod = {};
+    for (const r of byUnitap) {
+      const p = r.thblrek;
+      if (!byPeriod[p]) byPeriod[p] = 0;
+      byPeriod[p] += +(r.jmlPelanggan ?? r.jml_pelanggan ?? 0);
+    }
+    const periods = Object.values(byPeriod);
+    const avgN = periods.length > 0 ? periods.reduce((s,v)=>s+v,0) / periods.length : 0;
+    displayN = avgN;
+    pelLabel = 'rata-rata/bulan · ' + periods.length + ' periode';
+  } else {
+    displayN = filtered.reduce((s,r) => s + +(r.jmlPelanggan ?? r.jml_pelanggan ?? 0), 0);
+    pelLabel = (PERIOD_LABEL[period] ?? period) + ' · semua UP3';
+  }
+
+  const avgRp = displayN > 0 ? totRp / displayN : 0;
 
   const sk = v => { v.classList.remove('skeleton'); v.style = ''; };
   const set = (id, val, sub) => {
@@ -584,14 +603,13 @@ function renderKpi(byUnitap, period) {
 
   const kwhGwh = (totKwh/1e9).toFixed(3);
   const tagT   = (totRp/1e12).toFixed(3);
-  const bulan  = period === 'all' ? '5 bulan' : PERIOD_LABEL[period] ?? period;
 
-  set('kv1', fmtInt(totN),          bulan + ' · ' + (period==='all'?'semua UP3':'semua UP3'));
-  set('kv2', kwhGwh + ' GWh',       fmtInt(totKwh) + ' kWh');
-  set('kv3', 'Rp ' + tagT + ' T',   fmtRpFull(totRp));
-  set('kv4', fmtRp(avgRp),          'per pelanggan');
+  set('kv1', '~' + fmtInt(displayN), pelLabel);
+  set('kv2', kwhGwh + ' GWh',        fmtInt(totKwh) + ' kWh');
+  set('kv3', 'Rp ' + tagT + ' T',    fmtRpFull(totRp));
+  set('kv4', fmtRp(avgRp),           'per pelanggan');
 
-  document.getElementById('metaPelanggan').textContent = fmtInt(totN);
+  document.getElementById('metaPelanggan').textContent = fmtInt(Math.round(displayN));
   document.getElementById('metaKwh').textContent = kwhGwh + ' G';
 }
 
