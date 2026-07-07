@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, int, decimal, timestamp, boolean, mysqlEnum, index, text, date, primaryKey, uniqueIndex, } from "drizzle-orm/mysql-core";
+import { mysqlTable, varchar, int, bigint, decimal, timestamp, boolean, mysqlEnum, index, text, char, date, primaryKey, uniqueIndex, } from "drizzle-orm/mysql-core";
 /**
  * Tabel pengguna.
  * password_hash disimpan dalam format Argon2id (lihat src/auth/password.ts).
@@ -128,6 +128,158 @@ export const ruptlRencanaGarduInduk = mysqlTable("ruptl_rencana_gardu_induk", {
     mva: decimal("mva", { precision: 10, scale: 2 }),
 }, (t) => ({ provSkenTahunIdx: index("gi_prov_sken_tahun_idx").on(t.provinsiId, t.skenario, t.tahun) }));
 // ============================================================
+// RUPTL — Dimensi & Tabel Nasional/Wilayah (v2)
+// Berdasarkan Kerangka_Data_Pusat_Data_RUPTL_2025-2034.md
+// ============================================================
+export const ruptlWilayahUsaha = mysqlTable("ruptl_wilayah_usaha", {
+    id: int("id").autoincrement().primaryKey(),
+    kode: varchar("kode", { length: 5 }).notNull().unique(),
+    nama: varchar("nama", { length: 100 }).notNull(),
+    urutan: int("urutan").notNull().default(0),
+});
+export const ruptlSistemKelistrikan = mysqlTable("ruptl_sistem_kelistrikan", {
+    id: int("id").autoincrement().primaryKey(),
+    wilayahId: int("wilayah_id"),
+    kode: varchar("kode", { length: 20 }).notNull().unique(),
+    nama: varchar("nama", { length: 100 }).notNull(),
+    jenis: mysqlEnum("jenis", ["INTERKONEKSI", "ISOLATED"]).notNull().default("INTERKONEKSI"),
+});
+// Modul 2 — Historis Kinerja Nasional/Wilayah (Bab IV)
+export const ruptlHistPenjualanWilayah = mysqlTable("ruptl_hist_penjualan_wilayah", {
+    id: int("id").autoincrement().primaryKey(),
+    wilayahId: int("wilayah_id"),
+    tahun: int("tahun").notNull(),
+    sektor: mysqlEnum("sektor", ["RUMAH_TANGGA", "BISNIS", "PUBLIK", "INDUSTRI", "TOTAL"]).notNull(),
+    gwh: decimal("gwh", { precision: 12, scale: 2 }),
+    pendapatanTriliun: decimal("pendapatan_triliun", { precision: 10, scale: 3 }),
+}, (t) => ({ idx: index("idx_hist_penj_wil_tahun").on(t.wilayahId, t.tahun) }));
+export const ruptlHistPelangganWilayah = mysqlTable("ruptl_hist_pelanggan_wilayah", {
+    id: int("id").autoincrement().primaryKey(),
+    wilayahId: int("wilayah_id"),
+    tahun: int("tahun").notNull(),
+    sektor: mysqlEnum("sektor", ["RUMAH_TANGGA", "BISNIS", "PUBLIK", "INDUSTRI", "TOTAL"]).notNull(),
+    jumlahRibu: decimal("jumlah_ribu", { precision: 12, scale: 2 }),
+}, (t) => ({ idx: index("idx_hist_pel_wil_tahun").on(t.wilayahId, t.tahun) }));
+// pemilik: MILIK_SENDIRI=PLN own, SEWA=disewa PLN, IPP=excess power/IPP
+export const ruptlHistKapasitasWilayah = mysqlTable("ruptl_hist_kapasitas_wilayah", {
+    id: int("id").autoincrement().primaryKey(),
+    wilayahId: int("wilayah_id"),
+    tahun: int("tahun").notNull(),
+    pemilik: mysqlEnum("pemilik", ["MILIK_SENDIRI", "SEWA", "IPP", "TOTAL"]).notNull(),
+    kapasitasMw: decimal("kapasitas_mw", { precision: 12, scale: 2 }),
+    dmnMw: decimal("dmn_mw", { precision: 12, scale: 2 }),
+    jumlahUnit: int("jumlah_unit"),
+}, (t) => ({ idx: index("idx_hist_kap_wil_tahun").on(t.wilayahId, t.tahun) }));
+export const ruptlHistKeandalan = mysqlTable("ruptl_hist_keandalan", {
+    id: int("id").autoincrement().primaryKey(),
+    wilayahId: int("wilayah_id"),
+    tahun: int("tahun").notNull(),
+    saidiJam: decimal("saidi_jam", { precision: 8, scale: 3 }),
+    saifiKali: decimal("saifi_kali", { precision: 8, scale: 3 }),
+}, (t) => ({ idx: index("idx_keandalan_wil_tahun").on(t.wilayahId, t.tahun) }));
+export const ruptlHistSpklu = mysqlTable("ruptl_hist_spklu", {
+    id: int("id").autoincrement().primaryKey(),
+    provinsiId: int("provinsi_id").notNull(),
+    tahun: int("tahun").notNull(),
+    jumlahUnit: int("jumlah_unit"),
+    kapasitasKw: decimal("kapasitas_kw", { precision: 10, scale: 2 }),
+}, (t) => ({ idx: index("idx_spklu_prov_tahun").on(t.provinsiId, t.tahun) }));
+// Modul 3 — Proyeksi Demand Nasional/Wilayah (Bab V.1-V.4)
+export const ruptlProyeksiWilayah = mysqlTable("ruptl_proyeksi_wilayah", {
+    id: int("id").autoincrement().primaryKey(),
+    wilayahId: int("wilayah_id"),
+    skenario: mysqlEnum("skenario", ["RE_BASE", "ARED"]).notNull(),
+    tahun: int("tahun").notNull(),
+    salesGwh: decimal("sales_gwh", { precision: 12, scale: 2 }),
+    produksiGwh: decimal("produksi_gwh", { precision: 12, scale: 2 }),
+    bebanPuncakMw: decimal("beban_puncak_mw", { precision: 12, scale: 2 }),
+    pelangganRibu: decimal("pelanggan_ribu", { precision: 12, scale: 2 }),
+    pertumbuhanPct: decimal("pertumbuhan_pct", { precision: 5, scale: 2 }),
+    konsumsiPerKapitaKwh: decimal("konsumsi_per_kapita_kwh", { precision: 10, scale: 2 }),
+}, (t) => ({ idx: index("idx_proyeksi_wil_sken_tahun").on(t.wilayahId, t.skenario, t.tahun) }));
+// Modul 4 — Neraca Daya per Sistem Kelistrikan (Bab V.5)
+export const ruptlNeracaDaya = mysqlTable("ruptl_neraca_daya", {
+    id: int("id").autoincrement().primaryKey(),
+    sistemId: int("sistem_id").notNull(),
+    skenario: mysqlEnum("skenario", ["RE_BASE", "ARED"]).notNull(),
+    tahun: int("tahun").notNull(),
+    bebanPuncakBrutoMw: decimal("beban_puncak_bruto_mw", { precision: 12, scale: 2 }),
+    bebanPuncakNetoMw: decimal("beban_puncak_neto_mw", { precision: 12, scale: 2 }),
+    kapasitasTerpasangMw: decimal("kapasitas_terpasang_mw", { precision: 12, scale: 2 }),
+    dmnMw: decimal("dmn_mw", { precision: 12, scale: 2 }),
+    reserveMarginPct: decimal("reserve_margin_pct", { precision: 6, scale: 2 }),
+    produksiGwh: decimal("produksi_gwh", { precision: 12, scale: 2 }),
+    penjualanGwh: decimal("penjualan_gwh", { precision: 12, scale: 2 }),
+    faktorBebanPct: decimal("faktor_beban_pct", { precision: 6, scale: 2 }),
+}, (t) => ({ idx: index("idx_neraca_sistem_sken_tahun").on(t.sistemId, t.skenario, t.tahun) }));
+// Modul 5 — Bauran Energi Nasional/Wilayah (Bab V.6)
+export const ruptlBauranEnergi = mysqlTable("ruptl_bauran_energi", {
+    id: int("id").autoincrement().primaryKey(),
+    wilayahId: int("wilayah_id"),
+    skenario: mysqlEnum("skenario", ["RE_BASE", "ARED", "BAU"]).notNull(),
+    tahun: int("tahun").notNull(),
+    sumber: mysqlEnum("sumber", [
+        "BATUBARA", "GAS", "LNG", "BBM",
+        "AIR", "PANAS_BUMI", "BIOMASSA", "SAMPAH", "SURYA", "BAYU", "NUKLIR",
+        "IMPOR", "LAINNYA_EBT", "TOTAL"
+    ]).notNull(),
+    produksiGwh: decimal("produksi_gwh", { precision: 12, scale: 2 }),
+    porsiPct: decimal("porsi_pct", { precision: 6, scale: 2 }),
+}, (t) => ({ idx: index("idx_bauran_wil_sken_tahun").on(t.wilayahId, t.skenario, t.tahun) }));
+// Modul 6 — Emisi GRK Nasional/Wilayah (Bab V.7-V.8)
+export const ruptlEmisiGrk = mysqlTable("ruptl_emisi_grk", {
+    id: int("id").autoincrement().primaryKey(),
+    wilayahId: int("wilayah_id"),
+    skenario: mysqlEnum("skenario", ["RE_BASE", "ARED", "BAU"]).notNull(),
+    tahun: int("tahun").notNull(),
+    sumber: mysqlEnum("sumber", ["GAS", "BBM", "BATUBARA", "TOTAL"]).notNull(),
+    emisiJutaTco2: decimal("emisi_juta_tco2", { precision: 10, scale: 3 }),
+}, (t) => ({ idx: index("idx_emisi_wil_sken_tahun").on(t.wilayahId, t.skenario, t.tahun) }));
+// Modul 7 — Rencana Transmisi & GI Nasional/Wilayah per Tegangan (Bab V.9)
+// tegangan_kv: '500', '500DC', '275', '150', '70', 'TOTAL'
+export const ruptlRencanaTransmisiWilayah = mysqlTable("ruptl_rencana_transmisi_wilayah", {
+    id: int("id").autoincrement().primaryKey(),
+    wilayahId: int("wilayah_id"),
+    skenario: mysqlEnum("skenario", ["RE_BASE", "ARED"]).notNull(),
+    tahun: int("tahun").notNull(),
+    teganganKv: varchar("tegangan_kv", { length: 20 }).notNull(),
+    kms: decimal("kms", { precision: 10, scale: 2 }),
+}, (t) => ({ idx: index("idx_trans_wil_sken_tahun").on(t.wilayahId, t.skenario, t.tahun) }));
+// tegangan: '500/275', '500/150', '500DC', '275/150', '150/20', 'TOTAL'
+export const ruptlRencanaGiWilayah = mysqlTable("ruptl_rencana_gi_wilayah", {
+    id: int("id").autoincrement().primaryKey(),
+    wilayahId: int("wilayah_id"),
+    skenario: mysqlEnum("skenario", ["RE_BASE", "ARED"]).notNull(),
+    tahun: int("tahun").notNull(),
+    tegangan: varchar("tegangan", { length: 30 }).notNull(),
+    mva: decimal("mva", { precision: 10, scale: 2 }),
+}, (t) => ({ idx: index("idx_gi_wil_sken_tahun").on(t.wilayahId, t.skenario, t.tahun) }));
+// Modul 9 — Kebutuhan Investasi (Bab VI, Tabel 6.1)
+export const ruptlInvestasi = mysqlTable("ruptl_investasi", {
+    id: int("id").autoincrement().primaryKey(),
+    tahun: int("tahun").notNull(),
+    kategori: mysqlEnum("kategori", ["IDC", "DISTRIBUSI_LISDES", "TL_GI", "KIT_PLN", "KIT_IPP", "TOTAL"]).notNull(),
+    nilaiTriliun: decimal("nilai_triliun", { precision: 10, scale: 3 }),
+}, (t) => ({ idx: index("idx_investasi_tahun").on(t.tahun) }));
+// Modul 12 — Pipeline Pelanggan Besar (Lampiran E)
+// KEK, KI, DPP, SKPT, Smelter, dll.
+export const ruptlPipelinePelangganBesar = mysqlTable("ruptl_pipeline_pelanggan_besar", {
+    id: int("id").autoincrement().primaryKey(),
+    wilayahId: int("wilayah_id").notNull(),
+    provinsiId: int("provinsi_id"),
+    noUrut: int("no_urut"),
+    kategori: varchar("kategori", { length: 50 }),
+    namaPelanggan: varchar("nama_pelanggan", { length: 200 }).notNull(),
+    kebutuhanMva: decimal("kebutuhan_mva", { precision: 10, scale: 2 }),
+    rencanaTransmisi: text("rencana_transmisi"),
+    rencanaGi: varchar("rencana_gi", { length: 200 }),
+    targetTahun: int("target_tahun"),
+    skema: varchar("skema", { length: 100 }),
+}, (t) => ({
+    wilayahIdx: index("idx_pipeline_wilayah").on(t.wilayahId),
+    provinsiIdx: index("idx_pipeline_provinsi").on(t.provinsiId),
+}));
+// ============================================================
 // ARSITEKTUR DOMAIN & MODUL (§4 PRD v2.x)
 // ============================================================
 export const domains = mysqlTable("domains", {
@@ -204,6 +356,27 @@ export const tariffRates = mysqlTable("tariff_rates", {
     // Prabayar
     tarifPrabayar: decimal("tarif_prabayar", { precision: 10, scale: 2 }),
 });
+export const olapAmrTagihan = mysqlTable("olap_amr_tagihan", {
+    id: int("id").autoincrement().primaryKey(),
+    thblrek: char("thblrek", { length: 6 }).notNull(),
+    unitap: varchar("unitap", { length: 10 }).notNull(),
+    unitapNama: varchar("unitap_nama", { length: 50 }).notNull(),
+    unitup: varchar("unitup", { length: 10 }).notNull(),
+    tarif: varchar("tarif", { length: 10 }).notNull(),
+    tarifGrup: varchar("tarif_grup", { length: 20 }).notNull(),
+    jmlPelanggan: int("jml_pelanggan").notNull().default(0),
+    kwhTotal: decimal("kwh_total", { precision: 18, scale: 3 }).notNull().default("0"),
+    kwhLwbp: decimal("kwh_lwbp", { precision: 18, scale: 3 }).notNull().default("0"),
+    kwhWbp: decimal("kwh_wbp", { precision: 18, scale: 3 }).notNull().default("0"),
+    rpPtl: bigint("rp_ptl", { mode: "number" }).notNull().default(0),
+    rpPpj: bigint("rp_ppj", { mode: "number" }).notNull().default(0),
+    rpTotal: bigint("rp_total", { mode: "number" }).notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => ({
+    ukOlapAmr: uniqueIndex("uk_olap_amr").on(t.thblrek, t.unitap, t.unitup, t.tarif),
+    idxPeriod: index("idx_olap_amr_period").on(t.thblrek),
+    idxUnitap: index("idx_olap_amr_unitap").on(t.unitap),
+}));
 export const datasetSources = mysqlTable("dataset_sources", {
     id: int("id").autoincrement().primaryKey(),
     domainModuleId: int("domain_module_id").notNull(),

@@ -13,6 +13,7 @@ import { mdpRoutes } from "./routes/mdp.js";
 import { ruptlRoutes } from "./routes/ruptl.js";
 import { adminRoutes } from "./routes/admin.js";
 import { tariffRoutes } from "./routes/tariff.js";
+import { olapTagihanRoutes } from "./routes/olap-tagihan.js";
 import { db } from "./db/client.js";
 import { domains, domainModules, userDomainAccess, userModuleAccess } from "./db/schema.js";
 import { eq, and, sql } from "drizzle-orm";
@@ -58,6 +59,7 @@ app.route("/api/mdp", mdpRoutes);
 app.route("/api/ruptl", ruptlRoutes);
 app.route("/api/admin", adminRoutes);
 app.route("/api/tariff", tariffRoutes);
+app.route("/api/olap-tagihan", olapTagihanRoutes);
 app.use("/menu.html", requireAuth, serveStatic({ root: publicDir }));
 app.use("/admin/*", requireAuth, serveStatic({ root: publicDir }));
 // ── TOKEN-BASED MODULE HANDLER ──
