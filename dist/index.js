@@ -17,6 +17,7 @@ import { tariffRoutes } from "./routes/tariff.js";
 import { olapTagihanRoutes } from "./routes/olap-tagihan.js";
 import { plnScholarRoutes } from "./routes/pln-scholar.js";
 import { plnStatRoutes } from "./routes/pln-stat.js";
+import { plnSrRoutes } from "./routes/pln-sr.js";
 import { db } from "./db/client.js";
 import { domains, domainModules, userDomainAccess, userModuleAccess, sessions } from "./db/schema.js";
 import { eq, and, sql, gt } from "drizzle-orm";
@@ -99,6 +100,7 @@ app.route("/api/tariff", tariffRoutes);
 app.route("/api/olap-tagihan", olapTagihanRoutes);
 app.route("/api/pln-scholar", plnScholarRoutes);
 app.route("/api/pln-stat", plnStatRoutes);
+app.route("/api/pln-sr", plnSrRoutes);
 app.use("/menu.html", requireAuth, serveStatic({ root: publicDir }));
 app.use("/admin/*", requireAuth, serveStatic({ root: publicDir }));
 // ── TOKEN-BASED MODULE HANDLER ──
