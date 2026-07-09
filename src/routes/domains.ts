@@ -11,7 +11,8 @@ domainRoutes.use("*", requireAuth);
  * GET /api/domains
  * Mengembalikan daftar domain + modul yang bisa diakses user yang sedang login.
  * - Admin: semua domain aktif + modul aktif & draft (bukan arsip)
- * - Non-admin: hanya domain yang ada di user_domain_access + modul aktif saja
+ * - Non-admin: domain dari user_domain_access + semua modul aktif & draft (bukan arsip),
+ *   ditandai accessible/not sesuai user_module_access
  */
 domainRoutes.get("/", async (c) => {
   const user = c.get("user");
@@ -52,19 +53,19 @@ domainRoutes.get("/", async (c) => {
           .where(eq(userModuleAccess.userId, user.id));
 
         if (modAccess.length > 0) {
-          // Ada pembatasan — tampilkan semua modul aktif, tandai yang accessible
+          // Ada pembatasan — tampilkan aktif & draft, tandai yang accessible
           const allowedIds = new Set(modAccess.map((m) => m.moduleId));
           const allMods = await db
             .select()
             .from(domainModules)
-            .where(and(eq(domainModules.domainId, domain.id), eq(domainModules.status, "aktif")));
+            .where(and(eq(domainModules.domainId, domain.id), ne(domainModules.status, "arsip")));
           mods = allMods.map((m) => ({ ...m, accessible: allowedIds.has(m.id), routePath: tokenUrl(m, domain) }));
         } else {
-          // Tidak ada pembatasan — semua modul aktif accessible
+          // Tidak ada pembatasan — semua modul aktif & draft accessible
           const allMods = await db
             .select()
             .from(domainModules)
-            .where(and(eq(domainModules.domainId, domain.id), eq(domainModules.status, "aktif")));
+            .where(and(eq(domainModules.domainId, domain.id), ne(domainModules.status, "arsip")));
           mods = allMods.map((m) => ({ ...m, accessible: true, routePath: tokenUrl(m, domain) }));
         }
       }
