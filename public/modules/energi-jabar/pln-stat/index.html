@@ -7,177 +7,184 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg:      #0D1117;
-    --surface: #161B22;
-    --card:    #1C2230;
-    --border:  #30363D;
-    --text:    #E6EDF3;
-    --muted:   #8B949E;
-    --yellow:  #F5B800;
-    --red:     #E74C3C;
-    --blue:    #3B82F6;
-    --green:   #10B981;
-    --purple:  #8B5CF6;
-    --teal:    #14B8A6;
-    --orange:  #F97316;
+    --bg:      #F5F0E8;
+    --card:    #FFFFFF;
+    --border:  #E2DAD0;
+    --text:    #111827;
+    --muted:   #6B7280;
+    --dim:     #9CA3AF;
+    --orange:  #E05A1B;
+    --red:     #DC2626;
+    --blue:    #2563EB;
+    --green:   #16A34A;
+    --amber:   #D97706;
+    --purple:  #7C3AED;
+    --teal:    #0D9488;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; min-height: 100vh; }
 
-  /* Back bar */
-  .back-bar {
-    position: sticky; top: 0; z-index: 100;
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 20px; background: #010409;
-    border-bottom: 1px solid var(--border);
+  /* ── Back link ── */
+  .back-link { padding: 14px 32px 0; }
+  .back-link a {
+    color: var(--muted); text-decoration: none; font-size: 13px;
+    display: inline-flex; align-items: center; gap: 5px;
   }
-  .back-bar a {
-    color: var(--yellow); text-decoration: none; font-size: 13px; font-weight: 600;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .back-bar a:hover { text-decoration: underline; }
-  .back-bar .sep { color: var(--border); }
-  .back-bar .title { color: var(--muted); font-size: 13px; }
+  .back-link a:hover { color: var(--text); }
 
-  /* Hero */
-  .hero {
-    background: linear-gradient(135deg, #10151E 0%, #1A2035 50%, #0D1828 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 36px 32px 28px;
+  /* ── Header ── */
+  .header { padding: 14px 32px 22px; border-bottom: 1px solid var(--border); }
+  .breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .bc-icon {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--orange); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .hero-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
-  .hero-logo {
-    background: var(--yellow); border-radius: 12px; padding: 10px 14px;
+  .bc-icon svg { width: 11px; height: 11px; fill: #fff; }
+  .bc-text { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--orange); text-transform: uppercase; }
+  .header-title { font-size: 26px; font-weight: 800; color: var(--text); margin-bottom: 8px; line-height: 1.2; }
+  .header-desc { font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 680px; margin-bottom: 14px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 18px; }
+  .meta-tag { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .meta-dot {
+    width: 16px; height: 16px; border-radius: 50%; background: var(--orange);
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .pln-bolt { width: 36px; height: 44px; fill: var(--red); }
-  .hero-text { flex: 1; min-width: 200px; }
-  .hero-tag { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--yellow); text-transform: uppercase; margin-bottom: 6px; }
-  .hero-title { font-size: 28px; font-weight: 800; line-height: 1.1; background: linear-gradient(90deg, #F5B800, #E74C3C); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; }
-  .hero-sub { font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 560px; }
-  .hero-badge { display: inline-block; background: rgba(245,184,0,.12); border: 1px solid rgba(245,184,0,.3); color: var(--yellow); font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-top: 10px; }
+  .meta-dot svg { width: 9px; height: 9px; fill: #fff; }
 
-  /* KPI Grid */
-  .kpi-section { max-width: 1400px; margin: 0 auto; padding: 24px 32px 0; }
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
-  .kpi-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-    padding: 16px 18px; position: relative; overflow: hidden;
+  /* ── Tabs ── */
+  .tabs-bar {
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 0 32px; position: sticky; top: 0; z-index: 100;
   }
-  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-  .kpi-card.yellow::before { background: var(--yellow); }
-  .kpi-card.red::before    { background: var(--red); }
-  .kpi-card.blue::before   { background: var(--blue); }
-  .kpi-card.green::before  { background: var(--green); }
-  .kpi-card.purple::before { background: var(--purple); }
-  .kpi-card.teal::before   { background: var(--teal); }
-  .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-  .kpi-val { font-size: 22px; font-weight: 800; line-height: 1; }
-  .kpi-card.yellow .kpi-val { color: var(--yellow); }
-  .kpi-card.red    .kpi-val { color: var(--red); }
-  .kpi-card.blue   .kpi-val { color: var(--blue); }
-  .kpi-card.green  .kpi-val { color: var(--green); }
-  .kpi-card.purple .kpi-val { color: var(--purple); }
-  .kpi-card.teal   .kpi-val { color: var(--teal); }
-  .kpi-unit { font-size: 12px; color: var(--muted); margin-top: 4px; }
-  .kpi-year { position: absolute; top: 10px; right: 12px; font-size: 10px; color: var(--muted); }
-
-  /* Tabs */
-  .tabs-section { max-width: 1400px; margin: 0 auto; padding: 24px 32px 0; }
-  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 24px; flex-wrap: wrap; }
+  .tabs { display: flex; overflow-x: auto; }
   .tab-btn {
-    background: none; border: none; color: var(--muted); cursor: pointer;
-    padding: 10px 18px; font-size: 13px; font-weight: 600; border-bottom: 2px solid transparent;
-    margin-bottom: -1px; transition: all .15s;
+    background: none; border: none; cursor: pointer;
+    padding: 14px 20px; font-size: 13px; font-weight: 500;
+    color: var(--muted); border-bottom: 2px solid transparent;
+    margin-bottom: -1px; white-space: nowrap; transition: color .15s, border-color .15s;
   }
   .tab-btn:hover { color: var(--text); }
-  .tab-btn.active { color: var(--yellow); border-bottom-color: var(--yellow); }
+  .tab-btn.active { color: var(--orange); border-bottom-color: var(--orange); font-weight: 600; }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
-  /* Section headers */
-  .section-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-  .section-sub   { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+  /* ── Content ── */
+  .content { max-width: 1400px; margin: 0 auto; padding: 24px 32px; }
 
-  /* Chart grid */
-  .chart-grid { display: grid; gap: 20px; margin-bottom: 28px; }
-  .chart-grid.cols-2 { grid-template-columns: 1fr 1fr; }
-  .chart-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  /* ── KPI Cards ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  @media(max-width:900px) { .kpi-grid { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:500px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+  .kpi-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 20px; border-left: 4px solid var(--orange);
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  }
+  .kpi-card.c-red    { border-left-color: var(--red); }
+  .kpi-card.c-yellow { border-left-color: var(--amber); }
+  .kpi-card.c-green  { border-left-color: var(--green); }
+  .kpi-card.c-blue   { border-left-color: var(--blue); }
+  .kpi-card.c-orange { border-left-color: var(--orange); }
+  .kpi-card.c-purple { border-left-color: var(--purple); }
+  .kpi-label { font-size: 10px; font-weight: 700; letter-spacing: .8px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+  .kpi-val   { font-size: 28px; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 5px; }
+  .kpi-val sup { font-size: 14px; font-weight: 600; color: var(--muted); margin-left: 1px; }
+  .kpi-yoy  { font-size: 12px; font-weight: 600; margin-bottom: 5px; }
+  .kpi-yoy.up   { color: var(--green); }
+  .kpi-yoy.down { color: var(--red); }
+  .kpi-yoy.flat { color: var(--muted); }
+  .kpi-desc  { font-size: 11px; color: var(--dim); line-height: 1.4; }
+
+  /* ── Chart Cards ── */
+  .chart-grid { display: grid; gap: 20px; margin-bottom: 24px; }
+  .chart-grid.cols-2   { grid-template-columns: 1fr 1fr; }
+  .chart-grid.cols-3   { grid-template-columns: 1fr 1fr 1fr; }
   .chart-grid.cols-1-2 { grid-template-columns: 1fr 2fr; }
-  @media(max-width: 900px) { .chart-grid.cols-2, .chart-grid.cols-3, .chart-grid.cols-1-2 { grid-template-columns: 1fr; } }
-
+  @media(max-width:900px) {
+    .chart-grid.cols-2,
+    .chart-grid.cols-3,
+    .chart-grid.cols-1-2 { grid-template-columns: 1fr; }
+  }
   .chart-card {
     background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-    padding: 20px; overflow: hidden;
+    padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,.05);
   }
-  .chart-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-  .chart-sub   { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
+  .chart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+  .chart-title { font-size: 14px; font-weight: 700; color: var(--text); }
+  .chart-sub   { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .chart-year  { font-size: 12px; font-weight: 600; color: var(--orange); white-space: nowrap; margin-left: 12px; flex-shrink: 0; }
   .chart-wrap  { position: relative; }
   .chart-wrap canvas { width: 100% !important; }
 
-  /* Data Table */
-  .table-scroll { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+  /* ── Table ── */
+  .table-scroll { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
   table { width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap; }
   thead th {
-    background: #1A2030; color: var(--muted); font-weight: 600; text-transform: uppercase;
-    letter-spacing: .5px; padding: 10px 14px; text-align: right; border-bottom: 1px solid var(--border);
-    position: sticky; top: 0;
+    background: #F0EBE3; color: var(--muted); font-weight: 600; text-transform: uppercase;
+    letter-spacing: .5px; padding: 10px 14px; text-align: right;
+    border-bottom: 1px solid var(--border); position: sticky; top: 0;
   }
   thead th:first-child { text-align: left; }
-  tbody tr { border-bottom: 1px solid rgba(48,54,61,.5); transition: background .1s; }
+  tbody tr { border-bottom: 1px solid rgba(226,218,208,.7); transition: background .1s; }
   tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: rgba(48,54,61,.4); }
+  tbody tr:hover { background: #FAF7F2; }
   tbody td { padding: 9px 14px; text-align: right; color: var(--text); }
-  tbody td:first-child { text-align: left; font-weight: 700; color: var(--yellow); }
-  .null-val { color: var(--border); }
-  .badge-up   { color: var(--green); font-size: 11px; }
-  .badge-down { color: var(--red);   font-size: 11px; }
+  tbody td:first-child { text-align: left; font-weight: 700; color: var(--orange); }
+  .null-val { color: var(--dim); }
 
-  /* Loading */
+  /* ── Loading ── */
   .loading { text-align: center; padding: 60px; color: var(--muted); }
-  .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--yellow); border-radius: 50%; animation: spin .8s linear infinite; }
+  .spinner {
+    display: inline-block; width: 28px; height: 28px;
+    border: 3px solid var(--border); border-top-color: var(--orange);
+    border-radius: 50%; animation: spin .8s linear infinite;
+  }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Source note */
-  .source-note { max-width: 1400px; margin: 0 auto; padding: 16px 32px 32px; font-size: 11px; color: var(--muted); }
-  .source-note a { color: var(--blue); text-decoration: none; }
+  /* ── Source note ── */
+  .source-note {
+    max-width: 1400px; margin: 0 auto;
+    padding: 8px 32px 32px; font-size: 11px; color: var(--dim);
+  }
 </style>
 </head>
 <body>
 
-<!-- Back bar -->
-<div class="back-bar">
+<div class="back-link">
   <a href="/menu.html">&#8592; Kembali ke Menu</a>
-  <span class="sep">/</span>
-  <span class="title">PLN Statistics 2014–2025</span>
 </div>
 
-<!-- Hero -->
-<div class="hero">
-  <div class="hero-inner">
-    <div class="hero-logo">
-      <svg class="pln-bolt" viewBox="0 0 36 44" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="20,0 8,20 18,20 16,44 28,20 18,20" fill="#E32119"/>
-      </svg>
+<div class="header">
+  <div class="breadcrumb">
+    <div class="bc-icon">
+      <svg viewBox="0 0 24 24"><polygon points="13,2 5,13 12,13 11,22 19,11 12,11"/></svg>
     </div>
-    <div class="hero-text">
-      <div class="hero-tag">PT PLN (Persero)</div>
-      <div class="hero-title">PLN Statistics 2014–2025</div>
-      <div class="hero-sub">Data statistik ketenagalistrikan nasional selama 12 tahun — kapasitas pembangkit, produksi energi, pelanggan, penjualan, tarif, susut energi, dan bauran pembangkitan. Bersumber dari publikasi resmi PLN Statistics tahun 2014 s/d 2025.</div>
-      <span class="hero-badge">12 Tahun Data · Nasional (Indonesia)</span>
-    </div>
+    <span class="bc-text">PLN &nbsp;&middot;&nbsp; Statistik Nasional</span>
+  </div>
+  <div class="header-title">PLN Statistics 2014–2025</div>
+  <div class="header-desc">Data statistik ketenagalistrikan nasional selama 12 tahun — kapasitas pembangkit, produksi energi, pelanggan, penjualan, tarif, susut energi, dan bauran pembangkitan. Bersumber dari publikasi resmi PLN Statistics tahun 2014 s/d 2025.</div>
+  <div class="meta-row">
+    <span class="meta-tag">
+      <span class="meta-dot"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+      2014 – 2025 (12 Tahun)
+    </span>
+    <span class="meta-tag">
+      <span class="meta-dot"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 012-2h12a2 2 0 012 2v14"/><line x1="4" y1="19" x2="20" y2="19"/></svg></span>
+      PLN Statistics Book
+    </span>
+    <span class="meta-tag">
+      <span class="meta-dot"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg></span>
+      Nasional (Indonesia)
+    </span>
+    <span class="meta-tag">
+      <span class="meta-dot"><svg viewBox="0 0 24 24"><polygon points="13,2 5,13 12,13 11,22 19,11 12,11"/></svg></span>
+      Satuan: GWh / MW / Juta pelanggan
+    </span>
   </div>
 </div>
 
-<!-- KPI Grid (latest year) -->
-<div class="kpi-section">
-  <div class="kpi-grid" id="kpiGrid">
-    <div class="loading"><div class="spinner"></div></div>
-  </div>
-</div>
-
-<!-- Tabs -->
-<div class="tabs-section">
+<div class="tabs-bar">
   <div class="tabs">
     <button class="tab-btn active" data-tab="generation">Pembangkitan</button>
     <button class="tab-btn" data-tab="customers">Pelanggan &amp; Penjualan</button>
@@ -185,42 +192,62 @@
     <button class="tab-btn" data-tab="revenue">Pendapatan &amp; Tarif</button>
     <button class="tab-btn" data-tab="table">Tabel Data</button>
   </div>
+</div>
+
+<div class="content">
+
+  <!-- KPI Cards -->
+  <div id="kpiGrid" class="kpi-grid">
+    <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+  </div>
 
   <!-- TAB 1: PEMBANGKITAN -->
   <div class="tab-panel active" id="tab-generation">
     <div class="chart-grid cols-2">
       <div class="chart-card">
-        <div class="chart-title">Kapasitas Terpasang PLN (MW)</div>
-        <div class="chart-sub">Installed Capacity PLN own, 2014–2025</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Kapasitas Terpasang PLN (MW)</div><div class="chart-sub">Installed Capacity PLN own</div></div>
+          <div class="chart-year">2014 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartCapacity" height="220"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Total Produksi Energi (GWh)</div>
-        <div class="chart-sub">Own generation + leased + purchased from IPP</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Total Produksi Energi (GWh)</div><div class="chart-sub">Own generation + leased + purchased from IPP</div></div>
+          <div class="chart-year">2014 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartProdTotal" height="220"></canvas></div>
       </div>
     </div>
     <div class="chart-grid cols-1-2">
       <div class="chart-card">
-        <div class="chart-title">Bauran Pembangkitan 2025</div>
-        <div class="chart-sub">Berdasarkan jenis pembangkit (% dari total produksi PLN)</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Bauran Pembangkitan 2025</div><div class="chart-sub">% dari total produksi PLN</div></div>
+          <div class="chart-year">2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartMix2025" height="260"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Produksi Energi per Jenis Pembangkit (GWh)</div>
-        <div class="chart-sub">2016–2025 · stacked — PLTA, PLTU, PLTG/GU, PLTP, PLTD/MG, Sewa+EBT</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Produksi per Jenis Pembangkit (GWh)</div><div class="chart-sub">PLTA, PLTU, PLTG/GU, PLTP, PLTD/MG, Sewa+EBT — stacked</div></div>
+          <div class="chart-year">2016 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartProdStacked" height="260"></canvas></div>
       </div>
     </div>
     <div class="chart-grid cols-2">
       <div class="chart-card">
-        <div class="chart-title">PLN Own vs Beli dari IPP (GWh)</div>
-        <div class="chart-sub">Komposisi sumber energi yang disuplai ke grid PLN</div>
+        <div class="chart-header">
+          <div><div class="chart-title">PLN Own vs Beli dari IPP (GWh)</div><div class="chart-sub">Komposisi sumber energi ke grid PLN</div></div>
+          <div class="chart-year">2014 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartOwnVsBuy" height="220"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Jumlah Unit Pembangkit PLN</div>
-        <div class="chart-sub">Total unit pembangkit yang dimiliki PLN, 2016–2025</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Jumlah Unit Pembangkit PLN</div><div class="chart-sub">Total unit pembangkit yang dimiliki PLN</div></div>
+          <div class="chart-year">2016 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartUnits" height="220"></canvas></div>
       </div>
     </div>
@@ -230,37 +257,49 @@
   <div class="tab-panel" id="tab-customers">
     <div class="chart-grid cols-2">
       <div class="chart-card">
-        <div class="chart-title">Jumlah Pelanggan Total (Juta)</div>
-        <div class="chart-sub">Pertumbuhan pelanggan PLN, 2014–2025</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Jumlah Pelanggan Total (Juta)</div><div class="chart-sub">Pertumbuhan pelanggan PLN</div></div>
+          <div class="chart-year">2014 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartCustTotal" height="220"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Komposisi Pelanggan 2025</div>
-        <div class="chart-sub">Rumah Tangga, Industri, Bisnis, Sosial, dll.</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Komposisi Pelanggan 2025</div><div class="chart-sub">Rumah Tangga, Industri, Bisnis, Sosial, dll.</div></div>
+          <div class="chart-year">2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartCustMix" height="220"></canvas></div>
       </div>
     </div>
     <div class="chart-grid cols-2">
       <div class="chart-card">
-        <div class="chart-title">Energi Terjual per Kelompok (GWh)</div>
-        <div class="chart-sub">2014–2025 · Rumah Tangga, Industri, Bisnis, Lainnya</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Energi Terjual per Kelompok (GWh)</div><div class="chart-sub">Rumah Tangga, Industri, Bisnis, Lainnya — stacked</div></div>
+          <div class="chart-year">2014 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartSoldStacked" height="240"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Total Energi Terjual (GWh)</div>
-        <div class="chart-sub">Trend penjualan tenaga listrik PLN, 2014–2025</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Total Energi Terjual (GWh)</div><div class="chart-sub">Trend penjualan tenaga listrik PLN</div></div>
+          <div class="chart-year">2014 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartSoldTotal" height="240"></canvas></div>
       </div>
     </div>
     <div class="chart-grid cols-2">
       <div class="chart-card">
-        <div class="chart-title">Daya Tersambung per Kelompok (MVA)</div>
-        <div class="chart-sub">Connected capacity 2016–2025</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Daya Tersambung per Kelompok (MVA)</div><div class="chart-sub">Connected capacity — stacked</div></div>
+          <div class="chart-year">2016 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartConnStacked" height="220"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Porsi Energi Terjual per Kelompok (2025)</div>
-        <div class="chart-sub">Komposisi penjualan GWh per kelompok pelanggan</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Porsi Energi Terjual per Kelompok (2025)</div><div class="chart-sub">Komposisi penjualan GWh per kelompok pelanggan</div></div>
+          <div class="chart-year">2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartSoldMix" height="220"></canvas></div>
       </div>
     </div>
@@ -270,25 +309,33 @@
   <div class="tab-panel" id="tab-losses">
     <div class="chart-grid cols-2">
       <div class="chart-card">
-        <div class="chart-title">Susut Energi Total (%)</div>
-        <div class="chart-sub">Energy losses percentage, 2014–2025</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Susut Energi Total (%)</div><div class="chart-sub">Energy losses percentage</div></div>
+          <div class="chart-year">2014 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartLossTotal" height="230"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Susut Transmisi vs Distribusi (%)</div>
-        <div class="chart-sub">Breakdown susut energi per komponen, 2014–2025</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Susut Transmisi vs Distribusi (%)</div><div class="chart-sub">Breakdown susut energi per komponen</div></div>
+          <div class="chart-year">2014 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartLossBreak" height="230"></canvas></div>
       </div>
     </div>
     <div class="chart-grid cols-2">
       <div class="chart-card">
-        <div class="chart-title">Faktor Beban &amp; Faktor Kapasitas (%)</div>
-        <div class="chart-sub">Load factor &amp; capacity factor nasional, 2016–2025</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Faktor Beban &amp; Faktor Kapasitas (%)</div><div class="chart-sub">Load factor &amp; capacity factor nasional</div></div>
+          <div class="chart-year">2016 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartFactors" height="230"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Pemakaian Sendiri &amp; Susut (GWh)</div>
-        <div class="chart-sub">Own use, transmission loss, distribution loss — 2016–2025</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Pemakaian Sendiri &amp; Susut (GWh)</div><div class="chart-sub">Own use, transmission loss, distribution loss</div></div>
+          <div class="chart-year">2016 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartLossGwh" height="230"></canvas></div>
       </div>
     </div>
@@ -298,25 +345,33 @@
   <div class="tab-panel" id="tab-revenue">
     <div class="chart-grid cols-2">
       <div class="chart-card">
-        <div class="chart-title">Total Pendapatan PLN (Triliun Rp)</div>
-        <div class="chart-sub">Revenue dari penjualan tenaga listrik, 2016–2025</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Total Pendapatan PLN (Triliun Rp)</div><div class="chart-sub">Revenue dari penjualan tenaga listrik</div></div>
+          <div class="chart-year">2016 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartRevTotal" height="230"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Pendapatan per Kelompok Pelanggan (T Rp)</div>
-        <div class="chart-sub">Rumah Tangga, Industri, Bisnis — 2016–2025</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Pendapatan per Kelompok Pelanggan (T Rp)</div><div class="chart-sub">Rumah Tangga, Industri, Bisnis</div></div>
+          <div class="chart-year">2016 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartRevGroup" height="230"></canvas></div>
       </div>
     </div>
     <div class="chart-grid cols-2">
       <div class="chart-card">
-        <div class="chart-title">Tarif Rata-rata (Rp/kWh)</div>
-        <div class="chart-sub">Average electricity tariff nasional, 2014–2025</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Tarif Rata-rata (Rp/kWh)</div><div class="chart-sub">Average electricity tariff nasional</div></div>
+          <div class="chart-year">2014 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartTariffAvg" height="230"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Tarif per Kelompok Pelanggan (Rp/kWh)</div>
-        <div class="chart-sub">Rumah Tangga, Industri, Bisnis — 2016–2025</div>
+        <div class="chart-header">
+          <div><div class="chart-title">Tarif per Kelompok Pelanggan (Rp/kWh)</div><div class="chart-sub">Rumah Tangga, Industri, Bisnis</div></div>
+          <div class="chart-year">2016 – 2025</div>
+        </div>
         <div class="chart-wrap"><canvas id="chartTariffGroup" height="230"></canvas></div>
       </div>
     </div>
@@ -324,80 +379,96 @@
 
   <!-- TAB 5: DATA TABLE -->
   <div class="tab-panel" id="tab-table">
-    <div class="section-title">Tabel Data Lengkap</div>
-    <div class="section-sub">Seluruh indikator ketenagalistrikan nasional PLN, 2014–2025. Angka NULL = data tidak tersedia di buku statistik edisi tersebut.</div>
-    <div class="table-scroll">
-      <table id="dataTable">
-        <thead>
-          <tr>
-            <th>Tahun</th>
-            <th>Kapasitas Terpasang PLN (MW)</th>
-            <th>Kapasitas Terpasang Nasional (MW)</th>
-            <th>Daya Mampu PLN (MW)</th>
-            <th>Beban Puncak (MW)</th>
-            <th>Unit Pembangkit</th>
-            <th>Faktor Beban (%)</th>
-            <th>Faktor Kapasitas (%)</th>
-            <th>Prod. Hidro (GWh)</th>
-            <th>Prod. Batubara (GWh)</th>
-            <th>Prod. Gas (GWh)</th>
-            <th>Prod. Panas Bumi (GWh)</th>
-            <th>Prod. Diesel (GWh)</th>
-            <th>Prod. EBT (GWh)</th>
-            <th>Prod. Sewa (GWh)</th>
-            <th>Total Prod. PLN (GWh)</th>
-            <th>Beli dari IPP (GWh)</th>
-            <th>Total Prod. (GWh)</th>
-            <th>Susut Total (%)</th>
-            <th>Susut Transmisi (%)</th>
-            <th>Susut Distribusi (%)</th>
-            <th>Total Pelanggan</th>
-            <th>Pelanggan RT</th>
-            <th>Pelanggan Industri</th>
-            <th>Pelanggan Bisnis</th>
-            <th>Daya Tersambung (MVA)</th>
-            <th>Energi Terjual Total (GWh)</th>
-            <th>Terjual RT (GWh)</th>
-            <th>Terjual Industri (GWh)</th>
-            <th>Terjual Bisnis (GWh)</th>
-            <th>Pendapatan Total (T Rp)</th>
-            <th>Tarif Rata-rata (Rp/kWh)</th>
-            <th>Tarif RT (Rp/kWh)</th>
-            <th>Tarif Industri (Rp/kWh)</th>
-            <th>Tarif Bisnis (Rp/kWh)</th>
-            <th>Rasio Elektrifikasi (%)</th>
-            <th>Konsumsi Batubara (ribu ton)</th>
-            <th>Konsumsi Gas (MMSCF)</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
+    <div class="chart-card">
+      <div class="chart-header" style="margin-bottom:14px;">
+        <div>
+          <div class="chart-title">Tabel Data Lengkap</div>
+          <div class="chart-sub">Seluruh indikator ketenagalistrikan nasional PLN, 2014–2025. Angka — = data tidak tersedia di edisi tersebut.</div>
+        </div>
+        <div class="chart-year">2014 – 2025</div>
+      </div>
+      <div class="table-scroll">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>Tahun</th>
+              <th>Kap. Terpasang PLN (MW)</th>
+              <th>Kap. Terpasang Nasional (MW)</th>
+              <th>Daya Mampu PLN (MW)</th>
+              <th>Beban Puncak (MW)</th>
+              <th>Unit Pembangkit</th>
+              <th>Faktor Beban (%)</th>
+              <th>Faktor Kapasitas (%)</th>
+              <th>Prod. Hidro (GWh)</th>
+              <th>Prod. Batubara (GWh)</th>
+              <th>Prod. Gas (GWh)</th>
+              <th>Prod. Panas Bumi (GWh)</th>
+              <th>Prod. Diesel (GWh)</th>
+              <th>Prod. EBT (GWh)</th>
+              <th>Prod. Sewa (GWh)</th>
+              <th>Total Prod. PLN (GWh)</th>
+              <th>Beli IPP (GWh)</th>
+              <th>Total Prod. (GWh)</th>
+              <th>Susut Total (%)</th>
+              <th>Susut Transmisi (%)</th>
+              <th>Susut Distribusi (%)</th>
+              <th>Total Pelanggan</th>
+              <th>Pelanggan RT</th>
+              <th>Pelanggan Industri</th>
+              <th>Pelanggan Bisnis</th>
+              <th>Daya Tersambung (MVA)</th>
+              <th>Terjual Total (GWh)</th>
+              <th>Terjual RT (GWh)</th>
+              <th>Terjual Industri (GWh)</th>
+              <th>Terjual Bisnis (GWh)</th>
+              <th>Pendapatan Total (T Rp)</th>
+              <th>Tarif Rata-rata (Rp/kWh)</th>
+              <th>Tarif RT (Rp/kWh)</th>
+              <th>Tarif Industri (Rp/kWh)</th>
+              <th>Tarif Bisnis (Rp/kWh)</th>
+              <th>Rasio Elektrifikasi (%)</th>
+              <th>Batubara (ribu ton)</th>
+              <th>Gas (MMSCF)</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
-</div>
+
+</div><!-- /content -->
 
 <div class="source-note">
   Sumber: PLN Statistics 2014–2025, PT PLN (Persero). Data nasional (Indonesia). Diolah untuk Cockpit — Energi Jabar.
-  Kolom NULL menunjukkan data tidak dipublikasikan pada edisi buku tersebut.
 </div>
 
 <script>
 const API = '/api/pln-stat/national';
 const C = Chart;
 
-// Chart.js global defaults
-C.defaults.color = '#8B949E';
-C.defaults.borderColor = '#30363D';
+C.defaults.color = '#6B7280';
+C.defaults.borderColor = 'rgba(0,0,0,.07)';
 C.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
 C.defaults.font.size = 11;
 
-// Helpers
+const GRID = 'rgba(0,0,0,.06)';
+
 const fmt   = (v, d=1) => v == null ? '—' : Number(v).toLocaleString('id-ID', {minimumFractionDigits:d, maximumFractionDigits:d});
 const fmtI  = (v)      => v == null ? '—' : Number(v).toLocaleString('id-ID');
 const fmtT  = (v)      => v == null ? '—' : (Number(v)/1e6).toLocaleString('id-ID', {minimumFractionDigits:2, maximumFractionDigits:2});
 const n     = (v)      => v == null ? null : Number(v);
 const pct   = (v)      => v == null ? null : Number(v);
 const nullCell = (v, fn=fmt) => v == null ? '<span class="null-val">—</span>' : fn(v);
+
+function yoy(curr, prev) {
+  if (curr == null || prev == null || prev === 0) return '<div class="kpi-yoy flat">— YoY</div>';
+  const p = ((curr - prev) / Math.abs(prev)) * 100;
+  const cls = p >= 0 ? 'up' : 'down';
+  const arrow = p >= 0 ? '↑' : '↓';
+  const sign  = p >= 0 ? '+' : '';
+  return `<div class="kpi-yoy ${cls}">${arrow} ${sign}${p.toFixed(1)}% YoY</div>`;
+}
 
 function mkChart(id, type, data, opts={}) {
   const ctx = document.getElementById(id);
@@ -407,14 +478,13 @@ function mkChart(id, type, data, opts={}) {
 
 function lineOpts(yLabel='', sugMin=null) {
   return {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { position:'bottom', labels: { boxWidth:12, padding:12 } } },
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position:'top', labels: { boxWidth:12, padding:14 } } },
     scales: {
-      x: { grid: { color:'rgba(48,54,61,.5)' } },
+      x: { grid: { color: GRID } },
       y: {
-        grid: { color:'rgba(48,54,61,.5)' },
-        title: { display:!!yLabel, text:yLabel, color:'#8B949E', font:{size:10} },
+        grid: { color: GRID },
+        title: { display:!!yLabel, text:yLabel, color:'#9CA3AF', font:{size:10} },
         ...(sugMin !== null ? { suggestedMin: sugMin } : {})
       }
     }
@@ -423,23 +493,22 @@ function lineOpts(yLabel='', sugMin=null) {
 
 function barOpts(stacked=false, yLabel='') {
   return {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { position:'bottom', labels:{ boxWidth:12, padding:10 } } },
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position:'top', labels:{ boxWidth:12, padding:14 } } },
     scales: {
-      x: { stacked, grid: { color:'rgba(48,54,61,.5)' } },
-      y: { stacked, grid: { color:'rgba(48,54,61,.5)' }, title: { display:!!yLabel, text:yLabel, color:'#8B949E', font:{size:10} } }
+      x: { stacked, grid: { color: GRID } },
+      y: { stacked, grid: { color: GRID }, title: { display:!!yLabel, text:yLabel, color:'#9CA3AF', font:{size:10} } }
     }
   };
 }
 
-// ─── Main ────────────────────────────────────────────────────────────────────
 async function main() {
   const res  = await fetch(API);
   const rows = await res.json();
   const latest = rows[rows.length - 1];
+  const prev   = rows[rows.length - 2];
 
-  renderKPI(rows, latest);
+  renderKPI(latest, prev);
   renderGeneration(rows, latest);
   renderCustomers(rows, latest);
   renderLosses(rows, latest);
@@ -448,56 +517,41 @@ async function main() {
 }
 
 // ─── KPI ─────────────────────────────────────────────────────────────────────
-function renderKPI(rows, d) {
+function renderKPI(d, p) {
   const yr = d.year;
+  const capPLN = n(d.installedCapacityPlnMw);
+  const capNas = n(d.installedCapacityTotalMw);
+  const sold   = n(d.soldTotalGwh);
+  const cust   = n(d.custTotal);
+  const tariff = n(d.tariffAvgRpKwh);
+  const loss   = n(d.lossTotalPct);
+  const prod   = n(d.prodTotalGwh);
+  const elec   = n(d.electrificationRatioPct);
+
   document.getElementById('kpiGrid').innerHTML = `
-    <div class="kpi-card yellow">
-      <div class="kpi-year">${yr}</div>
-      <div class="kpi-label">Kapasitas Terpasang PLN</div>
-      <div class="kpi-val">${fmt(n(d.installedCapacityPlnMw)/1000, 2)}</div>
-      <div class="kpi-unit">GW</div>
+    <div class="kpi-card c-red">
+      <div class="kpi-label">Kapasitas Terpasang PLN ${yr}</div>
+      <div class="kpi-val">${fmt(capPLN/1000, 2)}<sup>GW</sup></div>
+      ${yoy(capPLN, n(p.installedCapacityPlnMw))}
+      <div class="kpi-desc">Termasuk PLTU, PLTG/GU, PLTA, PLTP, PLTD</div>
     </div>
-    <div class="kpi-card blue">
-      <div class="kpi-year">${yr}</div>
-      <div class="kpi-label">Kapasitas Nasional (incl. IPP)</div>
-      <div class="kpi-val">${fmt(n(d.installedCapacityTotalMw)/1000, 2)}</div>
-      <div class="kpi-unit">GW</div>
+    <div class="kpi-card c-yellow">
+      <div class="kpi-label">Total Energi Terjual ${yr}</div>
+      <div class="kpi-val">${fmt(sold/1000, 1)}<sup>TWh</sup></div>
+      ${yoy(sold, n(p.soldTotalGwh))}
+      <div class="kpi-desc">RT ${fmt(n(d.soldHouseholdGwh)/sold*100,1)}% | Industri ${fmt(n(d.soldIndustryGwh)/sold*100,1)}% | Bisnis ${fmt(n(d.soldBusinessGwh)/sold*100,1)}%</div>
     </div>
-    <div class="kpi-card red">
-      <div class="kpi-year">${yr}</div>
-      <div class="kpi-label">Total Energi Terjual</div>
-      <div class="kpi-val">${fmt(n(d.soldTotalGwh)/1000, 1)}</div>
-      <div class="kpi-unit">TWh</div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">Total Pelanggan ${yr}</div>
+      <div class="kpi-val">${fmt(cust/1e6, 2)}<sup>Juta</sup></div>
+      ${yoy(cust, n(p.custTotal))}
+      <div class="kpi-desc">Kapasitas nasional (incl. IPP): ${fmt(n(d.installedCapacityTotalMw)/1000, 2)} GW</div>
     </div>
-    <div class="kpi-card green">
-      <div class="kpi-year">${yr}</div>
-      <div class="kpi-label">Total Pelanggan</div>
-      <div class="kpi-val">${fmt(n(d.custTotal)/1e6, 2)}</div>
-      <div class="kpi-unit">Juta pelanggan</div>
-    </div>
-    <div class="kpi-card purple">
-      <div class="kpi-year">${yr}</div>
-      <div class="kpi-label">Tarif Rata-rata</div>
-      <div class="kpi-val">${fmt(n(d.tariffAvgRpKwh), 0)}</div>
-      <div class="kpi-unit">Rp/kWh</div>
-    </div>
-    <div class="kpi-card teal">
-      <div class="kpi-year">${yr}</div>
-      <div class="kpi-label">Susut Energi</div>
-      <div class="kpi-val">${fmt(n(d.lossTotalPct), 2)}</div>
-      <div class="kpi-unit">%</div>
-    </div>
-    <div class="kpi-card yellow">
-      <div class="kpi-year">${yr}</div>
-      <div class="kpi-label">Produksi Energi Total</div>
-      <div class="kpi-val">${fmt(n(d.prodTotalGwh)/1000, 1)}</div>
-      <div class="kpi-unit">TWh</div>
-    </div>
-    <div class="kpi-card green">
-      <div class="kpi-year">${yr}</div>
-      <div class="kpi-label">Rasio Elektrifikasi</div>
-      <div class="kpi-val">${d.electrificationRatioPct ? fmt(n(d.electrificationRatioPct),2) : '—'}</div>
-      <div class="kpi-unit">%</div>
+    <div class="kpi-card c-blue">
+      <div class="kpi-label">Tarif Rata-rata ${yr}</div>
+      <div class="kpi-val">${fmt(tariff, 0)}<sup>Rp/kWh</sup></div>
+      ${yoy(tariff, n(p.tariffAvgRpKwh))}
+      <div class="kpi-desc">Susut energi: ${fmt(loss, 2)}% | Rasio elektrifikasi: ${elec ? fmt(elec,2)+'%' : '—'}</div>
     </div>
   `;
 }
@@ -506,98 +560,91 @@ function renderKPI(rows, d) {
 function renderGeneration(rows, latest) {
   const years = rows.map(r => r.year);
 
-  // Installed capacity
   mkChart('chartCapacity', 'line', {
     labels: years,
     datasets: [{
-      label: 'Kapasitas Terpasang PLN (MW)',
+      label: 'Kapasitas PLN (MW)',
       data: rows.map(r => n(r.installedCapacityPlnMw)),
-      borderColor: '#F5B800', backgroundColor: 'rgba(245,184,0,.15)',
+      borderColor: '#E05A1B', backgroundColor: 'rgba(224,90,27,.12)',
       fill: true, tension: .3, pointRadius: 3
+    }, {
+      label: 'Kapasitas Nasional (MW)',
+      data: rows.map(r => n(r.installedCapacityTotalMw)),
+      borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,.08)',
+      fill: true, tension: .3, pointRadius: 3, borderDash: [4,3]
     }]
   }, lineOpts('MW', 35000));
 
-  // Total production
   mkChart('chartProdTotal', 'line', {
     labels: years,
     datasets: [{
-      label: 'PLN Own + Leased',
+      label: 'PLN Own+Leased',
       data: rows.map(r => n(r.prodPlnOwnGwh)),
-      borderColor: '#F5B800', fill: false, tension: .3, pointRadius: 3
+      borderColor: '#E05A1B', fill: false, tension: .3, pointRadius: 3
     }, {
       label: 'Beli dari IPP',
       data: rows.map(r => n(r.prodPurchasedGwh)),
-      borderColor: '#E74C3C', fill: false, tension: .3, pointRadius: 3
+      borderColor: '#DC2626', fill: false, tension: .3, pointRadius: 3
     }, {
       label: 'Total',
       data: rows.map(r => n(r.prodTotalGwh)),
-      borderColor: '#3B82F6', borderDash: [4,3], fill: false, tension: .3, pointRadius: 3
+      borderColor: '#2563EB', borderDash: [4,3], fill: false, tension: .3, pointRadius: 3
     }]
   }, lineOpts('GWh'));
 
-  // Generation mix 2025 donut
   const mix2025 = latest;
   const mixData = [
-    { label:'PLTA/Hidro', val: n(mix2025.prodHydroGwh),    color:'#3B82F6' },
-    { label:'PLTU/Batubara', val: n(mix2025.prodSteamGwh), color:'#6B7280' },
-    { label:'PLTG/PLTGU/Gas', val: n(mix2025.prodGasGwh),  color:'#F97316' },
-    { label:'PLTP/Panas Bumi', val: n(mix2025.prodGeoGwh), color:'#10B981' },
-    { label:'PLTD/MG/Diesel', val: n(mix2025.prodDieselGwh), color:'#E74C3C' },
-    { label:'EBT/Solar/Bayu', val: n(mix2025.prodRenewableGwh), color:'#F5B800' },
-    { label:'Sewa', val: n(mix2025.prodLeasedGwh),          color:'#8B5CF6' },
-    { label:'Beli IPP', val: n(mix2025.prodPurchasedGwh),   color:'#14B8A6' },
+    { label:'PLTA/Hidro',      val: n(mix2025.prodHydroGwh),    color:'#2563EB' },
+    { label:'PLTU/Batubara',   val: n(mix2025.prodSteamGwh),    color:'#374151' },
+    { label:'PLTG/PLTGU/Gas', val: n(mix2025.prodGasGwh),      color:'#E05A1B' },
+    { label:'PLTP/Panas Bumi', val: n(mix2025.prodGeoGwh),      color:'#16A34A' },
+    { label:'PLTD/MG/Diesel',  val: n(mix2025.prodDieselGwh),   color:'#DC2626' },
+    { label:'EBT/Solar/Bayu',  val: n(mix2025.prodRenewableGwh),color:'#D97706' },
+    { label:'Sewa',            val: n(mix2025.prodLeasedGwh),   color:'#7C3AED' },
+    { label:'Beli IPP',        val: n(mix2025.prodPurchasedGwh),color:'#0D9488' },
   ].filter(d => d.val > 0);
-
   mkChart('chartMix2025', 'doughnut', {
     labels: mixData.map(d => d.label),
-    datasets: [{ data: mixData.map(d => d.val), backgroundColor: mixData.map(d => d.color), borderWidth: 1, borderColor: '#161B22' }]
+    datasets: [{ data: mixData.map(d => d.val), backgroundColor: mixData.map(d => d.color), borderWidth: 2, borderColor: '#FFFFFF' }]
   }, {
     responsive: true, maintainAspectRatio: false,
     plugins: {
-      legend: { position:'right', labels:{ boxWidth:12, padding:10, font:{size:11} } },
-      tooltip: {
-        callbacks: {
-          label: (ctx) => {
-            const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
-            const pct = ((ctx.parsed/total)*100).toFixed(1);
-            return ` ${ctx.label}: ${fmt(ctx.parsed)} GWh (${pct}%)`;
-          }
-        }
-      }
+      legend: { position:'bottom', labels:{ boxWidth:12, padding:10, font:{size:11} } },
+      tooltip: { callbacks: { label: (ctx) => {
+        const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+        return ` ${ctx.label}: ${fmt(ctx.parsed)} GWh (${((ctx.parsed/total)*100).toFixed(1)}%)`;
+      }}}
     }
   });
 
-  // Stacked production by type (2016-2025)
   const ts = rows.filter(r => r.year >= 2016);
   const tsYears = ts.map(r => r.year);
   mkChart('chartProdStacked', 'bar', {
     labels: tsYears,
     datasets: [
-      { label:'Hidro', data: ts.map(r=>n(r.prodHydroGwh)),    backgroundColor:'#3B82F6', stack:'s' },
-      { label:'Batubara', data: ts.map(r=>n(r.prodSteamGwh)), backgroundColor:'#6B7280', stack:'s' },
-      { label:'Gas+CC', data: ts.map(r=>n(r.prodGasGwh)),     backgroundColor:'#F97316', stack:'s' },
-      { label:'Panas Bumi', data: ts.map(r=>n(r.prodGeoGwh)), backgroundColor:'#10B981', stack:'s' },
-      { label:'Diesel+MG', data: ts.map(r=>n(r.prodDieselGwh)),backgroundColor:'#E74C3C', stack:'s' },
-      { label:'EBT+Sewa', data: ts.map(r=>(n(r.prodRenewableGwh)||0)+(n(r.prodLeasedGwh)||0)), backgroundColor:'#F5B800', stack:'s' },
+      { label:'Hidro',     data: ts.map(r=>n(r.prodHydroGwh)),    backgroundColor:'rgba(37,99,235,.8)',  stack:'s' },
+      { label:'Batubara',  data: ts.map(r=>n(r.prodSteamGwh)),    backgroundColor:'rgba(55,65,81,.8)',   stack:'s' },
+      { label:'Gas+CC',    data: ts.map(r=>n(r.prodGasGwh)),      backgroundColor:'rgba(224,90,27,.8)',  stack:'s' },
+      { label:'Panas Bumi',data: ts.map(r=>n(r.prodGeoGwh)),      backgroundColor:'rgba(22,163,74,.8)',  stack:'s' },
+      { label:'Diesel+MG', data: ts.map(r=>n(r.prodDieselGwh)),   backgroundColor:'rgba(220,38,38,.8)',  stack:'s' },
+      { label:'EBT+Sewa',  data: ts.map(r=>(n(r.prodRenewableGwh)||0)+(n(r.prodLeasedGwh)||0)), backgroundColor:'rgba(217,119,6,.8)', stack:'s' },
     ]
   }, barOpts(true, 'GWh'));
 
-  // Own vs Purchased
   mkChart('chartOwnVsBuy', 'bar', {
     labels: years,
     datasets: [
-      { label:'PLN Own+Leased', data: rows.map(r=>n(r.prodPlnOwnGwh)), backgroundColor:'rgba(245,184,0,.7)', stack:'s' },
-      { label:'Beli dari IPP',  data: rows.map(r=>n(r.prodPurchasedGwh)), backgroundColor:'rgba(231,76,60,.7)', stack:'s' },
+      { label:'PLN Own+Leased', data: rows.map(r=>n(r.prodPlnOwnGwh)),    backgroundColor:'rgba(224,90,27,.75)', stack:'s' },
+      { label:'Beli dari IPP',  data: rows.map(r=>n(r.prodPurchasedGwh)), backgroundColor:'rgba(220,38,38,.6)',  stack:'s' },
     ]
   }, barOpts(true, 'GWh'));
 
-  // Units
   mkChart('chartUnits', 'line', {
     labels: tsYears,
     datasets: [{
       label: 'Jumlah Unit Pembangkit PLN',
       data: ts.map(r => n(r.plantsTotal)),
-      borderColor:'#8B5CF6', backgroundColor:'rgba(139,92,246,.15)',
+      borderColor:'#7C3AED', backgroundColor:'rgba(124,58,237,.12)',
       fill:true, tension:.3, pointRadius:3
     }]
   }, lineOpts('Unit', 5000));
@@ -609,35 +656,33 @@ function renderCustomers(rows, latest) {
   const ts = rows.filter(r => r.year >= 2016);
   const tsYears = ts.map(r => r.year);
 
-  // Total customers trend
   mkChart('chartCustTotal', 'line', {
     labels: years,
     datasets: [{
       label: 'Total Pelanggan (Juta)',
       data: rows.map(r => n(r.custTotal)/1e6),
-      borderColor:'#10B981', backgroundColor:'rgba(16,185,129,.15)',
+      borderColor:'#16A34A', backgroundColor:'rgba(22,163,74,.12)',
       fill:true, tension:.3, pointRadius:3
     }]
   }, lineOpts('Juta'));
 
-  // Customer mix 2025
   const lc = latest;
   const custTypes = [
-    { label:'Rumah Tangga', val: n(lc.custHousehold), color:'#F5B800' },
-    { label:'Bisnis', val: n(lc.custBusiness), color:'#3B82F6' },
-    { label:'Sosial', val: n(lc.custSocial), color:'#10B981' },
-    { label:'Penerangan Jalan', val: n(lc.custStreet), color:'#8B5CF6' },
-    { label:'Gdg. Pemerintah', val: n(lc.custGov), color:'#F97316' },
-    { label:'Industri', val: n(lc.custIndustry), color:'#E74C3C' },
-    { label:'Lainnya', val: n(lc.custOthers), color:'#6B7280' },
+    { label:'Rumah Tangga',    val: n(lc.custHousehold), color:'#E05A1B' },
+    { label:'Bisnis',          val: n(lc.custBusiness),  color:'#2563EB' },
+    { label:'Sosial',          val: n(lc.custSocial),    color:'#16A34A' },
+    { label:'Penerangan Jalan',val: n(lc.custStreet),    color:'#7C3AED' },
+    { label:'Gdg. Pemerintah', val: n(lc.custGov),       color:'#D97706' },
+    { label:'Industri',        val: n(lc.custIndustry),  color:'#DC2626' },
+    { label:'Lainnya',         val: n(lc.custOthers),    color:'#6B7280' },
   ].filter(d => d.val > 0);
   mkChart('chartCustMix', 'doughnut', {
     labels: custTypes.map(d=>d.label),
-    datasets:[{ data:custTypes.map(d=>d.val), backgroundColor:custTypes.map(d=>d.color), borderWidth:1, borderColor:'#161B22' }]
+    datasets:[{ data:custTypes.map(d=>d.val), backgroundColor:custTypes.map(d=>d.color), borderWidth:2, borderColor:'#FFFFFF' }]
   }, {
     responsive:true, maintainAspectRatio:false,
     plugins:{
-      legend:{position:'right',labels:{boxWidth:12,padding:8}},
+      legend:{position:'bottom',labels:{boxWidth:12,padding:8}},
       tooltip:{callbacks:{label:(ctx)=>{
         const total=ctx.dataset.data.reduce((a,b)=>a+b,0);
         return ` ${ctx.label}: ${fmtI(ctx.parsed)} (${((ctx.parsed/total)*100).toFixed(1)}%)`;
@@ -645,55 +690,51 @@ function renderCustomers(rows, latest) {
     }
   });
 
-  // Energy sold stacked
   mkChart('chartSoldStacked', 'bar', {
     labels: years,
     datasets: [
-      { label:'Rumah Tangga', data:rows.map(r=>n(r.soldHouseholdGwh)), backgroundColor:'rgba(245,184,0,.8)', stack:'s' },
-      { label:'Industri',     data:rows.map(r=>n(r.soldIndustryGwh)),  backgroundColor:'rgba(231,76,60,.8)', stack:'s' },
-      { label:'Bisnis',       data:rows.map(r=>n(r.soldBusinessGwh)),  backgroundColor:'rgba(59,130,246,.8)', stack:'s' },
-      { label:'Lainnya',      data:rows.map(r=>(n(r.soldSocialGwh)||0)+(n(r.soldGovGwh)||0)+(n(r.soldStreetGwh)||0)+(n(r.soldOthersGwh)||0)), backgroundColor:'rgba(16,185,129,.8)', stack:'s' },
+      { label:'Rumah Tangga', data:rows.map(r=>n(r.soldHouseholdGwh)), backgroundColor:'rgba(224,90,27,.8)',  stack:'s' },
+      { label:'Industri',     data:rows.map(r=>n(r.soldIndustryGwh)),  backgroundColor:'rgba(220,38,38,.8)',  stack:'s' },
+      { label:'Bisnis',       data:rows.map(r=>n(r.soldBusinessGwh)),  backgroundColor:'rgba(37,99,235,.8)',  stack:'s' },
+      { label:'Lainnya',      data:rows.map(r=>(n(r.soldSocialGwh)||0)+(n(r.soldGovGwh)||0)+(n(r.soldStreetGwh)||0)+(n(r.soldOthersGwh)||0)), backgroundColor:'rgba(22,163,74,.8)', stack:'s' },
     ]
   }, barOpts(true,'GWh'));
 
-  // Total sold
   mkChart('chartSoldTotal','line',{
     labels:years,
     datasets:[{
       label:'Total Energi Terjual',
       data:rows.map(r=>n(r.soldTotalGwh)),
-      borderColor:'#3B82F6', backgroundColor:'rgba(59,130,246,.15)',
+      borderColor:'#2563EB', backgroundColor:'rgba(37,99,235,.12)',
       fill:true, tension:.3, pointRadius:3
     }]
   }, lineOpts('GWh'));
 
-  // Connected capacity stacked
   mkChart('chartConnStacked','bar',{
     labels:tsYears,
     datasets:[
-      {label:'Rumah Tangga', data:ts.map(r=>n(r.connHouseholdMva)), backgroundColor:'rgba(245,184,0,.7)', stack:'s'},
-      {label:'Industri',     data:ts.map(r=>n(r.connIndustryMva)),  backgroundColor:'rgba(231,76,60,.7)', stack:'s'},
-      {label:'Bisnis',       data:ts.map(r=>n(r.connBusinessMva)),  backgroundColor:'rgba(59,130,246,.7)', stack:'s'},
+      {label:'Rumah Tangga', data:ts.map(r=>n(r.connHouseholdMva)), backgroundColor:'rgba(224,90,27,.75)', stack:'s'},
+      {label:'Industri',     data:ts.map(r=>n(r.connIndustryMva)),  backgroundColor:'rgba(220,38,38,.75)', stack:'s'},
+      {label:'Bisnis',       data:ts.map(r=>n(r.connBusinessMva)),  backgroundColor:'rgba(37,99,235,.75)', stack:'s'},
     ]
   }, barOpts(true,'MVA'));
 
-  // Sold mix 2025 donut
   const sm = [
-    {label:'Rumah Tangga', val:n(lc.soldHouseholdGwh), color:'#F5B800'},
-    {label:'Industri',     val:n(lc.soldIndustryGwh),  color:'#E74C3C'},
-    {label:'Bisnis',       val:n(lc.soldBusinessGwh),  color:'#3B82F6'},
-    {label:'Sosial',       val:n(lc.soldSocialGwh),    color:'#10B981'},
-    {label:'Gdg. Pemerintah',val:n(lc.soldGovGwh),    color:'#F97316'},
-    {label:'Penerangan',   val:n(lc.soldStreetGwh),    color:'#8B5CF6'},
-    {label:'Lainnya',      val:n(lc.soldOthersGwh),    color:'#6B7280'},
+    {label:'Rumah Tangga',    val:n(lc.soldHouseholdGwh), color:'#E05A1B'},
+    {label:'Industri',        val:n(lc.soldIndustryGwh),  color:'#DC2626'},
+    {label:'Bisnis',          val:n(lc.soldBusinessGwh),  color:'#2563EB'},
+    {label:'Sosial',          val:n(lc.soldSocialGwh),    color:'#16A34A'},
+    {label:'Gdg. Pemerintah', val:n(lc.soldGovGwh),       color:'#D97706'},
+    {label:'Penerangan',      val:n(lc.soldStreetGwh),    color:'#7C3AED'},
+    {label:'Lainnya',         val:n(lc.soldOthersGwh),    color:'#6B7280'},
   ].filter(d=>d.val>0);
   mkChart('chartSoldMix','doughnut',{
     labels:sm.map(d=>d.label),
-    datasets:[{data:sm.map(d=>d.val), backgroundColor:sm.map(d=>d.color), borderWidth:1, borderColor:'#161B22'}]
+    datasets:[{data:sm.map(d=>d.val), backgroundColor:sm.map(d=>d.color), borderWidth:2, borderColor:'#FFFFFF'}]
   },{
     responsive:true, maintainAspectRatio:false,
     plugins:{
-      legend:{position:'right',labels:{boxWidth:12,padding:8}},
+      legend:{position:'bottom',labels:{boxWidth:12,padding:8}},
       tooltip:{callbacks:{label:(ctx)=>{
         const total=ctx.dataset.data.reduce((a,b)=>a+b,0);
         return ` ${ctx.label}: ${fmt(ctx.parsed)} GWh (${((ctx.parsed/total)*100).toFixed(1)}%)`;
@@ -713,35 +754,35 @@ function renderLosses(rows, latest) {
     datasets:[{
       label:'Susut Total (%)',
       data:rows.map(r=>pct(r.lossTotalPct)),
-      borderColor:'#E74C3C', backgroundColor:'rgba(231,76,60,.15)',
+      borderColor:'#DC2626', backgroundColor:'rgba(220,38,38,.12)',
       fill:true, tension:.3, pointRadius:4
     }]
-  },{...lineOpts('%',7), plugins:{legend:{position:'bottom'}, tooltip:{}}});
+  }, lineOpts('%',7));
 
   mkChart('chartLossBreak','line',{
     labels:years,
     datasets:[
-      {label:'Transmisi (%)', data:rows.map(r=>pct(r.lossTransmissionPct)), borderColor:'#F97316', fill:false, tension:.3, pointRadius:3},
-      {label:'Distribusi (%)', data:rows.map(r=>pct(r.lossDistributionPct)), borderColor:'#E74C3C', fill:false, tension:.3, pointRadius:3},
-      {label:'Total (%)', data:rows.map(r=>pct(r.lossTotalPct)), borderColor:'#8B5CF6', borderDash:[4,3], fill:false, tension:.3, pointRadius:3},
+      {label:'Transmisi (%)',  data:rows.map(r=>pct(r.lossTransmissionPct)), borderColor:'#E05A1B', fill:false, tension:.3, pointRadius:3},
+      {label:'Distribusi (%)', data:rows.map(r=>pct(r.lossDistributionPct)), borderColor:'#DC2626', fill:false, tension:.3, pointRadius:3},
+      {label:'Total (%)',      data:rows.map(r=>pct(r.lossTotalPct)),         borderColor:'#7C3AED', borderDash:[4,3], fill:false, tension:.3, pointRadius:3},
     ]
   }, lineOpts('%',0));
 
   mkChart('chartFactors','line',{
     labels:tsYears,
     datasets:[
-      {label:'Faktor Beban (%)',    data:ts.map(r=>pct(r.loadFactorPct)),    borderColor:'#F5B800', fill:false, tension:.3, pointRadius:3},
-      {label:'Faktor Kapasitas (%)',data:ts.map(r=>pct(r.capacityFactorPct)), borderColor:'#3B82F6', fill:false, tension:.3, pointRadius:3},
-      {label:'Faktor Permintaan (%)',data:ts.map(r=>pct(r.demandFactorPct)), borderColor:'#10B981', fill:false, tension:.3, pointRadius:3},
+      {label:'Faktor Beban (%)',     data:ts.map(r=>pct(r.loadFactorPct)),    borderColor:'#D97706', fill:false, tension:.3, pointRadius:3},
+      {label:'Faktor Kapasitas (%)', data:ts.map(r=>pct(r.capacityFactorPct)),borderColor:'#2563EB', fill:false, tension:.3, pointRadius:3},
+      {label:'Faktor Permintaan (%)',data:ts.map(r=>pct(r.demandFactorPct)),  borderColor:'#16A34A', fill:false, tension:.3, pointRadius:3},
     ]
   }, lineOpts('%',25));
 
   mkChart('chartLossGwh','bar',{
     labels:tsYears,
     datasets:[
-      {label:'Pemakaian Sendiri', data:ts.map(r=>n(r.ownUseGwh)),             backgroundColor:'rgba(245,184,0,.7)', stack:'s'},
-      {label:'Susut Transmisi',   data:ts.map(r=>n(r.lossTransmissionGwh)),   backgroundColor:'rgba(249,115,22,.7)', stack:'s'},
-      {label:'Susut Distribusi',  data:ts.map(r=>n(r.lossDistributionGwh)),   backgroundColor:'rgba(231,76,60,.7)', stack:'s'},
+      {label:'Pemakaian Sendiri', data:ts.map(r=>n(r.ownUseGwh)),           backgroundColor:'rgba(217,119,6,.8)',  stack:'s'},
+      {label:'Susut Transmisi',   data:ts.map(r=>n(r.lossTransmissionGwh)), backgroundColor:'rgba(224,90,27,.8)',  stack:'s'},
+      {label:'Susut Distribusi',  data:ts.map(r=>n(r.lossDistributionGwh)), backgroundColor:'rgba(220,38,38,.8)',  stack:'s'},
     ]
   }, barOpts(true,'GWh'));
 }
@@ -752,22 +793,21 @@ function renderRevenue(rows, latest) {
   const tsYears = ts.map(r=>r.year);
   const years = rows.map(r=>r.year);
 
-  mkChart('chartRevTotal','line',{
+  mkChart('chartRevTotal','bar',{
     labels:tsYears,
     datasets:[{
       label:'Pendapatan Total (T Rp)',
       data:ts.map(r=>n(r.revTotalMrp)/1e6),
-      borderColor:'#F5B800', backgroundColor:'rgba(245,184,0,.15)',
-      fill:true, tension:.3, pointRadius:3
+      backgroundColor:'rgba(224,90,27,.8)', borderColor:'rgba(224,90,27,1)', borderWidth:1
     }]
-  }, lineOpts('Triliun Rp'));
+  }, barOpts(false, 'Triliun Rp'));
 
   mkChart('chartRevGroup','line',{
     labels:tsYears,
     datasets:[
-      {label:'Rumah Tangga', data:ts.map(r=>n(r.revHouseholdMrp)/1e6), borderColor:'#F5B800', fill:false, tension:.3, pointRadius:3},
-      {label:'Industri',     data:ts.map(r=>n(r.revIndustryMrp)/1e6),  borderColor:'#E74C3C', fill:false, tension:.3, pointRadius:3},
-      {label:'Bisnis',       data:ts.map(r=>n(r.revBusinessMrp)/1e6),  borderColor:'#3B82F6', fill:false, tension:.3, pointRadius:3},
+      {label:'Rumah Tangga', data:ts.map(r=>n(r.revHouseholdMrp)/1e6), borderColor:'#E05A1B', fill:false, tension:.3, pointRadius:3},
+      {label:'Industri',     data:ts.map(r=>n(r.revIndustryMrp)/1e6),  borderColor:'#DC2626', fill:false, tension:.3, pointRadius:3},
+      {label:'Bisnis',       data:ts.map(r=>n(r.revBusinessMrp)/1e6),  borderColor:'#2563EB', fill:false, tension:.3, pointRadius:3},
     ]
   }, lineOpts('Triliun Rp'));
 
@@ -776,7 +816,7 @@ function renderRevenue(rows, latest) {
     datasets:[{
       label:'Tarif Rata-rata (Rp/kWh)',
       data:rows.map(r=>n(r.tariffAvgRpKwh)),
-      borderColor:'#10B981', backgroundColor:'rgba(16,185,129,.15)',
+      borderColor:'#16A34A', backgroundColor:'rgba(22,163,74,.12)',
       fill:true, tension:.3, pointRadius:3
     }]
   }, lineOpts('Rp/kWh', 800));
@@ -785,9 +825,9 @@ function renderRevenue(rows, latest) {
   mkChart('chartTariffGroup','line',{
     labels:tr.map(r=>r.year),
     datasets:[
-      {label:'Rumah Tangga', data:tr.map(r=>n(r.tariffHouseholdRpKwh)), borderColor:'#F5B800', fill:false, tension:.3, pointRadius:3},
-      {label:'Industri',     data:tr.map(r=>n(r.tariffIndustryRpKwh)),  borderColor:'#E74C3C', fill:false, tension:.3, pointRadius:3},
-      {label:'Bisnis',       data:tr.map(r=>n(r.tariffBusinessRpKwh)),  borderColor:'#3B82F6', fill:false, tension:.3, pointRadius:3},
+      {label:'Rumah Tangga', data:tr.map(r=>n(r.tariffHouseholdRpKwh)), borderColor:'#E05A1B', fill:false, tension:.3, pointRadius:3},
+      {label:'Industri',     data:tr.map(r=>n(r.tariffIndustryRpKwh)),  borderColor:'#DC2626', fill:false, tension:.3, pointRadius:3},
+      {label:'Bisnis',       data:tr.map(r=>n(r.tariffBusinessRpKwh)),  borderColor:'#2563EB', fill:false, tension:.3, pointRadius:3},
     ]
   }, lineOpts('Rp/kWh', 800));
 }
