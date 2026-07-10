@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RKPD Jawa Barat 2026 | Cockpit</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --jabar:#0F766E; --jabar-dk:#134E4A; --jabar-lt:#CCFBF1;
+  --gold:#B45309; --gold-d:#92400E;
+  --bg:#F0FAF9; --card:#FFFFFF; --border:#C8E6E3;
+  --text:#111827; --muted:#6B7280; --dim:#9CA3AF;
+  --green:#16A34A; --red:#DC2626; --amber:#D97706;
+  --blue:#1D4ED8; --purple:#7C3AED; --orange:#EA580C;
+  --p1:#1D4ED8; --p2:#16A34A; --p3:#EA580C; --p4:#7C3AED;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+a{color:var(--jabar);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── HEADER ── */
+.module-header{background:linear-gradient(135deg,var(--jabar-dk) 0%,var(--jabar) 60%,#0D9488 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:12px;font-weight:500;letter-spacing:.04em;transition:color .15s}
+.back-link:hover{color:#fff;text-decoration:none}
+.back-link svg{width:14px;height:14px;flex-shrink:0}
+.breadcrumb{padding:6px 24px 0;font-size:11px;color:rgba(255,255,255,.6);letter-spacing:.03em}
+.breadcrumb span{color:rgba(255,255,255,.4);margin:0 5px}
+.header-body{padding:16px 24px 20px}
+.header-title{font-size:22px;font-weight:700;letter-spacing:-.3px;margin-bottom:4px}
+.header-title sup{font-size:11px;font-weight:400;background:rgba(255,255,255,.2);padding:2px 7px;border-radius:10px;margin-left:8px;vertical-align:middle}
+.header-desc{font-size:13px;color:rgba(255,255,255,.82);max-width:720px;line-height:1.55;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px}
+.meta-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:5px}
+.meta-badge svg{width:12px;height:12px;opacity:.7}
+
+/* ── TABS ── */
+.tabs-bar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 18px;font-size:13px;font-weight:500;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:var(--jabar);border-bottom-color:var(--jabar);font-weight:600}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+/* ── LAYOUT ── */
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 48px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.section-title{font-size:15px;font-weight:700;color:var(--jabar-dk);margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.section-title:first-child{margin-top:0}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:4px}
+.kpi-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.kpi-value{font-size:24px;font-weight:700;color:var(--jabar-dk);line-height:1.1}
+.kpi-unit{font-size:12px;font-weight:400;color:var(--muted);margin-top:2px}
+.kpi-delta{font-size:11px;font-weight:600;margin-top:2px}
+.kpi-delta.up{color:var(--green)}
+.kpi-delta.dn{color:var(--red)}
+.kpi-delta.neu{color:var(--amber)}
+.kpi-note{font-size:10px;color:var(--dim);margin-top:1px}
+
+/* ── CHART GRID ── */
+.chart-grid{display:grid;gap:16px;margin-bottom:24px}
+.chart-grid.cols-2{grid-template-columns:repeat(2,1fr)}
+.chart-grid.cols-3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:768px){.chart-grid.cols-2,.chart-grid.cols-3{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.chart-card h4{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px}
+.chart-card p.src{font-size:10px;color:var(--dim);margin-top:8px}
+.chart-wrap{position:relative;height:260px}
+.chart-wrap.sm{height:200px}
+.chart-wrap.lg{height:320px}
+
+/* ── TABLES ── */
+.table-scroll{overflow-x:auto;margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:var(--jabar-dk);color:#fff;font-size:11px;font-weight:600;text-align:left;padding:9px 12px;white-space:nowrap}
+td{border-bottom:1px solid var(--border);padding:8px 12px;color:var(--text)}
+tr:hover td{background:#F8FFFE}
+tr:last-child td{border-bottom:none}
+.td-num{text-align:right;font-variant-numeric:tabular-nums}
+.td-bold{font-weight:700}
+.td-center{text-align:center}
+
+/* ── CARDS (priorities, visi/misi) ── */
+.card-grid{display:grid;gap:14px;margin-bottom:24px}
+.card-grid.cols-2{grid-template-columns:repeat(2,1fr)}
+.card-grid.cols-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.card-grid.cols-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.card-grid.cols-2,.card-grid.cols-4{grid-template-columns:1fr}}
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.info-card h4{font-size:13px;font-weight:700;margin-bottom:6px}
+.info-card p{font-size:12.5px;color:var(--muted);line-height:1.55}
+.info-card ul{font-size:12px;color:var(--muted);padding-left:16px;line-height:1.8}
+
+/* ── PRIORITY CARDS ── */
+.priority-card{background:var(--card);border-radius:14px;padding:20px;border-left:5px solid;overflow:hidden;position:relative}
+.priority-card.p1{border-left-color:var(--p1)}
+.priority-card.p2{border-left-color:var(--p2)}
+.priority-card.p3{border-left-color:var(--p3)}
+.priority-card.p4{border-left-color:var(--p4)}
+.priority-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em}
+.p1 .priority-badge{background:#EFF6FF;color:var(--p1)}
+.p2 .priority-badge{background:#F0FDF4;color:var(--p2)}
+.p3 .priority-badge{background:#FFF7ED;color:var(--p3)}
+.p4 .priority-badge{background:#FAF5FF;color:var(--p4)}
+.priority-card h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.45}
+.priority-card .prog-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px}
+.priority-card .prog-list li{font-size:12px;color:var(--muted);display:flex;align-items:flex-start;gap:6px}
+.priority-card .prog-list li::before{content:'›';color:inherit;font-weight:700;opacity:.6;margin-top:1px;flex-shrink:0}
+
+/* ── VISI BOX ── */
+.visi-box{background:var(--jabar-dk);color:#fff;border-radius:14px;padding:22px 24px;margin-bottom:20px;text-align:center}
+.visi-box .visi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.6);margin-bottom:6px}
+.visi-box .visi-text{font-size:20px;font-weight:700;font-style:italic;letter-spacing:-.2px;line-height:1.4;color:#fff}
+.visi-box .visi-sub{font-size:12px;color:rgba(255,255,255,.65);margin-top:6px}
+
+/* ── STAT ROWS ── */
+.stat-rows{display:flex;flex-direction:column;gap:0}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-bottom:none}
+.stat-row:first-child{border-radius:10px 10px 0 0}
+.stat-row:last-child{border-bottom:1px solid var(--border);border-radius:0 0 10px 10px}
+.stat-row.highlight{background:#F0FAF9}
+.stat-row .label{font-size:12.5px;color:var(--muted)}
+.stat-row .val{font-size:13px;font-weight:600;color:var(--text)}
+
+/* ── RISK BADGE ── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.badge.tinggi{background:#FEE2E2;color:#991B1B}
+.badge.sedang{background:#FEF9C3;color:#854D0E}
+.badge.rendah{background:#DCFCE7;color:#166534}
+
+/* ── LEGAL ITEMS ── */
+.legal-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.legal-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:flex-start;gap:12px}
+.legal-no{font-size:10px;font-weight:700;color:var(--jabar);white-space:nowrap;padding-top:1px}
+.legal-text{font-size:12.5px;color:var(--text);line-height:1.5}
+.legal-text small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+
+/* ── CHAPTER TIMELINE ── */
+.chapter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+@media(max-width:800px){.chapter-grid{grid-template-columns:repeat(2,1fr)}}
+.chapter-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;position:relative;overflow:hidden}
+.chapter-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--jabar)}
+.chapter-num{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.chapter-title{font-size:12px;font-weight:600;color:var(--text);line-height:1.4}
+.chapter-pages{font-size:10px;color:var(--muted);margin-top:3px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .header-title{font-size:18px}
+  .back-link,.breadcrumb{padding-left:14px}
+  .header-body{padding:12px 14px 16px}
+  .page-body{padding:16px 12px 36px}
+  .tab-btn{padding:10px 12px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="module-header">
+  <a href="/menu.html" class="back-link">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg>
+    Kembali ke Menu
+  </a>
+  <div class="breadcrumb">
+    Open Data Nasional <span>›</span> Tata Ruang &amp; Pemerintahan <span>›</span> RKPD
+  </div>
+  <div class="header-body">
+    <div class="header-title">
+      RKPD Jawa Barat 2026
+      <sup>Pergub No. 23 / 2025</sup>
+    </div>
+    <div class="header-desc">
+      Rencana Kerja Pemerintah Daerah (RKPD) Provinsi Jawa Barat Tahun 2026 — dokumen perencanaan pembangunan tahunan yang memuat prioritas, program, kerangka keuangan daerah, dan target kinerja pemerintahan.
+    </div>
+    <div class="meta-row">
+      <div class="meta-badge">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+        Ditetapkan 18 Juli 2025
+      </div>
+      <div class="meta-badge">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M5 1v3M11 1v3M2 7h12"/></svg>
+        Periode: 1 Jan – 31 Des 2026
+      </div>
+      <div class="meta-badge">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V3a1 1 0 00-1-1z"/><path d="M5 6h6M5 9h6M5 12h3"/></svg>
+        8 Bab · 600+ Halaman
+      </div>
+      <div class="meta-badge">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z"/><path d="M8 5v3.5l2 1.5"/></svg>
+        Gubernur Dedi Mulyadi
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ TABS ══ -->
+<div class="tabs-bar">
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="ikhtisar" role="tab">📊 Ikhtisar</button>
+    <button class="tab-btn" data-tab="profil" role="tab">🗺️ Profil Wilayah</button>
+    <button class="tab-btn" data-tab="ekonomi" role="tab">📈 Ekonomi &amp; PDRB</button>
+    <button class="tab-btn" data-tab="prioritas" role="tab">🎯 Prioritas Pembangunan</button>
+    <button class="tab-btn" data-tab="hukum" role="tab">📋 Regulasi &amp; Struktur</button>
+  </div>
+</div>
+
+<!-- ══ BODY ══ -->
+<div class="page-body">
+
+  <!-- ════ TAB 0: IKHTISAR ════ -->
+  <div id="tab-ikhtisar" class="tab-panel active">
+
+    <!-- KPI Grid -->
+    <div class="section-title">🔑 Indikator Utama Jawa Barat 2024</div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Penduduk</div>
+        <div class="kpi-value">50,35</div>
+        <div class="kpi-unit">juta jiwa (2024)</div>
+        <div class="kpi-delta up">▲ 1,13% LPP</div>
+        <div class="kpi-note">Terbesar ketiga di Indonesia; kepadatan 1.359 jiwa/km²</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Laju Pertumbuhan Ekonomi</div>
+        <div class="kpi-value">4,95<span style="font-size:16px">%</span></div>
+        <div class="kpi-unit">LPE 2024</div>
+        <div class="kpi-delta dn">▼ 0,05 poin dari 2023 (5,00%)</div>
+        <div class="kpi-note">Di bawah LPE nasional 5,03%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Kontribusi PDB Nasional</div>
+        <div class="kpi-value">12,75<span style="font-size:16px">%</span></div>
+        <div class="kpi-unit">share PDRB terhadap PDB RI</div>
+        <div class="kpi-delta neu">Terbesar ke-3 di Indonesia</div>
+        <div class="kpi-note">Industri pengolahan: 27,80% PDB industri nasional</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Ekspor Nasional</div>
+        <div class="kpi-value">34,84<span style="font-size:16px">%</span></div>
+        <div class="kpi-unit">kontribusi ekspor RI</div>
+        <div class="kpi-delta up">Tertinggi dari seluruh provinsi</div>
+        <div class="kpi-note">Industri tekstil, elektronik, kendaraan bermotor</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Wilayah Administrasi</div>
+        <div class="kpi-value">27</div>
+        <div class="kpi-unit">Kabupaten / Kota</div>
+        <div class="kpi-delta neu">18 Kabupaten · 9 Kota</div>
+        <div class="kpi-note">627 kecamatan, 5.311 desa, 645 kelurahan</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Luas Daratan</div>
+        <div class="kpi-value">37.040</div>
+        <div class="kpi-unit">km² (daratan)</div>
+        <div class="kpi-delta neu">+ 1.645.417 Ha laut</div>
+        <div class="kpi-note">Pantai 832,69 km · 30 pulau kecil</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Indeks Risiko Bencana</div>
+        <div class="kpi-value">114,15</div>
+        <div class="kpi-unit">IRBI 2024 (Sedang)</div>
+        <div class="kpi-delta up">▼ dari 123,16 (2023)</div>
+        <div class="kpi-note">Tren penurunan 5 tahun berturut-turut (2020–2024)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">DAS Kritis</div>
+        <div class="kpi-value">215</div>
+        <div class="kpi-unit">dari 324 DAS</div>
+        <div class="kpi-delta dn">66,4% DAS dalam kondisi kritis</div>
+        <div class="kpi-note">Citarum: 199.176 Ha lahan kritis (18,40% wilayah)</div>
+      </div>
+    </div>
+
+    <!-- Visi & Misi -->
+    <div class="section-title">🏛️ Visi & Misi Gubernur (RPJMD 2025–2029)</div>
+    <div class="visi-box">
+      <div class="visi-label">Visi Pembangunan Jawa Barat 2025–2029</div>
+      <div class="visi-text">"Jabar Istimewa, Lembur Diurus, Kota Ditata"</div>
+      <div class="visi-sub">Gubernur Dedi Mulyadi · Wakil Gubernur Erwan Setiawan · Periode 2025–2030</div>
+    </div>
+    <div class="card-grid cols-2">
+      <div class="info-card">
+        <h4 style="color:var(--p1)">Misi 1 — SDM &amp; Kesejahteraan</h4>
+        <p>Mewujudkan SDM Berkarakter Unggul melalui pendidikan berkualitas, kesehatan masyarakat, kepemudaan &amp; olahraga, serta pelestarian budaya dan kearifan lokal Jawa Barat.</p>
+      </div>
+      <div class="info-card">
+        <h4 style="color:var(--p2)">Misi 2 — Ekonomi &amp; Lingkungan</h4>
+        <p>Mengembangkan Ekonomi Kerakyatan dan Investasi Berbasis Kearifan Lingkungan Tidak Eksploitatif — UMKM, koperasi, pariwisata, dan pertanian berkelanjutan.</p>
+      </div>
+      <div class="info-card">
+        <h4 style="color:var(--p3)">Misi 3 — Mengurangi Disparitas</h4>
+        <p>Mengurangi Disparitas Pembangunan Daerah Perkotaan-Pedesaan, Miskin-Kaya melalui pemerataan infrastruktur, perumahan layak, dan program pengentasan kemiskinan ekstrem.</p>
+      </div>
+      <div class="info-card">
+        <h4 style="color:var(--p4)">Misi 4 — Tata Kelola &amp; Birokrasi</h4>
+        <p>Mewujudkan Masyarakat dan Birokrasi Adaptif, Berorientasi Pelayanan, Good and Clean Governance melalui reformasi birokrasi, digitalisasi layanan publik, dan sinergi Provinsi-Kab/Kota.</p>
+      </div>
+    </div>
+
+    <!-- LPE quick chart -->
+    <div class="section-title">📈 Pertumbuhan Ekonomi 2020–2024</div>
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>LPE Jawa Barat vs Nasional (%)</h4>
+        <div class="chart-wrap"><canvas id="lpeQuickChart"></canvas></div>
+        <p class="src">Sumber: BPS, diolah dari Gambar 2.11 RKPD 2026</p>
+      </div>
+      <div class="chart-card">
+        <h4>IRBI Jawa Barat 2020–2024</h4>
+        <div class="chart-wrap"><canvas id="irbiQuickChart"></canvas></div>
+        <p class="src">Sumber: BNPB, Tabel 2.10 RKPD 2026</p>
+      </div>
+    </div>
+
+    <!-- Structure overview -->
+    <div class="section-title">📂 Struktur Dokumen RKPD 2026</div>
+    <div class="chapter-grid">
+      <div class="chapter-card">
+        <div class="chapter-num">BAB I</div>
+        <div class="chapter-title">Pendahuluan</div>
+        <div class="chapter-pages">Latar belakang, dasar hukum, hubungan antar dokumen, sistematika</div>
+      </div>
+      <div class="chapter-card">
+        <div class="chapter-num">BAB II</div>
+        <div class="chapter-title">Gambaran Umum Kondisi Daerah</div>
+        <div class="chapter-pages">Profil wilayah, geografi, demografi, perekonomian, sosial, infrastruktur, kebencanaan (II-1 s.d. II-306+)</div>
+      </div>
+      <div class="chapter-card">
+        <div class="chapter-num">BAB III</div>
+        <div class="chapter-title">Kerangka Ekonomi &amp; Keuangan Daerah</div>
+        <div class="chapter-pages">Target ekonomi makro 2026, kapasitas fiskal, APBD proyeksi, PSN</div>
+      </div>
+      <div class="chapter-card">
+        <div class="chapter-num">BAB IV</div>
+        <div class="chapter-title">Sasaran &amp; Prioritas 2026</div>
+        <div class="chapter-pages">4 prioritas pembangunan, program strategis, pendanaan per prioritas</div>
+      </div>
+      <div class="chapter-card">
+        <div class="chapter-num">BAB V</div>
+        <div class="chapter-title">Arah Kebijakan Kab/Kota</div>
+        <div class="chapter-pages">Sinkronisasi RKPD provinsi dengan RKPD 27 kab/kota</div>
+      </div>
+      <div class="chapter-card">
+        <div class="chapter-num">BAB VI</div>
+        <div class="chapter-title">Rencana Kerja &amp; Pendanaan</div>
+        <div class="chapter-pages">Matriks program/kegiatan per OPD, alokasi anggaran multi-sumber</div>
+      </div>
+      <div class="chapter-card">
+        <div class="chapter-num">BAB VII</div>
+        <div class="chapter-title">Kinerja Pemerintahan</div>
+        <div class="chapter-pages">IKU Gubernur, SPM, target RPJMD, capaian Jawa Barat 2024</div>
+      </div>
+      <div class="chapter-card">
+        <div class="chapter-num">BAB VIII</div>
+        <div class="chapter-title">Penutup</div>
+        <div class="chapter-pages">Kaidah pelaksanaan, sanksi, ketentuan peralihan</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-ikhtisar -->
+
+
+  <!-- ════ TAB 1: PROFIL WILAYAH ════ -->
+  <div id="tab-profil" class="tab-panel">
+
+    <div class="section-title">🌏 Geografi &amp; Administrasi</div>
+    <div class="card-grid cols-2">
+      <div>
+        <div class="stat-rows">
+          <div class="stat-row highlight"><span class="label">Jumlah Kabupaten</span><span class="val">18 Kabupaten</span></div>
+          <div class="stat-row"><span class="label">Jumlah Kota</span><span class="val">9 Kota</span></div>
+          <div class="stat-row"><span class="label">Jumlah Kecamatan</span><span class="val">627 Kecamatan</span></div>
+          <div class="stat-row"><span class="label">Jumlah Desa</span><span class="val">5.311 Desa</span></div>
+          <div class="stat-row"><span class="label">Jumlah Kelurahan</span><span class="val">645 Kelurahan</span></div>
+          <div class="stat-row highlight"><span class="label">Luas Daratan</span><span class="val">37.040 km²</span></div>
+          <div class="stat-row"><span class="label">Luas Lautan (terkelola)</span><span class="val">1.645.417 Ha</span></div>
+          <div class="stat-row"><span class="label">Panjang Pantai</span><span class="val">832,69 km</span></div>
+          <div class="stat-row"><span class="label">Pulau Kecil (&lt;2.000 Ha)</span><span class="val">30 Pulau</span></div>
+          <div class="stat-row"><span class="label">Pulau Daratan</span><span class="val">19 Pulau</span></div>
+          <div class="stat-row highlight"><span class="label">Gunung Api Aktif</span><span class="val">7 Gunung Api</span></div>
+          <div class="stat-row"><span class="label">Komunitas Masyarakat Hukum Adat (KMHA)</span><span class="val">14 KMHA</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="info-card" style="margin-bottom:12px">
+          <h4>Topografi</h4>
+          <ul>
+            <li>Dataran rendah (&lt;500 m dpl): 54,01% wilayah</li>
+            <li>Berbukit / perbukitan (500–1.000 m dpl): 19,63%</li>
+            <li>Pegunungan tinggi (&gt;1.000 m dpl): 26,36%</li>
+          </ul>
+        </div>
+        <div class="info-card" style="margin-bottom:12px">
+          <h4>6 Wilayah Pengembangan</h4>
+          <ul>
+            <li>Bodebekpunjur (Bogor, Depok, Bekasi &amp; sekitarnya)</li>
+            <li>Purwasuka (Purwakarta, Subang, Karawang)</li>
+            <li>Ciayumajakuning (Cirebon, Indramayu, Majalengka, Kuningan)</li>
+            <li>Priangan Timur-Pangandaran (Tasikmalaya, Garut, Ciamis, Pangandaran, Banjar)</li>
+            <li>Sukabumi &amp; sekitarnya (Sukabumi, Cianjur)</li>
+            <li>Cekungan Bandung (Bandung, Bandung Barat, Cimahi, Sumedang)</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h4>Daerah Aliran Sungai (DAS)</h4>
+          <ul>
+            <li>Total DAS di Jawa Barat: 324 DAS</li>
+            <li>DAS kritis: 215 DAS (66,4%)</li>
+            <li>DAS Citarum: 18,40% luas wilayah, 199.176 Ha lahan kritis</li>
+            <li>DAS Cimanuk: wilayah cekungan barat selatan</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Population Table -->
+    <div class="section-title">👥 Penduduk per Kabupaten/Kota 2024</div>
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>10 Kab/Kota Terbesar — Jumlah Penduduk (juta jiwa)</h4>
+        <div class="chart-wrap lg"><canvas id="popChart"></canvas></div>
+        <p class="src">Sumber: BPS Jawa Barat, Tabel 2.14 RKPD 2026</p>
+      </div>
+      <div class="chart-card">
+        <h4>10 Kab/Kota Terpadat — Kepadatan (jiwa/km²)</h4>
+        <div class="chart-wrap lg"><canvas id="densChart"></canvas></div>
+        <p class="src">Sumber: BPS Jawa Barat, Tabel 2.14 RKPD 2026</p>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Kabupaten/Kota</th>
+            <th class="td-num">Penduduk (jiwa)</th>
+            <th class="td-num">LPP (%)</th>
+            <th class="td-num">Kepadatan (jiwa/km²)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Kab. Bogor</td><td class="td-num">5.682.300</td><td class="td-num">1,23</td><td class="td-num">1.899,31</td></tr>
+          <tr><td>2</td><td>Kab. Bandung</td><td class="td-num">3.753.120</td><td class="td-num">0,94</td><td class="td-num">2.155,92</td></tr>
+          <tr><td>3</td><td>Kab. Bekasi</td><td class="td-num">3.273.870</td><td class="td-num">1,35</td><td class="td-num">2.616,96</td></tr>
+          <tr><td>4</td><td>Kota Bekasi</td><td class="td-num">2.644.060</td><td class="td-num">1,04</td><td class="td-num">12.411,09</td></tr>
+          <tr><td>5</td><td>Kab. Sukabumi</td><td class="td-num">2.828.020</td><td class="td-num">0,99</td><td class="td-num">679,14</td></tr>
+          <tr><td>6</td><td>Kota Bandung</td><td class="td-num">2.528.160</td><td class="td-num">0,91</td><td class="td-num">15.175,96</td></tr>
+          <tr><td>7</td><td>Kab. Garut</td><td class="td-num">2.716.950</td><td class="td-num">1,33</td><td class="td-num">876,09</td></tr>
+          <tr><td>8</td><td>Kab. Cianjur</td><td class="td-num">2.584.990</td><td class="td-num">1,14</td><td class="td-num">711,71</td></tr>
+          <tr><td>9</td><td>Kota Depok</td><td class="td-num">2.163.640</td><td class="td-num">1,37</td><td class="td-num">10.823,05</td></tr>
+          <tr><td>10</td><td>Kab. Cirebon</td><td class="td-num">2.387.960</td><td class="td-num">1,35</td><td class="td-num">2.227,68</td></tr>
+          <tr><td>11</td><td>Kab. Tasikmalaya</td><td class="td-num">1.920.920</td><td class="td-num">0,79</td><td class="td-num">709,91</td></tr>
+          <tr><td>12</td><td>Kab. Karawang</td><td class="td-num">1.554.380</td><td class="td-num">1,24</td><td class="td-num">1.334,78</td></tr>
+          <tr><td>13</td><td>Kab. Indramayu</td><td class="td-num">1.914.040</td><td class="td-num">1,14</td><td class="td-num">921,96</td></tr>
+          <tr><td>14</td><td>Kab. Bandung Barat</td><td class="td-num">1.884.190</td><td class="td-num">1,40</td><td class="td-num">1.468,08</td></tr>
+          <tr><td>15</td><td>Kab. Subang</td><td class="td-num">1.663.160</td><td class="td-num">1,12</td><td class="td-num">768,01</td></tr>
+          <tr><td>16</td><td>Kab. Majalengka</td><td class="td-num">1.352.540</td><td class="td-num">0,95</td><td class="td-num">1.016,82</td></tr>
+          <tr><td>17</td><td>Kab. Ciamis</td><td class="td-num">1.259.230</td><td class="td-num">0,65</td><td class="td-num">789,02</td></tr>
+          <tr><td>18</td><td>Kab. Kuningan</td><td class="td-num">1.213.930</td><td class="td-num">1,04</td><td class="td-num">1.017,63</td></tr>
+          <tr><td>19</td><td>Kab. Sumedang</td><td class="td-num">1.187.130</td><td class="td-num">0,79</td><td class="td-num">757,97</td></tr>
+          <tr><td>20</td><td>Kab. Purwakarta</td><td class="td-num">1.050.340</td><td class="td-num">1,38</td><td class="td-num">1.057,65</td></tr>
+          <tr><td>21</td><td>Kota Bogor</td><td class="td-num">1.078.350</td><td class="td-num">0,89</td><td class="td-num">9.682,60</td></tr>
+          <tr><td>22</td><td>Kota Tasikmalaya</td><td class="td-num">750.730</td><td class="td-num">1,27</td><td class="td-num">4.081,37</td></tr>
+          <tr><td>23</td><td>Kota Cimahi</td><td class="td-num">598.700</td><td class="td-num">1,39</td><td class="td-num">14.110,25</td></tr>
+          <tr><td>24</td><td>Kota Cirebon</td><td class="td-num">344.850</td><td class="td-num">0,91</td><td class="td-num">8.743,69</td></tr>
+          <tr><td>25</td><td>Kota Sukabumi</td><td class="td-num">365.740</td><td class="td-num">1,46</td><td class="td-num">7.570,59</td></tr>
+          <tr><td>26</td><td>Kota Banjar</td><td class="td-num">209.790</td><td class="td-num">1,15</td><td class="td-num">1.601,34</td></tr>
+          <tr><td>27</td><td>Kab. Pangandaran</td><td class="td-num">434.100</td><td class="td-num">0,65</td><td class="td-num">384,78</td></tr>
+          <tr style="background:#F0FAF9">
+            <td class="td-bold" colspan="2">Jawa Barat</td>
+            <td class="td-num td-bold">50.345.190</td>
+            <td class="td-num td-bold">1,13</td>
+            <td class="td-num td-bold">1.359,21</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Disaster Risk -->
+    <div class="section-title">⚠️ Risiko Bencana</div>
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Tren IRBI Jawa Barat 2020–2024</h4>
+        <div class="chart-wrap"><canvas id="irbiTrendChart"></canvas></div>
+        <p class="src">Sumber: BNPB, Tabel 2.10 RKPD 2026</p>
+      </div>
+      <div class="chart-card">
+        <h4>Luas Kawasan Risiko Bencana</h4>
+        <div class="chart-wrap"><canvas id="riskAreaChart"></canvas></div>
+        <p class="src">Sumber: BPBD Jawa Barat, diolah RKPD 2026</p>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Jenis Bencana</th>
+            <th class="td-num">Luas (Ha)</th>
+            <th class="td-num">% Wilayah</th>
+            <th>Keterangan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Gempa Bumi — Risiko Tinggi</td><td class="td-num">1.268.433</td><td class="td-num">34,19%</td><td><span class="badge tinggi">Tinggi</span></td></tr>
+          <tr><td>Gempa Bumi — Risiko Menengah</td><td class="td-num">2.421.669</td><td class="td-num">65,28%</td><td><span class="badge sedang">Menengah</span></td></tr>
+          <tr><td>Gerakan Tanah / Longsor</td><td class="td-num">272.500</td><td class="td-num">7,35%</td><td><span class="badge tinggi">Tinggi</span></td></tr>
+          <tr><td>Letusan Gunung Api</td><td class="td-num">60.100</td><td class="td-num">1,62%</td><td>7 gunung api aktif</td></tr>
+          <tr><td>Tsunami (zona rendaman)</td><td class="td-num">120.900</td><td class="td-num">3,26%</td><td>Pantai selatan Jawa Barat</td></tr>
+          <tr><td>Banjir &amp; Banjir Bandang</td><td class="td-num">—</td><td class="td-num">—</td><td><span class="badge sedang">Sedang</span> tergantung musim</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section-title">🔴 IRBI per Kabupaten/Kota 2024 (Kategori Tinggi)</div>
+    <div class="card-grid cols-2" style="margin-bottom:0">
+      <div class="info-card">
+        <h4 style="color:var(--red);margin-bottom:10px">Kategori Tinggi (≥ 145)</h4>
+        <div class="stat-rows">
+          <div class="stat-row"><span class="label">Kab. Sukabumi</span><span class="val">168,97 <span class="badge tinggi">Tinggi</span></span></div>
+          <div class="stat-row"><span class="label">Kab. Cianjur</span><span class="val">165,17 <span class="badge tinggi">Tinggi</span></span></div>
+          <div class="stat-row"><span class="label">Kab. Tasikmalaya</span><span class="val">145,50 <span class="badge tinggi">Tinggi</span></span></div>
+        </div>
+        <p style="font-size:11px;color:var(--dim);margin-top:8px">3 dari 27 kab/kota berada dalam kategori risiko tinggi</p>
+      </div>
+      <div class="info-card">
+        <h4 style="color:var(--amber);margin-bottom:10px">Kategori Sedang — Seluruh Kab/Kota Lainnya</h4>
+        <p style="font-size:12.5px;color:var(--muted)">24 kab/kota lainnya berada dalam kategori Sedang. IRBI provinsi 114,15 juga masuk kategori Sedang.</p>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Tren menurun dari 145,81 (2020) → 114,15 (2024) menunjukkan peningkatan ketangguhan bencana Jawa Barat secara konsisten.</p>
+        <p style="font-size:11px;color:var(--dim);margin-top:8px">IRBI 2020: 145,81 · 2021: 134,94 · 2022: 131,62 · 2023: 123,16 · 2024: 114,15</p>
+      </div>
+    </div>
+
+  </div><!-- /tab-profil -->
+
+
+  <!-- ════ TAB 2: EKONOMI & PDRB ════ -->
+  <div id="tab-ekonomi" class="tab-panel">
+
+    <div class="section-title">📊 Pertumbuhan Ekonomi (LPE)</div>
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>LPE Tahunan Jawa Barat vs Nasional 2020–2024 (%)</h4>
+        <div class="chart-wrap"><canvas id="lpeAnnualChart"></canvas></div>
+        <p class="src">Sumber: BPS, Gambar 2.11 &amp; 2.12 RKPD Jawa Barat 2026</p>
+      </div>
+      <div class="chart-card">
+        <h4>LPE Triwulanan Jawa Barat 2023–2024 (%, yoy)</h4>
+        <div class="chart-wrap"><canvas id="lpeQtrChart"></canvas></div>
+        <p class="src">Sumber: BPS, Tabel 2.15 RKPD Jawa Barat 2026</p>
+      </div>
+    </div>
+
+    <div class="table-scroll" style="margin-bottom:24px">
+      <table>
+        <thead>
+          <tr>
+            <th>Indikator</th>
+            <th class="td-num">2020</th>
+            <th class="td-num">2021</th>
+            <th class="td-num">2022</th>
+            <th class="td-num">2023</th>
+            <th class="td-num">2024</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>LPE Jawa Barat (%)</td><td class="td-num td-bold" style="color:var(--red)">−2,25</td><td class="td-num">3,74</td><td class="td-num">5,45</td><td class="td-num">5,00</td><td class="td-num td-bold">4,95</td></tr>
+          <tr><td>LPE Nasional (%)</td><td class="td-num" style="color:var(--red)">−2,07</td><td class="td-num">3,70</td><td class="td-num">5,31</td><td class="td-num">5,05</td><td class="td-num">5,03</td></tr>
+          <tr><td>Selisih (Jabar − Nas)</td><td class="td-num">−0,18</td><td class="td-num">+0,04</td><td class="td-num">+0,14</td><td class="td-num">−0,05</td><td class="td-num">−0,08</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PDRB -->
+    <div class="section-title">🏭 Struktur PDRB Jawa Barat 2024</div>
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Distribusi PDRB per Lapangan Usaha (ADHB, 2024)</h4>
+        <div class="chart-wrap lg"><canvas id="pdrbPieChart"></canvas></div>
+        <p class="src">Sumber: BPS Jawa Barat, Tabel 2.15 RKPD 2026</p>
+      </div>
+      <div class="chart-card">
+        <h4>Kontribusi PDRB Nasional — Peran Strategis Jawa Barat</h4>
+        <div class="chart-wrap lg"><canvas id="kontribChart"></canvas></div>
+        <p class="src">Sumber: BPS, diolah dari BAB II RKPD 2026</p>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Lapangan Usaha (Sektor)</th>
+            <th class="td-num">Distribusi PDRB 2024 (%)</th>
+            <th>Catatan Strategis</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="td-bold">C — Industri Pengolahan</td><td class="td-num td-bold">41,87%</td><td>Dominan; 27,80% dari PDB industri pengolahan nasional</td></tr>
+          <tr><td>G — Perdagangan Besar &amp; Eceran</td><td class="td-num">14,33%</td><td>Sektor ke-2 terbesar; reparasi kendaraan termasuk</td></tr>
+          <tr><td>F — Konstruksi</td><td class="td-num">8,51%</td><td>Infrastruktur jalan, PSN, gedung, hunian</td></tr>
+          <tr><td>A — Pertanian, Kehutanan &amp; Perikanan</td><td class="td-num">8,45%</td><td>Sawah potensial 1,29 juta Ha; sentra padi, palawija, holtikultura</td></tr>
+          <tr><td>H — Transportasi &amp; Pergudangan</td><td class="td-num">6,18%</td><td>Termasuk 71,19% PDB transportasi angkutan nasional</td></tr>
+          <tr><td>J — Informasi &amp; Komunikasi</td><td class="td-num">3,80%</td><td>Ekosistem startup, industri digital, telekomunikasi</td></tr>
+          <tr><td>P — Jasa Pendidikan</td><td class="td-num">3,29%</td><td>Pusat perguruan tinggi (ITB, UNPAD, IPB, UI, dll.)</td></tr>
+          <tr><td>K — Jasa Keuangan &amp; Asuransi</td><td class="td-num">2,86%</td><td>Perbankan, asuransi, leasing</td></tr>
+          <tr><td>I — Akomodasi &amp; Makan Minum</td><td class="td-num">2,90%</td><td>Pariwisata, MICE, kuliner khas Jawa Barat</td></tr>
+          <tr><td>O — Administrasi Pemerintahan</td><td class="td-num">2,30%</td><td>Aparatur sipil, pertahanan &amp; keamanan</td></tr>
+          <tr><td>R,S,T,U — Jasa Lainnya</td><td class="td-num">2,30%</td><td>Hiburan, seni budaya, jasa perorangan</td></tr>
+          <tr><td>L — Real Estate</td><td class="td-num">1,17%</td><td>Properti, kawasan industri, perumahan</td></tr>
+          <tr><td>Q — Jasa Kesehatan &amp; Sosial</td><td class="td-num">0,80%</td><td>Rumah sakit, klinik, puskesmas</td></tr>
+          <tr><td>B — Pertambangan &amp; Penggalian</td><td class="td-num">0,95%</td><td>Galena, emas, panas bumi (terbatas)</td></tr>
+          <tr><td>D — Listrik &amp; Gas</td><td class="td-num">0,43%</td><td>Termasuk penyaluran listrik PLN</td></tr>
+          <tr><td>M,N — Jasa Perusahaan</td><td class="td-num">0,43%</td><td>Konsultasi, jasa bisnis profesional</td></tr>
+          <tr><td>E — Air, Sampah &amp; Daur Ulang</td><td class="td-num">0,10%</td><td>Pengelolaan air minum dan limbah</td></tr>
+          <tr style="background:#F0FAF9"><td class="td-bold">Total PDRB</td><td class="td-num td-bold">100%</td><td class="td-bold">Rp 2.700+ Triliun (ADHB 2024, estimasi)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- LPE quarterly table -->
+    <div class="section-title">📅 LPE Triwulanan Jawa Barat (%, yoy)</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Triwulan</th>
+            <th class="td-num">2023 Q1</th>
+            <th class="td-num">2023 Q2</th>
+            <th class="td-num">2023 Q3</th>
+            <th class="td-num">2023 Q4</th>
+            <th class="td-num">2024 Q1</th>
+            <th class="td-num">2024 Q2</th>
+            <th class="td-num">2024 Q3</th>
+            <th class="td-num">2024 Q4</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>LPE (%, yoy)</td>
+            <td class="td-num">5,01</td>
+            <td class="td-num">5,13</td>
+            <td class="td-num">4,94</td>
+            <td class="td-num">5,00</td>
+            <td class="td-num">4,93</td>
+            <td class="td-num">4,95</td>
+            <td class="td-num">4,91</td>
+            <td class="td-num">5,02</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /tab-ekonomi -->
+
+
+  <!-- ════ TAB 3: PRIORITAS PEMBANGUNAN ════ -->
+  <div id="tab-prioritas" class="tab-panel">
+
+    <div class="section-title">🎯 4 Prioritas Pembangunan Daerah 2026</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px;max-width:780px;line-height:1.6">
+      Prioritas pembangunan RKPD 2026 diturunkan dari 4 Misi Gubernur dalam RPJMD Jawa Barat 2025–2029 dan diselaraskan dengan Prioritas RKP Nasional 2026, Nawa Cita, dan agenda SDGs.
+    </p>
+
+    <div class="card-grid cols-2">
+      <!-- P1 -->
+      <div class="priority-card p1">
+        <div class="priority-badge">Prioritas 01</div>
+        <h3>Mewujudkan SDM Berkarakter Unggul</h3>
+        <ul class="prog-list">
+          <li>Peningkatan akses &amp; kualitas pendidikan (SD–SMA &amp; vokasi)</li>
+          <li>Peningkatan derajat kesehatan masyarakat &amp; penurunan stunting</li>
+          <li>Pemberdayaan pemuda, olahraga, &amp; prestasi nasional</li>
+          <li>Pelestarian kebudayaan &amp; kearifan lokal Sunda</li>
+          <li>Perlindungan perempuan, anak, &amp; kelompok rentan</li>
+          <li>Peningkatan kompetensi ketenagakerjaan (BLK, magang)</li>
+        </ul>
+      </div>
+
+      <!-- P2 -->
+      <div class="priority-card p2">
+        <div class="priority-badge">Prioritas 02</div>
+        <h3>Ekonomi Kerakyatan &amp; Investasi Berbasis Kearifan Lingkungan</h3>
+        <ul class="prog-list">
+          <li>Penguatan UMKM, koperasi, &amp; ekonomi kreatif</li>
+          <li>Peningkatan investasi ramah lingkungan &amp; padat karya</li>
+          <li>Pengembangan pariwisata berbasis alam &amp; budaya</li>
+          <li>Ketahanan pangan &amp; modernisasi pertanian</li>
+          <li>Pengembangan kawasan industri &amp; KEK strategis</li>
+          <li>Pengelolaan lingkungan hidup &amp; DAS kritis (Citarum)</li>
+        </ul>
+      </div>
+
+      <!-- P3 -->
+      <div class="priority-card p3">
+        <div class="priority-badge">Prioritas 03</div>
+        <h3>Mengurangi Disparitas Pembangunan Daerah</h3>
+        <ul class="prog-list">
+          <li>Pemerataan infrastruktur wilayah pedesaan &amp; pedalaman</li>
+          <li>Penanganan kemiskinan &amp; kemiskinan ekstrem</li>
+          <li>Penyediaan perumahan layak &amp; sanitasi dasar</li>
+          <li>Pengembangan desa mandiri &amp; inovasi desa</li>
+          <li>Konektivitas transportasi antar wilayah pengembangan</li>
+          <li>Pembangunan berorentasi kawasan (KSP, KSPN)</li>
+        </ul>
+      </div>
+
+      <!-- P4 -->
+      <div class="priority-card p4">
+        <div class="priority-badge">Prioritas 04</div>
+        <h3>Birokrasi Adaptif &amp; Good and Clean Governance</h3>
+        <ul class="prog-list">
+          <li>Reformasi birokrasi &amp; peningkatan kapasitas aparatur</li>
+          <li>Digitalisasi layanan publik &amp; e-government</li>
+          <li>Penguatan pengawasan internal &amp; pemberantasan korupsi</li>
+          <li>Sinergi perencanaan Provinsi–Kabupaten/Kota</li>
+          <li>Peningkatan PAD &amp; optimalisasi aset daerah</li>
+          <li>Keterbukaan informasi &amp; partisipasi publik</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Sinkronisasi -->
+    <div class="section-title">🔗 Sinkronisasi dengan Agenda Nasional &amp; Global</div>
+    <div class="card-grid cols-2">
+      <div class="info-card">
+        <h4>Prioritas RKP Nasional 2026 yang Disinergikan</h4>
+        <ul>
+          <li>Hilirisasi industri &amp; penguatan manufaktur nasional</li>
+          <li>Ketahanan pangan &amp; energi</li>
+          <li>Penurunan kemiskinan &amp; stunting</li>
+          <li>Pengembangan infrastruktur digital &amp; konektivitas</li>
+          <li>Reformasi birokrasi &amp; transformasi layanan publik</li>
+          <li>Transisi energi &amp; pengurangan emisi karbon (NDC)</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h4>Target SDGs Jawa Barat 2026</h4>
+        <ul>
+          <li>SDG 1: Tanpa Kemiskinan — penurunan angka kemiskinan</li>
+          <li>SDG 2: Tanpa Kelaparan — ketahanan pangan &amp; gizi</li>
+          <li>SDG 3: Kesehatan Baik — penurunan stunting &amp; AKI</li>
+          <li>SDG 4: Pendidikan Berkualitas — APK &amp; literasi</li>
+          <li>SDG 8: Pertumbuhan Ekonomi — LPE &amp; lapangan kerja</li>
+          <li>SDG 13: Aksi Iklim — pengurangan risiko bencana</li>
+          <li>SDG 17: Kemitraan — sinergi pusat-daerah-swasta</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Pendanaan Multi-Sumber -->
+    <div class="section-title">💰 Kerangka Pendanaan Multi-Sumber</div>
+    <div class="stat-rows" style="max-width:700px;margin-bottom:20px">
+      <div class="stat-row highlight"><span class="label">APBD Provinsi Jawa Barat</span><span class="val">Sumber utama OPD Provinsi</span></div>
+      <div class="stat-row"><span class="label">Dana Transfer Pusat (DAU, DAK, DBH)</span><span class="val">Sumber dari APBN</span></div>
+      <div class="stat-row"><span class="label">APBD Kabupaten/Kota</span><span class="val">27 kab/kota (sinergi)</span></div>
+      <div class="stat-row"><span class="label">Proyek Strategis Nasional (PSN)</span><span class="val">Pendanaan APBN &amp; BUMN</span></div>
+      <div class="stat-row"><span class="label">KPBU (Kerjasama Pemerintah &amp; Badan Usaha)</span><span class="val">Investasi swasta terstruktur</span></div>
+      <div class="stat-row"><span class="label">Sukuk Daerah &amp; Obligasi Daerah</span><span class="val">Instrumen pasar modal daerah</span></div>
+      <div class="stat-row"><span class="label">CSR / Filantropi / Dana Sosial</span><span class="val">Kontribusi dunia usaha</span></div>
+    </div>
+
+  </div><!-- /tab-prioritas -->
+
+
+  <!-- ════ TAB 4: REGULASI & STRUKTUR ════ -->
+  <div id="tab-hukum" class="tab-panel">
+
+    <div class="section-title">⚖️ Dasar Hukum</div>
+    <ul class="legal-list">
+      <li class="legal-item">
+        <span class="legal-no">UU 25/2004</span>
+        <span class="legal-text">Sistem Perencanaan Pembangunan Nasional (SPPN) — landasan sistem perencanaan bertingkat dari pusat ke daerah<small>Mengatur RPJPN, RPJMN, RKP, dan dokumen perencanaan daerah (RPJPD, RPJMD, RKPD)</small></span>
+      </li>
+      <li class="legal-item">
+        <span class="legal-no">UU 23/2014</span>
+        <span class="legal-text">Pemerintahan Daerah — kewenangan, tugas, dan fungsi pemerintah provinsi &amp; kab/kota<small>Junto PP 18/2016 tentang Perangkat Daerah</small></span>
+      </li>
+      <li class="legal-item">
+        <span class="legal-no">PP 8/2008</span>
+        <span class="legal-text">Tahapan, Tata Cara Penyusunan, Pengendalian, dan Evaluasi Pelaksanaan Rencana Pembangunan Daerah<small>Diperjelas oleh Permendagri 86/2017 tentang Tata Cara RKPD</small></span>
+      </li>
+      <li class="legal-item">
+        <span class="legal-no">Permendagri 81/2022</span>
+        <span class="legal-text">Pedoman Penyusunan RKPD Tahun 2023 — juknis format &amp; konten RKPD<small>Termasuk format program, kegiatan, sub-kegiatan (PPAS), dan indikator kinerja</small></span>
+      </li>
+      <li class="legal-item">
+        <span class="legal-no">Perpres 18/2020</span>
+        <span class="legal-text">RPJMN 2020–2024 — kerangka nasional yang menjadi acuan sinkronisasi<small>Sinergi dengan RPJMN berikutnya (2025–2029) yang mulai berlaku</small></span>
+      </li>
+      <li class="legal-item">
+        <span class="legal-no">Pergub Jabar 23/2025</span>
+        <span class="legal-text">Peraturan Gubernur Jawa Barat Nomor 23 Tahun 2025 tentang RKPD Provinsi Jawa Barat Tahun 2026<small>Ditetapkan 18 Juli 2025 oleh Gubernur Dedi Mulyadi — dokumen sumber modul ini</small></span>
+      </li>
+      <li class="legal-item">
+        <span class="legal-no">Perda Jabar 8/2019</span>
+        <span class="legal-text">RPJMD Provinsi Jawa Barat 2018–2023 (dasar perencanaan jangka menengah sebelumnya)<small>RPJMD 2025–2029 sedang disusun sebagai acuan RKPD 2026</small></span>
+      </li>
+    </ul>
+
+    <!-- Metodologi penyusunan -->
+    <div class="section-title">📐 Metodologi Penyusunan RKPD</div>
+    <div class="card-grid cols-2">
+      <div class="info-card">
+        <h4>Pendekatan Perencanaan</h4>
+        <ul>
+          <li><strong>Teknokratik:</strong> analisis data, kajian ilmiah, evidence-based</li>
+          <li><strong>Politis:</strong> prioritas &amp; visi Gubernur terpilih</li>
+          <li><strong>Partisipatif:</strong> Musrenbang (Kab/Kota → Provinsi → Nasional)</li>
+          <li><strong>Atas-Bawah:</strong> sinkronisasi dengan RKP Nasional</li>
+          <li><strong>Bawah-Atas:</strong> aspirasi dari RKPD 27 kab/kota</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h4>Tahapan Penyusunan</h4>
+        <ul>
+          <li>1. Persiapan &amp; pengumpulan data (Okt–Des 2024)</li>
+          <li>2. Analisis gambaran umum daerah (Jan 2025)</li>
+          <li>3. Evaluasi RKPD berjalan (Jan 2025)</li>
+          <li>4. Perumusan Rancangan Awal (Feb 2025)</li>
+          <li>5. Musrenbang provinsi (Mar–Apr 2025)</li>
+          <li>6. Penetapan Rancangan Akhir (Jun 2025)</li>
+          <li>7. Pergub RKPD ditetapkan (18 Jul 2025)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Hierarki dokumen -->
+    <div class="section-title">🗂️ Hierarki Dokumen Perencanaan</div>
+    <div class="chapter-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="chapter-card" style="--jabar:var(--purple)">
+        <div class="chapter-num">Nasional — 20 Tahun</div>
+        <div class="chapter-title">RPJPN 2025–2045</div>
+        <div class="chapter-pages">Visi Indonesia Emas 2045; Perpres 109/2023</div>
+      </div>
+      <div class="chapter-card" style="--jabar:var(--blue)">
+        <div class="chapter-num">Nasional — 5 Tahun</div>
+        <div class="chapter-title">RPJMN 2025–2029</div>
+        <div class="chapter-pages">Asta Cita Presiden Prabowo; Perpres 12/2025</div>
+      </div>
+      <div class="chapter-card">
+        <div class="chapter-num">Nasional — 1 Tahun</div>
+        <div class="chapter-title">RKP 2026</div>
+        <div class="chapter-pages">Rencana Kerja Pemerintah Pusat Tahun 2026</div>
+      </div>
+      <div class="chapter-card" style="--jabar:var(--purple)">
+        <div class="chapter-num">Provinsi — 20 Tahun</div>
+        <div class="chapter-title">RPJPD Jawa Barat 2025–2045</div>
+        <div class="chapter-pages">Visi jangka panjang provinsi</div>
+      </div>
+      <div class="chapter-card" style="--jabar:var(--blue)">
+        <div class="chapter-num">Provinsi — 5 Tahun</div>
+        <div class="chapter-title">RPJMD Jawa Barat 2025–2029</div>
+        <div class="chapter-pages">Visi "Jabar Istimewa" · Gubernur Dedi Mulyadi</div>
+      </div>
+      <div class="chapter-card" style="border-top:3px solid var(--gold)">
+        <div class="chapter-num" style="color:var(--gold-d)">Provinsi — 1 Tahun ★</div>
+        <div class="chapter-title">RKPD Jawa Barat 2026</div>
+        <div class="chapter-pages">Pergub No. 23/2025 · Dokumen ini</div>
+      </div>
+    </div>
+
+    <!-- Sumber data -->
+    <div class="section-title">📚 Sumber Data Utama</div>
+    <div class="card-grid cols-2">
+      <div class="info-card">
+        <h4>Badan/Instansi</h4>
+        <ul>
+          <li>BPS Jawa Barat — data statistik dasar (PDRB, penduduk, kemiskinan)</li>
+          <li>BNPB / BPBD — Indeks Risiko Bencana Indonesia (IRBI)</li>
+          <li>BAPPEDA Jabar — perencanaan &amp; evaluasi pembangunan</li>
+          <li>Kemendagri — SIPD, evaluasi RKPD</li>
+          <li>Bappenas — RKP, RPJMN, pagu indikatif DAK</li>
+          <li>KLHK — data lingkungan, DAS, tutupan lahan</li>
+          <li>BIG — data geospasial wilayah Jawa Barat</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h4>Catatan Metodologis</h4>
+        <ul>
+          <li>Harga PDRB: ADHB (Atas Dasar Harga Berlaku) kecuali LPE dalam ADHK</li>
+          <li>Data penduduk: BPS mid-year projection 2024</li>
+          <li>LPE: pertumbuhan yoy PDRB ADHK 2010</li>
+          <li>IRBI: indeks komposit kapasitas, ancaman &amp; kerentanan wilayah</li>
+          <li>Data keuangan daerah: APBD unaudited &amp; proyeksi BAPPENDA</li>
+          <li>Tahun anggaran RKPD 2026: 1 Januari – 31 Desember 2026</li>
+        </ul>
+      </div>
+    </div>
+
+  </div><!-- /tab-hukum -->
+
+</div><!-- /page-body -->
+
+<script>
+/* ── TAB SWITCHING ── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    initCharts();
+  });
+});
+
+/* ── CHART REGISTRY (prevent double-init) ── */
+const _charts = {};
+function destroyChart(id) {
+  if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
+}
+function reg(id, cfg) {
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  _charts[id] = new Chart(ctx, cfg);
+}
+
+/* ── SHARED COLORS ── */
+const C_JABAR = '#0F766E', C_NAS = '#6B7280', C_GOLD = '#B45309';
+const C_RED = '#DC2626', C_GRN = '#16A34A', C_AMB = '#D97706';
+const C_BLU = '#1D4ED8', C_PUR = '#7C3AED';
+
+/* ── CHART INIT (idempotent) ── */
+let _chartsInited = false;
+function initCharts() {
+  if (_chartsInited) return;
+  _chartsInited = true;
+
+  /* LPE quick (ikhtisar) */
+  reg('lpeQuickChart', {
+    type: 'bar',
+    data: {
+      labels: ['2020','2021','2022','2023','2024'],
+      datasets: [
+        { label:'Jawa Barat', data:[-2.25,3.74,5.45,5.00,4.95], backgroundColor: ['#DC2626','#0F766E','#0F766E','#0F766E','#134E4A'], borderRadius:4 },
+        { label:'Nasional',   data:[-2.07,3.70,5.31,5.05,5.03], backgroundColor:'rgba(107,114,128,.35)', borderRadius:4 },
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'bottom',labels:{font:{size:11}}} },
+      scales:{
+        x:{ grid:{display:false} },
+        y:{ ticks:{callback:v=>v+'%'}, grid:{color:'#E5E7EB'} }
+      }
+    }
+  });
+
+  /* IRBI quick (ikhtisar) */
+  reg('irbiQuickChart', {
+    type:'line',
+    data:{
+      labels:['2020','2021','2022','2023','2024'],
+      datasets:[{
+        label:'IRBI Jawa Barat', data:[145.81,134.94,131.62,123.16,114.15],
+        borderColor:C_RED, backgroundColor:'rgba(220,38,38,.1)', tension:.35,
+        pointBackgroundColor:C_RED, pointRadius:4, fill:true
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'bottom',labels:{font:{size:11}}} },
+      scales:{
+        x:{ grid:{display:false} },
+        y:{ min:100, suggestedMax:160, grid:{color:'#E5E7EB'} }
+      }
+    }
+  });
+
+  /* Population bar */
+  const popNames = ['Kab. Bogor','Kab. Bandung','Kab. Bekasi','Kota Bekasi','Kab. Sukabumi','Kota Bandung','Kab. Garut','Kab. Cianjur','Kota Depok','Kab. Cirebon'];
+  const popVals  = [5.68, 3.75, 3.27, 2.64, 2.83, 2.53, 2.72, 2.58, 2.16, 2.39];
+  reg('popChart', {
+    type:'bar',
+    data:{
+      labels: popNames,
+      datasets:[{ label:'Penduduk (juta jiwa)', data: popVals, backgroundColor: C_JABAR, borderRadius:4 }]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ ticks:{callback:v=>v+' jt'}, grid:{color:'#E5E7EB'} },
+        y:{ grid:{display:false}, ticks:{font:{size:11}} }
+      }
+    }
+  });
+
+  /* Density bar */
+  const densNames = ['Kota Bandung','Kota Cimahi','Kota Bekasi','Kota Depok','Kota Bogor','Kota Cirebon','Kota Sukabumi','Kota Tasikmalaya','Kota Banjar','Kab. Bandung'];
+  const densVals  = [15176, 14110, 12411, 10823, 9683, 8744, 7571, 4081, 1601, 2156];
+  reg('densChart', {
+    type:'bar',
+    data:{
+      labels: densNames,
+      datasets:[{ label:'Kepadatan (jiwa/km²)', data: densVals, backgroundColor: '#0D9488', borderRadius:4 }]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ ticks:{callback:v=>v.toLocaleString('id')}, grid:{color:'#E5E7EB'} },
+        y:{ grid:{display:false}, ticks:{font:{size:11}} }
+      }
+    }
+  });
+
+  /* IRBI trend (profil) */
+  reg('irbiTrendChart', {
+    type:'line',
+    data:{
+      labels:['2020','2021','2022','2023','2024'],
+      datasets:[{
+        label:'IRBI Jawa Barat', data:[145.81,134.94,131.62,123.16,114.15],
+        borderColor:C_RED, backgroundColor:'rgba(220,38,38,.08)', tension:.35,
+        pointBackgroundColor:C_RED, pointRadius:5, fill:true
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:11}}},
+        tooltip:{callbacks:{label:ctx=>`IRBI: ${ctx.parsed.y}`}}
+      },
+      scales:{
+        x:{ grid:{display:false} },
+        y:{ min:100, suggestedMax:155, grid:{color:'#E5E7EB'} }
+      }
+    }
+  });
+
+  /* Risk area chart */
+  reg('riskAreaChart', {
+    type:'doughnut',
+    data:{
+      labels:['Gempa Tinggi','Gempa Menengah','Gerakan Tanah','Gunung Api','Tsunami'],
+      datasets:[{
+        data:[1268433,2421669,272500,60100,120900],
+        backgroundColor:['#DC2626','#F97316','#D97706','#7C3AED','#1D4ED8'],
+        borderWidth:2, borderColor:'#fff'
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'right',labels:{font:{size:11},boxWidth:12}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${(ctx.parsed/10000).toFixed(0)} rb Ha`}}
+      }
+    }
+  });
+
+  /* LPE annual (ekonomi) */
+  reg('lpeAnnualChart', {
+    type:'bar',
+    data:{
+      labels:['2020','2021','2022','2023','2024'],
+      datasets:[
+        { label:'Jawa Barat', data:[-2.25,3.74,5.45,5.00,4.95], backgroundColor:[C_RED,'#0D9488','#0D9488','#0D9488',C_JABAR], borderRadius:5 },
+        { label:'Nasional',   data:[-2.07,3.70,5.31,5.05,5.03], type:'line', borderColor:C_NAS, backgroundColor:'transparent', tension:.3, pointRadius:4, pointBackgroundColor:C_NAS }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'bottom',labels:{font:{size:11}}} },
+      scales:{
+        x:{ grid:{display:false} },
+        y:{ ticks:{callback:v=>v+'%'}, grid:{color:'#E5E7EB'} }
+      }
+    }
+  });
+
+  /* LPE quarterly (ekonomi) */
+  reg('lpeQtrChart', {
+    type:'line',
+    data:{
+      labels:['Q1-23','Q2-23','Q3-23','Q4-23','Q1-24','Q2-24','Q3-24','Q4-24'],
+      datasets:[{
+        label:'LPE (%, yoy)', data:[5.01,5.13,4.94,5.00,4.93,4.95,4.91,5.02],
+        borderColor:C_JABAR, backgroundColor:'rgba(15,118,110,.1)', tension:.3,
+        pointBackgroundColor:C_JABAR, pointRadius:4, fill:true
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'bottom',labels:{font:{size:11}}} },
+      scales:{
+        x:{ grid:{display:false} },
+        y:{ min:4.7, suggestedMax:5.3, ticks:{callback:v=>v+'%'}, grid:{color:'#E5E7EB'} }
+      }
+    }
+  });
+
+  /* PDRB Pie */
+  reg('pdrbPieChart', {
+    type:'doughnut',
+    data:{
+      labels:['Industri Pengolahan','Perdagangan','Konstruksi','Pertanian','Transportasi','Infokom','Pendidikan','Keuangan','Akomodasi','Adm Pemerintahan','Lainnya'],
+      datasets:[{
+        data:[41.87,14.33,8.51,8.45,6.18,3.80,3.29,2.86,2.90,2.30,5.51],
+        backgroundColor:['#0F766E','#1D4ED8','#EA580C','#16A34A','#7C3AED','#0891B2','#B45309','#DB2777','#F59E0B','#6B7280','#CBD5E1'],
+        borderWidth:2, borderColor:'#fff'
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'50%',
+      plugins:{
+        legend:{position:'right',labels:{font:{size:10.5},boxWidth:11,padding:6}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed}%`}}
+      }
+    }
+  });
+
+  /* Kontribusi nasional */
+  reg('kontribChart', {
+    type:'bar',
+    data:{
+      labels:['PDB Nasional','PDB Industri','Ekspor Nasional','Transportasi'],
+      datasets:[{
+        label:'Kontribusi Jawa Barat (%)',
+        data:[12.75,27.80,34.84,71.19],
+        backgroundColor:[C_JABAR,'#0891B2',C_GOLD,C_PUR],
+        borderRadius:6
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{size:11}} },
+        y:{ ticks:{callback:v=>v+'%'}, grid:{color:'#E5E7EB'}, suggestedMax:80 }
+      }
+    }
+  });
+}
+
+/* Init on load */
+initCharts();
+</script>
+</body>
+</html>
