@@ -454,6 +454,110 @@
     line-height:1.7;
   }
 
+  /* ── FULL GRAPH MODAL ── */
+  .graph-modal{display:none;position:fixed;inset:0;z-index:3000;background:#070B0F;flex-direction:column;}
+  .graph-modal.open{display:flex;}
+  .gm-bar{
+    height:50px;flex-shrink:0;background:#0D1117;
+    border-bottom:1px solid rgba(255,255,255,.07);
+    display:flex;align-items:center;padding:0 16px;gap:12px;
+  }
+  .gm-title{
+    font-family:'DM Mono',monospace;font-size:.55rem;font-weight:500;
+    color:rgba(230,237,243,.3);letter-spacing:.14em;text-transform:uppercase;
+    display:flex;align-items:center;gap:8px;white-space:nowrap;
+  }
+  .gm-title i{color:rgba(168,139,250,.7);}
+  .gm-srch-wrap{flex:1;max-width:340px;position:relative;}
+  .gm-srch-wrap i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:rgba(230,237,243,.2);font-size:.68rem;pointer-events:none;}
+  #gm-search-inp{
+    width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+    border-radius:7px;color:rgba(230,237,243,.9);font-family:'DM Mono',monospace;
+    font-size:.68rem;padding:7px 12px 7px 30px;outline:none;transition:border .15s;
+  }
+  #gm-search-inp:focus{border-color:rgba(168,139,250,.5);background:rgba(255,255,255,.07);}
+  #gm-search-inp::placeholder{color:rgba(230,237,243,.2);}
+  .gm-ctrls{display:flex;align-items:center;gap:5px;margin-left:auto;}
+  .gm-btn{
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+    border-radius:6px;color:rgba(230,237,243,.5);font-size:.72rem;
+    padding:5px 11px;cursor:pointer;transition:all .15s;font-family:'DM Mono',monospace;line-height:1;
+  }
+  .gm-btn:hover{background:rgba(255,255,255,.1);color:rgba(230,237,243,.9);border-color:rgba(255,255,255,.25);}
+  .gm-btn.gm-close-btn{font-size:.9rem;padding:4px 11px;letter-spacing:0;}
+  .gm-body{flex:1;position:relative;overflow:hidden;}
+  #gm-svg{width:100%;height:100%;display:block;cursor:grab;}
+  #gm-svg:active{cursor:grabbing;}
+  /* Topic filter chips */
+  .gm-chips{
+    position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+    display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;
+    background:rgba(10,14,20,.88);border:1px solid rgba(255,255,255,.1);
+    border-radius:28px;padding:7px 16px;backdrop-filter:blur(14px);
+    max-width:calc(100% - 320px);
+  }
+  .gm-chip{
+    display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:14px;
+    border:1px solid rgba(255,255,255,.12);font-family:'DM Mono',monospace;
+    font-size:.48rem;color:rgba(230,237,243,.4);cursor:pointer;
+    transition:all .15s;user-select:none;letter-spacing:.05em;
+  }
+  .gm-chip.on{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.28);color:rgba(230,237,243,.9);}
+  .gm-chip:hover{border-color:rgba(255,255,255,.3);color:rgba(230,237,243,.9);}
+  .gm-chip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  /* Info panel */
+  .gm-info{
+    position:absolute;top:14px;right:14px;width:256px;
+    background:rgba(10,14,20,.96);border:1px solid rgba(255,255,255,.1);
+    border-radius:10px;backdrop-filter:blur(18px);box-shadow:0 8px 36px rgba(0,0,0,.55);
+    display:none;flex-direction:column;max-height:calc(100% - 28px);overflow:hidden;
+  }
+  .gm-info.vis{display:flex;}
+  .gm-info-hd{padding:14px 38px 10px 16px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+  .gm-info-name{font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;color:rgba(230,237,243,.95);line-height:1.3;margin-bottom:6px;}
+  .gm-info-meta{display:flex;align-items:center;gap:7px;font-family:'DM Mono',monospace;font-size:.48rem;color:rgba(230,237,243,.4);letter-spacing:.05em;}
+  .gm-info-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .gm-info-pill{padding:2px 7px;border-radius:8px;font-size:.42rem;letter-spacing:.08em;}
+  .gm-info-body{padding:12px 16px;overflow-y:auto;flex:1;scrollbar-width:none;}
+  .gm-info-body::-webkit-scrollbar{display:none;}
+  .gm-info-desc{font-family:'DM Mono',monospace;font-size:.54rem;color:rgba(230,237,243,.4);line-height:1.75;margin-bottom:14px;}
+  .gm-open-btn{
+    display:block;width:100%;padding:9px;background:var(--orange);border:none;
+    border-radius:7px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.78rem;
+    font-weight:700;text-align:center;text-decoration:none;cursor:pointer;
+    margin-bottom:14px;transition:opacity .15s;
+  }
+  .gm-open-btn:hover{opacity:.85;}
+  .gm-conn-title{font-family:'DM Mono',monospace;font-size:.44rem;color:rgba(230,237,243,.2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
+  .gm-conn-list{display:flex;flex-direction:column;gap:3px;}
+  .gm-conn-item{
+    display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:6px;
+    font-family:'DM Mono',monospace;font-size:.52rem;color:rgba(230,237,243,.5);
+    cursor:pointer;transition:all .12s;
+  }
+  .gm-conn-item:hover{background:rgba(255,255,255,.06);color:rgba(230,237,243,.9);}
+  .gm-conn-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .gm-info-close{
+    position:absolute;top:9px;right:9px;background:none;border:none;
+    color:rgba(230,237,243,.25);font-size:.85rem;cursor:pointer;
+    padding:3px 6px;border-radius:4px;transition:all .12s;line-height:1;
+  }
+  .gm-info-close:hover{background:rgba(255,255,255,.08);color:rgba(230,237,243,.7);}
+  /* Zoom level badge */
+  .gm-zoom-val{
+    position:absolute;bottom:14px;right:14px;
+    font-family:'DM Mono',monospace;font-size:.47rem;color:rgba(230,237,243,.2);
+    background:rgba(10,14,20,.7);padding:4px 9px;border-radius:6px;pointer-events:none;
+  }
+  /* Expand button in kg-sidebar */
+  .kg-expand-btn{
+    background:none;border:none;cursor:pointer;
+    color:rgba(230,237,243,.22);font-size:.58rem;
+    padding:3px 5px;border-radius:4px;
+    transition:color .15s,background .15s;flex-shrink:0;margin-left:4px;
+  }
+  .kg-expand-btn:hover{color:rgba(230,237,243,.7);background:rgba(255,255,255,.07);}
+
   /* ── CHANGELOG MODAL ── */
   .modal-backdrop{
     display:none;position:fixed;inset:0;z-index:1000;
@@ -702,6 +806,7 @@
     <i class="fa-solid fa-diagram-project"></i>
     <span class="kg-hd-text">Knowledge Graph</span>
     <span class="kg-cnt" id="kg-node-count"></span>
+    <button class="kg-expand-btn" id="kgExpandBtn" title="Buka full graph"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
     <button class="kg-col-btn" id="kgColBtn" title="Sembunyikan sidebar"><i class="fa-solid fa-chevron-right" id="kgColIco"></i></button>
   </div>
   <div class="kg-graph" id="kg-graph">
@@ -940,6 +1045,7 @@ async function init() {
     return;
   }
   const domainList = await domRes.json();
+  _graphDomainList = domainList;
   render(domainList, user.role);
   initKnowledgeGraph(domainList);
 }
@@ -1480,6 +1586,270 @@ function initKnowledgeGraph(domainList) {
   }).restart();
 }
 
+// ── FULL-SCREEN GRAPH MODAL ──
+let _graphDomainList = null;
+let _gmInited = false;
+
+function openGraphModal() {
+  document.getElementById('graphModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if (!_gmInited && _graphDomainList) { _gmInited = true; requestAnimationFrame(() => initFullGraph(_graphDomainList)); }
+}
+function closeGraphModal() {
+  document.getElementById('graphModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('kgExpandBtn').addEventListener('click', e => { e.stopPropagation(); openGraphModal(); });
+document.getElementById('gm-close').addEventListener('click', closeGraphModal);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGraphModal(); });
+
+function initFullGraph(domainList) {
+  const svgEl = document.getElementById('gm-svg');
+  const W = svgEl.clientWidth, H = svgEl.clientHeight;
+
+  const GC = {
+    'energi-jabar-1':'#FF4D00','energi-jabar-2':'#22C55E',
+    'energi-jabar-3':'#60A5FA','energi-jabar-4':'#FBBF24',
+    'open-data-nasional-1':'#A78BFA','open-data-nasional-2':'#34D399',
+    'open-data-nasional-3':'#F472B6','open-data-nasional-4':'#FB923C',
+  };
+  const CP = {
+    'energi-jabar-1':{x:.5,y:.15},'energi-jabar-2':{x:.25,y:.4},
+    'energi-jabar-3':{x:.75,y:.4},'energi-jabar-4':{x:.5,y:.67},
+    'open-data-nasional-1':{x:.15,y:.88},'open-data-nasional-2':{x:.38,y:.88},
+    'open-data-nasional-3':{x:.62,y:.88},'open-data-nasional-4':{x:.85,y:.88},
+  };
+  const LL = {
+    'energi-jabar-1':'PLN','energi-jabar-2':'Pembangkitan',
+    'energi-jabar-3':'Transmisi','energi-jabar-4':'Distribusi',
+    'open-data-nasional-1':'Tata Ruang','open-data-nasional-2':'Lingkungan',
+    'open-data-nasional-3':'Geospasial','open-data-nasional-4':'Sosial',
+  };
+  const XLINKS = [
+    ['pln-ar','pln-sr'],['pln-ar','pln-stat'],['pln-scholar','pln-ar'],
+    ['pln-stat','mdp'],['ruptl','mdp'],['ruptl','atlas-pembangkit'],
+    ['olap-tagihan','pelanggan'],['pencurian','losses-integritas'],['mdp','pln-sr'],
+  ];
+
+  // Build graph data
+  const nodeMap = {}, nodes = [], links = [];
+  for (const domain of domainList) {
+    const sg = {};
+    for (const mod of domain.modules) {
+      const sec = SECTION_MAP[mod.slug] || 1;
+      const gk  = domain.slug + '-' + sec;
+      const nd  = { id:mod.slug, name:mod.nama, gk, color:GC[gk]||'#666',
+        status:mod.status, accessible:mod.accessible!==false, routePath:mod.routePath||null };
+      nodeMap[mod.slug] = nd; nodes.push(nd);
+      (sg[sec] = sg[sec]||[]).push(mod.slug);
+    }
+    for (const grp of Object.values(sg)) {
+      for (let i=0; i<grp.length-1; i++) links.push({source:grp[i],target:grp[i+1]});
+      if (grp.length>=3) links.push({source:grp[0],target:grp[grp.length-1]});
+    }
+  }
+  for (const [a,b] of XLINKS) {
+    if (nodeMap[a]&&nodeMap[b]) links.push({source:a,target:b,cross:true});
+  }
+
+  // Node size by degree
+  const deg = {};
+  for (const l of links) { deg[l.source]=(deg[l.source]||0)+1; deg[l.target]=(deg[l.target]||0)+1; }
+  const nr = d => d.status==='aktif' ? Math.max(7,Math.min(16,7+(deg[d.id]||0)*1.4)) : 5;
+
+  const activeTopics = new Set(nodes.map(n=>n.gk));
+  let selectedNode = null;
+
+  // SVG setup
+  const svg = d3.select(svgEl).attr('viewBox',`0 0 ${W} ${H}`);
+  svg.selectAll('*').remove();
+  const defs = svg.append('defs');
+  const fid = 'gm-hull-blur';
+  const fBlur = defs.append('filter').attr('id',fid).attr('x','-40%').attr('y','-40%').attr('width','180%').attr('height','180%');
+  fBlur.append('feGaussianBlur').attr('stdDeviation',22);
+
+  const g = svg.append('g');
+  const hullG = g.append('g');
+
+  // Zoom
+  const zoom = d3.zoom().scaleExtent([.08,8]).on('zoom', e => {
+    g.attr('transform', e.transform);
+    const k = e.transform.k;
+    document.getElementById('gm-zoom-val').textContent = Math.round(k*100)+'%';
+    labelSel.attr('opacity', d => activeTopics.has(d.gk) ? Math.max(0,Math.min(1,(k-.35)/.45)) : 0);
+  });
+  svg.call(zoom);
+
+  const linkSel = g.append('g').selectAll('line').data(links).join('line')
+    .attr('stroke', d=>d.cross?'rgba(255,255,255,.2)':'rgba(255,255,255,.1)')
+    .attr('stroke-width', d=>d.cross?1.8:1)
+    .attr('stroke-dasharray', d=>d.cross?'5,4':null);
+
+  const nodeSel = g.append('g').selectAll('circle').data(nodes).join('circle')
+    .attr('r', nr)
+    .attr('fill', d=>d.status==='aktif'?d.color:'#252A34')
+    .attr('stroke', d=>d.status==='aktif'?d.color+'55':'#3A4050')
+    .attr('stroke-width', d=>d.status==='aktif'?4:1)
+    .attr('opacity', d=>d.status==='aktif'?(d.accessible?.9:.5):.3)
+    .style('cursor', d=>(d.status==='aktif'&&d.accessible&&d.routePath)?'pointer':'default');
+
+  const labelSel = g.append('g').selectAll('text').data(nodes).join('text')
+    .text(d=>d.name.length>15?d.name.slice(0,14)+'…':d.name)
+    .attr('font-family','DM Sans,sans-serif').attr('font-size',11)
+    .attr('fill','rgba(230,237,243,.78)').attr('text-anchor','middle')
+    .attr('dy', d=>nr(d)+14).attr('pointer-events','none').attr('opacity',0);
+
+  // Hull drawing
+  function drawHulls() {
+    const grps = {};
+    for (const n of nodes) {
+      if (!activeTopics.has(n.gk)||!n.x) continue;
+      (grps[n.gk]=grps[n.gk]||[]).push([n.x,n.y]);
+    }
+    hullG.selectAll('path').data(Object.entries(grps)).join('path')
+      .attr('d',([,pts])=>{
+        if (pts.length<2) { const[x,y]=pts[0]; return `M${x-28},${y-28}h56v56h-56Z`; }
+        const pad=pts.flatMap(([x,y])=>[[x-24,y-24],[x+24,y-24],[x-24,y+24],[x+24,y+24]]);
+        const hull=d3.polygonHull(pad);
+        return hull?'M'+hull.map(p=>p.join(',')).join('L')+'Z':null;
+      })
+      .attr('fill',([gk])=>(GC[gk]||'#888')+'18')
+      .attr('stroke',([gk])=>(GC[gk]||'#888')+'40')
+      .attr('stroke-width',1.5).attr('stroke-linejoin','round')
+      .attr('filter',`url(#${fid})`);
+  }
+
+  // Highlight helpers
+  function resetVis() {
+    const k=d3.zoomTransform(svgEl).k;
+    linkSel.attr('stroke',l=>l.cross?'rgba(255,255,255,.2)':'rgba(255,255,255,.1)')
+      .attr('stroke-width',l=>l.cross?1.8:1).attr('opacity',1);
+    nodeSel.attr('opacity',d=>activeTopics.has(d.gk)?(d.status==='aktif'?(d.accessible?.9:.5):.3):0);
+    labelSel.attr('opacity',d=>activeTopics.has(d.gk)?Math.max(0,Math.min(1,(k-.35)/.45)):0);
+  }
+  function highlightNode(d) {
+    linkSel.attr('stroke',l=>(l.source.id===d.id||l.target.id===d.id)?d.color+'CC':'rgba(255,255,255,.04)')
+      .attr('stroke-width',l=>(l.source.id===d.id||l.target.id===d.id)?2.5:.8);
+    nodeSel.attr('opacity',n=>{
+      if(n.id===d.id) return 1;
+      return links.some(l=>(l.source.id===n.id&&l.target.id===d.id)||(l.source.id===d.id&&l.target.id===n.id))?.88:.08;
+    });
+    labelSel.attr('opacity',n=>{
+      if(n.id===d.id) return 1;
+      return links.some(l=>(l.source.id===n.id&&l.target.id===d.id)||(l.source.id===d.id&&l.target.id===n.id))?.9:0;
+    });
+  }
+
+  function showInfo(d) {
+    selectedNode = d;
+    highlightNode(d);
+    const conns = links.filter(l=>l.source.id===d.id||l.target.id===d.id)
+      .map(l=>l.source.id===d.id?l.target:l.source);
+    document.getElementById('gm-info-name').textContent = d.name;
+    document.getElementById('gm-info-dot').style.background = d.color;
+    document.getElementById('gm-info-section').textContent = LL[d.gk]||d.gk;
+    const sp = document.getElementById('gm-info-status');
+    sp.textContent = d.status==='aktif'?'AKTIF':'SEGERA';
+    sp.style.cssText = d.status==='aktif'
+      ? 'background:rgba(255,77,0,.18);color:var(--orange);padding:2px 7px;border-radius:8px;'
+      : 'background:rgba(255,255,255,.06);color:rgba(230,237,243,.35);padding:2px 7px;border-radius:8px;';
+    document.getElementById('gm-info-desc').textContent = MODULE_DESC[d.id]||'—';
+    document.getElementById('gm-info-btn').innerHTML = (d.status==='aktif'&&d.accessible&&d.routePath)
+      ? `<a href="${d.routePath}" class="gm-open-btn">Buka Modul →</a>` : '';
+    document.getElementById('gm-conn-list').innerHTML = conns.map(n=>
+      `<div class="gm-conn-item" data-id="${n.id}"><span class="gm-conn-dot" style="background:${n.color}"></span>${n.name}</div>`
+    ).join('');
+    document.querySelectorAll('.gm-conn-item').forEach(el=>
+      el.addEventListener('click',()=>{ const nd=nodeMap[el.dataset.id]; if(nd) showInfo(nd); })
+    );
+    document.getElementById('gm-info').classList.add('vis');
+  }
+  function hideInfo() {
+    selectedNode = null;
+    document.getElementById('gm-info').classList.remove('vis');
+    resetVis();
+  }
+
+  // Node events
+  nodeSel
+    .on('mouseover',(_e,d)=>{ if(!selectedNode) highlightNode(d); })
+    .on('mouseout', ()=>{ if(!selectedNode) resetVis(); })
+    .on('click',(e,d)=>{ e.stopPropagation(); selectedNode===d?hideInfo():showInfo(d); });
+  svg.on('click',()=>hideInfo());
+  document.getElementById('gm-info-close').addEventListener('click', e=>{ e.stopPropagation(); hideInfo(); });
+
+  // Simulation
+  const sim = d3.forceSimulation(nodes).stop()
+    .force('link', d3.forceLink(links).id(d=>d.id).distance(70).strength(.14))
+    .force('charge', d3.forceManyBody().strength(-160))
+    .force('x', d3.forceX(d=>(CP[d.gk]?.x||.5)*W).strength(.18))
+    .force('y', d3.forceY(d=>(CP[d.gk]?.y||.5)*H).strength(.18))
+    .force('collision', d3.forceCollide(d=>nr(d)+10));
+
+  const drag = d3.drag()
+    .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(.3).restart(); d.fx=d.x;d.fy=d.y; })
+    .on('drag', (e,d)=>{ d.fx=e.x;d.fy=e.y; })
+    .on('end',  (e,d)=>{ if(!e.active) sim.alphaTarget(0); d.fx=null;d.fy=null; });
+  nodeSel.call(drag);
+
+  sim.on('tick',()=>{
+    drawHulls();
+    linkSel.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+    nodeSel.attr('cx',d=>d.x).attr('cy',d=>d.y);
+    labelSel.attr('x',d=>d.x).attr('y',d=>d.y);
+  }).restart();
+
+  // Fit view after sim settles
+  function fitView() {
+    try {
+      const bb = g.node().getBBox();
+      if (!bb.width||!bb.height) return;
+      const sc = Math.min(W/(bb.width+100),H/(bb.height+100));
+      svg.transition().duration(700).call(zoom.transform,
+        d3.zoomIdentity.translate((W-bb.width*sc)/2-bb.x*sc,(H-bb.height*sc)/2-bb.y*sc).scale(sc));
+    } catch(e) {}
+  }
+  setTimeout(fitView, 2000);
+
+  document.getElementById('gm-fit').addEventListener('click', fitView);
+  document.getElementById('gm-zin').addEventListener('click', ()=>svg.transition().call(zoom.scaleBy,1.5));
+  document.getElementById('gm-zout').addEventListener('click', ()=>svg.transition().call(zoom.scaleBy,1/1.5));
+
+  // Topic filter chips
+  const seenGK = [...new Set(nodes.map(n=>n.gk))];
+  document.getElementById('gm-chips').innerHTML = seenGK.map(gk=>
+    `<div class="gm-chip on" data-gk="${gk}"><span class="gm-chip-dot" style="background:${GC[gk]||'#666'}"></span>${LL[gk]||gk}</div>`
+  ).join('');
+  document.querySelectorAll('.gm-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      const gk = chip.dataset.gk;
+      const on = chip.classList.toggle('on');
+      if(on) activeTopics.add(gk); else activeTopics.delete(gk);
+      nodeSel.attr('opacity',d=>activeTopics.has(d.gk)?(d.status==='aktif'?(d.accessible?.9:.5):.3):0)
+        .style('pointer-events',d=>activeTopics.has(d.gk)?null:'none');
+      const k=d3.zoomTransform(svgEl).k;
+      labelSel.attr('opacity',d=>activeTopics.has(d.gk)?Math.max(0,Math.min(1,(k-.35)/.45)):0);
+      linkSel.attr('opacity',d=>(activeTopics.has(d.source.gk)&&activeTopics.has(d.target.gk))?1:0);
+      drawHulls();
+      if(selectedNode&&!activeTopics.has(selectedNode.gk)) hideInfo();
+    });
+  });
+
+  // Search
+  document.getElementById('gm-search-inp').addEventListener('input',function(){
+    const q=this.value.toLowerCase().trim();
+    if(!q){resetVis();return;}
+    const k=d3.zoomTransform(svgEl).k;
+    nodeSel.attr('opacity',d=>!activeTopics.has(d.gk)?0:d.name.toLowerCase().includes(q)?1:.05);
+    labelSel.attr('opacity',d=>!activeTopics.has(d.gk)?0:d.name.toLowerCase().includes(q)?1:.03);
+    linkSel.attr('opacity',d=>{
+      if(!activeTopics.has(d.source.gk)||!activeTopics.has(d.target.gk)) return 0;
+      return d.source.name.toLowerCase().includes(q)||d.target.name.toLowerCase().includes(q)?.6:.03;
+    });
+  });
+}
+
 // Admin panel collapse
 const adminCollapseKey = 'cockpit_domain_admin';
 const adminIsCollapsed = localStorage.getItem(adminCollapseKey) === '1';
@@ -1520,6 +1890,45 @@ adminHeader.addEventListener('click', () => {
     </div>
   </div>
 </footer>
+
+<!-- Full-screen Knowledge Graph Modal -->
+<div class="graph-modal" id="graphModal">
+  <div class="gm-bar">
+    <div class="gm-title"><i class="fa-solid fa-diagram-project"></i>Knowledge Graph</div>
+    <div class="gm-srch-wrap">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input id="gm-search-inp" type="text" placeholder="Cari modul…" autocomplete="off">
+    </div>
+    <div class="gm-ctrls">
+      <button class="gm-btn" id="gm-fit" title="Fit to screen"><i class="fa-solid fa-expand"></i> Fit</button>
+      <button class="gm-btn" id="gm-zin">+</button>
+      <button class="gm-btn" id="gm-zout">−</button>
+      <button class="gm-btn gm-close-btn" id="gm-close">✕</button>
+    </div>
+  </div>
+  <div class="gm-body" id="gm-body">
+    <svg id="gm-svg"></svg>
+    <div class="gm-chips" id="gm-chips"></div>
+    <div class="gm-info" id="gm-info">
+      <button class="gm-info-close" id="gm-info-close">✕</button>
+      <div class="gm-info-hd">
+        <div class="gm-info-name" id="gm-info-name">—</div>
+        <div class="gm-info-meta">
+          <span class="gm-info-dot" id="gm-info-dot"></span>
+          <span id="gm-info-section">—</span>
+          <span class="gm-info-pill" id="gm-info-status"></span>
+        </div>
+      </div>
+      <div class="gm-info-body">
+        <div class="gm-info-desc" id="gm-info-desc"></div>
+        <div id="gm-info-btn"></div>
+        <div class="gm-conn-title">KONEKSI</div>
+        <div class="gm-conn-list" id="gm-conn-list"></div>
+      </div>
+    </div>
+    <div class="gm-zoom-val" id="gm-zoom-val">100%</div>
+  </div>
+</div>
 
 </body>
 </html>
