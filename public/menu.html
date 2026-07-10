@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -355,6 +356,65 @@
   }
   @media(max-width:960px){.server-sidebar{display:none;}}
 
+  /* ── KNOWLEDGE GRAPH SIDEBAR (RIGHT) ── */
+  .kg-sidebar{
+    width:236px;flex-shrink:0;
+    position:sticky;top:56px;
+    height:calc(100vh - 56px);
+    background:#0D1117;
+    border-left:1px solid rgba(255,255,255,.06);
+    display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+  @media(max-width:1100px){.kg-sidebar{display:none;}}
+  .kg-hd{
+    display:flex;align-items:center;gap:7px;
+    font-family:'DM Mono',monospace;font-size:.52rem;font-weight:500;
+    color:rgba(230,237,243,.25);letter-spacing:.14em;text-transform:uppercase;
+    padding:18px 14px 14px;flex-shrink:0;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .kg-hd i{color:rgba(168,139,250,.6);font-size:.65rem;}
+  .kg-cnt{
+    margin-left:auto;font-size:.44rem;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+    padding:2px 7px;border-radius:8px;color:rgba(230,237,243,.25);
+  }
+  .kg-graph{flex:1;position:relative;overflow:hidden;}
+  #kg-svg{display:block;}
+  .kg-tt{
+    display:none;position:absolute;z-index:10;
+    background:rgba(10,14,20,.97);border:1px solid rgba(255,255,255,.1);
+    border-radius:7px;padding:9px 11px;pointer-events:none;max-width:155px;
+    box-shadow:0 4px 16px rgba(0,0,0,.5);
+  }
+  .kgt-name{
+    font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:700;
+    color:rgba(230,237,243,.92);margin-bottom:4px;line-height:1.3;
+  }
+  .kgt-desc{
+    font-family:'DM Mono',monospace;font-size:.48rem;
+    color:rgba(230,237,243,.38);line-height:1.6;
+  }
+  .kg-leg{
+    padding:10px 14px;flex-shrink:0;
+    border-top:1px solid rgba(255,255,255,.06);
+    display:flex;flex-wrap:wrap;gap:5px 10px;
+  }
+  .kg-leg-item{
+    display:flex;align-items:center;gap:5px;
+    font-family:'DM Mono',monospace;font-size:.42rem;
+    color:rgba(230,237,243,.28);letter-spacing:.03em;
+  }
+  .kg-leg-item span{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .kg-foot{
+    padding:7px 14px 12px;flex-shrink:0;
+    font-family:'DM Mono',monospace;font-size:.41rem;
+    color:rgba(230,237,243,.14);letter-spacing:.04em;
+    border-top:1px solid rgba(255,255,255,.04);
+    line-height:1.7;
+  }
+
   /* ── CHANGELOG MODAL ── */
   .modal-backdrop{
     display:none;position:fixed;inset:0;z-index:1000;
@@ -593,6 +653,21 @@
     </div>
   </div>
 </main>
+
+<aside class="kg-sidebar" id="kgSidebar">
+  <div class="kg-hd">
+    <i class="fa-solid fa-diagram-project"></i>
+    Knowledge Graph
+    <span class="kg-cnt" id="kg-node-count"></span>
+  </div>
+  <div class="kg-graph" id="kg-graph">
+    <svg id="kg-svg" width="100%" height="100%"></svg>
+    <div id="kg-tooltip" class="kg-tt"></div>
+  </div>
+  <div class="kg-leg" id="kg-legend"></div>
+  <div class="kg-foot">Hover = info · Scroll = zoom · Drag = pindah node · Klik = buka modul</div>
+</aside>
+
 </div><!-- /.page-wrap -->
 
 <script>
@@ -620,6 +695,8 @@ const MODULE_ICONS = {
   'olap-tagihan':            '<i class="fa-solid fa-file-invoice"></i>',
   'pln-scholar':             '<i class="fa-solid fa-book-open-reader"></i>',
   'pln-stat':                '<i class="fa-solid fa-chart-column"></i>',
+  'pln-ar':                  '<i class="fa-solid fa-file-contract"></i>',
+  'pln-sr':                  '<i class="fa-solid fa-seedling"></i>',
   'pencurian':               '<i class="fa-solid fa-triangle-exclamation"></i>',
   'infrastruktur-distribusi':'<i class="fa-solid fa-sitemap"></i>',
   'keandalan-layanan':       '<i class="fa-solid fa-signal"></i>',
@@ -663,6 +740,8 @@ const MODULE_DESC = {
   'olap-tagihan':            'Ringkasan & analisis tagihan listrik — summary table + tren',
   'pln-scholar':             'Repositori riset & kajian PLN Grup (2004–2022) — search & discovery 1.000+ dokumen lintas disiplin',
   'pln-stat':                'Statistik ketenagalistrikan nasional 12 tahun (2014–2025) — kapasitas, produksi, pelanggan, tarif & susut energi',
+  'pln-ar':                  'Laporan tahunan PLN 2025: pencapaian operasional, strategi transformasi energi, kinerja ESG, dan akuntabilitas korporat kepada seluruh stakeholder',
+  'pln-sr':                  'Laporan keberlanjutan PLN 2014–2025: komitmen ESG, dampak sosial & lingkungan, GRI Standards, dan kontribusi terhadap transisi energi nasional',
   'pencurian':               'Data gangguan & dugaan pencurian tenaga listrik — role tertentu saja',
   'infrastruktur-distribusi':'Inventaris aset JTM/JTR per UP3 & kab/kota, estimasi umur aset, penetrasi smart meter/AMI, SCADA',
   'keandalan-layanan':       'SAIDI/SAIFI per wilayah, akar penyebab gangguan, kelas layanan ULP, keluhan kualitas tegangan',
@@ -692,6 +771,10 @@ const SECTION_MAP = {
   'statistical-report':      1,
   'tariff-adjustment':       1,
   'financial-information':   1,
+  'pln-ar':                  1,
+  'pln-sr':                  1,
+  'pln-stat':                1,
+  'pln-scholar':             1,
   // energi-jabar — Section 02: Pembangkitan
   'mdp':                     2,
   'ruptl':                   2,
@@ -814,6 +897,7 @@ async function init() {
   }
   const domainList = await domRes.json();
   render(domainList, user.role);
+  initKnowledgeGraph(domainList);
 }
 
 function render(domainList, role) {
@@ -1132,6 +1216,190 @@ async function loadFooterStats() {
 }
 
 loadFooterStats();
+
+// ── KNOWLEDGE GRAPH ──
+function initKnowledgeGraph(domainList) {
+  if (typeof d3 === 'undefined') return;
+  if (!domainList || !domainList.length) return;
+  const sidebar = document.getElementById('kgSidebar');
+  const container = document.getElementById('kg-graph');
+  if (!sidebar || !container) return;
+  if (window.getComputedStyle(sidebar).display === 'none') return;
+
+  const W = container.offsetWidth  || 220;
+  const H = container.offsetHeight || 380;
+
+  const GC = {
+    'energi-jabar-1':       '#FF4D00',
+    'energi-jabar-2':       '#22C55E',
+    'energi-jabar-3':       '#60A5FA',
+    'energi-jabar-4':       '#FBBF24',
+    'open-data-nasional-1': '#A78BFA',
+    'open-data-nasional-2': '#34D399',
+    'open-data-nasional-3': '#F472B6',
+    'open-data-nasional-4': '#FB923C',
+  };
+  const CP = {
+    'energi-jabar-1':       { x:.5,  y:.13 },
+    'energi-jabar-2':       { x:.25, y:.38 },
+    'energi-jabar-3':       { x:.75, y:.38 },
+    'energi-jabar-4':       { x:.5,  y:.66 },
+    'open-data-nasional-1': { x:.15, y:.88 },
+    'open-data-nasional-2': { x:.38, y:.88 },
+    'open-data-nasional-3': { x:.62, y:.88 },
+    'open-data-nasional-4': { x:.85, y:.88 },
+  };
+  const LL = {
+    'energi-jabar-1':       'PLN',
+    'energi-jabar-2':       'Pembangkitan',
+    'energi-jabar-3':       'Transmisi',
+    'energi-jabar-4':       'Distribusi',
+    'open-data-nasional-1': 'Tata Ruang',
+    'open-data-nasional-2': 'Lingkungan',
+    'open-data-nasional-3': 'Geospasial',
+    'open-data-nasional-4': 'Sosial',
+  };
+  const XLINKS = [
+    ['pln-ar',        'pln-sr'],
+    ['pln-ar',        'pln-stat'],
+    ['pln-stat',      'mdp'],
+    ['ruptl',         'mdp'],
+    ['ruptl',         'atlas-pembangkit'],
+    ['olap-tagihan',  'pelanggan'],
+    ['pencurian',     'losses-integritas'],
+    ['mdp',           'pln-sr'],
+    ['pln-scholar',   'pln-ar'],
+  ];
+
+  const nodeMap = {}, nodes = [], links = [];
+
+  for (const domain of domainList) {
+    const sg = {};
+    for (const mod of domain.modules) {
+      const sec = SECTION_MAP[mod.slug] || 1;
+      const gk  = domain.slug + '-' + sec;
+      const nd  = {
+        id: mod.slug, name: mod.nama, gk,
+        color: GC[gk] || '#666',
+        status: mod.status,
+        accessible: mod.accessible !== false,
+        routePath:  mod.routePath || null,
+      };
+      nodeMap[mod.slug] = nd;
+      nodes.push(nd);
+      (sg[sec] = sg[sec] || []).push(mod.slug);
+    }
+    for (const grp of Object.values(sg)) {
+      for (let i = 0; i < grp.length - 1; i++)
+        links.push({ source: grp[i], target: grp[i + 1] });
+      if (grp.length >= 3)
+        links.push({ source: grp[0], target: grp[grp.length - 1] });
+    }
+  }
+  for (const [a, b] of XLINKS) {
+    if (nodeMap[a] && nodeMap[b]) links.push({ source: a, target: b, cross: true });
+  }
+
+  const cntEl = document.getElementById('kg-node-count');
+  if (cntEl) cntEl.textContent = nodes.length + ' modul';
+
+  const legEl = document.getElementById('kg-legend');
+  if (legEl) {
+    const seen = [...new Set(nodes.map(n => n.gk))];
+    legEl.innerHTML = seen.map(gk =>
+      `<div class="kg-leg-item"><span style="background:${GC[gk]||'#666'}"></span>${LL[gk]||gk}</div>`
+    ).join('');
+  }
+
+  const svgEl = document.getElementById('kg-svg');
+  svgEl.setAttribute('width', W);
+  svgEl.setAttribute('height', H);
+  const svg = d3.select(svgEl);
+  svg.selectAll('*').remove();
+  const g = svg.append('g');
+
+  svg.call(d3.zoom().scaleExtent([.3, 4]).on('zoom', e => g.attr('transform', e.transform)));
+
+  const link = g.append('g').selectAll('line').data(links).join('line')
+    .attr('stroke', d => d.cross ? 'rgba(255,255,255,.14)' : 'rgba(255,255,255,.07)')
+    .attr('stroke-width', d => d.cross ? 1.3 : .8)
+    .attr('stroke-dasharray', d => d.cross ? '3,3' : null);
+
+  const node = g.append('g').selectAll('circle').data(nodes).join('circle')
+    .attr('r', d => d.status === 'aktif' ? 5.5 : 3.5)
+    .attr('fill', d => d.status === 'aktif' ? d.color : '#252A34')
+    .attr('stroke', d => d.status === 'aktif' ? d.color + '66' : '#374151')
+    .attr('stroke-width', d => d.status === 'aktif' ? 3 : 1)
+    .attr('opacity', d => d.status === 'aktif' ? (d.accessible ? .88 : .5) : .28)
+    .style('cursor', d => (d.status === 'aktif' && d.accessible && d.routePath) ? 'pointer' : 'default');
+
+  const tt = d3.select('#kg-tooltip');
+
+  node
+    .on('mouseover', function(e, d) {
+      const raw  = MODULE_DESC[d.id] || '';
+      const desc = raw.length > 85 ? raw.slice(0, 85) + '…' : raw;
+      tt.style('display', 'block').html(
+        `<div class="kgt-name">${d.name}</div>` +
+        (desc ? `<div class="kgt-desc">${desc}</div>` : '')
+      );
+      link
+        .attr('stroke', l =>
+          (l.source.id === d.id || l.target.id === d.id)
+            ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.03)')
+        .attr('stroke-width', l =>
+          (l.source.id === d.id || l.target.id === d.id) ? 1.8 : .5);
+      node.attr('opacity', n => {
+        if (n.id === d.id) return 1;
+        const conn = links.some(l =>
+          (l.source.id === n.id && l.target.id === d.id) ||
+          (l.source.id === d.id && l.target.id === n.id));
+        return conn ? .9 : .12;
+      });
+    })
+    .on('mousemove', function(e) {
+      const r  = container.getBoundingClientRect();
+      let lx   = e.clientX - r.left + 10;
+      let ty   = e.clientY - r.top  - 44;
+      if (lx + 160 > W) lx = e.clientX - r.left - 170;
+      if (ty < 4) ty = 4;
+      tt.style('left', lx + 'px').style('top', ty + 'px');
+    })
+    .on('mouseout', function() {
+      tt.style('display', 'none');
+      link
+        .attr('stroke', l => l.cross ? 'rgba(255,255,255,.14)' : 'rgba(255,255,255,.07)')
+        .attr('stroke-width', l => l.cross ? 1.3 : .8);
+      node.attr('opacity', n => n.status === 'aktif' ? (n.accessible ? .88 : .5) : .28);
+    })
+    .on('click', function(e, d) {
+      if (d.status === 'aktif' && d.accessible && d.routePath)
+        window.location.href = d.routePath;
+    });
+
+  const sim = d3.forceSimulation(nodes)
+    .stop()
+    .force('link',      d3.forceLink(links).id(d => d.id).distance(28).strength(.18))
+    .force('charge',    d3.forceManyBody().strength(-60))
+    .force('x',         d3.forceX(d => (CP[d.gk]?.x || .5) * W).strength(.26))
+    .force('y',         d3.forceY(d => (CP[d.gk]?.y || .5) * H).strength(.26))
+    .force('collision', d3.forceCollide(7.5));
+
+  const drag = d3.drag()
+    .on('start', (e, d) => { if (!e.active) sim.alphaTarget(.3).restart(); d.fx = d.x; d.fy = d.y; })
+    .on('drag',  (e, d) => { d.fx = e.x; d.fy = e.y; })
+    .on('end',   (e, d) => { if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; });
+  node.call(drag);
+
+  sim.on('tick', () => {
+    link
+      .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+    node
+      .attr('cx', d => Math.max(7, Math.min(W - 7, d.x)))
+      .attr('cy', d => Math.max(7, Math.min(H - 7, d.y)));
+  }).restart();
+}
 
 // Admin panel collapse
 const adminCollapseKey = 'cockpit_domain_admin';
