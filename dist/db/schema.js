@@ -393,6 +393,9 @@ export const plnScholar = mysqlTable("pln_scholar", {
     idxYear: index("idx_scholar_year").on(t.year),
     idxBidang: index("idx_scholar_bidang").on(t.bidang),
 }));
+// ============================================================
+// PLN STATISTICS NATIONAL (2014-2025)
+// ============================================================
 export const plnStatNational = mysqlTable("pln_stat_national", {
     id: int("id").autoincrement().primaryKey(),
     year: int("year").notNull(),

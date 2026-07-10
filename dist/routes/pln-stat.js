@@ -5,6 +5,7 @@ import { plnStatNational } from "../db/schema.js";
 import { requireAuth } from "../middleware/auth.js";
 export const plnStatRoutes = new Hono();
 plnStatRoutes.use("*", requireAuth);
+// All years — full row
 plnStatRoutes.get("/national", async (c) => {
     const rows = await db
         .select()
@@ -12,6 +13,7 @@ plnStatRoutes.get("/national", async (c) => {
         .orderBy(asc(plnStatNational.year));
     return c.json(rows);
 });
+// Single year detail
 plnStatRoutes.get("/year/:year", async (c) => {
     const yr = parseInt(c.req.param("year") ?? "0");
     if (!yr)
@@ -25,3 +27,4 @@ plnStatRoutes.get("/year/:year", async (c) => {
         return c.json({ error: "not found" }, 404);
     return c.json(row);
 });
+//# sourceMappingURL=pln-stat.js.map

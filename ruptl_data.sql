@@ -1788,3 +1788,250 @@ INSERT INTO ruptl_rencana_gardu_induk (provinsi_id, skenario, tahun, mva) VALUES
 (17,'ARED',2025,2100),(17,'ARED',2026,2180),(17,'ARED',2027,180),
 (17,'ARED',2028,120),(17,'ARED',2030,1060),(17,'ARED',2033,120);
 
+
+-- ============================================================
+-- B3 JAWA BARAT (id=18) — Semua 6 Tabel
+-- Beban puncak 2024: 8.725 MW (Oktober 2024)
+-- ============================================================
+UPDATE ruptl_provinsi SET beban_puncak_2024_mw = 8725 WHERE id = 18;
+
+-- Penjualan Historis (Tabel B3.1, 2015-2024)
+INSERT INTO ruptl_penjualan_historis (provinsi_id, tahun, sektor, gwh) VALUES
+(18,2015,'RUMAH_TANGGA',16795),(18,2016,'RUMAH_TANGGA',17464),(18,2017,'RUMAH_TANGGA',17555),
+(18,2018,'RUMAH_TANGGA',17934),(18,2019,'RUMAH_TANGGA',18754),(18,2020,'RUMAH_TANGGA',20362),
+(18,2021,'RUMAH_TANGGA',20926),(18,2022,'RUMAH_TANGGA',20872),(18,2023,'RUMAH_TANGGA',21739),
+(18,2024,'RUMAH_TANGGA',21739),
+(18,2015,'BISNIS',4606),(18,2016,'BISNIS',4921),(18,2017,'BISNIS',5232),
+(18,2018,'BISNIS',5645),(18,2019,'BISNIS',6080),(18,2020,'BISNIS',5798),
+(18,2021,'BISNIS',6278),(18,2022,'BISNIS',7610),(18,2023,'BISNIS',7927),
+(18,2024,'BISNIS',7927),
+(18,2015,'PUBLIK',1441),(18,2016,'PUBLIK',1570),(18,2017,'PUBLIK',1682),
+(18,2018,'PUBLIK',1830),(18,2019,'PUBLIK',1998),(18,2020,'PUBLIK',1954),
+(18,2021,'PUBLIK',2037),(18,2022,'PUBLIK',2325),(18,2023,'PUBLIK',2422),
+(18,2024,'PUBLIK',2422),
+(18,2015,'INDUSTRI',20717),(18,2016,'INDUSTRI',22188),(18,2017,'INDUSTRI',22957),
+(18,2018,'INDUSTRI',23904),(18,2019,'INDUSTRI',24052),(18,2020,'INDUSTRI',21428),
+(18,2021,'INDUSTRI',24078),(18,2022,'INDUSTRI',25419),(18,2023,'INDUSTRI',26476),
+(18,2024,'INDUSTRI',26476);
+
+-- Pelanggan Historis (Tabel B3.2, 2015-2024, Ribu)
+INSERT INTO ruptl_pelanggan_historis (provinsi_id, tahun, sektor, jumlah_ribu) VALUES
+(18,2015,'RUMAH_TANGGA',11223),(18,2016,'RUMAH_TANGGA',11748),(18,2017,'RUMAH_TANGGA',12388),
+(18,2018,'RUMAH_TANGGA',13041),(18,2019,'RUMAH_TANGGA',13628),(18,2020,'RUMAH_TANGGA',14099),
+(18,2021,'RUMAH_TANGGA',14605),(18,2022,'RUMAH_TANGGA',15054),(18,2023,'RUMAH_TANGGA',15594),
+(18,2024,'RUMAH_TANGGA',15860),
+(18,2015,'BISNIS',357),(18,2016,'BISNIS',427),(18,2017,'BISNIS',506),
+(18,2018,'BISNIS',568),(18,2019,'BISNIS',589),(18,2020,'BISNIS',635),
+(18,2021,'BISNIS',703),(18,2022,'BISNIS',778),(18,2023,'BISNIS',842),
+(18,2024,'BISNIS',857),
+(18,2015,'PUBLIK',294),(18,2016,'PUBLIK',319),(18,2017,'PUBLIK',344),
+(18,2018,'PUBLIK',371),(18,2019,'PUBLIK',397),(18,2020,'PUBLIK',418),
+(18,2021,'PUBLIK',442),(18,2022,'PUBLIK',461),(18,2023,'PUBLIK',485),
+(18,2024,'PUBLIK',495),
+(18,2015,'INDUSTRI',13.5),(18,2016,'INDUSTRI',14.0),(18,2017,'INDUSTRI',14.6),
+(18,2018,'INDUSTRI',15.1),(18,2019,'INDUSTRI',15.4),(18,2020,'INDUSTRI',15.8),
+(18,2021,'INDUSTRI',16.4),(18,2022,'INDUSTRI',17.0),(18,2023,'INDUSTRI',17.6),
+(18,2024,'INDUSTRI',17.9);
+
+-- Pembangkit Eksisting (Tabel B3.3, skip Sewa)
+INSERT INTO ruptl_pembangkit_eksisting (provinsi_id, pemilik, jenis, sistem_tenaga_listrik, jumlah_unit, kapasitas_mw, daya_mampu_mw, dmp_mw) VALUES
+(18,'PLN','PLTA','Jawa Bali',39,1915,1888,1863),
+(18,'PLN','PLTG','Jawa Bali',10,1168,1132,1128),
+(18,'PLN','PLTGU','Jawa Bali',3,1152,1079,743),
+(18,'PLN','PLTP','Jawa Bali',7,377,357,337),
+(18,'PLN','PLTU','Jawa Bali',6,2040,1839,1842),
+(18,'IPP','PLTA','Jawa Bali',2,227,227,205),
+(18,'IPP','PLTGU','Jawa Bali',4,2029,2029,2016),
+(18,'IPP','PLTM','Jawa Bali',30,150,150,113),
+(18,'IPP','PLTP','Jawa Bali',10,821,821,788),
+(18,'IPP','PLTU','Jawa Bali',2,1584,1584,906);
+
+-- Proyeksi Kebutuhan (Tabel B3.8, 2025-2034)
+INSERT INTO ruptl_proyeksi_kebutuhan (provinsi_id, tahun, pertumbuhan_ekonomi_pct, sales_gwh, produksi_gwh, beban_puncak_mw, pelanggan) VALUES
+(18,2025,4.5,65919,70743,9274,17479639),
+(18,2026,6.4,70153,75161,9851,17723739),
+(18,2027,5.0,73666,78850,10332,17962853),
+(18,2028,4.6,77088,82418,10797,18196824),
+(18,2029,3.0,79416,84818,11109,18425484),
+(18,2030,5.0,83363,88932,11645,18649200),
+(18,2031,3.0,85838,91476,11975,18868576),
+(18,2032,3.6,88890,94627,12385,19083774),
+(18,2033,3.1,91659,97571,12767,19294896),
+(18,2034,2.9,94324,100404,13135,19502045);
+
+-- Rencana Pembangkit (Tabel B3.10, 75 item)
+INSERT INTO ruptl_rencana_pembangkit (provinsi_id, skenario, jenis, nama, kapasitas_mw, cod_tahun, keterangan) VALUES
+-- #1-10: COD sama kedua skenario (2025-2026)
+(18,'RE_BASE','PLTGU','Muara Tawar Add-on Blok 4',250.0,2025,'Konstruksi - SH-PLN'),
+(18,'ARED','PLTGU','Muara Tawar Add-on Blok 4',250.0,2025,'Konstruksi - SH-PLN'),
+(18,'RE_BASE','PLTM','Pareang',2.8,2025,'Pendanaan - IPP'),
+(18,'ARED','PLTM','Pareang',2.8,2025,'Pendanaan - IPP'),
+(18,'RE_BASE','PLTS','Saguling',60.0,2025,'Rencana - SH-PLN'),
+(18,'ARED','PLTS','Saguling',60.0,2025,'Rencana - SH-PLN'),
+(18,'RE_BASE','PLTS','Jawa Barat (Kuota) IV',100.0,2025,'Rencana - IPP'),
+(18,'ARED','PLTS','Jawa Barat (Kuota) IV',100.0,2025,'Rencana - IPP'),
+(18,'RE_BASE','PLTP','Gunung Salak Small Scale Binary',15.0,2025,'Konstruksi - IPP'),
+(18,'ARED','PLTP','Gunung Salak Small Scale Binary',15.0,2025,'Konstruksi - IPP'),
+(18,'RE_BASE','PLTM','Jayamukti',2.3,2026,'Konstruksi - IPP'),
+(18,'ARED','PLTM','Jayamukti',2.3,2026,'Konstruksi - IPP'),
+(18,'RE_BASE','PLTM','Kertamukti',6.3,2026,'Konstruksi - IPP'),
+(18,'ARED','PLTM','Kertamukti',6.3,2026,'Konstruksi - IPP'),
+(18,'RE_BASE','PLTB','Jawa-Bali (Kuota) Tersebar I',150.0,2026,'Rencana - IPP'),
+(18,'ARED','PLTB','Jawa-Bali (Kuota) Tersebar I',150.0,2026,'Rencana - IPP'),
+(18,'RE_BASE','PLTP','Gunung Salak 7',40.0,2026,'Eksplorasi - IPP'),
+(18,'ARED','PLTP','Gunung Salak 7',40.0,2026,'Eksplorasi - IPP'),
+(18,'RE_BASE','PLTP','Patuha (FTP2)',55.0,2026,'Konstruksi - IPP'),
+(18,'ARED','PLTP','Patuha (FTP2)',55.0,2026,'Konstruksi - IPP'),
+-- #11-12: COD berbeda
+(18,'RE_BASE','PLTP','Wayang Windu (FTP2)',30.0,2027,'Eksplorasi - IPP'),
+(18,'ARED','PLTP','Wayang Windu (FTP2)',30.0,2026,'Eksplorasi - IPP'),
+(18,'RE_BASE','PLTS+BESS','Jawa Barat (Kuota) VA',100.0,2027,'Rencana - SH-PLN'),
+(18,'ARED','PLTS+BESS','Jawa Barat (Kuota) VA',100.0,2026,'Rencana - SH-PLN'),
+-- #13-18: COD sama (2027)
+(18,'RE_BASE','PLTM','Jawa-Bali (Kuota) Tersebar',74.7,2027,'Pengadaan - IPP'),
+(18,'ARED','PLTM','Jawa-Bali (Kuota) Tersebar',74.7,2027,'Pengadaan - IPP'),
+(18,'RE_BASE','PLTM','Cilongsong',2.4,2027,'Pengadaan - IPP'),
+(18,'ARED','PLTM','Cilongsong',2.4,2027,'Pengadaan - IPP'),
+(18,'RE_BASE','PLTM','Talaga 2',2.0,2027,'Pengadaan - IPP'),
+(18,'ARED','PLTM','Talaga 2',2.0,2027,'Pengadaan - IPP'),
+(18,'RE_BASE','PLTP','Jawa-Bali (Kuota) Tersebar',5.0,2027,'Rencana - IPP'),
+(18,'ARED','PLTP','Jawa-Bali (Kuota) Tersebar',5.0,2027,'Rencana - IPP'),
+(18,'RE_BASE','PLTM','Pasirhanjuang',4.4,2027,'Pengadaan - IPP'),
+(18,'ARED','PLTM','Pasirhanjuang',4.4,2027,'Pengadaan - IPP'),
+(18,'RE_BASE','PLTM','Cihaur',3.0,2027,'Pengadaan - IPP'),
+(18,'ARED','PLTM','Cihaur',3.0,2027,'Pengadaan - IPP'),
+-- #19-31: COD sama (2028)
+(18,'RE_BASE','PLTP','Cibuni (FTP2)',10.0,2028,'Eksplorasi - IPP'),
+(18,'ARED','PLTP','Cibuni (FTP2)',10.0,2028,'Eksplorasi - IPP'),
+(18,'RE_BASE','PLTS','Jawa Barat (Kuota) VII',40.0,2028,'Rencana - IPP'),
+(18,'ARED','PLTS','Jawa Barat (Kuota) VII',40.0,2028,'Rencana - IPP'),
+(18,'RE_BASE','PS','Upper Cisokan Pump Storage (FTP2)',260.0,2028,'Konstruksi - PLN'),
+(18,'ARED','PS','Upper Cisokan Pump Storage (FTP2)',260.0,2028,'Konstruksi - PLN'),
+(18,'RE_BASE','PS','Upper Cisokan Pump Storage (FTP2)',260.0,2028,'Konstruksi - PLN'),
+(18,'ARED','PS','Upper Cisokan Pump Storage (FTP2)',260.0,2028,'Konstruksi - PLN'),
+(18,'RE_BASE','PS','Upper Cisokan Pump Storage (FTP2)',260.0,2028,'Konstruksi - PLN'),
+(18,'ARED','PS','Upper Cisokan Pump Storage (FTP2)',260.0,2028,'Konstruksi - PLN'),
+(18,'RE_BASE','PS','Upper Cisokan Pump Storage (FTP2)',260.0,2028,'Konstruksi - PLN'),
+(18,'ARED','PS','Upper Cisokan Pump Storage (FTP2)',260.0,2028,'Konstruksi - PLN'),
+(18,'RE_BASE','PLTSa','Jawa Barat (Kuota) Tersebar',90.0,2028,'Rencana - IPP'),
+(18,'ARED','PLTSa','Jawa Barat (Kuota) Tersebar',90.0,2028,'Rencana - IPP'),
+(18,'RE_BASE','PLTP','Wayang Windu',30.0,2028,'Rencana - IPP'),
+(18,'ARED','PLTP','Wayang Windu',30.0,2028,'Rencana - IPP'),
+(18,'RE_BASE','PLTM','Caringin',6.5,2028,'Pengadaan - IPP'),
+(18,'ARED','PLTM','Caringin',6.5,2028,'Pengadaan - IPP'),
+(18,'RE_BASE','PLTM','Cipanas',3.0,2028,'Rencana - IPP'),
+(18,'ARED','PLTM','Cipanas',3.0,2028,'Rencana - IPP'),
+(18,'RE_BASE','PLTM','Sadawarna',2.0,2028,'Rencana - IPP'),
+(18,'ARED','PLTM','Sadawarna',2.0,2028,'Rencana - IPP'),
+(18,'RE_BASE','PLTM','Jawa-Bali (Kuota) Tersebar',6.4,2028,'Rencana - IPP'),
+(18,'ARED','PLTM','Jawa-Bali (Kuota) Tersebar',6.4,2028,'Rencana - IPP'),
+(18,'RE_BASE','PLTS+BESS','Jawa Barat (Kuota) VB',80.0,2028,'Rencana - IPP'),
+(18,'ARED','PLTS+BESS','Jawa Barat (Kuota) VB',80.0,2028,'Rencana - IPP'),
+-- #32-35: COD sama (2029)
+(18,'RE_BASE','PLTGU','Jawa-4',1000.0,2029,'Rencana - IPP'),
+(18,'ARED','PLTGU','Jawa-4',1000.0,2029,'Rencana - IPP'),
+(18,'RE_BASE','PLTA','Jawa-Bali (Kuota) Tersebar',50.0,2029,'Rencana - IPP'),
+(18,'ARED','PLTA','Jawa-Bali (Kuota) Tersebar',50.0,2029,'Rencana - IPP'),
+(18,'RE_BASE','PLTP','Jawa-Bali (Kuota) Tersebar',25.0,2029,'Rencana - IPP'),
+(18,'ARED','PLTP','Jawa-Bali (Kuota) Tersebar',25.0,2029,'Rencana - IPP'),
+(18,'RE_BASE','PLTG','Jawa-Bali-5',300.0,2029,'Rencana - SH-PLN'),
+(18,'ARED','PLTG','Jawa-Bali-5',300.0,2029,'Rencana - SH-PLN'),
+-- #36-38: COD berbeda
+(18,'RE_BASE','PLTS','Jawa Barat (Kuota) VIA',100.0,2030,'Rencana - SH-PLN'),
+(18,'ARED','PLTS','Jawa Barat (Kuota) VIA',100.0,2028,'Rencana - SH-PLN'),
+(18,'RE_BASE','PLTS','Jawa Barat (Kuota) IIA',60.0,2030,'Rencana - IPP'),
+(18,'ARED','PLTS','Jawa Barat (Kuota) IIA',60.0,2029,'Rencana - IPP'),
+(18,'RE_BASE','PLTS','Jawa Barat (Kuota) VIII',40.0,2030,'Rencana - IPP'),
+(18,'ARED','PLTS','Jawa Barat (Kuota) VIII',40.0,2029,'Rencana - IPP'),
+-- #39-41: COD sama (2030)
+(18,'RE_BASE','PLTS','Jawa Barat (Kuota) IIIB',40.0,2030,'Rencana - IPP'),
+(18,'ARED','PLTS','Jawa Barat (Kuota) IIIB',40.0,2030,'Rencana - IPP'),
+(18,'RE_BASE','PLTP','Jawa-Bali (Kuota) Tersebar',25.0,2030,'Rencana - IPP'),
+(18,'ARED','PLTP','Jawa-Bali (Kuota) Tersebar',25.0,2030,'Rencana - IPP'),
+(18,'RE_BASE','PLTM','Leuwikeris',7.4,2030,'Rencana - IPP'),
+(18,'ARED','PLTM','Leuwikeris',7.4,2030,'Rencana - IPP'),
+-- #42-43: COD berbeda
+(18,'RE_BASE','PLTB','Jawa-Bali (Kuota) Tersebar II',75.0,2031,'Rencana - IPP'),
+(18,'ARED','PLTB','Jawa-Bali (Kuota) Tersebar II',75.0,2030,'Rencana - IPP'),
+(18,'RE_BASE','PLTS','Jawa Barat (Kuota) VIB',40.0,2031,'Rencana - IPP'),
+(18,'ARED','PLTS','Jawa Barat (Kuota) VIB',40.0,2030,'Rencana - IPP'),
+-- #44-48: COD sama (2031)
+(18,'RE_BASE','PLTP','Jawa-Bali (Kuota) Tersebar',40.0,2031,'Rencana - IPP'),
+(18,'ARED','PLTP','Jawa-Bali (Kuota) Tersebar',40.0,2031,'Rencana - IPP'),
+(18,'RE_BASE','PS','Jawa-Bali (Kuota) Tersebar',190.0,2031,'Rencana - IPP'),
+(18,'ARED','PS','Jawa-Bali (Kuota) Tersebar',190.0,2031,'Rencana - IPP'),
+(18,'RE_BASE','PS','Jawa-Bali (Kuota) Tersebar',190.0,2031,'Rencana - IPP'),
+(18,'ARED','PS','Jawa-Bali (Kuota) Tersebar',190.0,2031,'Rencana - IPP'),
+(18,'RE_BASE','PS','Jawa-Bali (Kuota) Tersebar',190.0,2031,'Rencana - IPP'),
+(18,'ARED','PS','Jawa-Bali (Kuota) Tersebar',190.0,2031,'Rencana - IPP'),
+(18,'RE_BASE','PS','Jawa-Bali (Kuota) Tersebar',190.0,2031,'Rencana - IPP'),
+(18,'ARED','PS','Jawa-Bali (Kuota) Tersebar',190.0,2031,'Rencana - IPP'),
+-- #49: COD berbeda
+(18,'RE_BASE','PLTB','Jawa-Bali (Kuota) Tersebar III',150.0,2032,'Rencana - IPP'),
+(18,'ARED','PLTB','Jawa-Bali (Kuota) Tersebar III',150.0,2027,'Rencana - IPP'),
+-- #50-53: COD sama (2032)
+(18,'RE_BASE','PLTP','Gunung Salak 8',63.0,2032,'Eksplorasi - IPP'),
+(18,'ARED','PLTP','Gunung Salak 8',63.0,2032,'Eksplorasi - IPP'),
+(18,'RE_BASE','PLTP','Tangkuban Perahu (FTP2)',20.0,2032,'Eksplorasi - SH-PLN'),
+(18,'ARED','PLTP','Tangkuban Perahu (FTP2)',20.0,2032,'Eksplorasi - SH-PLN'),
+(18,'RE_BASE','PLTP','Tangkuban Perahu (FTP2)',20.0,2032,'Eksplorasi - SH-PLN'),
+(18,'ARED','PLTP','Tangkuban Perahu (FTP2)',20.0,2032,'Eksplorasi - SH-PLN'),
+(18,'RE_BASE','PLTP','Patuha (FTP2)',55.0,2032,'Eksplorasi - IPP'),
+(18,'ARED','PLTP','Patuha (FTP2)',55.0,2032,'Eksplorasi - IPP'),
+-- #54-61: COD sama (2033)
+(18,'RE_BASE','PLTP','Jawa-Bali (Kuota) Tersebar',25.0,2033,'Rencana - IPP'),
+(18,'ARED','PLTP','Jawa-Bali (Kuota) Tersebar',25.0,2033,'Rencana - IPP'),
+(18,'RE_BASE','PLTP','Jawa-Bali (Kuota) Tersebar',55.0,2033,'Rencana - IPP'),
+(18,'ARED','PLTP','Jawa-Bali (Kuota) Tersebar',55.0,2033,'Rencana - IPP'),
+(18,'RE_BASE','PLTP','Jawa-Bali (Kuota) Tersebar',55.0,2033,'Rencana - IPP'),
+(18,'ARED','PLTP','Jawa-Bali (Kuota) Tersebar',55.0,2033,'Rencana - IPP'),
+(18,'RE_BASE','PLTP','Jawa-Bali (Kuota) Tersebar',20.0,2033,'Rencana - IPP'),
+(18,'ARED','PLTP','Jawa-Bali (Kuota) Tersebar',20.0,2033,'Rencana - IPP'),
+(18,'RE_BASE','PLTP','Jawa-Bali (Kuota) Tersebar',55.0,2033,'Rencana - IPP'),
+(18,'ARED','PLTP','Jawa-Bali (Kuota) Tersebar',55.0,2033,'Rencana - IPP'),
+(18,'RE_BASE','PLTP','Jawa-Bali (Kuota) Tersebar',30.0,2033,'Rencana - IPP'),
+(18,'ARED','PLTP','Jawa-Bali (Kuota) Tersebar',30.0,2033,'Rencana - IPP'),
+(18,'RE_BASE','PLTP','Patuha (FTP2)',55.0,2033,'Eksplorasi - IPP'),
+(18,'ARED','PLTP','Patuha (FTP2)',55.0,2033,'Eksplorasi - IPP'),
+(18,'RE_BASE','PLTP','Wayang Windu',120.0,2033,'Rencana - IPP'),
+(18,'ARED','PLTP','Wayang Windu',120.0,2033,'Rencana - IPP'),
+-- #62: COD berbeda
+(18,'RE_BASE','PLTS','Jawa Barat (Kuota) Tersebar IX',190.0,2034,'Rencana - IPP'),
+(18,'ARED','PLTS','Jawa Barat (Kuota) Tersebar IX',190.0,2027,'Rencana - IPP'),
+-- #63-64: COD sama (2034)
+(18,'RE_BASE','BESS','BESS Smoothing Tersebar',150.0,2034,'Rencana - PLN'),
+(18,'ARED','BESS','BESS Smoothing Tersebar',150.0,2034,'Rencana - PLN'),
+(18,'RE_BASE','BESS','Jawa-Bali (Kuota) Tersebar IVB',250.0,2034,'Rencana - SH-PLN'),
+(18,'ARED','BESS','Jawa-Bali (Kuota) Tersebar IVB',250.0,2034,'Rencana - SH-PLN'),
+-- #65: RE Base only
+(18,'RE_BASE','PLTGU','Jawa-6',1000.0,2034,'Rencana - IPP'),
+-- #66-75: ARED only
+(18,'ARED','BESS','BESS Smoothing Tersebar',100.0,2029,'Rencana - PLN'),
+(18,'ARED','PLTS','Jawa Barat (Kuota) Tersebar X',977.0,2031,'Rencana - IPP'),
+(18,'ARED','PLTB','Jawa-Bali (Kuota) Tersebar IV',200.0,2031,'Rencana - IPP'),
+(18,'ARED','PLTB','Jawa-Bali (Kuota) Tersebar V',200.0,2031,'Rencana - IPP'),
+(18,'ARED','PLTS','Jawa Barat (Kuota) Tersebar XI',977.0,2032,'Rencana - IPP'),
+(18,'ARED','BESS','BESS Jawa Bali (Kuota) Tersebar II',200.0,2032,'Rencana - SH-PLN'),
+(18,'ARED','BESS','BESS Jawa Bali (Kuota) Tersebar IIIB',100.0,2032,'Rencana - SH-PLN'),
+(18,'ARED','PLTS','Jawa Barat (Kuota) Tersebar XII',977.0,2033,'Rencana - IPP'),
+(18,'ARED','BESS','BESS Smoothing Tersebar',150.0,2033,'Rencana - PLN'),
+(18,'ARED','BESS','BESS Smoothing Tersebar',100.0,2034,'Rencana - PLN');
+
+-- Rencana Transmisi (Tabel B3.11.a/b — RE Base dan ARED berbeda di 2026 & 2027)
+INSERT INTO ruptl_rencana_transmisi (provinsi_id, skenario, tahun, kms) VALUES
+(18,'RE_BASE',2025,516),(18,'RE_BASE',2026,699),(18,'RE_BASE',2027,687),
+(18,'RE_BASE',2028,427),(18,'RE_BASE',2029,344),(18,'RE_BASE',2030,416),
+(18,'RE_BASE',2031,176),(18,'RE_BASE',2032,191),(18,'RE_BASE',2033,154),(18,'RE_BASE',2034,20),
+(18,'ARED',2025,516),(18,'ARED',2026,718),(18,'ARED',2027,667),
+(18,'ARED',2028,427),(18,'ARED',2029,344),(18,'ARED',2030,416),
+(18,'ARED',2031,176),(18,'ARED',2032,191),(18,'ARED',2033,154),(18,'ARED',2034,20);
+
+-- Rencana Gardu Induk (Tabel B3.13.a/b — RE Base dan ARED identik, Total=18.220 MVA)
+INSERT INTO ruptl_rencana_gardu_induk (provinsi_id, skenario, tahun, mva) VALUES
+(18,'RE_BASE',2025,3700),(18,'RE_BASE',2026,1960),(18,'RE_BASE',2027,6020),
+(18,'RE_BASE',2028,3900),(18,'RE_BASE',2029,960),(18,'RE_BASE',2030,300),
+(18,'RE_BASE',2031,480),(18,'RE_BASE',2032,360),(18,'RE_BASE',2033,300),(18,'RE_BASE',2034,240),
+(18,'ARED',2025,3700),(18,'ARED',2026,1960),(18,'ARED',2027,6020),
+(18,'ARED',2028,3900),(18,'ARED',2029,960),(18,'ARED',2030,300),
+(18,'ARED',2031,480),(18,'ARED',2032,360),(18,'ARED',2033,300),(18,'ARED',2034,240);
+
