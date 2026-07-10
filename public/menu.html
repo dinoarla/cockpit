@@ -1636,7 +1636,7 @@ function closeGraphModal() {
 }
 
 document.getElementById('kgExpandBtn').addEventListener('click', e => { e.stopPropagation(); openGraphModal(); });
-// Use event delegation for modal controls since modal HTML is after </script> in DOM
+// Use event delegation for modal controls since modal HTML is after <\/script> in DOM
 document.addEventListener('click', e => {
   if (e.target.closest('#gm-close')) closeGraphModal();
 });
