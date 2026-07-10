@@ -7,31 +7,33 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
 :root {
-  --pln:#003B8E; --pln-dark:#001D5E; --pln-mid:#0052CC; --pln-light:#3B82F6;
-  --gold:#FFD600; --gold-d:#B8A000;
-  --bg:#F0F4FF; --card:#FFFFFF; --border:#D0DAF0;
-  --text:#0D1B3E; --muted:#536080; --dim:#8A96B0;
+  --pln:#1D4ED8; --pln-dark:#1E3A8A; --gold:#B45309; --gold-d:#92400E;
+  --bg:#F5F0E8; --card:#FFFFFF; --border:#E2DAD0;
+  --text:#111827; --muted:#6B7280; --dim:#9CA3AF;
   --green:#16A34A; --red:#DC2626; --amber:#D97706;
   --teal:#0D9488; --purple:#7C3AED; --orange:#EA580C;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;min-height:100vh}
-.back-link{padding:12px 32px 0;background:var(--pln-dark)}
-.back-link a{color:rgba(255,255,255,.5);text-decoration:none;font-size:13px;display:inline-flex;align-items:center;gap:5px}
-.back-link a:hover{color:#fff}
-.header{padding:16px 32px 24px;border-bottom:3px solid var(--gold);background:linear-gradient(135deg,var(--pln-dark) 0%,var(--pln) 100%)}
-.header-badge{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:var(--pln-dark);font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:12px}
-.header-title{font-size:28px;font-weight:800;color:#fff;margin-bottom:8px;line-height:1.2}
-.header-desc{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;max-width:800px;margin-bottom:16px}
-.meta-row{display:flex;flex-wrap:wrap;gap:20px}
-.meta-tag{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.6)}
-.meta-dot{width:7px;height:7px;border-radius:50%;background:var(--gold)}
-.tabs-bar{background:var(--pln-dark);border-bottom:1px solid rgba(255,255,255,.1);padding:0 32px;position:sticky;top:0;z-index:100}
+.back-link{padding:14px 32px 0;background:#0D1117}
+.back-link a{color:#6B7280;text-decoration:none;font-size:13px;display:inline-flex;align-items:center;gap:5px}
+.back-link a:hover{color:#E5E7EB}
+.header{padding:14px 32px 22px;border-bottom:1px solid #1F2937;background:#0D1117}
+.breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.bc-icon{width:20px;height:20px;border-radius:50%;background:var(--pln);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bc-icon svg{width:11px;height:11px;fill:#fff}
+.bc-text{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--pln);text-transform:uppercase}
+.header-title{font-size:26px;font-weight:800;color:#F9FAFB;margin-bottom:8px;line-height:1.2}
+.header-desc{font-size:13px;color:#9CA3AF;line-height:1.6;max-width:800px;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:18px}
+.meta-tag{display:flex;align-items:center;gap:6px;font-size:12px;color:#6B7280}
+.meta-dot{width:7px;height:7px;border-radius:50%;background:var(--pln)}
+.tabs-bar{background:#0D1117;border-bottom:1px solid #1F2937;padding:0 32px;position:sticky;top:0;z-index:100}
 .tabs{display:flex;overflow-x:auto;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
-.tab-btn{background:none;border:none;cursor:pointer;padding:14px 22px;font-size:13px;font-weight:500;color:rgba(255,255,255,.5);border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:color .15s,border-color .15s}
-.tab-btn:hover{color:rgba(255,255,255,.85)}
-.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:700}
+.tab-btn{background:none;border:none;cursor:pointer;padding:14px 22px;font-size:13px;font-weight:500;color:#6B7280;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:color .15s,border-color .15s}
+.tab-btn:hover{color:#E5E7EB}
+.tab-btn.active{color:var(--pln);border-bottom-color:var(--pln);font-weight:600}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 .content{max-width:1400px;margin:0 auto;padding:24px 32px}
@@ -39,7 +41,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.kpi-grid{grid-template-columns:1fr}}
-.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;border-left:4px solid var(--pln);box-shadow:0 2px 8px rgba(0,59,142,.07)}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;border-left:4px solid var(--pln);box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .kpi-card.c-gold{border-left-color:var(--gold-d)}
 .kpi-card.c-green{border-left-color:var(--green)}
 .kpi-card.c-red{border-left-color:var(--red)}
@@ -60,7 +62,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .chart-grid.cols-2{grid-template-columns:1fr 1fr}
 .chart-grid.cols-3{grid-template-columns:1fr 1fr 1fr}
 @media(max-width:900px){.chart-grid.cols-2,.chart-grid.cols-3{grid-template-columns:1fr}}
-.chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 22px;box-shadow:0 2px 8px rgba(0,59,142,.05)}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 22px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .chart-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
 .chart-title{font-size:14px;font-weight:700;color:var(--text)}
 .chart-sub{font-size:11px;color:var(--muted);margin-top:3px}
@@ -75,14 +77,14 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 /* tables */
 .table-scroll{overflow-x:auto;border-radius:8px;border:1px solid var(--border);margin-bottom:28px}
 table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
-thead th{background:var(--pln);color:rgba(255,255,255,.9);font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:10px 14px;text-align:right;border-bottom:1px solid rgba(255,255,255,.2);position:sticky;top:0}
+thead th{background:#1E293B;color:rgba(255,255,255,.85);font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:10px 14px;text-align:right;border-bottom:1px solid #334155;position:sticky;top:0}
 thead th:first-child{text-align:left}
-tbody tr{border-bottom:1px solid rgba(208,218,240,.6);transition:background .1s}
+tbody tr{border-bottom:1px solid rgba(226,218,208,.7);transition:background .1s}
 tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:#F0F4FF}
+tbody tr:hover{background:rgba(240,235,227,.5)}
 tbody td{padding:9px 14px;color:var(--text);text-align:right}
 tbody td:first-child{text-align:left;font-weight:600;color:var(--muted);white-space:normal;min-width:150px}
-.highlight-row{background:rgba(0,59,142,.04)!important}
+.highlight-row{background:rgba(29,78,216,.04)!important}
 .highlight-row td:first-child{color:var(--pln)!important;font-weight:800!important}
 /* pills */
 .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
@@ -110,8 +112,8 @@ tbody td:first-child{text-align:left;font-weight:600;color:var(--muted);white-sp
 .prog-bar{height:8px;border-radius:4px;background:#E5E7EB;overflow:hidden}
 .prog-fill{height:100%;border-radius:4px;background:var(--pln)}
 .award-cat{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--dim)}
-.info-box{background:rgba(0,59,142,.04);border:1px solid rgba(0,59,142,.15);border-radius:8px;padding:14px 18px;margin-bottom:20px;font-size:12px;color:var(--muted);line-height:1.6}
-.info-box strong{color:var(--text)}
+.info-box{background:#FEF9EE;border:1px solid #FDE68A;border-radius:8px;padding:14px 18px;margin-bottom:20px;font-size:12px;color:#92400E;line-height:1.6}
+.info-box strong{color:#78350F}
 .source-note{text-align:center;padding:20px 32px;font-size:11px;color:var(--dim);border-top:1px solid var(--border);background:var(--card);margin-top:28px}
 .loading{text-align:center;padding:48px;color:var(--muted)}
 .err-msg{text-align:center;padding:32px;color:var(--red);font-size:13px}
@@ -147,17 +149,19 @@ tbody td:first-child{text-align:left;font-weight:600;color:var(--muted);white-sp
 <div class="back-link"><a href="/menu.html">← Kembali ke Menu</a></div>
 
 <div class="header">
-  <div class="header-badge">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"/></svg>
-    PT PLN (Persero) · Laporan Tahunan
+  <div class="breadcrumb">
+    <div class="bc-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"/></svg>
+    </div>
+    <span class="bc-text">Energi Jabar · PT PLN (Persero) · Laporan Tahunan</span>
   </div>
   <div class="header-title">Annual Report 2025</div>
-  <div class="header-desc">Laporan Tahunan PT PLN (Persero) 2025 — Ikhtisar keuangan, operasional, dan transformasi. Diaudit oleh KAP Rintis, Jumadi, Rianto &amp; Rekan (PwC network) dengan opini Wajar Tanpa Pengecualian (WTP).</div>
+  <div class="header-desc">Laporan Tahunan PT PLN (Persero) 2025 — Ikhtisar keuangan, operasional, dan transformasi. Tema: "Mengorkestrasi Transisi Energi melalui Tata Kelola yang Transparan dan Terpercaya." Diaudit oleh KAP Rintis, Jumadi, Rianto &amp; Rekan (PwC network).</div>
   <div class="meta-row">
     <div class="meta-tag"><div class="meta-dot"></div> Laporan Keuangan Audited FY 2025</div>
     <div class="meta-tag"><div class="meta-dot"></div> Opini: Wajar Tanpa Pengecualian (WTP)</div>
     <div class="meta-tag"><div class="meta-dot"></div> Auditor: KAP Rintis, Jumadi, Rianto &amp; Rekan (PwC)</div>
-    <div class="meta-tag"><div class="meta-dot"></div> Nilai dalam Juta Rupiah</div>
+    <div class="meta-tag"><div class="meta-dot"></div> Nilai dalam Miliar Rupiah (Rp T)</div>
   </div>
 </div>
 
@@ -1026,7 +1030,7 @@ const GCG_AWARDS = [
 ];
 
 // ── Helpers ──
-const T = v => parseFloat((v/1e12).toFixed(2));
+const T = v => parseFloat((v/1e6).toFixed(2));
 const gOpts = (extra={}) => ({
   responsive:true, maintainAspectRatio:false,
   plugins:{ legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,padding:12}}, tooltip:{} },
