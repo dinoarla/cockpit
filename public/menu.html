@@ -289,8 +289,22 @@
     border-right:1px solid rgba(255,255,255,.06);
     padding:18px 14px 80px;
     scrollbar-width:none;
+    transition:width .28s cubic-bezier(.4,0,.2,1),padding .28s cubic-bezier(.4,0,.2,1),border .28s;
   }
   .server-sidebar::-webkit-scrollbar{display:none;}
+  .server-sidebar.ss-collapsed{
+    width:38px !important;
+    padding:10px 0 !important;
+    border-right:1px solid rgba(255,255,255,.04) !important;
+    overflow-y:hidden;
+  }
+  .server-sidebar.ss-collapsed .ss-hd{
+    flex-direction:column;gap:0;padding:8px 0 0;border-bottom:none;margin-bottom:0;
+    align-items:center;
+  }
+  .server-sidebar.ss-collapsed .ss-hd-text{ display:none; }
+  .server-sidebar.ss-collapsed .ss-block,
+  .server-sidebar.ss-collapsed .ss-foot{ display:none; }
   .ss-hd{
     display:flex;align-items:center;gap:7px;
     font-family:'DM Mono',monospace;font-size:.52rem;font-weight:500;
@@ -299,6 +313,17 @@
     border-bottom:1px solid rgba(255,255,255,.06);
   }
   .ss-hd i{color:rgba(255,77,0,.6);font-size:.62rem;}
+  .ss-col-btn,.kg-col-btn{
+    background:none;border:none;cursor:pointer;
+    color:rgba(230,237,243,.22);font-size:.62rem;
+    padding:3px 5px;border-radius:4px;
+    transition:color .15s,background .15s;flex-shrink:0;
+  }
+  .ss-col-btn{margin-left:auto;}
+  .kg-col-btn{margin-left:auto;}
+  .ss-col-btn:hover,.kg-col-btn:hover{
+    color:rgba(230,237,243,.7);background:rgba(255,255,255,.07);
+  }
   .ss-block{
     margin-bottom:10px;padding:11px;
     background:rgba(255,255,255,.025);
@@ -365,8 +390,22 @@
     border-left:1px solid rgba(255,255,255,.06);
     display:flex;flex-direction:column;
     overflow:hidden;
+    transition:width .28s cubic-bezier(.4,0,.2,1),border .28s;
   }
   @media(max-width:1100px){.kg-sidebar{display:none;}}
+  .kg-sidebar.kg-collapsed{
+    width:38px !important;
+    border-left:1px solid rgba(255,255,255,.04) !important;
+  }
+  .kg-sidebar.kg-collapsed .kg-hd{
+    flex-direction:column;gap:0;padding:18px 0 10px;border-bottom:none;
+    align-items:center;
+  }
+  .kg-sidebar.kg-collapsed .kg-hd-text,
+  .kg-sidebar.kg-collapsed .kg-cnt{ display:none; }
+  .kg-sidebar.kg-collapsed .kg-graph,
+  .kg-sidebar.kg-collapsed .kg-leg,
+  .kg-sidebar.kg-collapsed .kg-foot{ display:none; }
   .kg-hd{
     display:flex;align-items:center;gap:7px;
     font-family:'DM Mono',monospace;font-size:.52rem;font-weight:500;
@@ -538,7 +577,11 @@
 <div class="page-wrap">
 
 <aside class="server-sidebar">
-  <div class="ss-hd"><i class="fa-solid fa-server"></i>Server Stats</div>
+  <div class="ss-hd">
+    <i class="fa-solid fa-server"></i>
+    <span class="ss-hd-text">Server Stats</span>
+    <button class="ss-col-btn" id="ssColBtn" title="Sembunyikan sidebar"><i class="fa-solid fa-chevron-left" id="ssColIco"></i></button>
+  </div>
 
   <div class="ss-block">
     <div class="ss-lbl">Memori</div>
@@ -657,8 +700,9 @@
 <aside class="kg-sidebar" id="kgSidebar">
   <div class="kg-hd">
     <i class="fa-solid fa-diagram-project"></i>
-    Knowledge Graph
+    <span class="kg-hd-text">Knowledge Graph</span>
     <span class="kg-cnt" id="kg-node-count"></span>
+    <button class="kg-col-btn" id="kgColBtn" title="Sembunyikan sidebar"><i class="fa-solid fa-chevron-right" id="kgColIco"></i></button>
   </div>
   <div class="kg-graph" id="kg-graph">
     <svg id="kg-svg" width="100%" height="100%"></svg>
@@ -1217,6 +1261,40 @@ async function loadFooterStats() {
 
 loadFooterStats();
 
+// ── SIDEBAR COLLAPSE TOGGLES ──
+(function initSidebarToggles() {
+  const SS_KEY = 'cockpit_ss_col';
+  const KG_KEY = 'cockpit_kg_col';
+  const ssSidebar = document.querySelector('.server-sidebar');
+  const kgSidebar = document.getElementById('kgSidebar');
+  const ssBtn = document.getElementById('ssColBtn');
+  const kgBtn = document.getElementById('kgColBtn');
+  const ssIco = document.getElementById('ssColIco');
+  const kgIco = document.getElementById('kgColIco');
+
+  if (ssSidebar && localStorage.getItem(SS_KEY) === '1') {
+    ssSidebar.classList.add('ss-collapsed');
+    if (ssIco) ssIco.className = 'fa-solid fa-chevron-right';
+  }
+  if (kgSidebar && localStorage.getItem(KG_KEY) === '1') {
+    kgSidebar.classList.add('kg-collapsed');
+    if (kgIco) kgIco.className = 'fa-solid fa-chevron-left';
+  }
+
+  if (ssBtn && ssSidebar) ssBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const col = ssSidebar.classList.toggle('ss-collapsed');
+    ssIco.className = 'fa-solid fa-chevron-' + (col ? 'right' : 'left');
+    localStorage.setItem(SS_KEY, col ? '1' : '0');
+  });
+  if (kgBtn && kgSidebar) kgBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const col = kgSidebar.classList.toggle('kg-collapsed');
+    kgIco.className = 'fa-solid fa-chevron-' + (col ? 'left' : 'right');
+    localStorage.setItem(KG_KEY, col ? '1' : '0');
+  });
+})();
+
 // ── KNOWLEDGE GRAPH ──
 function initKnowledgeGraph(domainList) {
   if (typeof d3 === 'undefined') return;
@@ -1226,8 +1304,9 @@ function initKnowledgeGraph(domainList) {
   if (!sidebar || !container) return;
   if (window.getComputedStyle(sidebar).display === 'none') return;
 
-  const W = container.offsetWidth  || 220;
-  const H = container.offsetHeight || 380;
+  // Use sidebar's full width as reference even if currently collapsed
+  const W = sidebar.classList.contains('kg-collapsed') ? 208 : (container.offsetWidth  || 208);
+  const H = sidebar.classList.contains('kg-collapsed') ? 380 : (container.offsetHeight || 380);
 
   const GC = {
     'energi-jabar-1':       '#FF4D00',
