@@ -293,16 +293,29 @@
   }
   .server-sidebar::-webkit-scrollbar{display:none;}
   .server-sidebar.ss-collapsed{
-    width:38px !important;
-    padding:10px 0 !important;
-    border-right:1px solid rgba(255,255,255,.04) !important;
+    width:44px !important;
+    padding:0 !important;
+    border-right:1px solid rgba(255,255,255,.05) !important;
     overflow-y:hidden;
   }
   .server-sidebar.ss-collapsed .ss-hd{
-    flex-direction:column;gap:0;padding:8px 0 0;border-bottom:none;margin-bottom:0;
-    align-items:center;
+    flex-direction:column;gap:0;padding:0;border-bottom:none;margin-bottom:0;
+    align-items:stretch;
   }
   .server-sidebar.ss-collapsed .ss-hd-text{ display:none; }
+  .server-sidebar.ss-collapsed .ss-hd>i:first-child{
+    display:block;width:44px;height:52px;line-height:52px;
+    text-align:center;font-size:.95rem;color:rgba(255,77,0,.35);flex-shrink:0;
+  }
+  .server-sidebar.ss-collapsed .ss-col-btn{
+    margin-left:0;width:44px;height:44px;
+    display:flex;align-items:center;justify-content:center;
+    padding:0;border-radius:0;font-size:.82rem;
+    border-top:1px solid rgba(255,255,255,.05);
+  }
+  .server-sidebar.ss-collapsed .ss-col-btn:hover{
+    background:rgba(255,255,255,.08);color:rgba(230,237,243,.8);
+  }
   .server-sidebar.ss-collapsed .ss-block,
   .server-sidebar.ss-collapsed .ss-foot{ display:none; }
   .ss-hd{
@@ -394,15 +407,37 @@
   }
   @media(max-width:1100px){.kg-sidebar{display:none;}}
   .kg-sidebar.kg-collapsed{
-    width:38px !important;
-    border-left:1px solid rgba(255,255,255,.04) !important;
+    width:44px !important;
+    border-left:1px solid rgba(255,255,255,.05) !important;
   }
   .kg-sidebar.kg-collapsed .kg-hd{
-    flex-direction:column;gap:0;padding:18px 0 10px;border-bottom:none;
-    align-items:center;
+    flex-direction:column;gap:0;padding:0;border-bottom:none;
+    align-items:stretch;
   }
   .kg-sidebar.kg-collapsed .kg-hd-text,
   .kg-sidebar.kg-collapsed .kg-cnt{ display:none; }
+  .kg-sidebar.kg-collapsed .kg-hd>i:first-child{
+    display:block;width:44px;height:52px;line-height:52px;
+    text-align:center;font-size:.95rem;color:rgba(168,139,250,.35);flex-shrink:0;
+  }
+  .kg-sidebar.kg-collapsed .kg-expand-btn{
+    margin-left:0;width:44px;height:44px;
+    display:flex;align-items:center;justify-content:center;
+    padding:0;border-radius:0;font-size:.8rem;
+    border-top:1px solid rgba(255,255,255,.05);
+  }
+  .kg-sidebar.kg-collapsed .kg-expand-btn:hover{
+    background:rgba(168,139,250,.12);color:rgba(230,237,243,.8);
+  }
+  .kg-sidebar.kg-collapsed .kg-col-btn{
+    margin-left:0;width:44px;height:44px;
+    display:flex;align-items:center;justify-content:center;
+    padding:0;border-radius:0;font-size:.82rem;
+    border-top:1px solid rgba(255,255,255,.05);
+  }
+  .kg-sidebar.kg-collapsed .kg-col-btn:hover{
+    background:rgba(255,255,255,.08);color:rgba(230,237,243,.8);
+  }
   .kg-sidebar.kg-collapsed .kg-graph,
   .kg-sidebar.kg-collapsed .kg-leg,
   .kg-sidebar.kg-collapsed .kg-foot{ display:none; }
@@ -1601,7 +1636,10 @@ function closeGraphModal() {
 }
 
 document.getElementById('kgExpandBtn').addEventListener('click', e => { e.stopPropagation(); openGraphModal(); });
-document.getElementById('gm-close').addEventListener('click', closeGraphModal);
+// Use event delegation for modal controls since modal HTML is after </script> in DOM
+document.addEventListener('click', e => {
+  if (e.target.closest('#gm-close')) closeGraphModal();
+});
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGraphModal(); });
 
 function initFullGraph(domainList) {
