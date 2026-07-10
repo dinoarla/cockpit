@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLN Annual Report 2025 | Cockpit</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --pln:#003B8E; --pln-dark:#001D5E; --pln-mid:#0052CC; --pln-light:#3B82F6;
+  --gold:#FFD600; --gold-d:#B8A000;
+  --bg:#F0F4FF; --card:#FFFFFF; --border:#D0DAF0;
+  --text:#0D1B3E; --muted:#536080; --dim:#8A96B0;
+  --green:#16A34A; --red:#DC2626; --amber:#D97706;
+  --teal:#0D9488; --purple:#7C3AED; --orange:#EA580C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;min-height:100vh}
+.back-link{padding:12px 32px 0;background:var(--pln-dark)}
+.back-link a{color:rgba(255,255,255,.5);text-decoration:none;font-size:13px;display:inline-flex;align-items:center;gap:5px}
+.back-link a:hover{color:#fff}
+.header{padding:16px 32px 24px;border-bottom:3px solid var(--gold);background:linear-gradient(135deg,var(--pln-dark) 0%,var(--pln) 100%)}
+.header-badge{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:var(--pln-dark);font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:12px}
+.header-title{font-size:28px;font-weight:800;color:#fff;margin-bottom:8px;line-height:1.2}
+.header-desc{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;max-width:800px;margin-bottom:16px}
+.meta-row{display:flex;flex-wrap:wrap;gap:20px}
+.meta-tag{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.6)}
+.meta-dot{width:7px;height:7px;border-radius:50%;background:var(--gold)}
+.tabs-bar{background:var(--pln-dark);border-bottom:1px solid rgba(255,255,255,.1);padding:0 32px;position:sticky;top:0;z-index:100}
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{background:none;border:none;cursor:pointer;padding:14px 22px;font-size:13px;font-weight:500;color:rgba(255,255,255,.5);border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:color .15s,border-color .15s}
+.tab-btn:hover{color:rgba(255,255,255,.85)}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:700}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.content{max-width:1400px;margin:0 auto;padding:24px 32px}
+/* KPI cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;border-left:4px solid var(--pln);box-shadow:0 2px 8px rgba(0,59,142,.07)}
+.kpi-card.c-gold{border-left-color:var(--gold-d)}
+.kpi-card.c-green{border-left-color:var(--green)}
+.kpi-card.c-red{border-left-color:var(--red)}
+.kpi-card.c-amber{border-left-color:var(--amber)}
+.kpi-card.c-teal{border-left-color:var(--teal)}
+.kpi-card.c-purple{border-left-color:var(--purple)}
+.kpi-card.c-orange{border-left-color:var(--orange)}
+.kpi-card.c-pink{border-left-color:#EC4899}
+.kpi-label{font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.kpi-val{font-size:24px;font-weight:800;color:var(--text);line-height:1;margin-bottom:5px}
+.kpi-val sup{font-size:11px;font-weight:600;color:var(--muted);margin-left:2px}
+.kpi-yoy{font-size:12px;font-weight:600;margin-bottom:4px}
+.kpi-yoy.up{color:var(--green)} .kpi-yoy.down{color:var(--red)}
+.kpi-yoy.inv-down{color:var(--green)} .kpi-yoy.inv-up{color:var(--red)}
+.kpi-desc{font-size:11px;color:var(--dim);line-height:1.4}
+/* charts */
+.chart-grid{display:grid;gap:18px;margin-bottom:24px}
+.chart-grid.cols-2{grid-template-columns:1fr 1fr}
+.chart-grid.cols-3{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:900px){.chart-grid.cols-2,.chart-grid.cols-3{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 22px;box-shadow:0 2px 8px rgba(0,59,142,.05)}
+.chart-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.chart-title{font-size:14px;font-weight:700;color:var(--text)}
+.chart-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.chart-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--pln);color:#fff;white-space:nowrap;flex-shrink:0}
+.chart-badge.gold{background:var(--gold-d)} .chart-badge.green{background:var(--green)}
+.chart-wrap{position:relative;height:240px}
+.chart-wrap.tall{height:300px} .chart-wrap.xtall{height:360px}
+/* section titles */
+.section-title{font-size:15px;font-weight:800;color:var(--text);margin:28px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px}
+.stag{font-size:10px;font-weight:700;letter-spacing:1px;background:var(--pln);color:#fff;padding:3px 10px;border-radius:20px;text-transform:uppercase}
+.stag.gold{background:var(--gold-d)} .stag.green{background:var(--green)}
+/* tables */
+.table-scroll{overflow-x:auto;border-radius:8px;border:1px solid var(--border);margin-bottom:28px}
+table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
+thead th{background:var(--pln);color:rgba(255,255,255,.9);font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:10px 14px;text-align:right;border-bottom:1px solid rgba(255,255,255,.2);position:sticky;top:0}
+thead th:first-child{text-align:left}
+tbody tr{border-bottom:1px solid rgba(208,218,240,.6);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#F0F4FF}
+tbody td{padding:9px 14px;color:var(--text);text-align:right}
+tbody td:first-child{text-align:left;font-weight:600;color:var(--muted);white-space:normal;min-width:150px}
+.highlight-row{background:rgba(0,59,142,.04)!important}
+.highlight-row td:first-child{color:var(--pln)!important;font-weight:800!important}
+/* pills */
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+.pill-green{background:#DCFCE7;color:#166534} .pill-amber{background:#FEF3C7;color:#92400E}
+.pill-red{background:#FEE2E2;color:#991B1B} .pill-blue{background:#DBEAFE;color:#1E40AF}
+/* achievement bar */
+.ach-bar{height:6px;border-radius:3px;background:#E5E7EB;overflow:hidden;margin-top:4px}
+.ach-bar-fill{height:100%;border-radius:3px;background:var(--green);transition:width .4s}
+.ach-bar-fill.over{background:var(--pln)} .ach-bar-fill.under{background:var(--amber)} .ach-bar-fill.low{background:var(--red)}
+/* aspirasi */
+.aspirasi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+@media(max-width:900px){.aspirasi-grid{grid-template-columns:repeat(2,1fr)}}
+.aspirasi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 18px;text-align:center;box-shadow:0 2px 8px rgba(0,59,142,.05)}
+.aspirasi-icon{font-size:28px;margin-bottom:10px}
+.aspirasi-num{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--pln);text-transform:uppercase;margin-bottom:4px}
+.aspirasi-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:8px}
+.aspirasi-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.aspirasi-kpi{font-size:20px;font-weight:800;color:var(--pln);margin-top:10px}
+.aspirasi-kpi-label{font-size:10px;color:var(--dim)}
+/* progress */
+.prog-item{margin-bottom:14px}
+.prog-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.prog-name{font-size:12px;font-weight:600;color:var(--text)}
+.prog-val{font-size:12px;font-weight:700;color:var(--pln)}
+.prog-bar{height:8px;border-radius:4px;background:#E5E7EB;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;background:var(--pln)}
+.award-cat{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--dim)}
+.info-box{background:rgba(0,59,142,.04);border:1px solid rgba(0,59,142,.15);border-radius:8px;padding:14px 18px;margin-bottom:20px;font-size:12px;color:var(--muted);line-height:1.6}
+.info-box strong{color:var(--text)}
+.source-note{text-align:center;padding:20px 32px;font-size:11px;color:var(--dim);border-top:1px solid var(--border);background:var(--card);margin-top:28px}
+.loading{text-align:center;padding:48px;color:var(--muted)}
+.err-msg{text-align:center;padding:32px;color:var(--red);font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="back-link"><a href="/menu.html">← Kembali ke Menu</a></div>
+
+<div class="header">
+  <div class="header-badge">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"/></svg>
+    PT PLN (Persero) · Laporan Tahunan
+  </div>
+  <div class="header-title">Annual Report 2025</div>
+  <div class="header-desc">Laporan Tahunan PT PLN (Persero) 2025 — Ikhtisar keuangan, operasional, dan transformasi. Diaudit oleh KAP Rintis, Jumadi, Rianto &amp; Rekan (PwC network) dengan opini Wajar Tanpa Pengecualian (WTP).</div>
+  <div class="meta-row">
+    <div class="meta-tag"><div class="meta-dot"></div> Laporan Keuangan Audited FY 2025</div>
+    <div class="meta-tag"><div class="meta-dot"></div> Opini: Wajar Tanpa Pengecualian (WTP)</div>
+    <div class="meta-tag"><div class="meta-dot"></div> Auditor: KAP Rintis, Jumadi, Rianto &amp; Rekan (PwC)</div>
+    <div class="meta-tag"><div class="meta-dot"></div> Nilai dalam Juta Rupiah</div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(0)">📊 Ikhtisar 2025</button>
+    <button class="tab-btn" onclick="switchTab(1)">💰 Keuangan</button>
+    <button class="tab-btn" onclick="switchTab(2)">⚡ Operasional &amp; KPI</button>
+    <button class="tab-btn" onclick="switchTab(3)">🔄 Transformasi</button>
+  </div>
+</div>
+
+<!-- TAB 0: IKHTISAR -->
+<div id="tab-0" class="tab-panel active">
+<div class="content">
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Aset</div>
+      <div class="kpi-val">Rp 1.837<sup>T</sup></div>
+      <div class="kpi-yoy up">▲ +3,6% YoY</div>
+      <div class="kpi-desc">Rp 1.837,4 triliun per 31 Des 2025</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">Total Ekuitas</div>
+      <div class="kpi-val">Rp 1.064<sup>T</sup></div>
+      <div class="kpi-yoy down">▼ −0,5% YoY</div>
+      <div class="kpi-desc">Rp 1.064,2 T; terkoreksi rugi komprehensif</div>
+    </div>
+    <div class="kpi-card c-gold">
+      <div class="kpi-label">Pendapatan Usaha</div>
+      <div class="kpi-val">Rp 582,7<sup>T</sup></div>
+      <div class="kpi-yoy up">▲ +6,8% YoY</div>
+      <div class="kpi-desc">Penjualan TL dominan 63% dari total</div>
+    </div>
+    <div class="kpi-card c-teal">
+      <div class="kpi-label">Laba Usaha (EBIT)</div>
+      <div class="kpi-val">Rp 49,2<sup>T</sup></div>
+      <div class="kpi-yoy down">▼ −18,8% YoY</div>
+      <div class="kpi-desc">Tekanan kenaikan beban bahan bakar</div>
+    </div>
+    <div class="kpi-card c-amber">
+      <div class="kpi-label">Laba Bersih</div>
+      <div class="kpi-val">Rp 7,26<sup>T</sup></div>
+      <div class="kpi-yoy down">▼ −65,8% YoY</div>
+      <div class="kpi-desc">EPS Rp 46,60/saham (2024: Rp 117,61)</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">CSI — Kepuasan Pelanggan</div>
+      <div class="kpi-val">99,15<sup>%</sup></div>
+      <div class="kpi-yoy up">▲ +0,22 pp YoY</div>
+      <div class="kpi-desc">Tertinggi dalam 5 tahun terakhir</div>
+    </div>
+    <div class="kpi-card c-purple">
+      <div class="kpi-label">Produksi Tenaga Listrik</div>
+      <div class="kpi-val">349.884<sup>GWh</sup></div>
+      <div class="kpi-yoy up">▲ Kapasitas 80.189 MW</div>
+      <div class="kpi-desc">6.649 unit; susut jaringan 8,19%</div>
+    </div>
+    <div class="kpi-card c-orange">
+      <div class="kpi-label">Skor KPI Perusahaan</div>
+      <div class="kpi-val">100,19</div>
+      <div class="kpi-yoy up">▲ Melampaui target (100)</div>
+      <div class="kpi-desc">14 indikator KPI konsolidasi 2025</div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Skor KPI Perusahaan (2021–2025)</div><div class="chart-sub">Target = 100; dicapped pada 110</div></div>
+        <span class="chart-badge">5 Tahun</span>
+      </div>
+      <div class="chart-wrap"><canvas id="c0-kpiscore"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Tren CSI & KPI Score (2021–2025)</div><div class="chart-sub">CSI kiri (%) · Skor KPI kanan</div></div>
+        <span class="chart-badge gold">CSI</span>
+      </div>
+      <div class="chart-wrap"><canvas id="c0-csi"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Kinerja Keuangan 5 Tahun <span class="stag">Snapshot</span></div>
+  <div class="chart-grid cols-3">
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">Pendapatan & Laba Usaha</div><div class="chart-sub">Rp Triliun</div></div></div>
+      <div class="chart-wrap"><canvas id="c0-rev"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">Total Aset, Ekuitas, Liabilitas</div><div class="chart-sub">Rp Triliun</div></div></div>
+      <div class="chart-wrap"><canvas id="c0-bsheet"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">Laba Bersih & EPS</div><div class="chart-sub">Laba Bersih Rp T (kiri) · EPS Rp (kanan)</div></div></div>
+      <div class="chart-wrap"><canvas id="c0-eps"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Capaian Operasional 2025 <span class="stag green">Highlights</span></div>
+  <div class="kpi-grid">
+    <div class="kpi-card c-teal">
+      <div class="kpi-label">Penjualan Tenaga Listrik</div>
+      <div class="kpi-val">317.692<sup>GWh</sup></div>
+      <div class="kpi-desc">Susut jaringan 8,19% (target ≤8,62%)</div>
+    </div>
+    <div class="kpi-card c-purple">
+      <div class="kpi-label">Pelanggan Baru</div>
+      <div class="kpi-val">3,30<sup>Juta</sup></div>
+      <div class="kpi-desc">3.296.942 pelanggan baru terhubung</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">SAIDI (Durasi Padam)</div>
+      <div class="kpi-val">262,28<sup>mnt</sup></div>
+      <div class="kpi-yoy inv-down">▼ Lebih baik dari target 322,80 mnt</div>
+      <div class="kpi-desc">Lama padam rata-rata per pelanggan/tahun</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">SAIFI (Frekuensi Padam)</div>
+      <div class="kpi-val">3,14<sup>x/thn</sup></div>
+      <div class="kpi-yoy inv-down">▼ Lebih baik dari target 3,50 x</div>
+      <div class="kpi-desc">Frekuensi padam rata-rata per pelanggan</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TAB 1: KEUANGAN -->
+<div id="tab-1" class="tab-panel">
+<div class="content">
+  <div class="info-box">
+    <strong>Catatan:</strong> Semua nilai dalam <strong>juta Rupiah (Rp juta)</strong> kecuali disebutkan lain.
+    Laporan Keuangan Konsolidasian FY 2025 telah diaudit oleh KAP Rintis, Jumadi, Rianto &amp; Rekan (PwC)
+    dengan opini <strong>Wajar Tanpa Pengecualian (WTP)</strong>.
+  </div>
+
+  <div class="section-title">Tren Neraca & Laba Rugi 2021–2025 <span class="stag">Konsolidasian</span></div>
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Neraca: Ekuitas + Liabilitas (Stacked)</div><div class="chart-sub">Rp Triliun</div></div>
+        <span class="chart-badge">2021–2025</span>
+      </div>
+      <div class="chart-wrap tall"><canvas id="c1-balance"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Pendapatan, Laba Usaha, Margin</div><div class="chart-sub">Rp T (kiri) · Margin % (kanan)</div></div>
+        <span class="chart-badge gold">L/R</span>
+      </div>
+      <div class="chart-wrap tall"><canvas id="c1-revop"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Arus Kas Konsolidasian</div><div class="chart-sub">Rp Triliun — Operasi / Investasi / Pendanaan / Kas Akhir</div></div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="c1-cf"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Laba Bersih & EPS</div><div class="chart-sub">Laba Bersih Rp T (kiri) · EPS Rp (kanan)</div></div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="c1-neteps"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Komposisi Pendapatan & Beban 2025 <span class="stag gold">Breakdown</span></div>
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Komposisi Pendapatan 2025</div><div class="chart-sub">Total Rp 582,7 Triliun</div></div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="c1-revcomp"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Struktur Beban Usaha 2025</div><div class="chart-sub">Total Rp 533,5 Triliun</div></div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="c1-opex"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">CAPEX per Kategori 2023–2025 <span class="stag">Investasi</span></div>
+  <div class="chart-card" style="margin-bottom:28px">
+    <div class="chart-header">
+      <div><div class="chart-title">Belanja Modal (CAPEX) per Kategori</div><div class="chart-sub">Rp Triliun — Perbandingan 2023 / 2024 / 2025</div></div>
+    </div>
+    <div class="chart-wrap xtall"><canvas id="c1-capex"></canvas></div>
+  </div>
+
+  <div class="section-title">Rasio Keuangan 5 Tahun <span class="stag gold">Analisis</span></div>
+  <div class="chart-grid cols-3">
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">Marjin Laba Usaha, Bersih & EBITDA</div><div class="chart-sub">%</div></div></div>
+      <div class="chart-wrap"><canvas id="c1-margin"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">ROA & ROE</div><div class="chart-sub">%</div></div></div>
+      <div class="chart-wrap"><canvas id="c1-roaroe"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">Current Ratio & Debt-to-Equity</div><div class="chart-sub">CR % (kiri) · DER % (kanan)</div></div></div>
+      <div class="chart-wrap"><canvas id="c1-liqsolv"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Laporan Keuangan Ringkas 5 Tahun <span class="stag">Konsolidasian · Juta Rp</span></div>
+  <div id="finTableWrap"><div class="loading">Memuat data keuangan...</div></div>
+</div>
+</div>
+
+<!-- TAB 2: OPERASIONAL & KPI -->
+<div id="tab-2" class="tab-panel">
+<div class="content">
+  <div class="section-title">Kinerja Operasional 2025 <span class="stag green">Highlights</span></div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Kapasitas Terpasang</div>
+      <div class="kpi-val">80.189<sup>MW</sup></div>
+      <div class="kpi-desc">6.649 unit pembangkit operasional</div>
+    </div>
+    <div class="kpi-card c-gold">
+      <div class="kpi-label">Produksi Tenaga Listrik</div>
+      <div class="kpi-val">349.884<sup>GWh</sup></div>
+      <div class="kpi-desc">Total produksi listrik PLN nasional</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">Penjualan Tenaga Listrik</div>
+      <div class="kpi-val">317.692<sup>GWh</sup></div>
+      <div class="kpi-desc">Susut jaringan 8,19% (target 8,62%)</div>
+    </div>
+    <div class="kpi-card c-teal">
+      <div class="kpi-label">Jaringan Distribusi</div>
+      <div class="kpi-val">1.086.835<sup>km</sup></div>
+      <div class="kpi-desc">Transmisi 74.973 km</div>
+    </div>
+    <div class="kpi-card c-purple">
+      <div class="kpi-label">SAIDI</div>
+      <div class="kpi-val">262,28<sup>mnt</sup></div>
+      <div class="kpi-yoy inv-down">▼ 18,7% lebih baik dari target</div>
+      <div class="kpi-desc">Target: 322,80 mnt/pelanggan/tahun</div>
+    </div>
+    <div class="kpi-card c-purple">
+      <div class="kpi-label">SAIFI</div>
+      <div class="kpi-val">3,14<sup>x</sup></div>
+      <div class="kpi-yoy inv-down">▼ 10,3% lebih baik dari target</div>
+      <div class="kpi-desc">Target: 3,50 x/pelanggan/tahun</div>
+    </div>
+    <div class="kpi-card c-orange">
+      <div class="kpi-label">Pelanggan Baru</div>
+      <div class="kpi-val">3,30<sup>Juta</sup></div>
+      <div class="kpi-desc">3.296.942 pelanggan baru tersambung</div>
+    </div>
+    <div class="kpi-card c-amber">
+      <div class="kpi-label">Kapasitas Tersambung Baru</div>
+      <div class="kpi-val">10.594<sup>MVA</sup></div>
+      <div class="kpi-desc">Penambahan kapasitas 2025</div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">CSI & Skor KPI Tren 5 Tahun</div><div class="chart-sub">CSI % (kiri) · Skor KPI (kanan)</div></div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="c2-csikpi"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Proyeksi Permintaan Listrik 2025–2034</div><div class="chart-sub">Penjualan TWh (RUPTL 2025–2034)</div></div>
+        <span class="chart-badge">RUPTL</span>
+      </div>
+      <div class="chart-wrap tall"><canvas id="c2-demand"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Pencapaian KPI Perusahaan 2025 <span class="stag green">Scorecard</span></div>
+  <div id="kpiTableWrap"><div class="loading">Memuat data KPI...</div></div>
+
+  <div class="section-title">Beban Usaha per Kategori 2023–2025 <span class="stag">Perbandingan</span></div>
+  <div class="chart-card" style="margin-bottom:28px">
+    <div class="chart-header">
+      <div><div class="chart-title">OPEX per Kategori</div><div class="chart-sub">Rp Triliun — 2023 / 2024 / 2025</div></div>
+    </div>
+    <div class="chart-wrap xtall"><canvas id="c2-opex3"></canvas></div>
+  </div>
+</div>
+</div>
+
+<!-- TAB 3: TRANSFORMASI -->
+<div id="tab-3" class="tab-panel">
+<div class="content">
+  <div class="section-title">Transformasi PLN 2.0 <span class="stag gold">4 Aspirasi Utama</span></div>
+  <div class="aspirasi-grid">
+    <div class="aspirasi-card">
+      <div class="aspirasi-icon">⚡</div>
+      <div class="aspirasi-num">Aspirasi 1</div>
+      <div class="aspirasi-title">Pemimpin Transisi Energi</div>
+      <div class="aspirasi-desc">Memimpin transisi menuju energi terbarukan; program dedieselisasi dan pengembangan EBT nasional</div>
+      <div class="aspirasi-kpi">109,09%</div>
+      <div class="aspirasi-kpi-label">Capaian Dedieselisasi 2025</div>
+    </div>
+    <div class="aspirasi-card">
+      <div class="aspirasi-icon">🌱</div>
+      <div class="aspirasi-num">Aspirasi 2</div>
+      <div class="aspirasi-title">Andal &amp; Memuaskan Pelanggan</div>
+      <div class="aspirasi-desc">Menyediakan listrik andal berkualitas tinggi dengan kepuasan pelanggan terbaik di ASEAN</div>
+      <div class="aspirasi-kpi">99,15%</div>
+      <div class="aspirasi-kpi-label">CSI 2025 (tertinggi 5 tahun)</div>
+    </div>
+    <div class="aspirasi-card">
+      <div class="aspirasi-icon">💡</div>
+      <div class="aspirasi-num">Aspirasi 3</div>
+      <div class="aspirasi-title">Inovasi &amp; Beyond kWh</div>
+      <div class="aspirasi-desc">Mendiversifikasi pendapatan melalui layanan digital, PLN Mobile, dan ekosistem beyond-kWh</div>
+      <div class="aspirasi-kpi">Rp 13,15T</div>
+      <div class="aspirasi-kpi-label">Pendapatan Beyond-kWh 2025</div>
+    </div>
+    <div class="aspirasi-card">
+      <div class="aspirasi-icon">🏆</div>
+      <div class="aspirasi-num">Aspirasi 4</div>
+      <div class="aspirasi-title">Tata Kelola &amp; Keberlanjutan</div>
+      <div class="aspirasi-desc">Meningkatkan GCG, ESG rating, keselamatan kerja, dan diversitas talenta secara berkelanjutan</div>
+      <div class="aspirasi-kpi">BB</div>
+      <div class="aspirasi-kpi-label">ESG Rating MSCI 2025 (skor 25,90)</div>
+    </div>
+  </div>
+
+  <div class="section-title">Capaian KPI per Kategori <span class="stag">Pencapaian 2025</span></div>
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Persentase Pencapaian KPI 2025</div><div class="chart-sub">% terhadap target (capped 110%)</div></div>
+      </div>
+      <div class="chart-wrap xtall"><canvas id="c3-kpiach"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Distribusi Bobot KPI per Kategori</div><div class="chart-sub">% bobot total dari 82%</div></div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="c3-kpiwt"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Program Strategis 2025 <span class="stag green">Target vs Realisasi</span></div>
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">Program Prioritas — Capaian 2025</div><div class="chart-sub">Persentase terhadap target</div></div></div>
+      <div style="padding:8px 0 4px">
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">Dedieselisasi & Gasifikasi (tgt 100%)</span><span class="prog-val" style="color:var(--green)">109,09%</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--green)"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">Transaksi PLN Mobile (tgt 22,9 Juta)</span><span class="prog-val">33,62 Juta (110%)</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:100%"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">Kesiapan Pembangkit (tgt 80%)</span><span class="prog-val" style="color:var(--green)">82,50% (103%)</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--teal)"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">Pembangunan Pembangkit & Transmisi (tgt 100%)</span><span class="prog-val" style="color:var(--green)">110%</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--green)"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">EBITDA (tgt Rp 114 T)</span><span class="prog-val" style="color:var(--amber)">Rp 94,89 T (83%)</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:83%;background:var(--amber)"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">Susut Jaringan (tgt ≤8,62%)</span><span class="prog-val" style="color:var(--green)">8,19% (105%)</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:95%;background:var(--teal)"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">Beyond-kWh Revenue (tgt Rp 14,59 T)</span><span class="prog-val" style="color:var(--amber)">Rp 13,15 T (90%)</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:90%;background:var(--amber)"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">Profil SDM & Tata Kelola 2025</div></div></div>
+      <div style="padding:4px 0">
+        <div class="kpi-grid" style="grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0">
+          <div class="kpi-card c-purple" style="padding:12px 14px">
+            <div class="kpi-label">Karyawan Milenial</div>
+            <div class="kpi-val" style="font-size:20px">18,18%</div>
+            <div class="kpi-desc">Target 15% ✓</div>
+          </div>
+          <div class="kpi-card c-pink" style="padding:12px 14px">
+            <div class="kpi-label">Karyawan Perempuan</div>
+            <div class="kpi-val" style="font-size:20px">30,30%</div>
+            <div class="kpi-desc">Target 20% ✓</div>
+          </div>
+          <div class="kpi-card c-green" style="padding:12px 14px">
+            <div class="kpi-label">LTIFR</div>
+            <div class="kpi-val" style="font-size:20px">0,048</div>
+            <div class="kpi-desc">Target 0,136 — sangat baik</div>
+          </div>
+          <div class="kpi-card" style="padding:12px 14px">
+            <div class="kpi-label">Biaya Pelatihan</div>
+            <div class="kpi-val" style="font-size:20px">Rp 760 M</div>
+            <div class="kpi-desc">Investasi SDM 2025</div>
+          </div>
+          <div class="kpi-card c-gold" style="padding:12px 14px">
+            <div class="kpi-label">ESG Rating MSCI</div>
+            <div class="kpi-val" style="font-size:20px">BB</div>
+            <div class="kpi-desc">Skor 25,90 (tgt BB/28)</div>
+          </div>
+          <div class="kpi-card c-teal" style="padding:12px 14px">
+            <div class="kpi-label">PLN Mobile Transaksi</div>
+            <div class="kpi-val" style="font-size:20px">33,62 Jt</div>
+            <div class="kpi-desc">Target 22,90 Juta ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Penghargaan & Rekognisi 2025 <span class="stag gold">Awards</span></div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left;min-width:240px">Penghargaan</th>
+          <th style="text-align:left">Kategori</th>
+          <th style="text-align:left;min-width:160px">Penyelenggara</th>
+          <th style="text-align:left">Keterangan</th>
+        </tr>
+      </thead>
+      <tbody id="awardsBody"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<div class="source-note">
+  <strong>Sumber:</strong> Laporan Tahunan PT PLN (Persero) 2025 ·
+  Auditor: KAP Rintis, Jumadi, Rianto &amp; Rekan (PwC Network) ·
+  Opini: Wajar Tanpa Pengecualian (WTP) ·
+  <strong>Cockpit</strong> — Dashboard Riset Energi Jabar
+</div>
+
+<script>
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+// ── Constants ──
+const YEARS = [2021,2022,2023,2024,2025];
+const B = '#003B8E', BM = '#0052CC', BL = '#3B82F6';
+const GD = '#B8A000', GR = '#16A34A', RD = '#DC2626';
+const AM = '#D97706', TL = '#0D9488', PR = '#7C3AED', OR = '#EA580C';
+
+const FIN = {
+  assets:    [1613216456,1638139276,1670639704,1772375266,1837409908],
+  equity:    [981607123, 991450566, 1020068374,1069065470,1064207613],
+  liab:      [631609333, 646688710, 650571330, 703309796, 773202295],
+  revenue:   [368174270, 441131943, 487384064, 545380993, 582681870],
+  op_profit: [45055145,  54938141,  47200074,  60621006,  49226013],
+  net_profit:[13174877,  14414720,  22071458,  21231284,  7260708],
+  eps:       [96.972,    99.339,    149.874,   117.613,   46.599],
+  op_cf:     [68621074,  97710224,  87389971,  75359028,  9915032],
+  inv_cf:    [-59552028,-54763962, -65667486, -62441438, -62169715],
+  fin_cf:    [-25880660,-30092064, -17029832,  -7830344,  32862593],
+  cash_end:  [37968399,  51503096,  55920541,  61364446,  42204282],
+};
+const RATIOS = {
+  cr:  [58.63,82.30,91.75,97.32,110.47],
+  opm: [11.95,12.45, 9.68,11.12,  8.45],
+  npm: [ 3.58, 3.27, 4.53, 3.89,  1.25],
+  em:  [24.91,18.87,20.99,19.92, 16.29],
+  roa: [ 0.82, 0.88, 1.32, 1.20,  0.40],
+  roe: [ 1.34, 1.45, 2.16, 1.99,  0.68],
+  der: [42.71,41.32,39.01,38.02, 42.30],
+};
+const OPS = {
+  csi:  [95.17,97.41,98.02,98.93,99.15],
+  kpi:  [107.49,101.92,107.19,103.97,100.19],
+};
+const DEMAND_YR = [2025,2026,2027,2028,2029,2030,2031,2032,2033,2034];
+const DEMAND_TW = [323.0,340.0,360.0,378.0,396.0,416.0,440.0,468.0,492.0,518.0];
+const DEMAND_GR = [5.53,5.24,5.93,4.98,4.66,5.01,5.84,6.25,5.12,5.01];
+
+const OPEX25V = [198611362,195214313,50265222,36015779,35741226,11675544,3103408,2829003];
+const OPEX25L = ['Bahan Bakar & Pelumas','Pembelian Tenaga Listrik','Penyusutan Aset Tetap','Kepegawaian','Pemeliharaan','Lain-lain','Py Hak Guna','Sewa'];
+
+const CAPEX_CATS = ['Maintenance CAPEX','Penyambungan\nPelanggan','Pengembangan\nDistribusi','Transmisi &\nGardu Induk','Sarana &\nFasilitas','Pembangunan\nPembangkit','Internet\nData Center','Infrastruktur\nEnergi Primer','Infrastruktur\nGas'];
+const CAPEX_23 = [15583057,8645442,11426695,13778429,1755435,11496640,1455651,617399,23741];
+const CAPEX_24 = [12439889,12528573,12685144,12269299,4338924,10353207,1573236,754529,112932];
+const CAPEX_25 = [16670001,14738265,10991187,10468710,6724192,6005609,2677048,499859,339299];
+
+const OPEX3_CATS = ['Bahan Bakar','Pembelian TL','Penyusutan AT','Kepegawaian','Pemeliharaan','Lain-lain','Py Hak Guna','Sewa'];
+const OPEX3_23 = [164731578,154831184,43967082,32355934,29518324,9557861,3347165,1874862];
+const OPEX3_24 = [179290971,178626777,46672799,30709373,31546011,11484810,3822214,2607032];
+const OPEX3_25 = [198611362,195214313,50265222,36015779,35741226,11675544,3103408,2829003];
+
+const KPI_DATA = [
+  {no:1, cat:'Finansial',     name:'EBITDA',                         wt:9,  unit:'Rp T',       tgt:'114,00',   real:'94,89',     ach:83.23},
+  {no:2, cat:'Finansial',     name:'ROIC – WACC',                    wt:5,  unit:'%',           tgt:'-1,17',    real:'-2,01',     ach:28.27},
+  {no:3, cat:'Finansial',     name:'Penyelesaian LK Audit 2024',     wt:5,  unit:'Hari Kerja',  tgt:'5',        real:'5,00',      ach:100.00},
+  {no:4, cat:'Operasional',   name:'Distribution Efficiency Rate',   wt:6,  unit:'%',           tgt:'8,62',     real:'8,19',      ach:104.98},
+  {no:5, cat:'Operasional',   name:'Kesiapan Pasokan Pembangkit',    wt:8,  unit:'%',           tgt:'80,00',    real:'82,50',     ach:103.11},
+  {no:6, cat:'Sosial',        name:'Dedieselisasi & Gasifikasi',     wt:7,  unit:'%',           tgt:'100%',     real:'109,09%',   ach:109.09},
+  {no:7, cat:'Sosial',        name:'Rating ESG',                     wt:7,  unit:'Skor',        tgt:'28 / BB',  real:'25,90',     ach:107.50},
+  {no:9, cat:'Inovasi Bisnis',name:'Pendapatan Beyond-kWh',          wt:6,  unit:'Rp T',        tgt:'14,59',    real:'13,15',     ach:90.13},
+  {no:10,cat:'Inovasi Bisnis',name:'Transaksi PLN Mobile',           wt:6,  unit:'Juta Trx',    tgt:'22,90',    real:'33,62',     ach:110.00},
+  {no:11,cat:'Teknologi',     name:'SAIDI',                          wt:7,  unit:'Mnt/Plg',     tgt:'322,80',   real:'262,28',    ach:110.00},
+  {no:12,cat:'Teknologi',     name:'SAIFI',                          wt:7,  unit:'Kali/Plg',    tgt:'3,50',     real:'3,14',      ach:110.00},
+  {no:13,cat:'Investasi',     name:'Pembangkit & Transmisi',         wt:10, unit:'%',           tgt:'100% RKAP',real:'110%',      ach:110.00},
+  {no:14,cat:'Talenta',       name:'Talent Diversity (Mil & Wanita)',wt:6,  unit:'%',           tgt:'Mil=15;W=20',real:'Mil=18;W=30',ach:110.00},
+  {no:15,cat:'Talenta',       name:'Lost Time Injury Frequency Rate',wt:6,  unit:'Idx/juta JK', tgt:'0,136',    real:'0,048',     ach:110.00},
+];
+
+const AWARDS = [
+  {name:'Best State-Owned Enterprise — Tata Kelola Terbaik',cat:'GCG',org:'Kementerian BUMN',note:'Kategori BUMN Besar'},
+  {name:'PROPER Platinum — Kinerja Lingkungan Hidup',cat:'Lingkungan',org:'KLHK',note:'Penilaian Kinerja Perusahaan Dalam Pengelolaan Lingkungan'},
+  {name:'ASEAN Energy Award 2025',cat:'Energi Terbarukan',org:'ASEAN Centre for Energy (ACE)',note:'Best Practice EBT regional ASEAN'},
+  {name:'Best GCG Award 2025',cat:'Tata Kelola',org:'IICG (Indonesian Institute for Corporate Governance)',note:'Skor CGPI tertinggi kategori BUMN'},
+  {name:'ESG Rating BB (MSCI ESG Research)',cat:'ESG',org:'MSCI',note:'Skor 25,90; target BB/28'},
+  {name:'Top IT & Telco 2025 — Transformasi Digital Terbaik',cat:'Teknologi',org:'Majalah IT Works',note:'Inovasi digital PLN Mobile'},
+  {name:'Best Issuer 2025 — Obligasi Korporasi',cat:'Keuangan',org:'Indonesia Stock Exchange (IDX)',note:'Top-tier bond issuer BUMN'},
+  {name:'Sertifikasi ISO 37001:2016 SMAP',cat:'Anti Korupsi',org:'Badan Standardisasi Nasional (BSN)',note:'Sistem Manajemen Anti Penyuapan'},
+  {name:'Global Lighthouse Network Member',cat:'Industri 4.0',org:'World Economic Forum (WEF)',note:'Pengakuan smart manufacturing/operasi digital'},
+  {name:'Asia\'s Best Companies — Best IR for SOE',cat:'Investor Relations',org:'Finance Asia',note:'Tata kelola hubungan investor terbaik'},
+  {name:'Indonesia\'s Best Annual Report 2025',cat:'Laporan Tahunan',org:'IICD / OJK',note:'Kategori BUMN non-listed'},
+  {name:'APO National Productivity Award 2025',cat:'Produktivitas',org:'Asia Productivity Organization (APO)',note:'Best Productivity Program Indonesia'},
+  {name:'Penghargaan Keselamatan Kerja — Zero Accident',cat:'K3',org:'Kementerian Ketenagakerjaan RI',note:'Unit-unit PLN terpilih'},
+  {name:'Brand Finance Utilities 500 — Top Global Utility Brand',cat:'Branding',org:'Brand Finance',note:'Salah satu utilitas dengan brand value tertinggi global'},
+  {name:'Forbes Indonesia Award — Top 50 BUMN 2025',cat:'Korporasi',org:'Forbes Indonesia',note:'Rekognisi kinerja dan tata kelola BUMN'},
+];
+
+// ── Helpers ──
+const T = v => parseFloat((v/1e12).toFixed(2));
+const gOpts = (extra={}) => ({
+  responsive:true, maintainAspectRatio:false,
+  plugins:{ legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,padding:12}}, tooltip:{} },
+  scales:{
+    x:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+    y:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+  },
+  ...extra,
+});
+
+// ── Tab 0 Charts ──
+function initTab0(){
+  new Chart(document.getElementById('c0-kpiscore'),{
+    type:'bar',
+    data:{labels:YEARS, datasets:[{label:'Skor KPI',
+      data:OPS.kpi,
+      backgroundColor:OPS.kpi.map(v=>v>=105?B:v>=100?BM:AM),
+      borderRadius:5}]},
+    options:gOpts({
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`KPI Score: ${c.raw}`}}},
+      scales:{x:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},y:{min:90,max:115,ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}}}
+    })
+  });
+  new Chart(document.getElementById('c0-csi'),{
+    type:'line',
+    data:{labels:YEARS, datasets:[
+      {label:'CSI (%)',data:OPS.csi,borderColor:GR,backgroundColor:'rgba(22,163,74,.1)',tension:.3,fill:true,yAxisID:'y'},
+      {label:'Skor KPI',data:OPS.kpi,borderColor:GD,borderDash:[5,3],tension:.3,yAxisID:'y2'},
+    ]},
+    options:gOpts({scales:{
+      x:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{min:93,max:101,position:'left',ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y2:{min:95,max:115,position:'right',ticks:{font:{size:11}},grid:{drawOnChartArea:false}},
+    }})
+  });
+  new Chart(document.getElementById('c0-rev'),{
+    type:'bar',
+    data:{labels:YEARS, datasets:[
+      {label:'Pendapatan',data:FIN.revenue.map(T),backgroundColor:BL,borderRadius:3},
+      {label:'Laba Usaha',data:FIN.op_profit.map(T),backgroundColor:GD,borderRadius:3},
+    ]},
+    options:gOpts()
+  });
+  new Chart(document.getElementById('c0-bsheet'),{
+    type:'line',
+    data:{labels:YEARS, datasets:[
+      {label:'Total Aset',data:FIN.assets.map(T),borderColor:B,tension:.3},
+      {label:'Ekuitas',data:FIN.equity.map(T),borderColor:GR,tension:.3},
+      {label:'Liabilitas',data:FIN.liab.map(T),borderColor:AM,borderDash:[4,3],tension:.3},
+    ]},
+    options:gOpts()
+  });
+  new Chart(document.getElementById('c0-eps'),{
+    type:'bar',
+    data:{labels:YEARS, datasets:[
+      {label:'Laba Bersih (Rp T)',data:FIN.net_profit.map(T),backgroundColor:BM,borderRadius:3,yAxisID:'y'},
+      {type:'line',label:'EPS (Rp)',data:FIN.eps,borderColor:GD,tension:.3,yAxisID:'y2'},
+    ]},
+    options:gOpts({scales:{
+      x:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{position:'left',ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y2:{position:'right',ticks:{font:{size:11}},grid:{drawOnChartArea:false}},
+    }})
+  });
+}
+
+// ── Tab 1 Charts ──
+function initTab1(){
+  new Chart(document.getElementById('c1-balance'),{
+    type:'bar',
+    data:{labels:YEARS, datasets:[
+      {label:'Ekuitas',data:FIN.equity.map(T),backgroundColor:GR,borderRadius:3},
+      {label:'Liabilitas',data:FIN.liab.map(T),backgroundColor:AM,borderRadius:3},
+    ]},
+    options:gOpts({scales:{
+      x:{stacked:true,ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{stacked:true,ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+    }})
+  });
+  new Chart(document.getElementById('c1-revop'),{
+    type:'bar',
+    data:{labels:YEARS, datasets:[
+      {label:'Pendapatan',data:FIN.revenue.map(T),backgroundColor:BL,borderRadius:3,yAxisID:'y'},
+      {label:'Laba Usaha',data:FIN.op_profit.map(T),backgroundColor:GD,borderRadius:3,yAxisID:'y'},
+      {type:'line',label:'Margin Usaha (%)',
+        data:FIN.revenue.map((r,i)=>parseFloat((FIN.op_profit[i]/r*100).toFixed(1))),
+        borderColor:B,tension:.3,yAxisID:'y2'},
+    ]},
+    options:gOpts({scales:{
+      x:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{position:'left',ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y2:{position:'right',min:0,max:20,ticks:{font:{size:11}},grid:{drawOnChartArea:false}},
+    }})
+  });
+  new Chart(document.getElementById('c1-cf'),{
+    type:'bar',
+    data:{labels:YEARS, datasets:[
+      {label:'Operasi',data:FIN.op_cf.map(T),backgroundColor:GR,borderRadius:3},
+      {label:'Investasi',data:FIN.inv_cf.map(T),backgroundColor:RD,borderRadius:3},
+      {label:'Pendanaan',data:FIN.fin_cf.map(T),backgroundColor:AM,borderRadius:3},
+      {type:'line',label:'Kas Akhir',data:FIN.cash_end.map(T),borderColor:B,tension:.3},
+    ]},
+    options:gOpts()
+  });
+  new Chart(document.getElementById('c1-neteps'),{
+    type:'bar',
+    data:{labels:YEARS, datasets:[
+      {label:'Laba Bersih (Rp T)',data:FIN.net_profit.map(T),backgroundColor:BM,borderRadius:3,yAxisID:'y'},
+      {type:'line',label:'EPS (Rp)',data:FIN.eps,borderColor:GD,tension:.3,yAxisID:'y2'},
+    ]},
+    options:gOpts({scales:{
+      x:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{position:'left',ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y2:{position:'right',ticks:{font:{size:11}},grid:{drawOnChartArea:false}},
+    }})
+  });
+  new Chart(document.getElementById('c1-revcomp'),{
+    type:'doughnut',
+    data:{
+      labels:['Penjualan TL','Kompensasi Pemerintah','Subsidi Pemerintah','Biaya Penyambungan','Lainnya'],
+      datasets:[{data:[367087729,112734817,87460664,2242310,13156350].map(T),
+        backgroundColor:[B,BL,GD,TL,OR],borderWidth:2,borderColor:'#fff'}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12}},
+        tooltip:{callbacks:{label:c=>`${c.label}: Rp ${c.raw} T`}}}}
+  });
+  new Chart(document.getElementById('c1-opex'),{
+    type:'doughnut',
+    data:{labels:OPEX25L,
+      datasets:[{data:OPEX25V.map(T),
+        backgroundColor:[B,BM,AM,GR,TL,PR,OR,RD],borderWidth:2,borderColor:'#fff'}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}},
+        tooltip:{callbacks:{label:c=>`${c.label}: Rp ${c.raw} T`}}}}
+  });
+  new Chart(document.getElementById('c1-capex'),{
+    type:'bar',
+    data:{labels:CAPEX_CATS, datasets:[
+      {label:'2023',data:CAPEX_23.map(T),backgroundColor:'rgba(0,59,142,.28)',borderRadius:3},
+      {label:'2024',data:CAPEX_24.map(T),backgroundColor:'rgba(0,59,142,.55)',borderRadius:3},
+      {label:'2025',data:CAPEX_25.map(T),backgroundColor:B,borderRadius:3},
+    ]},
+    options:gOpts({indexAxis:'y',scales:{
+      x:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},
+    }})
+  });
+  new Chart(document.getElementById('c1-margin'),{
+    type:'line',
+    data:{labels:YEARS, datasets:[
+      {label:'Margin Usaha',data:RATIOS.opm,borderColor:B,tension:.3},
+      {label:'Margin Bersih',data:RATIOS.npm,borderColor:OR,tension:.3},
+      {label:'EBITDA Margin',data:RATIOS.em,borderColor:GR,borderDash:[5,3],tension:.3},
+    ]},
+    options:gOpts()
+  });
+  new Chart(document.getElementById('c1-roaroe'),{
+    type:'bar',
+    data:{labels:YEARS, datasets:[
+      {label:'ROA (%)',data:RATIOS.roa,backgroundColor:BL,borderRadius:3},
+      {label:'ROE (%)',data:RATIOS.roe,backgroundColor:GD,borderRadius:3},
+    ]},
+    options:gOpts()
+  });
+  new Chart(document.getElementById('c1-liqsolv'),{
+    type:'line',
+    data:{labels:YEARS, datasets:[
+      {label:'Current Ratio (%)',data:RATIOS.cr,borderColor:TL,tension:.3,yAxisID:'y'},
+      {label:'DER (%)',data:RATIOS.der,borderColor:RD,borderDash:[4,3],tension:.3,yAxisID:'y2'},
+    ]},
+    options:gOpts({scales:{
+      x:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{position:'left',ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y2:{position:'right',ticks:{font:{size:11}},grid:{drawOnChartArea:false}},
+    }})
+  });
+  buildFinTable();
+}
+
+// ── Tab 2 Charts ──
+function initTab2(){
+  new Chart(document.getElementById('c2-csikpi'),{
+    type:'line',
+    data:{labels:YEARS, datasets:[
+      {label:'CSI (%)',data:OPS.csi,borderColor:GR,backgroundColor:'rgba(22,163,74,.08)',fill:true,tension:.3,yAxisID:'y'},
+      {label:'Skor KPI',data:OPS.kpi,borderColor:GD,borderDash:[5,3],tension:.3,yAxisID:'y2'},
+    ]},
+    options:gOpts({scales:{
+      x:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{min:93,max:101,position:'left',ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y2:{min:95,max:115,position:'right',ticks:{font:{size:11}},grid:{drawOnChartArea:false}},
+    }})
+  });
+  new Chart(document.getElementById('c2-demand'),{
+    type:'bar',
+    data:{labels:DEMAND_YR, datasets:[
+      {label:'Penjualan TWh',data:DEMAND_TW,
+        backgroundColor:DEMAND_YR.map(y=>y===2025?B:'rgba(0,59,142,.4)'),borderRadius:4,yAxisID:'y'},
+      {type:'line',label:'Pertumbuhan (%)',data:DEMAND_GR,borderColor:GD,tension:.3,yAxisID:'y2'},
+    ]},
+    options:gOpts({scales:{
+      x:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{min:280,position:'left',ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      y2:{min:0,max:8,position:'right',ticks:{font:{size:11}},grid:{drawOnChartArea:false}},
+    }})
+  });
+  new Chart(document.getElementById('c2-opex3'),{
+    type:'bar',
+    data:{labels:OPEX3_CATS, datasets:[
+      {label:'2023',data:OPEX3_23.map(T),backgroundColor:'rgba(0,59,142,.28)',borderRadius:3},
+      {label:'2024',data:OPEX3_24.map(T),backgroundColor:'rgba(0,59,142,.55)',borderRadius:3},
+      {label:'2025',data:OPEX3_25.map(T),backgroundColor:B,borderRadius:3},
+    ]},
+    options:gOpts({indexAxis:'y',scales:{
+      x:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},
+      y:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},
+    }})
+  });
+  buildKpiTable();
+}
+
+// ── Tab 3 Charts ──
+function initTab3(){
+  const kpiNames = KPI_DATA.map(k=>`KPI ${k.no}: ${k.name}`);
+  const kpiAch   = KPI_DATA.map(k=>Math.min(k.ach,110));
+  new Chart(document.getElementById('c3-kpiach'),{
+    type:'bar',
+    data:{labels:kpiNames, datasets:[{label:'Pencapaian (%)',data:kpiAch,
+      backgroundColor:kpiAch.map(v=>v>=105?GR:v>=100?BM:v>=90?AM:RD),borderRadius:4}]},
+    options:gOpts({
+      indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.toFixed(1)}%`}}},
+      scales:{
+        x:{min:0,max:115,ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},
+        y:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},
+      }
+    })
+  });
+  const catWt={};
+  KPI_DATA.forEach(k=>{catWt[k.cat]=(catWt[k.cat]||0)+k.wt});
+  const ck=Object.keys(catWt);
+  new Chart(document.getElementById('c3-kpiwt'),{
+    type:'doughnut',
+    data:{labels:ck, datasets:[{data:ck.map(c=>catWt[c]),
+      backgroundColor:[B,BM,GR,GD,TL,PR,OR],borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12}}}}
+  });
+  buildAwardsTable();
+}
+
+// ── Financial Table ──
+function buildFinTable(){
+  const ROWS=[
+    {h:'NERACA'},
+    {l:'Total Aset',k:'total_assets',b:true},
+    {l:'  Aset Tidak Lancar',k:'noncurrent_assets'},
+    {l:'  Aset Lancar',k:'current_assets'},
+    {l:'Total Ekuitas',k:'total_equity',b:true},
+    {l:'Total Liabilitas',k:'total_liabilities'},
+    {l:'  Liabilitas Jangka Panjang',k:'noncurrent_liabilities'},
+    {l:'  Liabilitas Jangka Pendek',k:'current_liabilities'},
+    {h:'LABA RUGI'},
+    {l:'Pendapatan Usaha',k:'revenue',b:true},
+    {l:'  Penjualan Tenaga Listrik',k:'electricity_sales'},
+    {l:'  Subsidi Pemerintah',k:'govt_subsidy'},
+    {l:'  Kompensasi Pemerintah',k:'compensation_income'},
+    {l:'  Biaya Penyambungan',k:'customer_conn_fees'},
+    {l:'  Lainnya',k:'other_revenue'},
+    {l:'Total Beban Usaha',k:'total_opex'},
+    {l:'Laba Usaha (EBIT)',k:'operating_profit',b:true},
+    {l:'Laba Sebelum Pajak',k:'profit_before_tax'},
+    {l:'Laba Bersih Tahun Berjalan',k:'profit_for_year',b:true},
+    {l:'Total Laba Komprehensif',k:'total_comprehensive_income'},
+    {l:'EPS (Rupiah)',k:'eps_rupiah',fmt:'f3'},
+    {h:'ARUS KAS'},
+    {l:'Arus Kas Operasi',k:'op_cashflow',b:true},
+    {l:'Arus Kas Investasi',k:'inv_cashflow'},
+    {l:'Arus Kas Pendanaan',k:'fin_cashflow'},
+    {l:'Kas & Setara Kas Akhir Tahun',k:'cash_end',b:true},
+  ];
+  fetch('/api/pln-ar/financial').then(r=>r.json()).then(data=>{
+    const bY={};
+    data.forEach(d=>{bY[d.year]=d});
+    const ys=[2021,2022,2023,2024,2025];
+    let h=`<div class="table-scroll"><table><thead><tr><th>Item</th>`;
+    ys.forEach(y=>h+=`<th>${y}</th>`);
+    h+=`</tr></thead><tbody>`;
+    ROWS.forEach(row=>{
+      if(row.h){
+        h+=`<tr style="background:var(--pln)"><td colspan="${ys.length+1}" style="text-align:left;font-size:10px;font-weight:800;letter-spacing:1.5px;color:rgba(255,255,255,.85);padding:8px 14px;text-transform:uppercase">${row.h}</td></tr>`;
+        return;
+      }
+      const indent=row.l.startsWith('  ')?24:14;
+      const fw=row.b?800:500;
+      const tc=row.b?'var(--text)':'var(--muted)';
+      h+=`<tr${row.b?' class="highlight-row"':''}>`;
+      h+=`<td style="text-align:left;padding-left:${indent}px;font-weight:${fw};color:${tc};white-space:normal">${row.l.trim()}</td>`;
+      ys.forEach(y=>{
+        const d=bY[y];
+        if(!d){h+='<td>—</td>';return;}
+        const v=d[row.k];
+        if(v===null||v===undefined){h+='<td><span style="color:#aaa">—</span></td>';return;}
+        if(row.fmt==='f3'){h+=`<td>${Number(v).toFixed(3)}</td>`;return;}
+        const n=Number(v);
+        const style=n<0?'style="color:var(--red)"':'';
+        h+=`<td ${style}>${n.toLocaleString('id-ID')}</td>`;
+      });
+      h+=`</tr>`;
+    });
+    h+=`</tbody></table></div>`;
+    document.getElementById('finTableWrap').innerHTML=h;
+  }).catch(()=>{
+    document.getElementById('finTableWrap').innerHTML='<div class="err-msg">Gagal memuat data keuangan.</div>';
+  });
+}
+
+// ── KPI Table ──
+function buildKpiTable(){
+  let h=`<div class="table-scroll"><table><thead><tr>
+    <th style="text-align:center;width:36px">No</th>
+    <th style="text-align:left">Kategori</th>
+    <th style="text-align:left;min-width:180px">Indikator KPI</th>
+    <th style="text-align:center">Bobot</th>
+    <th>Satuan</th>
+    <th>Target 2025</th>
+    <th>Realisasi 2025</th>
+    <th style="text-align:center">Capaian</th>
+    <th style="min-width:100px">Bar</th>
+  </tr></thead><tbody>`;
+  KPI_DATA.forEach(k=>{
+    const cap=Math.min(k.ach,110);
+    const pc=k.ach>=105?'pill-green':k.ach>=100?'pill-blue':k.ach>=90?'pill-amber':'pill-red';
+    const bc=k.ach>=100?'over':k.ach>=90?'under':'low';
+    h+=`<tr>
+      <td style="text-align:center;font-weight:800;color:var(--pln)">${k.no}</td>
+      <td style="text-align:left"><span class="award-cat">${k.cat}</span></td>
+      <td style="text-align:left;white-space:normal;font-weight:600">${k.name}</td>
+      <td style="text-align:center">${k.wt}%</td>
+      <td>${k.unit}</td>
+      <td>${k.tgt}</td>
+      <td style="font-weight:700;color:var(--pln)">${k.real}</td>
+      <td style="text-align:center"><span class="pill ${pc}">${k.ach.toFixed(1)}%</span></td>
+      <td><div class="ach-bar"><div class="ach-bar-fill ${bc}" style="width:${cap/110*100}%"></div></div></td>
+    </tr>`;
+  });
+  const totalWt=KPI_DATA.reduce((s,k)=>s+k.wt,0);
+  h+=`<tr class="highlight-row"><td colspan="3" style="text-align:left;font-weight:800;color:var(--pln)">TOTAL SKOR KPI 2025</td>
+    <td style="text-align:center">${totalWt}%</td><td colspan="2"></td>
+    <td style="font-weight:800;color:var(--pln)">100,19</td>
+    <td style="text-align:center"><span class="pill pill-blue">100,2%</span></td>
+    <td><div class="ach-bar"><div class="ach-bar-fill over" style="width:91%"></div></div></td>
+  </tr>`;
+  h+=`</tbody></table></div>`;
+  document.getElementById('kpiTableWrap').innerHTML=h;
+}
+
+// ── Awards Table ──
+function buildAwardsTable(){
+  document.getElementById('awardsBody').innerHTML=AWARDS.map(a=>
+    `<tr>
+      <td style="text-align:left;white-space:normal;font-weight:600;min-width:240px">${a.name}</td>
+      <td style="text-align:left"><span class="award-cat">${a.cat}</span></td>
+      <td style="text-align:left;white-space:normal">${a.org}</td>
+      <td style="text-align:left;white-space:normal;color:var(--muted)">${a.note}</td>
+    </tr>`
+  ).join('');
+}
+
+// ── Tab switching (lazy init) ──
+const inited=[false,false,false,false];
+function switchTab(i){
+  document.querySelectorAll('.tab-panel').forEach((p,j)=>p.classList.toggle('active',j===i));
+  document.querySelectorAll('.tab-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  if(!inited[i]){
+    inited[i]=true;
+    [initTab0,initTab1,initTab2,initTab3][i]();
+  }
+}
+switchTab(0);
+</script>
+</body>
+</html>
