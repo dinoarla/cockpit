@@ -115,6 +115,31 @@ tbody td:first-child{text-align:left;font-weight:600;color:var(--muted);white-sp
 .source-note{text-align:center;padding:20px 32px;font-size:11px;color:var(--dim);border-top:1px solid var(--border);background:var(--card);margin-top:28px}
 .loading{text-align:center;padding:48px;color:var(--muted)}
 .err-msg{text-align:center;padding:32px;color:var(--red);font-size:13px}
+/* pilar cards */
+.pilar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+@media(max-width:900px){.pilar-grid{grid-template-columns:repeat(2,1fr)}}
+.pilar-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 18px;border-top:4px solid var(--pln);box-shadow:0 2px 8px rgba(0,59,142,.05)}
+.pilar-num{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--pln);text-transform:uppercase;margin-bottom:6px}
+.pilar-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:8px}
+.pilar-desc{font-size:12px;color:var(--muted);line-height:1.55}
+.pilar-stat{font-size:18px;font-weight:800;color:var(--pln);margin-top:12px}
+.pilar-stat-label{font-size:10px;color:var(--dim);margin-top:2px}
+/* ESG cards */
+.esg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:28px}
+@media(max-width:900px){.esg-grid{grid-template-columns:1fr}}
+.esg-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 18px}
+.esg-letter{font-size:40px;font-weight:900;margin-bottom:6px;line-height:1}
+.esg-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:12px}
+.esg-item{font-size:11px;color:var(--muted);padding:6px 0;border-bottom:1px solid rgba(208,218,240,.4);line-height:1.4}
+.esg-item:last-child{border-bottom:none}
+.esg-val{font-weight:700;color:var(--text)}
+/* GCG assessment */
+.gcg-item{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--border);gap:12px}
+.gcg-item:last-child{border-bottom:none}
+.gcg-name{font-size:13px;font-weight:700;color:var(--text)}
+.gcg-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.gcg-score{font-size:19px;font-weight:800;color:var(--pln);text-align:right;white-space:nowrap}
+.gcg-label{font-size:10px;color:var(--dim);text-align:right;margin-top:2px}
 </style>
 </head>
 <body>
@@ -142,6 +167,8 @@ tbody td:first-child{text-align:left;font-weight:600;color:var(--muted);white-sp
     <button class="tab-btn" onclick="switchTab(1)">💰 Keuangan</button>
     <button class="tab-btn" onclick="switchTab(2)">⚡ Operasional &amp; KPI</button>
     <button class="tab-btn" onclick="switchTab(3)">🔄 Transformasi</button>
+    <button class="tab-btn" onclick="switchTab(4)">🌱 Transisi Energi & EBT</button>
+    <button class="tab-btn" onclick="switchTab(5)">🏛 Tata Kelola & ESG</button>
   </div>
 </div>
 
@@ -570,6 +597,314 @@ tbody td:first-child{text-align:left;font-weight:600;color:var(--muted);white-sp
 </div>
 </div>
 
+<!-- TAB 4: TRANSISI ENERGI & EBT -->
+<div id="tab-4" class="tab-panel">
+<div class="content">
+  <div class="info-box">
+    <strong>Tema AR 2025:</strong> "Mengorkestrasi Transisi Energi melalui Tata Kelola yang Transparan dan Terpercaya." PLN berperan sebagai penggerak utama transisi energi nasional menuju <strong>Net Zero Emission 2060</strong>, dengan sekitar <strong>76%</strong> penambahan kapasitas listrik berasal dari EBT dan storage (RUPTL 2025–2034).
+  </div>
+
+  <div class="section-title">Capaian EBT & Transisi Energi 2025 <span class="stag green">Highlights</span></div>
+  <div class="kpi-grid">
+    <div class="kpi-card c-green">
+      <div class="kpi-label">COD EBT 2025</div>
+      <div class="kpi-val">638<sup>MW</sup></div>
+      <div class="kpi-yoy up">▲ 126% dari target 507 MW</div>
+      <div class="kpi-desc">27 lokasi — PLTA, PLTS, PLTBm, PLTM</div>
+    </div>
+    <div class="kpi-card c-teal">
+      <div class="kpi-label">Pipeline EBT (Bidding)</div>
+      <div class="kpi-val">2,73<sup>GW</sup></div>
+      <div class="kpi-desc">Proyek EBT dalam proses pengadaan 2025</div>
+    </div>
+    <div class="kpi-card c-gold">
+      <div class="kpi-label">PLTS Atap — Pelanggan</div>
+      <div class="kpi-val">11.546<sup>Pelanggan</sup></div>
+      <div class="kpi-yoy up">▲ Tren positif — terus meningkat</div>
+      <div class="kpi-desc">Kapasitas terpasang ±801 MWp</div>
+    </div>
+    <div class="kpi-card c-amber">
+      <div class="kpi-label">PLTS Development Plan</div>
+      <div class="kpi-val">17,1<sup>GW</sup></div>
+      <div class="kpi-desc">40% dari target EBT RUPTL 2025–2034</div>
+    </div>
+    <div class="kpi-card c-purple">
+      <div class="kpi-label">Substitusi PLTD → EBT/Hybrid</div>
+      <div class="kpi-val">5.254<sup>Unit</sup></div>
+      <div class="kpi-yoy up">▲ Kurangi konsumsi BBM & emisi karbon</div>
+      <div class="kpi-desc">Program dedieselisasi & gasifikasi nasional</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">Reduksi Emisi (NDC + beyond)</div>
+      <div class="kpi-val">43,4<sup>Juta tCO₂e</sup></div>
+      <div class="kpi-desc">Melalui program NDC & beyond NDC PLN 2025</div>
+    </div>
+    <div class="kpi-card c-teal">
+      <div class="kpi-label">Produksi Green Energy</div>
+      <div class="kpi-val">5,57<sup>TWh</sup></div>
+      <div class="kpi-desc">Co-firing biomassa & energi hijau lainnya</div>
+    </div>
+    <div class="kpi-card c-orange">
+      <div class="kpi-label">Penjualan REC</div>
+      <div class="kpi-val">Rp 6,6<sup>Miliar</sup></div>
+      <div class="kpi-desc">Renewable Energy Certificate — pasar karbon 2025</div>
+    </div>
+  </div>
+
+  <div class="section-title">4 Pilar Orkestrasi Transisi Energi <span class="stag">Strategi 2025</span></div>
+  <div class="pilar-grid">
+    <div class="pilar-card" style="border-top-color:var(--green)">
+      <div class="pilar-num">Pilar 1</div>
+      <div class="pilar-title">Akselerasi EBT</div>
+      <div class="pilar-desc">PLN agresif meningkatkan porsi pembangkit berbasis EBT melalui RUPTL 2025–2034. ~76% penambahan kapasitas listrik berasal dari EBT dan storage — surya, angin, panas bumi, air, dan bioenergi sebagai tulang punggung sistem kelistrikan masa depan.</div>
+      <div class="pilar-stat">76%</div>
+      <div class="pilar-stat-label">Porsi EBT+Storage dari penambahan kapasitas</div>
+    </div>
+    <div class="pilar-card" style="border-top-color:var(--amber)">
+      <div class="pilar-num">Pilar 2</div>
+      <div class="pilar-title">Dekarbonisasi Pembangkit Eksisting</div>
+      <div class="pilar-desc">PLN menurunkan emisi dari pembangkit fosil melalui program co-firing biomassa, efisiensi pembangkit, dan pengembangan teknologi rendah emisi. Substitusi 5.254 unit PLTD mengurangi konsumsi BBM dan emisi karbon secara signifikan.</div>
+      <div class="pilar-stat">43,4 Juta tCO₂e</div>
+      <div class="pilar-stat-label">Emisi berhasil dikurangi (NDC + beyond NDC)</div>
+    </div>
+    <div class="pilar-card" style="border-top-color:var(--pln)">
+      <div class="pilar-num">Pilar 3</div>
+      <div class="pilar-title">Infrastruktur & Smart Grid</div>
+      <div class="pilar-desc">PLN memperkuat jaringan transmisi, gardu induk, serta mengembangkan smart grid dan energy storage untuk memastikan integrasi energi terbarukan optimal dan andal di seluruh Indonesia, termasuk interkoneksi antar pulau.</div>
+      <div class="pilar-stat">74.973 km</div>
+      <div class="pilar-stat-label">Total jaringan transmisi nasional 2025</div>
+    </div>
+    <div class="pilar-card" style="border-top-color:var(--teal)">
+      <div class="pilar-num">Pilar 4</div>
+      <div class="pilar-title">Inovasi Layanan & Partisipasi Pelanggan</div>
+      <div class="pilar-desc">Melalui produk seperti Renewable Energy Certificate (REC) dan Green Energy as a Service (GEAS), PLN membuka ruang partisipasi bagi pelanggan dan industri untuk berkontribusi dalam penggunaan energi hijau secara langsung.</div>
+      <div class="pilar-stat">Rp 6,6 Miliar</div>
+      <div class="pilar-stat-label">Penjualan REC 2025</div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Bauran Energi Produksi Listrik 2025</div><div class="chart-sub">% komposisi — estimasi berdasarkan AR 2025 & RUPTL</div></div>
+        <span class="chart-badge">Energy Mix</span>
+      </div>
+      <div class="chart-wrap tall"><canvas id="c4-mix"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Rencana Pengembangan PLTS — Kapasitas (MW)</div><div class="chart-sub">Development Plan · Pipeline · Operasional · Atap</div></div>
+        <span class="chart-badge green">Solar PV</span>
+      </div>
+      <div class="chart-wrap tall"><canvas id="c4-plts"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Proyek EBT Strategis 2025 <span class="stag green">Delivery & Pipeline</span></div>
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">COD EBT 2025 per Jenis Pembangkit</div><div class="chart-sub">Total 638 MW di 27 lokasi — estimasi breakdown</div></div></div>
+      <div class="chart-wrap tall"><canvas id="c4-ebt-type"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">Status Program EBT Strategis 2025</div></div></div>
+      <div style="padding:10px 0 4px">
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">COD EBT (target 507 MW)</span><span class="prog-val" style="color:var(--green)">638 MW → 126%</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--green)"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">Dedieselisasi & Gasifikasi (target 100%)</span><span class="prog-val" style="color:var(--green)">109,09% ✓</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--green)"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">Substitusi PLTD → EBT/Hybrid (5.254 unit)</span><span class="prog-val" style="color:var(--green)">Tercapai ✓</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--teal)"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">PLTS Bali Timur 25 MW</span><span class="prog-val" style="color:var(--green)">Operasional ✓</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--green)"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">PLTS Terapung Saguling 92 MWp</span><span class="prog-val" style="color:var(--amber)">Konstruksi</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:40%;background:var(--amber)"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">Pipeline PLTS > 1,9 GW (perencanaan & pengadaan)</span><span class="prog-val">In Pipeline</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:55%"></div></div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label"><span class="prog-name">PLTS Atap (11.546 pelanggan, ±801 MWp)</span><span class="prog-val" style="color:var(--teal)">Tren Positif ↑</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:68%;background:var(--teal)"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Proyeksi Emisi GRK & Roadmap NZE 2060 <span class="stag gold">Dekarbonisasi</span></div>
+  <div class="chart-card" style="margin-bottom:28px">
+    <div class="chart-header">
+      <div><div class="chart-title">Proyeksi Emisi GRK (Juta tCO₂e) — 3 Skenario RUPTL 2025–2034</div><div class="chart-sub">BAU vs RE Base vs ARED — Sumber: RUPTL PLN 2025–2034 &amp; AR PLN 2025</div></div>
+      <span class="chart-badge gold">NZE 2060</span>
+    </div>
+    <div class="chart-wrap xtall"><canvas id="c4-emission"></canvas></div>
+  </div>
+</div>
+</div>
+
+<!-- TAB 5: TATA KELOLA, ESG & SDM -->
+<div id="tab-5" class="tab-panel">
+<div class="content">
+  <div class="section-title">Ikhtisar Tata Kelola & ESG 2025 <span class="stag gold">GCG + ESG</span></div>
+  <div class="kpi-grid">
+    <div class="kpi-card c-gold">
+      <div class="kpi-label">Skor ACGS 2025</div>
+      <div class="kpi-val">89,94</div>
+      <div class="kpi-yoy up">▲ Meningkat vs 2024</div>
+      <div class="kpi-desc">ASEAN Corporate Governance Scorecard</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">ESG Rating MSCI</div>
+      <div class="kpi-val">BB<sup> 25,90</sup></div>
+      <div class="kpi-desc">Target skor 28 — MSCI ESG Research 2025</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">Great Place to Work</div>
+      <div class="kpi-val">92<sup>%</sup></div>
+      <div class="kpi-yoy up">▲ vs rata-rata global 59%</div>
+      <div class="kpi-desc">92% karyawan nilai PLN sebagai tempat kerja sangat baik</div>
+    </div>
+    <div class="kpi-card c-teal">
+      <div class="kpi-label">PROPER Emas & Hijau</div>
+      <div class="kpi-val">46<sup>Penghargaan</sup></div>
+      <div class="kpi-desc">KLHK — Penilaian Kinerja Lingkungan 2025</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">LTIFR (K3)</div>
+      <div class="kpi-val">0,048</div>
+      <div class="kpi-yoy inv-down">▼ Target 0,136 — sangat baik</div>
+      <div class="kpi-desc">Lost Time Injury Frequency Rate per juta jam kerja</div>
+    </div>
+    <div class="kpi-card c-purple">
+      <div class="kpi-label">Karyawan Milenial</div>
+      <div class="kpi-val">18,18<sup>%</sup></div>
+      <div class="kpi-yoy up">▲ Target 15% — terpenuhi</div>
+      <div class="kpi-desc">Diversity talent — proporsi generasi milenial</div>
+    </div>
+    <div class="kpi-card" style="border-left-color:#EC4899">
+      <div class="kpi-label">Karyawan Perempuan</div>
+      <div class="kpi-val">30,30<sup>%</sup></div>
+      <div class="kpi-yoy up">▲ Target 20% — sangat terpenuhi</div>
+      <div class="kpi-desc">Keberagaman gender dalam organisasi PLN</div>
+    </div>
+    <div class="kpi-card c-amber">
+      <div class="kpi-label">Biaya Pelatihan SDM</div>
+      <div class="kpi-val">Rp 760<sup>M</sup></div>
+      <div class="kpi-desc">Investasi pengembangan kapabilitas karyawan 2025</div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Penilaian Tata Kelola Perusahaan 2025</div><div class="chart-sub">Multi-lembaga — GCG Assessment PLN</div></div>
+      </div>
+      <div style="padding:4px 0">
+        <div class="gcg-item">
+          <div><div class="gcg-name">ASEAN Capital Markets Forum (ACGS)</div><div class="gcg-sub">ASEAN Corporate Governance Scorecard</div></div>
+          <div><div class="gcg-score">89,94</div><div class="gcg-label" style="color:var(--green)">▲ Meningkat vs 2024</div></div>
+        </div>
+        <div class="gcg-item">
+          <div><div class="gcg-name">Otoritas Jasa Keuangan (OJK)</div><div class="gcg-sub">POJK 21/POJK.04/2015 — Comply or Explain</div></div>
+          <div><div class="gcg-score" style="font-size:14px">14 Comply · 11 Explain</div><div class="gcg-label">Total 25 Prinsip GCG</div></div>
+        </div>
+        <div class="gcg-item">
+          <div><div class="gcg-name">KNKG</div><div class="gcg-sub">Pedoman Umum Governansi Korporat Indonesia</div></div>
+          <div><div class="gcg-score" style="font-size:14px">52 Apply · 29 Explain</div><div class="gcg-label">Total 81 Prinsip</div></div>
+        </div>
+        <div class="gcg-item">
+          <div><div class="gcg-name">Indonesian Inst. for Corp. Governance (IICG)</div><div class="gcg-sub">Corporate Governance Perception Index (CGPI)</div></div>
+          <div><div class="gcg-score" style="font-size:14px">Most Trusted</div><div class="gcg-label" style="color:var(--green)">Kategori Sangat Terpercaya</div></div>
+        </div>
+        <div class="gcg-item">
+          <div><div class="gcg-name">MSCI ESG Research</div><div class="gcg-sub">ESG Rating — Environment Social Governance</div></div>
+          <div><div class="gcg-score">BB</div><div class="gcg-label">Skor 25,90 · Target skor 28</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">5 Prinsip GCG — Implementasi 2025</div><div class="chart-sub">Skor implementasi per prinsip (estimasi internal)</div></div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="c5-radar"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Tiga Pilar ESG — Environment · Social · Governance <span class="stag green">Keberlanjutan</span></div>
+  <div class="esg-grid">
+    <div class="esg-card" style="border-top:4px solid var(--green)">
+      <div class="esg-letter" style="color:var(--green)">E</div>
+      <div class="esg-title">Environmental (Lingkungan)</div>
+      <div class="esg-item"><span class="esg-val">46</span> PROPER Emas &amp; Hijau — kinerja lingkungan terbaik (KLHK 2025)</div>
+      <div class="esg-item"><span class="esg-val">43,4 Juta tCO₂e</span> emisi berhasil dikurangi — NDC &amp; beyond NDC</div>
+      <div class="esg-item"><span class="esg-val">5,57 TWh</span> produksi green energy (biomassa co-firing)</div>
+      <div class="esg-item"><span class="esg-val">638 MW COD EBT</span> baru beroperasi di 27 lokasi</div>
+      <div class="esg-item">Pipeline <span class="esg-val">52,9 GW</span> tambahan kapasitas EBT (RUPTL 2025–2034)</div>
+      <div class="esg-item">PLTS Terapung Saguling <span class="esg-val">92 MWp</span> sedang konstruksi (>130 GWh/tahun)</div>
+      <div class="esg-item">Substitusi <span class="esg-val">5.254 PLTD</span> ke EBT &amp; hybrid untuk kurangi BBM &amp; emisi</div>
+    </div>
+    <div class="esg-card" style="border-top:4px solid var(--pln)">
+      <div class="esg-letter" style="color:var(--pln)">S</div>
+      <div class="esg-title">Social (Sosial)</div>
+      <div class="esg-item"><span class="esg-val">CSI 99,15%</span> — kepuasan pelanggan tertinggi dalam 5 tahun terakhir</div>
+      <div class="esg-item"><span class="esg-val">3.296.942</span> pelanggan baru terhubung jaringan listrik PLN</div>
+      <div class="esg-item">Great Place to Work <span class="esg-val">92%</span> vs rata-rata global 59% (sertifikasi 2025)</div>
+      <div class="esg-item"><span class="esg-val">LTIFR 0,048</span> vs target 0,136 — keselamatan kerja sangat baik</div>
+      <div class="esg-item"><span class="esg-val">30,30%</span> karyawan perempuan (target 20%) — keberagaman gender</div>
+      <div class="esg-item"><span class="esg-val">18,18%</span> milenial (target 15%) — regenerasi dan diversitas talent</div>
+      <div class="esg-item">Biaya pelatihan <span class="esg-val">Rp 760 Miliar</span> — investasi SDM berkelanjutan</div>
+    </div>
+    <div class="esg-card" style="border-top:4px solid var(--gold-d)">
+      <div class="esg-letter" style="color:var(--gold-d)">G</div>
+      <div class="esg-title">Governance (Tata Kelola)</div>
+      <div class="esg-item"><span class="esg-val">ACGS 89,94</span> — skor GCG ASEAN meningkat (ASEAN Capital Markets Forum)</div>
+      <div class="esg-item"><span class="esg-val">ESG Rating BB</span> skor 25,90 — MSCI ESG Research 2025</div>
+      <div class="esg-item"><span class="esg-val">CGPI Most Trusted</span> — kategori sangat terpercaya (IICG)</div>
+      <div class="esg-item"><span class="esg-val">WTP</span> — opini Wajar Tanpa Pengecualian, KAP PwC Network</div>
+      <div class="esg-item"><span class="esg-val">ISO 37001 SMAP</span> — sertifikasi Sistem Manajemen Anti Penyuapan</div>
+      <div class="esg-item">PLN Mobile <span class="esg-val">33,62 Juta</span> transaksi (Rp 9,9 T) — digitalisasi pelanggan</div>
+      <div class="esg-item"><span class="esg-val">Platinum Winner</span> Inspire Awards — Corporate Publishing (AR 2024)</div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">Nilai AKHLAK — Indeks Implementasi 2025</div><div class="chart-sub">6 nilai budaya perusahaan PLN (estimasi penilaian internal)</div></div></div>
+      <div class="chart-wrap tall"><canvas id="c5-akhlak"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header"><div><div class="chart-title">Profil Manajemen Risiko — 5 Kategori 2025</div><div class="chart-sub">Enterprise Risk Management PLN (tingkat risiko inherent)</div></div></div>
+      <div class="chart-wrap tall"><canvas id="c5-risk"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-title">Penghargaan & Sertifikasi GCG/ESG 2025 <span class="stag gold">Recognition</span></div>
+  <div class="table-scroll" style="margin-bottom:28px">
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left;min-width:240px">Penghargaan / Sertifikasi</th>
+          <th style="text-align:left">Bidang</th>
+          <th style="text-align:left;min-width:180px">Lembaga / Penyelenggara</th>
+          <th style="text-align:left">Catatan</th>
+        </tr>
+      </thead>
+      <tbody id="gcgAwardsBody"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
 <div class="source-note">
   <strong>Sumber:</strong> Laporan Tahunan PT PLN (Persero) 2025 ·
   Auditor: KAP Rintis, Jumadi, Rianto &amp; Rekan (PwC Network) ·
@@ -662,6 +997,32 @@ const AWARDS = [
   {name:'Penghargaan Keselamatan Kerja — Zero Accident',cat:'K3',org:'Kementerian Ketenagakerjaan RI',note:'Unit-unit PLN terpilih'},
   {name:'Brand Finance Utilities 500 — Top Global Utility Brand',cat:'Branding',org:'Brand Finance',note:'Salah satu utilitas dengan brand value tertinggi global'},
   {name:'Forbes Indonesia Award — Top 50 BUMN 2025',cat:'Korporasi',org:'Forbes Indonesia',note:'Rekognisi kinerja dan tata kelola BUMN'},
+];
+
+// ── Tab 4 Data — Transisi Energi & EBT ──
+const MIX_L = ['Batubara','Gas & LNG','PLTA/Air','Panas Bumi','PLTS/Surya','Biomassa/Lainnya','BBM'];
+const MIX_V = [61.5, 22.3, 6.8, 5.2, 1.8, 1.4, 1.0];
+
+// Emission projection (Juta tCO₂e) — RUPTL 2025-2034
+const EMIS_YR   = [2023,2024,2025,2026,2027,2028,2029,2030,2031,2032,2033,2034];
+const EMIS_BAU  = [322,336,350,364,377,390,402,411,422,432,441,450];
+const EMIS_BASE = [322,336,342,348,353,356,358,354,350,345,339,332];
+const EMIS_ARED = [322,336,340,344,347,349,348,348,342,336,328,320];
+
+// ── Tab 5 Data — Tata Kelola, ESG & SDM ──
+const GCG_AWARDS = [
+  {name:'ACGS Score 89,94 — Meningkat vs Tahun Sebelumnya',bidang:'GCG',org:'ASEAN Capital Markets Forum',note:'ASEAN Corporate Governance Scorecard'},
+  {name:'CGPI — Most Trusted (Kategori Sangat Terpercaya)',bidang:'GCG',org:'IICG',note:'Corporate Governance Perception Index — BUMN'},
+  {name:'ESG Rating BB (Skor 25,90)',bidang:'ESG',org:'MSCI ESG Research',note:'Target skor 28; terus mendekati target'},
+  {name:'PROPER Emas & Hijau — 46 Penghargaan',bidang:'Lingkungan',org:'Kementerian LHK (KLHK)',note:'Kinerja pengelolaan lingkungan hidup terbaik'},
+  {name:'Sertifikasi ISO 37001:2016 — SMAP',bidang:'Anti Korupsi',org:'Badan Standardisasi Nasional (BSN)',note:'Sistem Manajemen Anti Penyuapan'},
+  {name:'Great Place to Work Certified 2025',bidang:'SDM/Sosial',org:'Great Place to Work Institute',note:'92% karyawan nilai PLN sangat baik (global avg 59%)'},
+  {name:'Platinum Winner — Corporate Publishing Competition',bidang:'Transparansi',org:'Inspire Awards',note:'Kualitas & transparansi Laporan Tahunan 2024'},
+  {name:'Opini WTP — Wajar Tanpa Pengecualian',bidang:'Audit',org:'KAP Rintis, Jumadi, Rianto & Rekan (PwC)',note:'Laporan Keuangan Konsolidasian FY 2025'},
+  {name:'Best State-Owned Enterprise — Tata Kelola Terbaik',bidang:'GCG',org:'Kementerian BUMN',note:'Rekognisi BUMN dengan tata kelola terbaik nasional'},
+  {name:'Fortune Global 500 — Peringkat 469 Dunia',bidang:'Korporasi',org:'Fortune Magazine',note:'Masuk daftar 500 perusahaan terbesar global 2025'},
+  {name:'ASEAN Energy Award 2025',bidang:'Energi Terbarukan',org:'ASEAN Centre for Energy (ACE)',note:'Best Practice EBT regional ASEAN'},
+  {name:'Global Lighthouse Network Member',bidang:'Industri 4.0',org:'World Economic Forum (WEF)',note:'Pengakuan smart manufacturing & operasi digital'},
 ];
 
 // ── Helpers ──
@@ -1037,14 +1398,164 @@ function buildAwardsTable(){
   ).join('');
 }
 
+// ── Tab 4: Transisi Energi & EBT ──
+function initTab4(){
+  new Chart(document.getElementById('c4-mix'),{
+    type:'doughnut',
+    data:{
+      labels:MIX_L,
+      datasets:[{data:MIX_V,
+        backgroundColor:[B,BM,TL,GR,GD,AM,OR],borderWidth:2,borderColor:'#fff'}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'right',labels:{font:{size:11},boxWidth:12,padding:10}},
+        tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw}%`}}
+      }}
+  });
+  new Chart(document.getElementById('c4-plts'),{
+    type:'bar',
+    data:{
+      labels:['Development Plan\n(RUPTL)','Pipeline\n(Bidding)','PLTS Bali Timur\n(Operasional)','PLTS Atap\n(Terpasang)'],
+      datasets:[{label:'Kapasitas (MW)',
+        data:[17100,1900,25,801],
+        backgroundColor:[B,BM,GR,TL],borderRadius:5}]
+    },
+    options:gOpts({
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.toLocaleString('id-ID')} MW`}}},
+      scales:{
+        x:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},
+        y:{ticks:{font:{size:10},callback:v=>v>=1000?`${(v/1000).toFixed(0)}k`:v},grid:{color:'rgba(0,0,0,.04)'}},
+      }
+    })
+  });
+  new Chart(document.getElementById('c4-ebt-type'),{
+    type:'bar',
+    data:{
+      labels:['PLTA / Air','PLTS (Surya)','PLTBm (Biomassa)','PLTM (Mini Hidro)','PLTP (Panas Bumi)'],
+      datasets:[{label:'COD 2025 — estimasi (MW)',
+        data:[280,185,90,55,28],
+        backgroundColor:[TL,GD,GR,B,AM],borderRadius:4}]
+    },
+    options:gOpts({
+      indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw} MW (estimasi)`}}},
+      scales:{
+        x:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},
+        y:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      }
+    })
+  });
+  new Chart(document.getElementById('c4-emission'),{
+    type:'line',
+    data:{
+      labels:EMIS_YR,
+      datasets:[
+        {label:'BAU (Business As Usual)',data:EMIS_BAU,borderColor:RD,borderDash:[5,3],tension:.3,fill:false,pointRadius:3},
+        {label:'RE Base (Skenario RUPTL)',data:EMIS_BASE,borderColor:B,tension:.3,fill:false,pointRadius:3},
+        {label:'ARED (Accelerated RE Dev.)',data:EMIS_ARED,borderColor:GR,tension:.3,fill:'origin',backgroundColor:'rgba(22,163,74,.06)',pointRadius:3},
+      ]
+    },
+    options:gOpts({
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,padding:14}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw} Juta tCO₂e`}}
+      },
+      scales:{
+        x:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+        y:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      }
+    })
+  });
+}
+
+// ── Tab 5: Tata Kelola, ESG & SDM ──
+function initTab5(){
+  new Chart(document.getElementById('c5-radar'),{
+    type:'radar',
+    data:{
+      labels:['Transparansi','Akuntabilitas','Responsibilitas','Independensi','Kewajaran'],
+      datasets:[{
+        label:'Implementasi GCG 2025 (estimasi)',
+        data:[92,88,90,85,87],
+        backgroundColor:'rgba(0,59,142,.15)',
+        borderColor:B,pointBackgroundColor:B,pointRadius:4,
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}},
+      scales:{r:{
+        ticks:{font:{size:10},backdropColor:'transparent'},
+        grid:{color:'rgba(0,0,0,.08)'},
+        pointLabels:{font:{size:11,weight:'600'}},
+        suggestedMin:70,suggestedMax:100,
+      }}
+    }
+  });
+  new Chart(document.getElementById('c5-akhlak'),{
+    type:'bar',
+    data:{
+      labels:['Amanah','Kompeten','Harmonis','Loyal','Adaptif','Kolaboratif'],
+      datasets:[{
+        label:'Indeks Implementasi (estimasi, /100)',
+        data:[90,86,88,91,84,87],
+        backgroundColor:[B,BM,GR,GD,TL,PR],borderRadius:5,
+      }]
+    },
+    options:gOpts({
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw}/100 (estimasi)`}}},
+      scales:{
+        x:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+        y:{min:70,max:100,ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},
+      }
+    })
+  });
+  const riskCats=['Strategis','Finansial','Operasional','Proyek','Regulasi & Kepatuhan'];
+  const riskVals=[3,4,3,4,2];
+  new Chart(document.getElementById('c5-risk'),{
+    type:'bar',
+    data:{
+      labels:riskCats,
+      datasets:[{label:'Tingkat Risiko Inherent (1–5)',
+        data:riskVals,
+        backgroundColor:riskVals.map(r=>r>=4?AM:r>=3?BM:TL),borderRadius:4}]
+    },
+    options:gOpts({
+      indexAxis:'y',
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>{
+          const lv=['','Rendah','Moderat','Signifikan','Tinggi','Kritis'];
+          return `${lv[c.raw]||''} (Skor ${c.raw}/5)`;
+        }}}
+      },
+      scales:{
+        x:{min:0,max:5,ticks:{font:{size:10},stepSize:1,callback:v=>{const l=['','Rendah','Moderat','Signifikan','Tinggi','Kritis'];return l[v]||''}},grid:{color:'rgba(0,0,0,.04)'}},
+        y:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+      }
+    })
+  });
+  buildGcgAwardsTable();
+}
+
+function buildGcgAwardsTable(){
+  document.getElementById('gcgAwardsBody').innerHTML=GCG_AWARDS.map(a=>
+    `<tr>
+      <td style="text-align:left;white-space:normal;font-weight:600;min-width:240px">${a.name}</td>
+      <td style="text-align:left"><span class="award-cat">${a.bidang}</span></td>
+      <td style="text-align:left;white-space:normal">${a.org}</td>
+      <td style="text-align:left;white-space:normal;color:var(--muted)">${a.note}</td>
+    </tr>`
+  ).join('');
+}
+
 // ── Tab switching (lazy init) ──
-const inited=[false,false,false,false];
+const inited=[false,false,false,false,false,false];
 function switchTab(i){
   document.querySelectorAll('.tab-panel').forEach((p,j)=>p.classList.toggle('active',j===i));
   document.querySelectorAll('.tab-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
   if(!inited[i]){
     inited[i]=true;
-    [initTab0,initTab1,initTab2,initTab3][i]();
+    [initTab0,initTab1,initTab2,initTab3,initTab4,initTab5][i]();
   }
 }
 switchTab(0);
