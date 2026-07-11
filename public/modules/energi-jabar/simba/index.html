@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIMBA — Monitoring BBM | Cockpit</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --fuel:#B45309; --fuel-dk:#92400E; --fuel-lt:#FEF3C7;
+  --hsd:#1D4ED8; --mfo:#7C3AED; --stock:#16A34A;
+  --bg:#FFFBF0; --card:#FFFFFF; --border:#E5D4B0;
+  --text:#1C1917; --muted:#78716C; --dim:#A8A29E;
+  --green:#16A34A; --red:#DC2626; --amber:#D97706;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+a{color:var(--fuel);text-decoration:none}
+
+/* ── HEADER ── */
+.module-header{background:linear-gradient(135deg,var(--fuel-dk) 0%,var(--fuel) 60%,#D97706 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:12px;font-weight:500;letter-spacing:.04em;transition:color .15s}
+.back-link:hover{color:#fff;text-decoration:none}
+.back-link svg{width:14px;height:14px}
+.breadcrumb{padding:6px 24px 0;font-size:11px;color:rgba(255,255,255,.6);letter-spacing:.03em}
+.breadcrumb span{color:rgba(255,255,255,.4);margin:0 5px}
+.header-body{padding:16px 24px 20px}
+.header-title{font-size:22px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.header-title .badge{font-size:10px;font-weight:600;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);padding:3px 9px;border-radius:12px;letter-spacing:.04em}
+.header-desc{font-size:13px;color:rgba(255,255,255,.82);max-width:720px;line-height:1.55;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px}
+.meta-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,.85)}
+
+/* ── TABS ── */
+.tabs-bar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 18px;font-size:13px;font-weight:500;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:var(--fuel);border-bottom-color:var(--fuel);font-weight:600}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+/* ── LAYOUT ── */
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 48px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.section-title{font-size:15px;font-weight:700;color:var(--fuel-dk);margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.section-title:first-child{margin-top:0}
+
+/* ── KPI ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:4px}
+.kpi-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.kpi-value{font-size:24px;font-weight:700;color:var(--fuel-dk);line-height:1.1}
+.kpi-unit{font-size:12px;color:var(--muted);margin-top:2px}
+.kpi-note{font-size:10px;color:var(--dim);margin-top:2px}
+
+/* ── CHARTS ── */
+.chart-grid{display:grid;gap:16px;margin-bottom:24px}
+.chart-grid.cols-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:768px){.chart-grid.cols-2{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.chart-card h4{font-size:13px;font-weight:600;margin-bottom:12px}
+.chart-card p.src{font-size:10px;color:var(--dim);margin-top:8px}
+.chart-wrap{position:relative;height:260px}
+.chart-wrap.lg{height:320px}
+.chart-wrap.sm{height:200px}
+.no-data{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--dim);font-size:12px;gap:6px}
+.no-data strong{color:var(--amber);font-size:13px}
+
+/* ── CONTROLS ── */
+.ctrl-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.ctrl-row label{font-size:12px;font-weight:600;color:var(--muted)}
+.ctrl-row select{border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;background:#fff;color:var(--text);cursor:pointer}
+.ctrl-row select:focus{outline:none;border-color:var(--fuel)}
+.btn-reload{padding:6px 14px;background:var(--fuel);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer}
+.btn-reload:hover{background:var(--fuel-dk)}
+
+/* ── TABLES ── */
+.table-scroll{overflow-x:auto;margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:var(--fuel-dk);color:#fff;font-size:11px;font-weight:600;text-align:left;padding:9px 12px;white-space:nowrap}
+td{border-bottom:1px solid var(--border);padding:8px 12px}
+tr:hover td{background:#FFFDF5}
+tr:last-child td{border-bottom:none}
+.td-num{text-align:right;font-variant-numeric:tabular-nums}
+.td-bold{font-weight:700}
+.td-center{text-align:center}
+.badge-hsd{display:inline-block;background:#EFF6FF;color:var(--hsd);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.badge-mfo{display:inline-block;background:#FAF5FF;color:var(--mfo);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.badge-ok{display:inline-block;background:#DCFCE7;color:#166534;font-size:10px;padding:2px 8px;border-radius:10px}
+
+/* ── PLANT CARDS ── */
+.plant-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:900px){.plant-grid{grid-template-columns:repeat(2,1fr)}}
+.plant-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:4px;border-top:4px solid var(--fuel)}
+.plant-card.pltg{border-top-color:var(--mfo)}
+.plant-name{font-size:12px;font-weight:700;color:var(--text)}
+.plant-code{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.plant-fuels{display:flex;gap:4px;margin-top:2px}
+.plant-period{font-size:10px;color:var(--muted)}
+
+/* ── INFO BOX ── */
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px}
+.info-card h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--fuel-dk)}
+.info-card ul{font-size:12.5px;color:var(--muted);padding-left:16px;line-height:1.9}
+.info-card p{font-size:12.5px;color:var(--muted);line-height:1.6}
+
+/* ── STAT ROWS ── */
+.stat-rows{display:flex;flex-direction:column}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:var(--card);border:1px solid var(--border);border-bottom:none}
+.stat-row:first-child{border-radius:10px 10px 0 0}
+.stat-row:last-child{border-bottom:1px solid var(--border);border-radius:0 0 10px 10px;margin-bottom:20px}
+.stat-row .lbl{font-size:12.5px;color:var(--muted)}
+.stat-row .val{font-size:13px;font-weight:600;color:var(--text)}
+
+/* ── IMPORT ALERT ── */
+.import-alert{background:#FEF9C3;border:1px solid #FDE047;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:12.5px;color:#713F12}
+.import-alert strong{display:block;margin-bottom:4px;color:#92400E}
+.import-alert code{background:rgba(0,0,0,.07);padding:2px 6px;border-radius:4px;font-size:11px}
+
+/* ── VERSION HISTORY ── */
+.version-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.version-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;gap:12px;align-items:flex-start}
+.version-tag{font-size:10px;font-weight:700;color:var(--fuel);white-space:nowrap;padding-top:1px}
+.version-body{font-size:12px;color:var(--muted)}
+.version-body .date{color:var(--dim);font-size:11px}
+
+@media(max-width:600px){
+  .header-title{font-size:18px}.header-body{padding:12px 14px 16px}
+  .back-link,.breadcrumb{padding-left:14px}
+  .page-body{padding:16px 12px 36px}
+  .plant-grid{grid-template-columns:1fr 1fr}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="module-header">
+  <a href="/menu.html" class="back-link">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg>
+    Kembali ke Menu
+  </a>
+  <div class="breadcrumb">
+    Energi Jabar <span>›</span> Pembangkitan <span>›</span> SIMBA
+  </div>
+  <div class="header-body">
+    <div class="header-title">
+      SIMBA
+      <span class="badge">Monitoring BBM</span>
+    </div>
+    <div class="header-desc">
+      Sistem Informasi Monitoring BBM Anda — platform pemantauan rantai pasok bahan bakar minyak (HSD &amp; MFO) untuk 8 unit pembangkit PLN UP Kalimantan Barat. Mencakup penerimaan, pemakaian, stok tangki, produksi kWh, dan Specific Fuel Consumption (SFC) harian.
+    </div>
+    <div class="meta-row">
+      <div class="meta-badge">Versi 1.0.0 → 1.0.8+</div>
+      <div class="meta-badge">Sep 2015 – Mar 2017</div>
+      <div class="meta-badge">8 Unit Pembangkit · 27 Tangki BBM</div>
+      <div class="meta-badge">HSD · MFO · BBN</div>
+      <div class="meta-badge">PLN UP Kalbar</div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ TABS ══ -->
+<div class="tabs-bar">
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="overview" role="tab">⚡ Overview</button>
+    <button class="tab-btn" data-tab="monitoring" role="tab">📊 Monitoring Harian</button>
+    <button class="tab-btn" data-tab="rekap" role="tab">📅 Rekap Bulanan</button>
+    <button class="tab-btn" data-tab="tangki" role="tab">🛢️ Inventaris Tangki</button>
+    <button class="tab-btn" data-tab="about" role="tab">ℹ️ Tentang SIMBA</button>
+  </div>
+</div>
+
+<!-- ══ BODY ══ -->
+<div class="page-body">
+
+  <!-- ════ TAB 0: OVERVIEW ════ -->
+  <div id="tab-overview" class="tab-panel active">
+
+    <div class="section-title">🔑 Ringkasan Sistem</div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Unit Pembangkit</div>
+        <div class="kpi-value">8</div>
+        <div class="kpi-unit">PLTD &amp; PLTG</div>
+        <div class="kpi-note">Kalimantan Barat</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Tangki BBM</div>
+        <div class="kpi-value">27</div>
+        <div class="kpi-unit">storage tanks</div>
+        <div class="kpi-note">HSD &amp; MFO</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Kapasitas Total Tangki</div>
+        <div class="kpi-value">22,78</div>
+        <div class="kpi-unit">juta liter (nominal)</div>
+        <div class="kpi-note">Efektif: 20,42 juta liter</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Periode Data</div>
+        <div class="kpi-value">19+</div>
+        <div class="kpi-unit">bulan data historis</div>
+        <div class="kpi-note">Sep 2015 – Mar 2017</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">SFC Terbaik (HSD)</div>
+        <div class="kpi-value" id="sfc-best-hsd">—</div>
+        <div class="kpi-unit" id="sfc-best-hsd-unit">liter/kWh</div>
+        <div class="kpi-note" id="sfc-best-hsd-plant">memuat…</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">SFC Terbaik (MFO)</div>
+        <div class="kpi-value" id="sfc-best-mfo">—</div>
+        <div class="kpi-unit" id="sfc-best-mfo-unit">liter/kWh</div>
+        <div class="kpi-note" id="sfc-best-mfo-plant">memuat…</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Jenis BBM</div>
+        <div class="kpi-value">3</div>
+        <div class="kpi-unit">jenis bahan bakar</div>
+        <div class="kpi-note">HSD · MFO · BBN (biodiesel)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Pemasok Utama</div>
+        <div class="kpi-value">PT</div>
+        <div class="kpi-unit">Pertamina</div>
+        <div class="kpi-note">AKR, Perta sbg sumber alternatif</div>
+      </div>
+    </div>
+
+    <!-- Plant map -->
+    <div class="section-title">🏭 Unit Pembangkit yang Dipantau</div>
+    <div class="plant-grid">
+      <div class="plant-card">
+        <div class="plant-code">SERA · SR</div>
+        <div class="plant-name">PLTD Sei Raya</div>
+        <div class="plant-fuels"><span class="badge-hsd">HSD</span><span class="badge-mfo">MFO</span></div>
+        <div class="plant-period">Sep 2015 – Okt 2016 · 3 tangki HSD + 3 tangki MFO</div>
+      </div>
+      <div class="plant-card">
+        <div class="plant-code">STN · ST</div>
+        <div class="plant-name">PLTD Siantan</div>
+        <div class="plant-fuels"><span class="badge-hsd">HSD</span><span class="badge-mfo">MFO</span></div>
+        <div class="plant-period">Sep 2015 – Feb 2016 · 1 tangki HSD + 2 tangki MFO</div>
+      </div>
+      <div class="plant-card">
+        <div class="plant-code">WIE · SW</div>
+        <div class="plant-name">PLTD Sei Wie</div>
+        <div class="plant-fuels"><span class="badge-hsd">HSD</span><span class="badge-mfo">MFO</span></div>
+        <div class="plant-period">Sep 2015 – Jul 2016 · 1 tangki HSD + 2 tangki MFO</div>
+      </div>
+      <div class="plant-card">
+        <div class="plant-code">PW · SP</div>
+        <div class="plant-name">PLTD Prastiwahyu</div>
+        <div class="plant-fuels"><span class="badge-hsd">HSD</span><span class="badge-mfo">MFO</span></div>
+        <div class="plant-period">Sep 2015+ · 1 tangki HSD + 2 tangki MFO</div>
+      </div>
+      <div class="plant-card">
+        <div class="plant-code">SDR · SD</div>
+        <div class="plant-name">PLTD Sudirman</div>
+        <div class="plant-fuels"><span class="badge-hsd">HSD</span></div>
+        <div class="plant-period">Sep 2015+ · 1 tangki HSD (380.000 L)</div>
+      </div>
+      <div class="plant-card">
+        <div class="plant-code">BUGAK · SB</div>
+        <div class="plant-name">PLTD Bugak Berawang</div>
+        <div class="plant-fuels"><span class="badge-hsd">HSD</span><span class="badge-mfo">MFO</span></div>
+        <div class="plant-period">Okt 2016+ · 1 tangki HSD + 2 tangki MFO</div>
+      </div>
+      <div class="plant-card pltg">
+        <div class="plant-code">PLTG · SG</div>
+        <div class="plant-name">PLTG Siantan</div>
+        <div class="plant-fuels"><span class="badge-hsd">HSD</span></div>
+        <div class="plant-period">Sep 2015 – Mar 2017 · 1 tangki HSD (1,854,000 L)</div>
+      </div>
+      <div class="plant-card pltg">
+        <div class="plant-code">MPP · SM</div>
+        <div class="plant-name">PLTG MPP</div>
+        <div class="plant-fuels"><span class="badge-hsd">HSD</span></div>
+        <div class="plant-period">Sep 2015 · 2 tangki HSD ±1,975,000 L each</div>
+      </div>
+    </div>
+
+    <!-- SFC comparison chart -->
+    <div class="section-title">📈 Perbandingan SFC Rata-Rata per Lokasi</div>
+    <div id="sfc-import-alert" class="import-alert" style="display:none">
+      <strong>Data belum diimpor</strong>
+      Jalankan skrip <code>drizzle/generate_simba_import.sh</code> untuk menghasilkan SQL, lalu impor ke phpMyAdmin. Setelah data tersedia, chart SFC akan muncul di sini.
+    </div>
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Rata-rata SFC HSD (liter/kWh) per Lokasi</h4>
+        <div class="chart-wrap" id="wrap-sfc-hsd">
+          <div class="no-data" id="nd-sfc-hsd"><strong>Memuat data…</strong></div>
+          <canvas id="sfcHsdChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: SIMBA simba_mon_* · rata-rata selama periode data tersedia</p>
+      </div>
+      <div class="chart-card">
+        <h4>Rata-rata SFC MFO (liter/kWh) per Lokasi</h4>
+        <div class="chart-wrap" id="wrap-sfc-mfo">
+          <div class="no-data" id="nd-sfc-mfo"><strong>Memuat data…</strong></div>
+          <canvas id="sfcMfoChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: SIMBA simba_mon_* · rata-rata selama periode data tersedia</p>
+      </div>
+    </div>
+
+  </div><!-- /tab-overview -->
+
+
+  <!-- ════ TAB 1: MONITORING HARIAN ════ -->
+  <div id="tab-monitoring" class="tab-panel">
+
+    <div id="mon-import-alert" class="import-alert" style="display:none">
+      <strong>Data belum diimpor</strong>
+      Jalankan <code>drizzle/generate_simba_import.sh</code> dan impor hasilnya ke phpMyAdmin agar chart monitoring aktif.
+    </div>
+
+    <div class="ctrl-row">
+      <label>Lokasi:</label>
+      <select id="plantSel">
+        <option value="sera">PLTD Sei Raya</option>
+        <option value="stn">PLTD Siantan</option>
+        <option value="wie">PLTD Sei Wie</option>
+        <option value="pw">PLTD Prastiwahyu</option>
+        <option value="sdr">PLTD Sudirman</option>
+        <option value="bugak">PLTD Bugak Berawang</option>
+        <option value="pltg">PLTG Siantan</option>
+        <option value="mpp">PLTG MPP</option>
+      </select>
+      <label>BBM:</label>
+      <select id="bbmSel">
+        <option value="HSD">HSD (Solar)</option>
+        <option value="MFO">MFO (Fuel Oil)</option>
+      </select>
+      <button class="btn-reload" onclick="loadMonitoring()">Muat Data</button>
+    </div>
+
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4 id="chartTitle1">Penerimaan vs Pemakaian BBM (liter/hari)</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-mon1"><strong>Pilih lokasi &amp; klik Muat Data</strong></div>
+          <canvas id="monFlowChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: SIMBA · terima = BBM diterima; pakai = BBM dikonsumsi unit pembangkit</p>
+      </div>
+      <div class="chart-card">
+        <h4 id="chartTitle2">Level Stok BBM (liter)</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-mon2"><strong>Pilih lokasi &amp; klik Muat Data</strong></div>
+          <canvas id="monStockChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: SIMBA · stock_pltd = stok di gudang pembangkit</p>
+      </div>
+    </div>
+
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4 id="chartTitle3">SFC Trend (liter/kWh)</h4>
+        <div class="chart-wrap">
+          <div class="no-data" id="nd-mon3"><strong>Pilih lokasi &amp; klik Muat Data</strong></div>
+          <canvas id="monSfcChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: SIMBA · SFC = konsumsi BBM per kWh listrik yang diproduksi</p>
+      </div>
+      <div class="chart-card">
+        <h4 id="chartTitle4">Produksi kWh Harian</h4>
+        <div class="chart-wrap">
+          <div class="no-data" id="nd-mon4"><strong>Pilih lokasi &amp; klik Muat Data</strong></div>
+          <canvas id="monKwhChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: SIMBA · kwh_prod = total produksi listrik per hari</p>
+      </div>
+    </div>
+
+  </div><!-- /tab-monitoring -->
+
+
+  <!-- ════ TAB 2: REKAP BULANAN ════ -->
+  <div id="tab-rekap" class="tab-panel">
+
+    <div id="rekap-import-alert" class="import-alert" style="display:none">
+      <strong>Data belum diimpor</strong>
+      Import SQL SIMBA ke phpMyAdmin agar rekap bulanan aktif.
+    </div>
+
+    <div class="ctrl-row">
+      <label>Tampilkan:</label>
+      <select id="rekapTypeSel">
+        <option value="pemakaian">Pemakaian BBM</option>
+        <option value="penerimaan">Penerimaan BBM</option>
+      </select>
+      <button class="btn-reload" onclick="loadRekap()">Muat Data</button>
+    </div>
+
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4 id="rekapTitle">Total Pemakaian BBM per Bulan (liter)</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-rekap"><strong>Klik Muat Data</strong></div>
+          <canvas id="rekapChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: SIMBA simba_rekap_pemakaian — rekap harian yang dikelompokkan per bulan</p>
+      </div>
+      <div class="chart-card">
+        <h4>Distribusi HSD vs MFO (Total Pemakaian)</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-rekap2"><strong>Klik Muat Data</strong></div>
+          <canvas id="rekapPieChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: SIMBA · proporsi konsumsi HSD vs MFO seluruh periode</p>
+      </div>
+    </div>
+
+    <div class="section-title">📊 Statistik Rekap</div>
+    <div id="rekap-stats-wrap">
+      <div class="stat-rows">
+        <div class="stat-row"><span class="lbl">Total HSD (pemakaian)</span><span class="val" id="stat-hsd-total">—</span></div>
+        <div class="stat-row"><span class="lbl">Total MFO (pemakaian)</span><span class="val" id="stat-mfo-total">—</span></div>
+        <div class="stat-row"><span class="lbl">Total BBM (pemakaian)</span><span class="val" id="stat-bbm-total">—</span></div>
+        <div class="stat-row"><span class="lbl">Rata-rata HSD/hari</span><span class="val" id="stat-hsd-avg">—</span></div>
+        <div class="stat-row"><span class="lbl">Rata-rata MFO/hari</span><span class="val" id="stat-mfo-avg">—</span></div>
+      </div>
+    </div>
+
+  </div><!-- /tab-rekap -->
+
+
+  <!-- ════ TAB 3: INVENTARIS TANGKI ════ -->
+  <div id="tab-tangki" class="tab-panel">
+
+    <div class="section-title">🛢️ Inventaris Storage Tank</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Data kapasitas tangki berdasarkan dokumen kalibrasi tangki SIMBA. Total 27 tangki BBM di 9 lokasi.</p>
+
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Kapasitas Tangki per Lokasi (ribu liter, efektif)</h4>
+        <div class="chart-wrap lg"><canvas id="tankCapChart"></canvas></div>
+        <p class="src">Sumber: SIMBA info_tangki · efektif_qty = kapasitas operasional (dikurangi stock_mati)</p>
+      </div>
+      <div class="chart-card">
+        <h4>Distribusi Kapasitas per Jenis BBM</h4>
+        <div class="chart-wrap lg"><canvas id="tankPieChart"></canvas></div>
+        <p class="src">Sumber: SIMBA info_tangki · berdasarkan efektif_qty masing-masing jenis BBM</p>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Kode</th>
+            <th>Lokasi / Deskripsi</th>
+            <th>Jenis</th>
+            <th class="td-num">Kapasitas Total (L)</th>
+            <th class="td-num">Efektif (L)</th>
+            <th class="td-num">Stock Mati (L)</th>
+            <th>Kalibrasi Awal</th>
+            <th>Kalibrasi Akhir</th>
+            <th>Metode</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>SR-01-01</td><td>Storage Tank 1 HSD PLTD Sei Raya</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">1.008.962</td><td class="td-num">883.962</td><td class="td-num">125.000</td><td>Agt 2012</td><td>Agt 2017</td><td>Sounding Roll</td></tr>
+          <tr><td>2</td><td>SR-01-01</td><td>Storage Tank 5 HSD PLTD Sei Raya</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">1.006.036</td><td class="td-num">881.036</td><td class="td-num">125.000</td><td>Feb 2013</td><td>Feb 2018</td><td>Sounding Roll</td></tr>
+          <tr><td>3</td><td>SR-01-01</td><td>Storage Tank 6 HSD PLTD Sei Raya</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">294.840</td><td class="td-num">264.840</td><td class="td-num">25.000</td><td>Sep 2014</td><td>Sep 2019</td><td>Sounding Roll</td></tr>
+          <tr><td>4</td><td>SD-01-01</td><td>Storage Tank 1 HSD PLTD Sudirman</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">380.000</td><td class="td-num">365.000</td><td class="td-num">15.000</td><td>Sep 2014</td><td>Sep 2019</td><td>Sounding Roll</td></tr>
+          <tr><td>5</td><td>SR-01-02</td><td>Storage Tank 2 MFO PLTD Sei Raya</td><td><span class="badge-mfo">MFO</span></td><td class="td-num">1.004.171</td><td class="td-num">904.171</td><td class="td-num">100.000</td><td>Mei 2014</td><td>Mei 2019</td><td>Sounding Roll</td></tr>
+          <tr><td>6</td><td>SR-01-02</td><td>Storage Tank 3 MFO PLTD Sei Raya</td><td><span class="badge-mfo">MFO</span></td><td class="td-num">997.735</td><td class="td-num">897.735</td><td class="td-num">100.000</td><td>Apr 2011</td><td>Apr 2016</td><td>Sounding Roll</td></tr>
+          <tr><td>7</td><td>SR-01-02</td><td>Storage Tank 4 MFO PLTD Sei Raya</td><td><span class="badge-mfo">MFO</span></td><td class="td-num">1.003.667</td><td class="td-num">903.667</td><td class="td-num">100.000</td><td>Apr 2015</td><td>Apr 2021</td><td>Sounding Roll</td></tr>
+          <tr><td>8</td><td>SW-01-01</td><td>Storage Tank 1 HSD PLTD Sei Wie</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">607.375</td><td class="td-num">520.000</td><td class="td-num">80.000</td><td>Jun 2011</td><td>Jun 2017</td><td>Sounding Roll</td></tr>
+          <tr><td>9</td><td>SW-01-02</td><td>Storage Tank 2 MFO PLTD Sei Wie</td><td><span class="badge-mfo">MFO</span></td><td class="td-num">620.716</td><td class="td-num">500.000</td><td class="td-num">100.000</td><td>Sep 2013</td><td>Jun 2019</td><td>Sounding Roll</td></tr>
+          <tr><td>10</td><td>SW-01-02</td><td>Storage Tank 3 MFO PLTD Sei Wie</td><td><span class="badge-mfo">MFO</span></td><td class="td-num">369.071</td><td class="td-num">280.000</td><td class="td-num">100.000</td><td>Mar 2013</td><td>Mar 2019</td><td>Sounding Roll</td></tr>
+          <tr><td>11</td><td>SI-01-01</td><td>Storage Tank Kotak HSD Senggiring</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">16.848</td><td class="td-num">16.000</td><td class="td-num">2.000</td><td>Mei 2014</td><td>Mei 2020</td><td>Sounding Roll</td></tr>
+          <tr><td>12</td><td>SI-01-01</td><td>Storage Tank Silinder 1 HSD Senggiring</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">54.716</td><td class="td-num">54.000</td><td class="td-num">7.500</td><td>Mar 2013</td><td>Mar 2019</td><td>Sounding Roll</td></tr>
+          <tr><td>13</td><td>SI-01-01</td><td>Storage Tank Silinder 2 HSD Senggiring</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">55.507</td><td class="td-num">55.000</td><td class="td-num">7.500</td><td>Mar 2013</td><td>Mar 2019</td><td>Sounding Roll</td></tr>
+          <tr><td>14</td><td>SI-01-01</td><td>Storage Tank Silinder 3 HSD Senggiring</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">54.500</td><td class="td-num">54.000</td><td class="td-num">7.500</td><td>Mar 2013</td><td>Mar 2019</td><td>Sounding Roll</td></tr>
+          <tr><td>15</td><td>SI-01-01</td><td>Storage Tank Silinder 4 HSD Senggiring</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">54.560</td><td class="td-num">54.000</td><td class="td-num">7.500</td><td>Apr 2013</td><td>Apr 2019</td><td>Sounding Roll</td></tr>
+          <tr><td>16</td><td>SP-01-02</td><td>Storage Tank 1 MFO PLTD Prastiwahyu</td><td><span class="badge-mfo">MFO</span></td><td class="td-num">500.000</td><td class="td-num">485.000</td><td class="td-num">75.000</td><td>—</td><td>—</td><td>Sounding Roll</td></tr>
+          <tr><td>17</td><td>SP-01-02</td><td>Storage Tank 2 MFO PLTD Prastiwahyu</td><td><span class="badge-mfo">MFO</span></td><td class="td-num">500.000</td><td class="td-num">485.000</td><td class="td-num">75.000</td><td>—</td><td>—</td><td>Sounding Roll</td></tr>
+          <tr><td>18</td><td>SP-01-01</td><td>Storage Tank 1 HSD PLTD Prastiwahyu</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">49.731</td><td class="td-num">34.731</td><td class="td-num">15.000</td><td>Mar 2014</td><td>Feb 2020</td><td>Sounding Roll</td></tr>
+          <tr><td>19</td><td>SG-01-01</td><td>Storage Tank 1 HSD PLTG Siantan</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">1.854.000</td><td class="td-num">1.800.000</td><td class="td-num">289.000</td><td>—</td><td>—</td><td>Sounding Roll</td></tr>
+          <tr><td>20</td><td>ST-01-02</td><td>Storage Tank 1 MFO PLTD Siantan</td><td><span class="badge-mfo">MFO</span></td><td class="td-num">1.353.000</td><td class="td-num">1.300.000</td><td class="td-num">125.000</td><td>—</td><td>—</td><td>Sounding Roll</td></tr>
+          <tr><td>21</td><td>ST-01-02</td><td>Storage Tank 2 MFO PLTD Siantan</td><td><span class="badge-mfo">MFO</span></td><td class="td-num">1.353.000</td><td class="td-num">1.300.000</td><td class="td-num">125.000</td><td>—</td><td>—</td><td>Sounding Roll</td></tr>
+          <tr><td>22</td><td>ST-01-01</td><td>Storage Tank 1 HSD PLTD Siantan</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">1.460.000</td><td class="td-num">1.430.000</td><td class="td-num">100.000</td><td>—</td><td>—</td><td>Sounding Roll</td></tr>
+          <tr><td>23</td><td>SB-01-01</td><td>Storage Tank 1 HSD PLTD Bugak Berawang</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">325.079</td><td class="td-num">305.079</td><td class="td-num">20.000</td><td>Apr 2015</td><td>Apr 2021</td><td>Sounding Roll</td></tr>
+          <tr><td>24</td><td>SB-01-02</td><td>Storage Tank 1 MFO PLTD Bugak Berawang</td><td><span class="badge-mfo">MFO</span></td><td class="td-num">515.528</td><td class="td-num">485.528</td><td class="td-num">30.000</td><td>Apr 2015</td><td>Apr 2021</td><td>Sounding Roll</td></tr>
+          <tr><td>25</td><td>SB-01-02</td><td>Storage Tank 2 MFO PLTD Bugak Berawang</td><td><span class="badge-mfo">MFO</span></td><td class="td-num">512.345</td><td class="td-num">482.345</td><td class="td-num">30.000</td><td>Apr 2015</td><td>Apr 2021</td><td>Sounding Roll</td></tr>
+          <tr><td>26</td><td>SM-01-01</td><td>Storage Tank 1 HSD PLTG MPP (Utara)</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">1.980.894</td><td class="td-num">1.951.393</td><td class="td-num">295.000</td><td>Sep 2016</td><td>Sep 2022</td><td>Sounding Roll</td></tr>
+          <tr><td>27</td><td>SM-01-01</td><td>Storage Tank 2 HSD PLTG MPP (Selatan)</td><td><span class="badge-hsd">HSD</span></td><td class="td-num">1.975.304</td><td class="td-num">1.680.304</td><td class="td-num">295.000</td><td>Sep 2016</td><td>Sep 2022</td><td>Sounding Roll</td></tr>
+          <tr style="background:#FFFDF5">
+            <td class="td-bold" colspan="4">Total 27 Tangki</td>
+            <td class="td-num td-bold">22.778.108</td>
+            <td class="td-num td-bold">20.416.790</td>
+            <td class="td-num td-bold">2.359.000</td>
+            <td colspan="3"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /tab-tangki -->
+
+
+  <!-- ════ TAB 4: TENTANG ════ -->
+  <div id="tab-about" class="tab-panel">
+
+    <div class="section-title">📋 Tentang SIMBA</div>
+    <div class="info-card">
+      <h4>Deskripsi Sistem</h4>
+      <p>
+        SIMBA (<strong>Sistem Informasi Monitoring BBM Anda</strong>) adalah aplikasi web berbasis PHP/MySQL yang dikembangkan pada tahun 2015 untuk memantau seluruh rantai pasok bahan bakar minyak (BBM) di unit-unit pembangkit PLN Unit Pelaksana Pembangkitan Kalimantan Barat. Sistem mencakup alur mulai dari <em>rencana penerimaan</em> (RCN), <em>penerimaan aktual</em> (terima), <em>pengiriman antar lokasi</em>, <em>pemakaian unit pembangkit</em>, hingga <em>stok harian</em> dan perhitungan <em>Specific Fuel Consumption</em> (SFC).
+      </p>
+    </div>
+
+    <div class="info-card">
+      <h4>Modul-modul dalam SIMBA</h4>
+      <ul>
+        <li><strong>mon_*</strong> — Monitoring BBM harian per lokasi (terima, pakai, stok, kWh, SFC)</li>
+        <li><strong>rcn_*</strong> — Rencana pengiriman BBM (Delivery Order Pertamina)</li>
+        <li><strong>terima_*</strong> — Realisasi penerimaan BBM (actual receipt)</li>
+        <li><strong>car_*</strong> — Tracking tanker truck pengangkut BBM (nomor polisi, kapasitas, status)</li>
+        <li><strong>stock_*</strong> — History level stok tangki (per pengukuran)</li>
+        <li><strong>dm_*</strong> — Daily monitoring unit-unit generator (rencana vs realisasi pemakaian)</li>
+        <li><strong>rekap_pemakaian / rekap_penerimaan</strong> — Rekap harian total seluruh lokasi</li>
+        <li><strong>info_tangki</strong> — Data kalibrasi &amp; kapasitas storage tank</li>
+        <li><strong>komunikasi</strong> — Chat/log internal antar operator lapangan</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h4>Jenis Bahan Bakar yang Dipantau</h4>
+      <ul>
+        <li><strong>HSD</strong> (High Speed Diesel / Solar) — digunakan oleh seluruh unit PLTD dan PLTG</li>
+        <li><strong>MFO</strong> (Marine Fuel Oil / Residu) — digunakan oleh unit PLTD besar (Sei Raya, Siantan, Sei Wie, Prastiwahyu)</li>
+        <li><strong>BBN</strong> (Bahan Bakar Nabati / Biodiesel) — khusus PLTD Sudirman, campuran biosolar</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h4>Cara Mengaktifkan Data Dinamis di Cockpit</h4>
+      <ul>
+        <li>Jalankan: <code style="background:#f5f5f5;padding:2px 6px;border-radius:4px">./drizzle/generate_simba_import.sh ~/Downloads/u164655286_simba.sql &gt; /tmp/simba_import.sql</code></li>
+        <li>Import <code>/tmp/simba_import.sql</code> ke phpMyAdmin (database <code>u164655286_cockpit</code>)</li>
+        <li>Jalankan <code>drizzle/register_simba.sql</code> untuk mendaftarkan modul di DB</li>
+        <li>Restart server Cockpit: <code>node dist/index.js</code></li>
+        <li>Tab Monitoring Harian dan Rekap Bulanan akan aktif secara otomatis</li>
+      </ul>
+    </div>
+
+    <div class="section-title">📅 Riwayat Versi</div>
+    <ul class="version-list">
+      <li class="version-item">
+        <span class="version-tag">v1.0.0</span>
+        <span class="version-body">Versi Pertama <span class="date">· 2 Sep 2015</span></span>
+      </li>
+      <li class="version-item"><span class="version-tag">v1.0.1</span><span class="version-body">Perbaikan awal <span class="date">· 5 Sep 2015</span></span></li>
+      <li class="version-item"><span class="version-tag">v1.0.2</span><span class="version-body">Update fitur <span class="date">· 9 Sep 2015</span></span></li>
+      <li class="version-item"><span class="version-tag">v1.0.3</span><span class="version-body">Perbaikan <span class="date">· 16 Sep 2015</span></span></li>
+      <li class="version-item"><span class="version-tag">v1.0.4</span><span class="version-body">Perbaikan <span class="date">· 23 Sep 2015</span></span></li>
+      <li class="version-item"><span class="version-tag">v1.0.5</span><span class="version-body">Perbaikan <span class="date">· 30 Sep 2015</span></span></li>
+      <li class="version-item"><span class="version-tag">v1.0.6</span><span class="version-body">Perbaikan <span class="date">· 7 Okt 2015</span></span></li>
+      <li class="version-item"><span class="version-tag">v1.0.7</span><span class="version-body">Perbaikan <span class="date">· 14 Okt 2015</span></span></li>
+      <li class="version-item"><span class="version-tag">v1.0.8</span><span class="version-body">Perbaikan <span class="date">· 21 Okt 2015</span></span></li>
+    </ul>
+
+  </div><!-- /tab-about -->
+
+</div><!-- /page-body -->
+
+<script>
+/* ── TAB SWITCHING ── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'overview' && !_sfcLoaded) loadSfcSummary();
+    if (btn.dataset.tab === 'tangki'   && !_tankLoaded) initTankCharts();
+  });
+});
+
+/* ── CHART REGISTRY ── */
+const _ch = {};
+function reg(id, cfg) {
+  if (_ch[id]) { _ch[id].destroy(); delete _ch[id]; }
+  const ctx = document.getElementById(id);
+  if (ctx) _ch[id] = new Chart(ctx, cfg);
+}
+
+const C_HSD='#1D4ED8', C_MFO='#7C3AED', C_STOCK='#16A34A', C_FUEL='#B45309';
+const fmt = n => n == null ? '—' : Number(n).toLocaleString('id');
+const fmtM = n => (n/1000000).toFixed(2) + ' jt L';
+
+/* ── SFC SUMMARY (overview) ── */
+let _sfcLoaded = false;
+async function loadSfcSummary() {
+  try {
+    const res = await fetch('/api/simba/sfc-summary');
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (!data?.length) { showNoData(['nd-sfc-hsd','nd-sfc-mfo'],'Data belum diimpor'); document.getElementById('sfc-import-alert').style.display=''; _sfcLoaded=true; return; }
+
+    const hsdData = data.filter(d => d.fuel === 'HSD').sort((a,b) => a.avg_sfc - b.avg_sfc);
+    const mfoData = data.filter(d => d.fuel === 'MFO').sort((a,b) => a.avg_sfc - b.avg_sfc);
+
+    // KPI
+    if (hsdData.length) {
+      const best = hsdData[0];
+      document.getElementById('sfc-best-hsd').textContent = best.avg_sfc.toFixed(3);
+      document.getElementById('sfc-best-hsd-plant').textContent = best.label;
+    }
+    if (mfoData.length) {
+      const best = mfoData[0];
+      document.getElementById('sfc-best-mfo').textContent = best.avg_sfc.toFixed(3);
+      document.getElementById('sfc-best-mfo-plant').textContent = best.label;
+    }
+
+    if (hsdData.length) {
+      showCanvas('sfcHsdChart', 'nd-sfc-hsd');
+      reg('sfcHsdChart', {
+        type: 'bar',
+        data: { labels: hsdData.map(d=>d.label), datasets:[{
+          label:'Avg SFC HSD (L/kWh)', data: hsdData.map(d=>d.avg_sfc),
+          backgroundColor: hsdData.map((_,i) => i===0?'#16A34A':C_HSD), borderRadius:5
+        }]},
+        options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+          plugins:{legend:{display:false}},
+          scales:{ x:{ticks:{callback:v=>v.toFixed(3)}, grid:{color:'#E5E7EB'}},
+                   y:{grid:{display:false},ticks:{font:{size:11}}} } }
+      });
+    } else showNoData(['nd-sfc-hsd'],'Tidak ada data HSD');
+
+    if (mfoData.length) {
+      showCanvas('sfcMfoChart', 'nd-sfc-mfo');
+      reg('sfcMfoChart', {
+        type: 'bar',
+        data: { labels: mfoData.map(d=>d.label), datasets:[{
+          label:'Avg SFC MFO (L/kWh)', data: mfoData.map(d=>d.avg_sfc),
+          backgroundColor: mfoData.map((_,i) => i===0?'#16A34A':C_MFO), borderRadius:5
+        }]},
+        options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+          plugins:{legend:{display:false}},
+          scales:{ x:{ticks:{callback:v=>v.toFixed(3)}, grid:{color:'#E5E7EB'}},
+                   y:{grid:{display:false},ticks:{font:{size:11}}} } }
+      });
+    } else showNoData(['nd-sfc-mfo'],'Tidak ada data MFO');
+
+    _sfcLoaded = true;
+  } catch {
+    showNoData(['nd-sfc-hsd','nd-sfc-mfo'], 'Import data SIMBA terlebih dahulu');
+    document.getElementById('sfc-import-alert').style.display='';
+    _sfcLoaded = true;
+  }
+}
+
+/* ── MONITORING HARIAN ── */
+let _monChartData = null;
+async function loadMonitoring() {
+  const plant = document.getElementById('plantSel').value;
+  const bbm   = document.getElementById('bbmSel').value;
+  const ndIds = ['nd-mon1','nd-mon2','nd-mon3','nd-mon4'];
+  ndIds.forEach(id => { document.getElementById(id).innerHTML='<strong>Memuat…</strong>'; });
+  try {
+    const res = await fetch(`/api/simba/monitoring/${plant}?bbm=${bbm}`);
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (data.error || !data.length) throw new Error('no-data');
+
+    const labels = data.map(d => d.tgl);
+    const terima = data.map(d => Number(d.terima)||0);
+    const pakai  = data.map(d => Number(d.pakai)||0);
+    const stock  = data.map(d => Number(d.stock)||0);
+    const kwh    = data.map(d => Number(d.kwh_prod)||0);
+    const sfc    = data.map(d => d.sfc ? Number(d.sfc) : null);
+    const plantLabel = document.getElementById('plantSel').selectedOptions[0].text;
+
+    document.getElementById('chartTitle1').textContent = `Penerimaan vs Pemakaian ${bbm} — ${plantLabel}`;
+    document.getElementById('chartTitle2').textContent = `Stok ${bbm} — ${plantLabel}`;
+    document.getElementById('chartTitle3').textContent = `SFC ${bbm} — ${plantLabel}`;
+    document.getElementById('chartTitle4').textContent = `Produksi kWh — ${plantLabel}`;
+
+    showCanvas('monFlowChart','nd-mon1');
+    reg('monFlowChart',{type:'bar',data:{labels,datasets:[
+      {label:'Terima (L)',data:terima,backgroundColor:'rgba(29,78,216,.7)',borderRadius:3,order:2},
+      {label:'Pakai (L)',data:pakai,type:'line',borderColor:'#DC2626',backgroundColor:'transparent',tension:.3,pointRadius:0,order:1}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},
+      scales:{x:{display:false},y:{ticks:{callback:v=>fmt(v)},grid:{color:'#E5E7EB'}}}}});
+
+    showCanvas('monStockChart','nd-mon2');
+    reg('monStockChart',{type:'line',data:{labels,datasets:[{
+      label:'Stok (L)',data:stock,borderColor:C_STOCK,backgroundColor:'rgba(22,163,74,.1)',
+      tension:.3,pointRadius:0,fill:true
+    }]},options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},
+      scales:{x:{display:false},y:{ticks:{callback:v=>fmt(v)},grid:{color:'#E5E7EB'}}}}});
+
+    showCanvas('monSfcChart','nd-mon3');
+    reg('monSfcChart',{type:'line',data:{labels,datasets:[{
+      label:'SFC (L/kWh)',data:sfc,borderColor:C_FUEL,backgroundColor:'rgba(180,83,9,.08)',
+      tension:.3,pointRadius:0,fill:true,spanGaps:true
+    }]},options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},
+      scales:{x:{display:false},y:{ticks:{callback:v=>v?.toFixed(3)},grid:{color:'#E5E7EB'}}}}});
+
+    showCanvas('monKwhChart','nd-mon4');
+    reg('monKwhChart',{type:'line',data:{labels,datasets:[{
+      label:'Produksi (kWh)',data:kwh,borderColor:'#0891B2',backgroundColor:'rgba(8,145,178,.08)',
+      tension:.3,pointRadius:0,fill:true
+    }]},options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},
+      scales:{x:{display:false},y:{ticks:{callback:v=>fmt(v)},grid:{color:'#E5E7EB'}}}}});
+
+  } catch(e) {
+    const msg = e.message==='no-data'?'Tidak ada data tersedia':'Import data SIMBA terlebih dahulu';
+    showNoData(ndIds, msg);
+    document.getElementById('mon-import-alert').style.display='';
+  }
+}
+
+/* ── REKAP BULANAN ── */
+async function loadRekap() {
+  const type = document.getElementById('rekapTypeSel').value;
+  document.getElementById('nd-rekap').innerHTML='<strong>Memuat…</strong>';
+  document.getElementById('nd-rekap2').innerHTML='<strong>Memuat…</strong>';
+  try {
+    const res = await fetch(`/api/simba/monthly-rekap?type=${type}`);
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (data.error || !data.length) throw new Error('no-data');
+
+    const labels  = data.map(d => d.bulan);
+    const hsdData = data.map(d => Number(d.hsd)||0);
+    const mfoData = data.map(d => Number(d.mfo)||0);
+    const typeLabel = type==='penerimaan' ? 'Penerimaan' : 'Pemakaian';
+    document.getElementById('rekapTitle').textContent = `Total ${typeLabel} BBM per Bulan (liter)`;
+
+    showCanvas('rekapChart','nd-rekap');
+    reg('rekapChart',{type:'bar',data:{labels,datasets:[
+      {label:'HSD (L)',data:hsdData,backgroundColor:C_HSD,borderRadius:3,stack:'s'},
+      {label:'MFO (L)',data:mfoData,backgroundColor:C_MFO,borderRadius:3,stack:'s'}
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},
+      scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>fmtM(v)},grid:{color:'#E5E7EB'}}}}});
+
+    const totHsd = hsdData.reduce((a,b)=>a+b,0);
+    const totMfo = mfoData.reduce((a,b)=>a+b,0);
+
+    showCanvas('rekapPieChart','nd-rekap2');
+    reg('rekapPieChart',{type:'doughnut',data:{
+      labels:['HSD','MFO'],
+      datasets:[{data:[totHsd,totMfo],backgroundColor:[C_HSD,C_MFO],borderWidth:2,borderColor:'#fff'}]
+    },options:{responsive:true,maintainAspectRatio:false,cutout:'55%',
+      plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${fmtM(ctx.parsed)}`}}}}});
+
+    const days = data.length;
+    document.getElementById('stat-hsd-total').textContent = fmtM(totHsd);
+    document.getElementById('stat-mfo-total').textContent = fmtM(totMfo);
+    document.getElementById('stat-bbm-total').textContent = fmtM(totHsd+totMfo);
+    document.getElementById('stat-hsd-avg').textContent   = fmt(Math.round(totHsd/(days*30.5))) + ' L/hari';
+    document.getElementById('stat-mfo-avg').textContent   = fmt(Math.round(totMfo/(days*30.5))) + ' L/hari';
+
+  } catch(e) {
+    const msg = e.message==='no-data'?'Tidak ada data tersedia':'Import data SIMBA terlebih dahulu';
+    showNoData(['nd-rekap','nd-rekap2'], msg);
+    document.getElementById('rekap-import-alert').style.display='';
+  }
+}
+
+/* ── TANK CHARTS (static data) ── */
+let _tankLoaded = false;
+function initTankCharts() {
+  if (_tankLoaded) return;
+  _tankLoaded = true;
+
+  const tankData = [
+    { loc:'Sei Raya HSD',    eff:883962+881036+264840 },
+    { loc:'Sei Raya MFO',    eff:904171+897735+903667 },
+    { loc:'Siantan PLTD HSD',eff:1430000 },
+    { loc:'Siantan PLTD MFO',eff:1300000+1300000 },
+    { loc:'PLTG Siantan HSD',eff:1800000 },
+    { loc:'PLTG MPP HSD',    eff:1951393+1680304 },
+    { loc:'Sei Wie HSD',     eff:520000 },
+    { loc:'Sei Wie MFO',     eff:500000+280000 },
+    { loc:'Prastiwahyu MFO', eff:485000+485000 },
+    { loc:'Prastiwahyu HSD', eff:34731 },
+    { loc:'Bugak HSD',       eff:305079 },
+    { loc:'Bugak MFO',       eff:485528+482345 },
+    { loc:'Sudirman HSD',    eff:365000 },
+    { loc:'Senggiring HSD',  eff:16000+54000+55000+54000+54000 },
+  ].sort((a,b) => b.eff - a.eff);
+
+  reg('tankCapChart',{type:'bar',data:{
+    labels:tankData.map(d=>d.loc),
+    datasets:[{label:'Kapasitas Efektif (ribu L)',
+      data:tankData.map(d=>d.eff/1000),
+      backgroundColor:tankData.map(d=>d.loc.includes('MFO')?C_MFO:C_HSD),
+      borderRadius:4}]
+  },options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{x:{ticks:{callback:v=>v.toLocaleString('id')+' rb'},grid:{color:'#E5E7EB'}},
+            y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+  const totHsd=883962+881036+264840+1430000+1800000+1951393+1680304+520000+34731+305079+365000+16000+54000+55000+54000+54000;
+  const totMfo=904171+897735+903667+1300000+1300000+500000+280000+485000+485000+485528+482345;
+  reg('tankPieChart',{type:'doughnut',data:{
+    labels:['HSD (Solar)','MFO (Fuel Oil)'],
+    datasets:[{data:[totHsd,totMfo],backgroundColor:[C_HSD,C_MFO],borderWidth:2,borderColor:'#fff'}]
+  },options:{responsive:true,maintainAspectRatio:false,cutout:'50%',
+    plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${(ctx.parsed/1000000).toFixed(2)} jt L`}}}}});
+}
+
+/* ── HELPERS ── */
+function showNoData(ids, msg) {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.display='flex'; el.innerHTML=`<strong>${msg}</strong>`; }
+  });
+}
+function showCanvas(canvasId, ndId) {
+  const nd = document.getElementById(ndId);
+  const cv = document.getElementById(canvasId);
+  if (nd) nd.style.display='none';
+  if (cv) cv.style.display='block';
+}
+
+/* ── INIT ── */
+loadSfcSummary();
+initTankCharts();
+</script>
+</body>
+</html>
