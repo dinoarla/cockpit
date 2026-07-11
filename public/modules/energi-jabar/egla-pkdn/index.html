@@ -3,749 +3,771 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EGLA SUTT 70 kV Parakan–Kadipaten</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<title>EGLA SUTT 70 kV Parakan–Kadipaten | Cockpit</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
-:root {
-  --tx:#1D4ED8; --tx-dk:#1E3A8A; --tx-lt:#DBEAFE; --bg:#F0F5FF;
-  --warn:#F59E0B; --warn-lt:#FEF3C7;
-  --ok:#10B981; --ok-lt:#D1FAE5;
-  --danger:#EF4444; --danger-lt:#FEE2E2;
-  --neutral:#6B7280;
+:root{
+  --accent:#1D4ED8; --accent-dk:#1E3A8A; --accent-lt:#EFF6FF;
+  --bg:#F0F5FF; --card:#FFFFFF; --border:#BFDBFE;
+  --text:#1E293B; --muted:#64748B; --dim:#94A3B8;
+  --green:#16A34A; --red:#DC2626; --amber:#D97706;
+  --warn-bg:#FFFBEB; --warn-border:#FCD34D;
+  --ok-bg:#F0FDF4; --ok-border:#86EFAC;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#1F2937;font-size:14px}
-.hdr{background:linear-gradient(135deg,var(--tx-dk) 0%,var(--tx) 60%,#2563EB 100%);color:#fff;padding:20px 24px 16px}
-.hdr h1{font-size:1.2rem;font-weight:700;letter-spacing:.01em}
-.hdr .sub{font-size:.78rem;opacity:.85;margin-top:4px}
-.hdr .badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 10px;font-size:.72rem;font-weight:600}
-.tabs{display:flex;overflow-x:auto;background:#fff;border-bottom:2px solid var(--tx-lt);gap:0}
-.tab{padding:10px 16px;cursor:pointer;font-size:.8rem;font-weight:600;color:var(--neutral);white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.15s}
-.tab.active{color:var(--tx);border-bottom-color:var(--tx)}
-.tab:hover:not(.active){color:var(--tx);background:var(--tx-lt)}
-.pane{display:none;padding:20px;max-width:1200px}
-.pane.active{display:block}
-.section-title{font-size:.95rem;font-weight:700;color:var(--tx-dk);border-left:3px solid var(--tx);padding-left:10px;margin:20px 0 12px}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+
+/* ── HEADER ── */
+.module-header{background:linear-gradient(135deg,var(--accent-dk) 0%,var(--accent) 60%,#2563EB 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:12px;font-weight:500;letter-spacing:.04em;transition:color .15s}
+.back-link:hover{color:#fff;text-decoration:none}
+.back-link svg{width:14px;height:14px}
+.breadcrumb{padding:6px 24px 0;font-size:11px;color:rgba(255,255,255,.6);letter-spacing:.03em}
+.breadcrumb span{color:rgba(255,255,255,.4);margin:0 5px}
+.header-body{padding:16px 24px 20px}
+.header-title{font-size:22px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.header-title .badge{font-size:10px;font-weight:600;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);padding:3px 9px;border-radius:12px;letter-spacing:.04em}
+.header-desc{font-size:13px;color:rgba(255,255,255,.82);max-width:720px;line-height:1.55;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px}
+.meta-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,.85)}
+
+/* ── TABS ── */
+.tabs-bar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 18px;font-size:13px;font-weight:500;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+/* ── LAYOUT ── */
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 48px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.section-title{font-size:15px;font-weight:700;color:var(--accent-dk);margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
 .section-title:first-child{margin-top:0}
-/* KPI cards */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
-.kpi{background:#fff;border-radius:8px;padding:14px;border:1px solid var(--tx-lt);text-align:center}
-.kpi .val{font-size:1.5rem;font-weight:700;color:var(--tx);line-height:1.1}
-.kpi .unit{font-size:.7rem;color:var(--neutral);margin-top:2px}
-.kpi .lbl{font-size:.73rem;color:#374151;margin-top:6px;font-weight:500}
-.kpi.warn .val{color:#D97706}
-.kpi.ok .val{color:var(--ok)}
-.kpi.red .val{color:var(--danger)}
-/* info table */
-.info-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;margin-bottom:20px}
-.info-table th{background:var(--tx-dk);color:#fff;padding:9px 12px;text-align:left;font-size:.78rem;font-weight:600}
-.info-table td{padding:8px 12px;font-size:.8rem;border-bottom:1px solid #E5E7EB;vertical-align:top}
-.info-table tr:last-child td{border-bottom:none}
-.info-table tr:nth-child(even) td{background:#F8FAFF}
-.info-table td:first-child{font-weight:600;color:var(--tx-dk);width:38%}
-/* data table */
-.data-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;margin-bottom:20px;font-size:.78rem}
-.data-table thead tr{background:var(--tx);color:#fff}
-.data-table th{padding:9px 10px;text-align:center;font-weight:600;white-space:nowrap}
-.data-table td{padding:7px 10px;text-align:center;border-bottom:1px solid #E5E7EB}
-.data-table tr:nth-child(even) td{background:#F8FAFF}
-.data-table tr.total td{background:var(--tx-lt);font-weight:700;color:var(--tx-dk)}
-.data-table tr.highlight td{background:#FEF3C7;font-weight:700}
-.data-table td.left{text-align:left}
-/* chart container */
-.chart-wrap{background:#fff;border-radius:8px;border:1px solid #E5E7EB;padding:16px;margin-bottom:16px}
-.chart-wrap h3{font-size:.82rem;font-weight:700;color:var(--tx-dk);margin-bottom:12px}
-.chart-wrap .src{font-size:.68rem;color:var(--neutral);margin-top:8px}
-.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:700px){.chart-row{grid-template-columns:1fr}}
-/* spec card */
-.spec-card{background:#fff;border-radius:8px;border:1px solid var(--tx-lt);padding:16px;margin-bottom:16px}
-.spec-card h3{font-size:.85rem;font-weight:700;color:var(--tx-dk);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-/* constraint badge */
-.c-ok{display:inline-flex;align-items:center;gap:4px;background:var(--ok-lt);color:#065F46;padding:3px 8px;border-radius:12px;font-size:.72rem;font-weight:700}
-.c-fail{background:var(--danger-lt);color:#991B1B}
-/* result highlight */
-.result-box{background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:2px solid var(--tx);border-radius:10px;padding:16px;margin-bottom:16px;text-align:center}
-.result-box .main{font-size:2rem;font-weight:800;color:var(--tx-dk)}
-.result-box .desc{font-size:.8rem;color:#374151;margin-top:4px}
-/* timeline gangguan */
-.timeline{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.yr-card{background:#fff;border-radius:8px;border:2px solid var(--tx-lt);padding:10px 14px;text-align:center;min-width:90px;flex:1}
-.yr-card .yr{font-size:.72rem;font-weight:700;color:var(--neutral)}
-.yr-card .n{font-size:1.6rem;font-weight:800;line-height:1}
-.yr-card .lbl{font-size:.68rem;color:var(--neutral);margin-top:2px}
-.yr-card.egla-on{border-color:var(--ok);background:var(--ok-lt)}
-.yr-card.egla-on .yr{color:#065F46}
-.yr-card.egla-on .n{color:#065F46}
-.yr-card.peak{border-color:var(--danger);background:var(--danger-lt)}
-.yr-card.peak .n{color:var(--danger)}
-/* paper card */
-.paper-card{background:#fff;border:1px solid var(--tx-lt);border-left:4px solid var(--tx);border-radius:8px;padding:16px;margin-bottom:16px}
-.paper-card .title{font-size:.92rem;font-weight:700;color:var(--tx-dk);line-height:1.4;margin-bottom:8px}
-.paper-card .meta{font-size:.75rem;color:var(--neutral);line-height:1.8}
-.paper-card .abstract{font-size:.78rem;color:#374151;margin-top:10px;line-height:1.6;border-top:1px solid #E5E7EB;padding-top:10px}
-.ref-list{background:#fff;border-radius:8px;padding:14px;font-size:.74rem;color:#374151;line-height:1.9;counter-reset:ref}
-.ref-list li{counter-increment:ref;margin-left:1.5em;text-indent:-1.5em}
-.tag{display:inline-block;background:var(--tx-lt);color:var(--tx-dk);font-size:.68rem;font-weight:700;border-radius:12px;padding:2px 8px;margin:2px}
-.tag.warn{background:var(--warn-lt);color:#92400E}
-.tag.ok{background:var(--ok-lt);color:#065F46}
-.emtp-scope{background:#111827;border-radius:8px;padding:16px;color:#10B981;font-family:monospace;font-size:.8rem;line-height:1.8;margin-bottom:16px}
-.emtp-scope .lbl{color:#9CA3AF;font-size:.72rem}
-.emtp-scope .val{color:#34D399;font-weight:700}
-.emtp-scope .unit{color:#6EE7B7}
-.note{background:#FFF7ED;border-left:3px solid var(--warn);padding:10px 14px;border-radius:0 6px 6px 0;font-size:.78rem;color:#92400E;margin-bottom:14px}
-.note i{margin-right:6px}
+
+/* ── KPI ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:4px}
+.kpi-card.warn{border-left:4px solid var(--amber)}
+.kpi-card.ok{border-left:4px solid var(--green)}
+.kpi-card.danger{border-left:4px solid var(--red)}
+.kpi-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.kpi-value{font-size:24px;font-weight:700;color:var(--accent-dk);line-height:1.1}
+.kpi-value.ok{color:var(--green)}
+.kpi-value.warn{color:var(--amber)}
+.kpi-value.danger{color:var(--red)}
+.kpi-unit{font-size:12px;color:var(--muted);margin-top:2px}
+.kpi-note{font-size:10px;color:var(--dim);margin-top:2px}
+
+/* ── CHARTS ── */
+.chart-grid{display:grid;gap:16px;margin-bottom:24px}
+.chart-grid.cols-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:768px){.chart-grid.cols-2{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.chart-card h4{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px}
+.chart-card p.src{font-size:10px;color:var(--dim);margin-top:8px}
+.chart-wrap{position:relative;height:260px}
+.chart-wrap.sm{height:200px}
+.chart-wrap.lg{height:320px}
+
+/* ── TABLES ── */
+.table-scroll{overflow-x:auto;margin-bottom:24px;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--card)}
+th{background:var(--accent-dk);color:#fff;font-size:11px;font-weight:600;text-align:left;padding:9px 12px;white-space:nowrap}
+th.center{text-align:center}
+td{border-bottom:1px solid var(--border);padding:8px 12px;vertical-align:middle}
+tr:hover td{background:#F0F5FF}
+tr:last-child td{border-bottom:none}
+tr.total-row td{background:var(--accent-lt);font-weight:700;color:var(--accent-dk)}
+tr.highlight-row td{background:#FFFBEB;font-weight:600}
+.td-num{text-align:right;font-variant-numeric:tabular-nums}
+.td-center{text-align:center}
+.badge-ok{display:inline-block;background:#DCFCE7;color:#166534;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
+.badge-warn{display:inline-block;background:#FEF3C7;color:#92400E;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
+.badge-blue{display:inline-block;background:var(--accent-lt);color:var(--accent-dk);font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
+
+/* ── INFO CARDS ── */
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px}
+.info-card h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--accent-dk)}
+.info-card p,.info-card ul{font-size:12.5px;color:var(--muted);line-height:1.75}
+.info-card ul{padding-left:16px}
+.info-card ol{padding-left:16px;font-size:12.5px;color:var(--muted);line-height:1.9}
+
+/* ── ALERT / NOTE ── */
+.alert{border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12.5px}
+.alert.warn{background:var(--warn-bg);border:1px solid var(--warn-border);color:#92400E}
+.alert.ok{background:var(--ok-bg);border:1px solid var(--ok-border);color:#166534}
+.alert strong{display:block;margin-bottom:2px}
+
+/* ── GANGGUAN TIMELINE ── */
+.ggn-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
+@media(max-width:700px){.ggn-grid{grid-template-columns:repeat(3,1fr)}}
+.ggn-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.ggn-card.peak{border-color:var(--red);background:#FFF1F2}
+.ggn-card.good{border-color:var(--green);background:var(--ok-bg)}
+.ggn-yr{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.ggn-n{font-size:28px;font-weight:800;color:var(--accent-dk);line-height:1}
+.ggn-card.peak .ggn-n{color:var(--red)}
+.ggn-card.good .ggn-n{color:var(--green)}
+.ggn-sub{font-size:10px;color:var(--dim);margin-top:3px}
+
+/* ── EMTP TERMINAL ── */
+.emtp-terminal{background:#0F172A;border-radius:10px;padding:18px;font-family:'Courier New',monospace;font-size:12px;line-height:1.9;margin-bottom:20px;color:#94A3B8}
+.emtp-terminal .t-head{color:#64748B;margin-bottom:4px}
+.emtp-terminal .t-key{color:#7DD3FC}
+.emtp-terminal .t-val{color:#34D399;font-weight:700}
+.emtp-terminal .t-unit{color:#6EE7B7}
+.emtp-terminal .t-ok{color:#4ADE80;font-weight:700}
+.emtp-terminal .t-sep{color:#1E293B;user-select:none}
+
+/* ── RESULT BOX ── */
+.result-box{background:linear-gradient(135deg,var(--accent-lt),#DBEAFE);border:2px solid var(--accent);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px}
+.result-box .main-val{font-size:2.2rem;font-weight:800;color:var(--accent-dk)}
+.result-box .sub{font-size:13px;color:var(--muted);margin-top:4px}
+
+/* ── PAPER CARD ── */
+.paper-card{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:10px;padding:18px;margin-bottom:16px}
+.paper-card .ptitle{font-size:14px;font-weight:700;color:var(--accent-dk);line-height:1.5;margin-bottom:10px}
+.paper-card .pmeta{font-size:12px;color:var(--muted);line-height:1.9}
+.paper-card .pabstract{font-size:12.5px;color:var(--text);line-height:1.7;margin-top:12px;border-top:1px solid var(--border);padding-top:12px}
+.kw-chip{display:inline-block;background:var(--accent-lt);color:var(--accent-dk);font-size:10px;font-weight:700;border-radius:10px;padding:2px 9px;margin:2px}
+
+/* ── REF LIST ── */
+.ref-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.ref-box ol{padding-left:1.4em;font-size:12px;color:var(--muted);line-height:2}
+.ref-box li{padding-left:4px}
+
+@media(max-width:600px){
+  .header-title{font-size:18px}.header-body{padding:12px 14px 16px}
+  .back-link,.breadcrumb{padding-left:14px}
+  .page-body{padding:16px 12px 36px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
 
-<div class="hdr">
-  <h1><i class="fa-solid fa-bolt"></i> &nbsp;Studi Optimasi EGLA — SUTT 70 kV Parakan–Kadipaten</h1>
-  <div class="sub">Particle Swarm Optimization · EMTP-CIGRE Leader Progression Model · Vaisala FALLS® 2020–2025</div>
-  <div class="badge-row">
-    <span class="badge"><i class="fa-solid fa-location-dot"></i> ULTG Cirebon · UPT Bandung</span>
-    <span class="badge"><i class="fa-solid fa-bolt-lightning"></i> 70 kV · 28 Tower · 48 thn operasi</span>
-    <span class="badge"><i class="fa-solid fa-shield-halved"></i> EGLA dipasang 2023</span>
-    <span class="badge"><i class="fa-solid fa-microscope"></i> ICT-PEP PLN 2026</span>
-    <span class="badge"><i class="fa-solid fa-users"></i> CoP ULTG Cirebon Sem-II 2025</span>
+<!-- ══ HEADER ══ -->
+<header class="module-header">
+  <a href="/menu.html" class="back-link">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg>
+    Kembali ke Menu
+  </a>
+  <div class="breadcrumb">
+    Energi Jabar <span>›</span> Transmisi <span>›</span> EGLA SUTT 70 kV Parakan–Kadipaten
+  </div>
+  <div class="header-body">
+    <div class="header-title">
+      ⚡ EGLA Parakan–Kadipaten
+      <span class="badge">ICT-PEP 2026</span>
+    </div>
+    <div class="header-desc">
+      Optimasi gap celah udara EGLA pada SUTT 70 kV Parakan–Kadipaten menggunakan Particle Swarm Optimization berbasis 6 tahun data Vaisala FALLS® (17.506 sambaran CG). EMTP-CIGRE Leader Progression Model sebagai fitness evaluator. Reduksi BFR 67,9% — d* = 299 mm.
+    </div>
+    <div class="meta-row">
+      <div class="meta-badge">⚡ 70 kV · 28 Tower · ±48 thn</div>
+      <div class="meta-badge">🛡 EGLA IEC 60099-8 · Gap 340→299 mm</div>
+      <div class="meta-badge">📡 Vaisala FALLS® 2020–2025</div>
+      <div class="meta-badge">🧬 PSO · EMTP · CIGRE LPM</div>
+      <div class="meta-badge">👥 CoP ULTG Cirebon Sem-II 2025</div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ TABS ══ -->
+<div class="tabs-bar">
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="ikhtisar" role="tab">📊 Ikhtisar</button>
+    <button class="tab-btn" data-tab="petir" role="tab">🌩 Data Petir</button>
+    <button class="tab-btn" data-tab="emtp" role="tab">〰 Model EMTP</button>
+    <button class="tab-btn" data-tab="pso" role="tab">📈 Optimasi PSO</button>
+    <button class="tab-btn" data-tab="pub" role="tab">📄 Publikasi & CoP</button>
   </div>
 </div>
 
-<div class="tabs">
-  <div class="tab active" onclick="showTab(0)"><i class="fa-solid fa-gauge-high"></i> Ikhtisar</div>
-  <div class="tab" onclick="showTab(1)"><i class="fa-solid fa-cloud-bolt"></i> Data Petir</div>
-  <div class="tab" onclick="showTab(2)"><i class="fa-solid fa-wave-square"></i> Model EMTP</div>
-  <div class="tab" onclick="showTab(3)"><i class="fa-solid fa-chart-line"></i> Optimasi PSO</div>
-  <div class="tab" onclick="showTab(4)"><i class="fa-solid fa-file-lines"></i> Publikasi & CoP</div>
-</div>
+<!-- ══ BODY ══ -->
+<div class="page-body">
 
-<!-- ═══ TAB 0 — IKHTISAR ═══ -->
-<div class="pane active" id="pane0">
+<!-- ════ TAB: IKHTISAR ════ -->
+<div id="tab-ikhtisar" class="tab-panel active">
 
-  <div class="section-title">Profil Koridor Penghantar</div>
-  <table class="info-table">
-    <tr><td>Nama Penghantar</td><td>SUTT 70 kV Parakan–Kadipaten (Sirkit 1 & 2)</td></tr>
-    <tr><td>Tegangan Nominal</td><td>70 kV</td></tr>
-    <tr><td>Pengelola</td><td>PT PLN (Persero) ULTG Cirebon, UPT Bandung, UP3 Tasikmalaya</td></tr>
-    <tr><td>Jumlah Tower</td><td>28 tower (termasuk tipe suspension & tension)</td></tr>
-    <tr><td>Usia Operasi</td><td>±48 tahun (salah satu penghantar 70 kV tertua di wilayah UPT Bandung)</td></tr>
-    <tr><td>Segmen Jalur</td><td>70 km + 450 m + 500 m + 29 km (total ≈100 km equivalent model)</td></tr>
-    <tr><td>Tinggi Tower</td><td>h = 27,35 m (rata-rata tower suspension)</td></tr>
-    <tr><td>Resistansi Kaki Tower</td><td>Rt = 0,26 Ω (Liew–Darveniza, Ea,soil = 300 kV/m, rocky terrain)</td></tr>
-    <tr><td>Isolator</td><td>String 6-disc standar 254×146 mm — BIL = 610 kV</td></tr>
-    <tr><td>Karakteristik Isokeraunik</td><td>Tinggi — wilayah pegunungan Parakan–Kadipaten berpotensi petir tinggi sepanjang tahun</td></tr>
-    <tr><td>Dominasi Gangguan</td><td>Back Flash Over (BFO) akibat sambaran petir negatif langsung ke tower/kawat tanah</td></tr>
-    <tr><td>EGLA Dipasang</td><td>Secara bertahap sejak 2023 — gap awal d = 340 mm (JSC Polymer-Apparat PA-LA-L112-132)</td></tr>
-  </table>
+  <div class="section-title">🔑 Indikator Kunci</div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Sambaran Terdata</div>
+      <div class="kpi-value">17.506</div>
+      <div class="kpi-unit">CG strokes negatif</div>
+      <div class="kpi-note">Vaisala FALLS® 2020–2025</div>
+    </div>
+    <div class="kpi-card warn">
+      <div class="kpi-label">Median Arus Petir Lokal</div>
+      <div class="kpi-value warn">20,27</div>
+      <div class="kpi-unit">kA (pooled MoM)</div>
+      <div class="kpi-note">−34,7% vs IEEE Std 1243 (31,1 kA)</div>
+    </div>
+    <div class="kpi-card danger">
+      <div class="kpi-label">BFR Existing (d=340mm)</div>
+      <div class="kpi-value danger">0,0128</div>
+      <div class="kpi-unit">fl/100 km/yr</div>
+      <div class="kpi-note">Baseline sebelum optimasi</div>
+    </div>
+    <div class="kpi-card ok">
+      <div class="kpi-label">BFR PSO-Optimal (d=299mm)</div>
+      <div class="kpi-value ok">0,00411</div>
+      <div class="kpi-unit">fl/100 km/yr</div>
+      <div class="kpi-note">Reduksi 67,9% vs baseline</div>
+    </div>
+    <div class="kpi-card ok">
+      <div class="kpi-label">Gap Optimal PSO (d*)</div>
+      <div class="kpi-value ok">299</div>
+      <div class="kpi-unit">mm (±2,8 mm, M=20 run)</div>
+      <div class="kpi-note">Hanya geser elektroda 41 mm</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Arus Petir Worst-Case</div>
+      <div class="kpi-value">−219</div>
+      <div class="kpi-unit">kA (T.15-A, 2023)</div>
+      <div class="kpi-note">Vsurge injeksi = 839,48 kV</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">BIL Isolator</div>
+      <div class="kpi-value">610</div>
+      <div class="kpi-unit">kV (6-disc 254×146 mm)</div>
+      <div class="kpi-note">Vres@299mm = 187,2 kV (3,26× margin)</div>
+    </div>
+    <div class="kpi-card ok">
+      <div class="kpi-label">Proyeksi Trip Petir/thn</div>
+      <div class="kpi-value ok">~0,38</div>
+      <div class="kpi-unit">trip/yr (post-PSO)</div>
+      <div class="kpi-note">vs ~2,2/yr rata-rata pre-EGLA</div>
+    </div>
+  </div>
 
-  <div class="section-title">Spesifikasi EGLA yang Terpasang</div>
-  <div class="chart-row">
-    <table class="info-table">
-      <tr><td>Tipe Arrester</td><td>Externally Gapped Line Arrester (EGLA) — IEC 60099-8</td></tr>
-      <tr><td>Series Varistor Unit (SVU)</td><td>Polymer housing, ZnO varistor</td></tr>
-      <tr><td>Elektroda</td><td>Aluminium Rod</td></tr>
-      <tr><td>Gap dari Konduktor (existing)</td><td><strong>340 mm</strong> (ditentukan berdasarkan prosedur pabrikan, rentang izin 51,2–108 cm)</td></tr>
-      <tr><td>Gap PSO-Optimal</td><td><strong>299 mm</strong> (d* = 299,2 ± 2,8 mm, M=20 run)</td></tr>
-      <tr><td>Utilisasi</td><td>70 kV Network Air</td></tr>
-      <tr><td>Tegangan Referensi (Vref)</td><td>72 kV RMS LL</td></tr>
-      <tr><td>Tipe Tower</td><td>Suspension (konfigurasi celah 34 cm, sejajar insulator string)</td></tr>
-      <tr><td>Komponen EGLA</td><td>(1) Series Varistor Unit (2) Electrode (3) Special Clamp (4) Metal Bracket (5) Fastener</td></tr>
+  <div class="section-title">🗼 Profil Koridor Penghantar</div>
+  <div class="table-scroll">
+    <table>
+      <tr><th style="width:36%">Parameter</th><th>Nilai</th></tr>
+      <tr><td>Nama Penghantar</td><td>SUTT 70 kV Parakan–Kadipaten (Sirkit 1 & 2)</td></tr>
+      <tr><td>Pengelola</td><td>PT PLN (Persero) ULTG Cirebon, UPT Bandung, UP3 Tasikmalaya</td></tr>
+      <tr><td>Jumlah Tower</td><td>28 tower (tipe suspension & tension)</td></tr>
+      <tr><td>Usia Operasi</td><td>±48 tahun — salah satu penghantar 70 kV tertua di wilayah UPT Bandung</td></tr>
+      <tr><td>Segmen Jalur (model)</td><td>70 km + 450 m + 500 m + 29 km</td></tr>
+      <tr><td>Tinggi Tower</td><td>h = 27,35 m (rata-rata tower suspension)</td></tr>
+      <tr><td>Resistansi Kaki Tower</td><td>Rt = 0,26 Ω — Liew–Darveniza, Ea,soil = 300 kV/m (rocky terrain)</td></tr>
+      <tr><td>Isolator</td><td>6-disc standar 254×146 mm — BIL = 610 kV (Dry FOV 380 kV, Wet 255 kV)</td></tr>
+      <tr><td>Dominasi Gangguan</td><td>Back Flash Over (BFO) akibat sambaran petir negatif langsung ke tower/kawat tanah</td></tr>
+      <tr><td>EGLA Dipasang</td><td>Bertahap sejak 2023 — gap awal d = 340 mm (JSC Polymer-Apparat PA-LA-L112-132)</td></tr>
     </table>
-    <div>
-      <div class="spec-card">
-        <h3><i class="fa-solid fa-circle-info" style="color:var(--tx)"></i> Cara Kerja EGLA</h3>
-        <p style="font-size:.78rem;line-height:1.7;color:#374151">
-          Ketika surja petir melampaui tegangan sparkover gap (Vso), celah udara (d) terhubung singkat dan SVU
-          mengalirkan arus surge ke tanah via tower, membatasi tegangan residual (Vres) di bawah BIL isolator.
-          EGLA <strong>tidak terenergisasi</strong> secara kontinu sehingga bebas dari risiko thermal & power-frequency
-          flashover — keunggulan dibanding ZnO arrester tanpa gap (gapless).
-        </p>
-      </div>
-      <div class="spec-card">
-        <h3><i class="fa-solid fa-triangle-exclamation" style="color:var(--warn)"></i> Masalah Gap Existing (340 mm)</h3>
-        <p style="font-size:.78rem;line-height:1.7;color:#374151">
-          Gap 340 mm ditentukan murni dari parameter tegangan-level pabrikan (Vsys=170 kV, TOV, SF=1,2–1,4)
-          tanpa mempertimbangkan: (a) distribusi arus petir spesifik lokasi, (b) ground flash density aktual,
-          atau (c) respons transien tower. Hal ini membuat gap 340 mm tidak memiliki justifikasi probabilistik
-          terhadap lingkungan petir koridor ini.
-        </p>
-      </div>
+  </div>
+
+  <div class="section-title">📅 Tren Gangguan Petir 2020–2025</div>
+  <div class="alert warn"><strong>⚠ EGLA diimplementasikan secara bertahap mulai 2023.</strong> Penurunan gangguan signifikan terlihat pada 2024 (0 gangguan) dan 2025 (1 gangguan). Data: Vaisala FALLS® Client & FOIS.</div>
+  <div class="ggn-grid">
+    <div class="ggn-card"><div class="ggn-yr">2020</div><div class="ggn-n">1</div><div class="ggn-sub">gangguan</div></div>
+    <div class="ggn-card"><div class="ggn-yr">2021</div><div class="ggn-n">2</div><div class="ggn-sub">gangguan</div></div>
+    <div class="ggn-card peak"><div class="ggn-yr">2022</div><div class="ggn-n">6</div><div class="ggn-sub">puncak ⚠</div></div>
+    <div class="ggn-card"><div class="ggn-yr">2023</div><div class="ggn-n">3</div><div class="ggn-sub">EGLA mulai</div></div>
+    <div class="ggn-card good"><div class="ggn-yr">2024</div><div class="ggn-n">0</div><div class="ggn-sub">✓ EGLA aktif</div></div>
+    <div class="ggn-card good"><div class="ggn-yr">2025*</div><div class="ggn-n">1</div><div class="ggn-sub">✓ EGLA aktif</div></div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h4>Jumlah Gangguan Petir per Tahun vs Total Sambaran</h4>
+      <div class="chart-wrap"><canvas id="chartGangguan"></canvas></div>
+      <p class="src">Sumber: Vaisala FALLS® Client & FOIS · *2025 s.d. 25 Oktober 2025</p>
     </div>
   </div>
 
-  <div class="section-title">Indikator Kunci</div>
-  <div class="kpi-grid">
-    <div class="kpi"><div class="val">17.506</div><div class="unit">CG strokes</div><div class="lbl">Total sambaran terdata (Vaisala FALLS 2020–2025)</div></div>
-    <div class="kpi"><div class="val">20,27</div><div class="unit">kA (median)</div><div class="lbl">Arus puncak petir negatif spesifik lokasi</div></div>
-    <div class="kpi warn"><div class="val">−34,7%</div><div class="unit">vs IEEE Std 1243</div><div class="lbl">Median lokal lebih rendah dari referensi global (31,1 kA)</div></div>
-    <div class="kpi red"><div class="val">0,0128</div><div class="unit">fl/100km/yr</div><div class="lbl">BFR existing d=340 mm</div></div>
-    <div class="kpi ok"><div class="val">0,00411</div><div class="unit">fl/100km/yr</div><div class="lbl">BFR PSO-optimal d=299 mm</div></div>
-    <div class="kpi ok"><div class="val">−67,9%</div><div class="unit">reduksi BFR</div><div class="lbl">Dibanding baseline 340 mm</div></div>
-    <div class="kpi"><div class="val">299</div><div class="unit">mm</div><div class="lbl">Gap optimal PSO (d*) — hanya geser elektroda 41 mm</div></div>
-    <div class="kpi ok"><div class="val">~0,38</div><div class="unit">trip/yr</div><div class="lbl">Proyeksi gangguan petir tahunan (vs ~2,2/yr sebelum EGLA)</div></div>
-  </div>
-
-  <div class="section-title">Tren Gangguan Petir 2020–2025 (SUTT 70 kV Parakan–Kadipaten)</div>
-  <div class="note"><i class="fa-solid fa-circle-info"></i> EGLA diimplementasikan secara bertahap mulai 2023. Penurunan gangguan terlihat signifikan pada 2024 (0 gangguan) dan 2025 (1 gangguan). Data: Vaisala FALLS® Client & FOIS.</div>
-  <div class="timeline">
-    <div class="yr-card"><div class="yr">2020</div><div class="n">1</div><div class="lbl">gangguan</div></div>
-    <div class="yr-card"><div class="yr">2021</div><div class="n">2</div><div class="lbl">gangguan</div></div>
-    <div class="yr-card peak"><div class="yr">2022</div><div class="n">6</div><div class="lbl">gangguan (puncak)</div></div>
-    <div class="yr-card"><div class="yr">2023</div><div class="n">3</div><div class="lbl">gangguan (EGLA mulai)</div></div>
-    <div class="yr-card egla-on"><div class="yr">2024</div><div class="n">0</div><div class="lbl">gangguan ✓ EGLA</div></div>
-    <div class="yr-card egla-on"><div class="yr">2025*</div><div class="n">1</div><div class="lbl">gangguan ✓ EGLA</div></div>
-  </div>
-  <div class="chart-wrap">
-    <h3>Jumlah Gangguan Petir per Tahun vs Total Sambaran</h3>
-    <canvas id="chartGangguan" height="90"></canvas>
-    <div class="src">Sumber: Vaisala FALLS® Client & FOIS · *2025 s.d. 25 Oktober 2025</div>
+  <div class="section-title">🛡 Spesifikasi EGLA</div>
+  <div class="chart-grid cols-2">
+    <div class="table-scroll" style="margin-bottom:0">
+      <table>
+        <tr><th style="width:44%">Komponen</th><th>Spesifikasi</th></tr>
+        <tr><td>Tipe</td><td>Externally Gapped Line Arrester (EGLA) — IEC 60099-8</td></tr>
+        <tr><td>Series Varistor Unit</td><td>ZnO, housing Polymer</td></tr>
+        <tr><td>Elektroda</td><td>Aluminium Rod</td></tr>
+        <tr><td>Gap existing (d)</td><td><strong>340 mm</strong> — metode pabrikan PA-LA-L112-132</td></tr>
+        <tr><td>Gap PSO-optimal (d*)</td><td><strong>299 mm</strong> (d* = 299,2 ± 2,8 mm)</td></tr>
+        <tr><td>Vref (SVU)</td><td>72 kV RMS LL</td></tr>
+        <tr><td>Utilisasi</td><td>70 kV Network Air</td></tr>
+        <tr><td>Tipe Tower</td><td>Suspension — celah sejajar insulator string</td></tr>
+        <tr><td>Komponen</td><td>(1) SVU (2) Electrode (3) Special Clamp (4) Metal Bracket (5) Fastener</td></tr>
+      </table>
+    </div>
+    <div class="info-card" style="margin-bottom:0">
+      <h4>⚙ Cara Kerja EGLA</h4>
+      <p>Ketika surja petir melampaui tegangan sparkover gap (Vso), celah udara (d) terhubung singkat dan SVU mengalirkan arus surge ke tanah via tower, membatasi tegangan residual (Vres) di bawah BIL isolator.</p>
+      <br>
+      <p>EGLA <strong>tidak terenergisasi</strong> secara kontinu — bebas dari risiko thermal & power-frequency flashover dibanding ZnO gapless. Gap lebih kecil (299 mm vs 340 mm) membuat SVU terlibat 15% lebih awal, sehingga Vres turun dari 209,6 kV → 187,2 kV.</p>
+    </div>
   </div>
 </div>
 
-<!-- ═══ TAB 1 — DATA PETIR ═══ -->
-<div class="pane" id="pane1">
+<!-- ════ TAB: DATA PETIR ════ -->
+<div id="tab-petir" class="tab-panel">
 
-  <div class="section-title">Statistik Isokeraunik Tahunan 2020–2025</div>
-  <div class="note"><i class="fa-solid fa-satellite-dish"></i> Data bersumber dari Vaisala FALLS® Client — sistem deteksi sambaran petir Cloud-to-Ground (CG) berbasis jaringan sensor. Corridor exposure analysis dilakukan pada radius sesuai jangkauan tower SUTT 70 kV Parakan–Kadipaten.</div>
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th>Tahun</th><th>Total Petir<br>(CG strokes)</th><th>Petir (−)</th><th>Petir (+)</th><th>Rasio (−)/(+)</th><th>Jumlah<br>Gangguan</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>2020</td><td>3.595</td><td>3.318</td><td>277</td><td>12,0×</td><td>1</td></tr>
-      <tr><td>2021</td><td>2.765</td><td>2.516</td><td>249</td><td>10,1×</td><td>2</td></tr>
-      <tr class="highlight"><td>2022</td><td>4.346</td><td>4.100</td><td>246</td><td>16,7×</td><td>6 ⚠️</td></tr>
-      <tr><td>2023</td><td>3.040</td><td>2.689</td><td>351</td><td>7,7×</td><td>3</td></tr>
-      <tr><td>2024</td><td>3.157</td><td>2.935</td><td>222</td><td>13,2×</td><td>0 ✓</td></tr>
-      <tr><td>2025*</td><td>2.115</td><td>1.948</td><td>167</td><td>11,7×</td><td>1</td></tr>
-      <tr class="total"><td>Total</td><td>18.918</td><td>17.506</td><td>1.412</td><td>12,4×</td><td>13</td></tr>
-    </tbody>
-  </table>
-
-  <div class="chart-row">
-    <div class="chart-wrap">
-      <h3>Total Sambaran CG per Tahun</h3>
-      <canvas id="chartPetirTotal" height="160"></canvas>
-      <div class="src">Negatif (−) vs Positif (+) · Sumber: Vaisala FALLS®</div>
-    </div>
-    <div class="chart-wrap">
-      <h3>Distribusi Negatif / Positif (6-tahun)</h3>
-      <canvas id="chartNegPos" height="160"></canvas>
-      <div class="src">Total 2020–2025 · 17.506 negatif : 1.412 positif</div>
-    </div>
-  </div>
-
-  <div class="section-title">Statistik Magnitude Sambaran (kA)</div>
-  <table class="data-table">
-    <thead>
-      <tr>
+  <div class="section-title">⚡ Statistik Isokeraunik Tahunan 2020–2025</div>
+  <div class="alert warn"><strong>Sumber data: Vaisala FALLS® Client</strong> — sistem deteksi sambaran petir Cloud-to-Ground (CG) berbasis jaringan sensor. Corridor exposure analysis pada radius sesuai jangkauan tower SUTT 70 kV Parakan–Kadipaten.</div>
+  <div class="table-scroll">
+    <table>
+      <thead><tr>
         <th>Tahun</th>
-        <th>Min. kA (−)</th><th>Max. kA (−)</th><th>Mean kA (−)</th>
-        <th>Min. kA (+)</th><th>Max. kA (+)</th><th>Mean kA (+)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>2020</td><td>−187</td><td>−1</td><td>−20,31</td><td>+3</td><td>+70</td><td>+27,40</td></tr>
-      <tr><td>2021</td><td>−121</td><td>−2</td><td>−18,25</td><td>+3</td><td>+60</td><td>+26,90</td></tr>
-      <tr class="highlight"><td>2022</td><td>−142</td><td>−3</td><td>−19,71</td><td>+5</td><td>+78</td><td>+28,26</td></tr>
-      <tr class="highlight"><td>2023</td><td><strong>−219</strong></td><td>−2</td><td>−22,88</td><td>+4</td><td>+123</td><td>+33,20</td></tr>
-      <tr><td>2024</td><td>−160</td><td>−2</td><td>−20,29</td><td>+3</td><td>+91</td><td>+33,69</td></tr>
-      <tr><td>2025*</td><td>−138</td><td>−3</td><td>−23,03</td><td>+7</td><td>+74</td><td>+33,74</td></tr>
-    </tbody>
-  </table>
-  <div class="note"><i class="fa-solid fa-triangle-exclamation"></i> Arus puncak terburuk: <strong>−219 kA</strong> (2023, T.15-A) — digunakan sebagai skenario worst-case dalam simulasi EMTP. Vsurge injeksi = <strong>839,48 kV</strong> pada titik tower.</div>
-
-  <div class="section-title">Parameter Log-Normal Spesifik Lokasi (Method of Moments)</div>
-  <table class="data-table">
-    <thead>
-      <tr><th>Tahun</th><th>Ng (neg.)</th><th>Ī<sup>(y)</sup> (kA)</th><th>μ*lnI</th><th>σlnI</th><th>Median Ī (kA)</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>2020</td><td>3.318</td><td>20,31</td><td>2,994</td><td>0,601</td><td>19,97</td></tr>
-      <tr><td>2021</td><td>2.516</td><td>18,25</td><td>2,882</td><td>0,601</td><td>17,86</td></tr>
-      <tr><td>2022</td><td>4.100</td><td>19,71</td><td>2,979</td><td>0,601</td><td>19,67</td></tr>
-      <tr><td>2023</td><td>2.689</td><td>22,88</td><td>3,089</td><td>0,601</td><td>21,98</td></tr>
-      <tr><td>2024</td><td>2.935</td><td>20,29</td><td>2,994</td><td>0,601</td><td>19,97</td></tr>
-      <tr><td>2025*</td><td>1.948</td><td>23,03</td><td>3,096</td><td>0,601</td><td>22,10</td></tr>
-      <tr class="total"><td>Pooled</td><td>17.506</td><td>20,55</td><td>3,009</td><td>0,601</td><td><strong>20,27</strong></td></tr>
-    </tbody>
-  </table>
-  <div class="note"><i class="fa-solid fa-circle-info"></i> Median pooled <strong>20,27 kA</strong> — 34,7% di bawah referensi IEEE Std 1243 (31,1 kA) dan 19% di bawah baseline CIGRE tropis (~25 kA). Seluruh 15 uji K-S inter-tahunan lulus pada α = 0,05, memvalidasi stasionaritas distribusi. Ini mengkonfirmasi bahwa distribusi standar bersifat non-konservatif untuk koridor ini.</div>
-
-  <div class="section-title">Lokasi Tower Dominan Sambaran per Tahun</div>
-  <table class="data-table">
-    <thead>
-      <tr><th>Tahun</th><th>Tower Dominan</th><th>Total Count</th><th>Count (−)</th><th>Count (+)</th><th>Density<br>(samples/km²/bln)</th><th>Mean kA</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>2020</td><td>T.18AA</td><td>172</td><td>161</td><td>11</td><td>54,9996</td><td>−14,05</td></tr>
-      <tr><td>2021</td><td>T.14-A</td><td>154</td><td>142</td><td>12</td><td>49,2438</td><td>−14,14</td></tr>
-      <tr class="highlight"><td>2022</td><td>T.14-D</td><td><strong>247</strong></td><td>241</td><td>6</td><td><strong>78,9819</strong></td><td>−17,57</td></tr>
-      <tr><td>2023</td><td>T.15-A</td><td>153</td><td>139</td><td>14</td><td>48,924</td><td>−15,24</td></tr>
-      <tr><td>2024</td><td>T.18C-A</td><td>167</td><td>160</td><td>7</td><td>53,4008</td><td>−15,89</td></tr>
-      <tr><td>2025*</td><td>T.05B</td><td>136</td><td>126</td><td>10</td><td>43,488</td><td>−20,82</td></tr>
-    </tbody>
-  </table>
-  <div class="note"><i class="fa-solid fa-map-location-dot"></i> Seksi timur laut (T.14–T.18) konsisten menunjukkan flash density tertinggi (>3,4 samples·km⁻²·month⁻¹). T.14-D mencatat sambaran terbanyak tunggal dalam 1 tahun (247 sambaran, 2022). Data exposure analysis: Vaisala FALLS® Client.</div>
-
-  <div class="chart-wrap">
-    <h3>Sambaran per Tower Dominan vs Jumlah Gangguan (2020–2025)</h3>
-    <canvas id="chartDominant" height="100"></canvas>
-    <div class="src">Sumber: Vaisala FALLS® Client · Correlation: sambaran tinggi tidak selalu sebanding dengan gangguan (EGLA efektif di 2024–2025)</div>
+        <th class="center">Total Petir (CG)</th>
+        <th class="center">Petir (−)</th>
+        <th class="center">Petir (+)</th>
+        <th class="center">Rasio (−)/(+)</th>
+        <th class="center">Gangguan</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>2020</td><td class="td-num">3.595</td><td class="td-num">3.318</td><td class="td-num">277</td><td class="td-center">12,0×</td><td class="td-center">1</td></tr>
+        <tr><td>2021</td><td class="td-num">2.765</td><td class="td-num">2.516</td><td class="td-num">249</td><td class="td-center">10,1×</td><td class="td-center">2</td></tr>
+        <tr class="highlight-row"><td>2022</td><td class="td-num">4.346</td><td class="td-num">4.100</td><td class="td-num">246</td><td class="td-center">16,7×</td><td class="td-center"><span class="badge-warn">6 ⚠</span></td></tr>
+        <tr><td>2023</td><td class="td-num">3.040</td><td class="td-num">2.689</td><td class="td-num">351</td><td class="td-center">7,7×</td><td class="td-center">3</td></tr>
+        <tr><td>2024</td><td class="td-num">3.157</td><td class="td-num">2.935</td><td class="td-num">222</td><td class="td-center">13,2×</td><td class="td-center"><span class="badge-ok">0 ✓</span></td></tr>
+        <tr><td>2025*</td><td class="td-num">2.115</td><td class="td-num">1.948</td><td class="td-num">167</td><td class="td-center">11,7×</td><td class="td-center">1</td></tr>
+        <tr class="total-row"><td>Total</td><td class="td-num">18.918</td><td class="td-num">17.506</td><td class="td-num">1.412</td><td class="td-center">12,4×</td><td class="td-center">13</td></tr>
+      </tbody>
+    </table>
   </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <h4>Total Sambaran CG per Tahun (Negatif vs Positif)</h4>
+      <div class="chart-wrap"><canvas id="chartPetirTotal"></canvas></div>
+      <p class="src">Sumber: Vaisala FALLS® · *2025 s.d. Okt 2025</p>
+    </div>
+    <div class="chart-card">
+      <h4>Distribusi Polaritas (Total 6 Tahun)</h4>
+      <div class="chart-wrap sm"><canvas id="chartNegPos"></canvas></div>
+      <p class="src">17.506 negatif (92,5%) : 1.412 positif (7,5%)</p>
+    </div>
+  </div>
+
+  <div class="section-title">📏 Statistik Magnitude Sambaran (kA)</div>
+  <div class="table-scroll">
+    <table>
+      <thead><tr>
+        <th>Tahun</th>
+        <th class="center">Min. kA (−)</th><th class="center">Max. kA (−)</th><th class="center">Mean kA (−)</th>
+        <th class="center">Min. kA (+)</th><th class="center">Max. kA (+)</th><th class="center">Mean kA (+)</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>2020</td><td class="td-num">−187</td><td class="td-num">−1</td><td class="td-num">−20,31</td><td class="td-num">+3</td><td class="td-num">+70</td><td class="td-num">+27,40</td></tr>
+        <tr><td>2021</td><td class="td-num">−121</td><td class="td-num">−2</td><td class="td-num">−18,25</td><td class="td-num">+3</td><td class="td-num">+60</td><td class="td-num">+26,90</td></tr>
+        <tr><td>2022</td><td class="td-num">−142</td><td class="td-num">−3</td><td class="td-num">−19,71</td><td class="td-num">+5</td><td class="td-num">+78</td><td class="td-num">+28,26</td></tr>
+        <tr class="highlight-row"><td>2023</td><td class="td-num"><strong>−219</strong></td><td class="td-num">−2</td><td class="td-num">−22,88</td><td class="td-num">+4</td><td class="td-num">+123</td><td class="td-num">+33,20</td></tr>
+        <tr><td>2024</td><td class="td-num">−160</td><td class="td-num">−2</td><td class="td-num">−20,29</td><td class="td-num">+3</td><td class="td-num">+91</td><td class="td-num">+33,69</td></tr>
+        <tr><td>2025*</td><td class="td-num">−138</td><td class="td-num">−3</td><td class="td-num">−23,03</td><td class="td-num">+7</td><td class="td-num">+74</td><td class="td-num">+33,74</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="alert warn"><strong>Arus puncak terburuk: −219 kA (2023, T.15-A)</strong> — digunakan sebagai skenario worst-case dalam simulasi EMTP. Vsurge injeksi = 839,48 kV pada titik tower.</div>
+
+  <div class="section-title">📐 Parameter Log-Normal Spesifik Lokasi (Method of Moments)</div>
+  <div class="table-scroll">
+    <table>
+      <thead><tr>
+        <th>Tahun</th><th class="center">Ng (neg.)</th><th class="center">Ī⁽ʸ⁾ (kA)</th>
+        <th class="center">μ*lnI</th><th class="center">σlnI</th><th class="center">Median Ī (kA)</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>2020</td><td class="td-num">3.318</td><td class="td-num">20,31</td><td class="td-num">2,994</td><td class="td-num">0,601</td><td class="td-num">19,97</td></tr>
+        <tr><td>2021</td><td class="td-num">2.516</td><td class="td-num">18,25</td><td class="td-num">2,882</td><td class="td-num">0,601</td><td class="td-num">17,86</td></tr>
+        <tr><td>2022</td><td class="td-num">4.100</td><td class="td-num">19,71</td><td class="td-num">2,979</td><td class="td-num">0,601</td><td class="td-num">19,67</td></tr>
+        <tr><td>2023</td><td class="td-num">2.689</td><td class="td-num">22,88</td><td class="td-num">3,089</td><td class="td-num">0,601</td><td class="td-num">21,98</td></tr>
+        <tr><td>2024</td><td class="td-num">2.935</td><td class="td-num">20,29</td><td class="td-num">2,994</td><td class="td-num">0,601</td><td class="td-num">19,97</td></tr>
+        <tr><td>2025*</td><td class="td-num">1.948</td><td class="td-num">23,03</td><td class="td-num">3,096</td><td class="td-num">0,601</td><td class="td-num">22,10</td></tr>
+        <tr class="total-row"><td>Pooled</td><td class="td-num">17.506</td><td class="td-num">20,55</td><td class="td-num">3,009</td><td class="td-num">0,601</td><td class="td-num"><strong>20,27</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="alert ok"><strong>Median pooled 20,27 kA</strong> — 34,7% di bawah IEEE Std 1243 (31,1 kA) dan 19% di bawah CIGRE tropis (~25 kA). Semua 15 uji K-S inter-tahunan lulus pada α=0,05. Distribusi standar bersifat non-konservatif untuk koridor ini.</div>
+
+  <div class="section-title">📍 Lokasi Tower Dominan Sambaran per Tahun</div>
+  <div class="table-scroll">
+    <table>
+      <thead><tr>
+        <th>Tahun</th><th>Tower Dominan</th>
+        <th class="center">Total</th><th class="center">Count (−)</th><th class="center">Count (+)</th>
+        <th class="center">Density (smp/km²/bln)</th><th class="center">Mean kA</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>2020</td><td>T.18AA</td><td class="td-num">172</td><td class="td-num">161</td><td class="td-num">11</td><td class="td-num">54,9996</td><td class="td-num">−14,05</td></tr>
+        <tr><td>2021</td><td>T.14-A</td><td class="td-num">154</td><td class="td-num">142</td><td class="td-num">12</td><td class="td-num">49,2438</td><td class="td-num">−14,14</td></tr>
+        <tr class="highlight-row"><td>2022</td><td>T.14-D</td><td class="td-num"><strong>247</strong></td><td class="td-num">241</td><td class="td-num">6</td><td class="td-num"><strong>78,9819</strong></td><td class="td-num">−17,57</td></tr>
+        <tr><td>2023</td><td>T.15-A</td><td class="td-num">153</td><td class="td-num">139</td><td class="td-num">14</td><td class="td-num">48,924</td><td class="td-num">−15,24</td></tr>
+        <tr><td>2024</td><td>T.18C-A</td><td class="td-num">167</td><td class="td-num">160</td><td class="td-num">7</td><td class="td-num">53,4008</td><td class="td-num">−15,89</td></tr>
+        <tr><td>2025*</td><td>T.05B</td><td class="td-num">136</td><td class="td-num">126</td><td class="td-num">10</td><td class="td-num">43,488</td><td class="td-num">−20,82</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="alert warn">Seksi timur laut (T.14–T.18) konsisten menunjukkan flash density tertinggi (&gt;3,4 samples·km⁻²·month⁻¹). T.14-D mencatat 247 sambaran dalam 1 tahun (2022) — tertinggi tunggal selama periode studi.</div>
 </div>
 
-<!-- ═══ TAB 2 — MODEL EMTP ═══ -->
-<div class="pane" id="pane2">
+<!-- ════ TAB: MODEL EMTP ════ -->
+<div id="tab-emtp" class="tab-panel">
 
-  <div class="section-title">Arsitektur Model EMTP-ATP</div>
-  <div class="note"><i class="fa-solid fa-microchip"></i> Model EMTP menggabungkan 5 sub-model pada time step Δt = 0,01 μs — cukup untuk meresolvasi kecuraman surja di/dt = 30 kA/μs yang terukur di lapangan. Validasi dilakukan dengan data scopeview EMTP pada d = 340 mm, Imax = −219 kA.</div>
-
-  <table class="data-table">
-    <thead>
-      <tr><th>Sub-Model</th><th>Elemen EMTP</th><th>Parameter Kunci</th><th>Referensi</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="left">Sumber Arus Petir</td>
-        <td>CIGRE Type-15 Concave</td>
-        <td class="left">Imax = −219 kA (worst-case 2023); tf = 3 μs; Sn = 90 kA/μs</td>
-        <td>CIGRE WG 33.01; Heidler</td>
-      </tr>
-      <tr>
-        <td class="left">Celah Udara EGLA (LPM)</td>
-        <td>Type-94 MODELS (CIGRE LPM)</td>
-        <td class="left">d = 340 mm (existing) / 299 mm (PSO); Gtype = 2 (rod-plane); kL = 0,8×10⁻⁶ m²/(Vs); E₀ = 500 kV/m</td>
-        <td>CIGRE WG 33.07; Datsios & Mikropoulos</td>
-      </tr>
-      <tr>
-        <td class="left">ZnO Series Varistor Unit</td>
-        <td>Piecewise-exp NL Resistor</td>
-        <td class="left">Vref = 72 kV RMS LL; α₁ = 1–5; α₂ = 25–40; negligible leakage pada power-frequency</td>
-        <td>IEC 60099-8; IEC Power & Energy Society</td>
-      </tr>
-      <tr>
-        <td class="left">Tower Transmisi</td>
-        <td>Distributed-Parameter (Sargent–Darveniza)</td>
-        <td class="left">h = 27,35 m; Rt = 0,26 Ω; τt = h/vt = 0,107 μs (vt = 0,85c)</td>
-        <td>Ishii et al.; Liew & Darveniza</td>
-      </tr>
-      <tr>
-        <td class="left">Isolator String</td>
-        <td>V-t Flashover Switch</td>
-        <td class="left">BIL = 610 kV; 6-disc standar 254×146 mm (Dry FOV 380 kV, Wet 255 kV, Impulse 610 kV)</td>
-        <td>IEC 60071-2; CoP [5]</td>
-      </tr>
-      <tr>
-        <td class="left">Segmen Saluran</td>
-        <td>J. Marti Frequency-Dependent</td>
-        <td class="left">70 km + 450 m + 500 m + 29 km (total 4 span)</td>
-        <td>J.R. Marti, IEEE 1982</td>
-      </tr>
-      <tr>
-        <td class="left">Kaki Tower</td>
-        <td>Liew–Darveniza Nonlinear</td>
-        <td class="left">Ro = 0,26 Ω; Ea,soil = 300 kV/m (terrain berbatu, resistivitas tinggi)</td>
-        <td>Liew & Darveniza, IEE 1974</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="section-title">CIGRE Leader Progression Model (LPM) — Pemodelan Celah Udara</div>
-  <div class="spec-card">
-    <h3><i class="fa-solid fa-code-branch" style="color:var(--tx)"></i> Prinsip Kerja LPM (Type-94 MODELS)</h3>
-    <p style="font-size:.78rem;line-height:1.8;color:#374151">
-      LPM mensimulasikan tiga tahap discharge: <strong>(1) corona inception</strong>, <strong>(2) leader development</strong>, dan <strong>(3) final jump</strong>.
-      Panjang kanal leader ll(t) berkembang menurut:
-    </p>
-    <div style="background:#F0F5FF;border-radius:6px;padding:12px;margin:10px 0;font-family:monospace;font-size:.82rem;color:var(--tx-dk);text-align:center">
-      V<sub>L</sub>(t) = k<sub>L</sub> · [V(t) / (d − l<sub>l</sub>(t)) − E₀]
-    </div>
-    <p style="font-size:.78rem;line-height:1.8;color:#374151">
-      Breakdown terjadi bila: <strong>g(t) = d − ll(t) ≤ 0</strong> (leader mencapai elektroda) atau <strong>V(t)/g(t) ≥ E₀</strong> (final jump criterion).
-      Saat breakdown, admittansi gap beralih ke Ygap = 10⁶ S (short circuit) dan SVU menjepit Vres.
-      Keunggulan LPM: sparkover voltage bergantung pada jalur (path-dependent) sehingga lebih akurat dibanding switch V-t konvensional — penting untuk optimasi d yang presisi.
-    </p>
+  <div class="section-title">⚙ Sub-Model EMTP — SUTT 70 kV Parakan–Kadipaten</div>
+  <div class="alert warn">Model EMTP menggabungkan 7 sub-model pada Δt = 0,01 μs — cukup untuk meresolvasi kecuraman surja di/dt = 30 kA/μs yang terukur di lapangan. Validasi: scopeview EMTP pada d=340mm, Imax=−219kA.</div>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Sub-Model</th><th>Elemen EMTP</th><th>Parameter Kunci</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Sumber Arus Petir</strong></td>
+          <td>CIGRE Type-15 Concave</td>
+          <td>Imax = −219 kA; tf = 3 μs; Sn = 90 kA/μs</td>
+        </tr>
+        <tr>
+          <td><strong>Celah Udara EGLA (LPM)</strong></td>
+          <td>Type-94 MODELS (CIGRE LPM)</td>
+          <td>d = 340/299 mm; Gtype=2 (rod-plane); kL=0,8×10⁻⁶ m²/(Vs); E₀=500 kV/m</td>
+        </tr>
+        <tr>
+          <td><strong>ZnO Series Varistor Unit</strong></td>
+          <td>Piecewise-exp NL Resistor</td>
+          <td>Vref = 72 kV RMS LL; α₁=1–5; α₂=25–40</td>
+        </tr>
+        <tr>
+          <td><strong>Tower Transmisi</strong></td>
+          <td>Distributed-Parameter (Sargent–Darveniza)</td>
+          <td>h=27,35 m; Rt=0,26 Ω; τt=0,107 μs (vt=0,85c)</td>
+        </tr>
+        <tr>
+          <td><strong>Isolator String</strong></td>
+          <td>V-t Flashover Switch</td>
+          <td>BIL=610 kV; 6-disc 254×146 mm</td>
+        </tr>
+        <tr>
+          <td><strong>Segmen Saluran</strong></td>
+          <td>J. Marti Frequency-Dependent</td>
+          <td>70 km + 450 m + 500 m + 29 km</td>
+        </tr>
+        <tr>
+          <td><strong>Kaki Tower</strong></td>
+          <td>Liew–Darveniza Nonlinear</td>
+          <td>Ro=0,26 Ω; Ea,soil=300 kV/m</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
-  <div class="section-title">Hasil Scopeview EMTP — Validasi pada d = 340 mm, Imax = −219 kA</div>
-  <div class="emtp-scope">
-    <div>── EMTP Simulation Results ──────────────────────────────</div>
-    <div><span class="lbl">Kondisi     :</span> d = 340 mm · Imax = −219 kA · T.15-A 2023 (worst-case)</div>
-    <div><span class="lbl">Time step   :</span> Δt = 0,01 μs · Tsim ≈ 300 μs · 30.000 time steps/run</div>
-    <div style="margin-top:8px">── Output Variables ─────────────────────────────────────</div>
-    <div><span class="lbl">m2@mn  (Vtower/isolator)  :</span> <span class="val">−209.630 V</span> <span class="unit">→ tegangan puncak pada tower/isolator</span></div>
-    <div><span class="lbl">Iarr   (arus EGLA)        :</span> <span class="val">−2,33 × 10⁶ A</span> <span class="unit">→ arus yang dialirkan SVU ke ground</span></div>
-    <div><span class="lbl">Vsurge@bv (magnitude petir):</span> <span class="val">−816.205 V</span> <span class="unit">→ tegangan surja pada titik injeksi</span></div>
-    <div><span class="lbl">R@vb   (voltage drop SVU)  :</span> <span class="val">−606.475 V</span> <span class="unit">→ drop tegangan pada ZnO arrester</span></div>
-    <div style="margin-top:8px">── Derived Result ───────────────────────────────────────</div>
-    <div><span class="lbl">Vres   (residual voltage)  :</span> <span class="val">209,6 kV</span> <span class="unit">← clamping sukses, dari 816 kV → 209,6 kV</span></div>
-    <div><span class="lbl">BIL isolator               :</span> <span class="val">610 kV</span> <span class="unit">← Vres (209,6 kV) &lt;&lt; BIL → isolator AMAN ✓</span></div>
-    <div><span class="lbl">IBF (critical current)     :</span> <span class="val">132,4 kA</span> <span class="unit">← minimum arus yang menyebabkan BFO pada d=340mm</span></div>
-    <div style="margin-top:8px">── Conclusion ───────────────────────────────────────────</div>
-    <div>Sparkover celah 34 cm berhasil tembus (breakdown) saat terkena surja petir −219 kA.</div>
-    <div>EGLA membatasi tegangan dari 816 kV → 209,6 kV (Vres). Margin BIL: 610/209,6 = <span class="val">2,91×</span></div>
-    <div>Isolator TIDAK mengalami flashover → sistem terlindungi.</div>
+  <div class="section-title">💻 Hasil Scopeview — d=340mm, Imax=−219kA (T.15-A 2023)</div>
+  <div class="emtp-terminal">
+    <div class="t-head">── EMTP Simulation Output ──────────────────────────────────────</div>
+    <div><span class="t-key">Kondisi      </span>: d = 340 mm · Imax = −219 kA · T.15-A 2023 (worst-case)</div>
+    <div><span class="t-key">Time step    </span>: Δt = 0,01 μs · Tsim ≈ 300 μs</div>
+    <div class="t-sep">────────────────────────────────────────────────────────────────</div>
+    <div><span class="t-key">Vtower/isolator  </span>: <span class="t-val">−209.630 V</span> <span class="t-unit">← tegangan puncak tower/isolator</span></div>
+    <div><span class="t-key">Iarr (arus EGLA) </span>: <span class="t-val">−2,33 × 10⁶ A</span> <span class="t-unit">← arus dialirkan SVU ke ground</span></div>
+    <div><span class="t-key">Vsurge           </span>: <span class="t-val">−816.205 V</span> <span class="t-unit">← magnitude petir di titik injeksi</span></div>
+    <div><span class="t-key">Vdrop (SVU)      </span>: <span class="t-val">−606.475 V</span> <span class="t-unit">← drop tegangan ZnO arrester</span></div>
+    <div class="t-sep">────────────────────────────────────────────────────────────────</div>
+    <div><span class="t-key">Vres             </span>: <span class="t-val">209,6 kV</span> <span class="t-unit">← tegangan residual (816 kV → 209,6 kV)</span></div>
+    <div><span class="t-key">BIL isolator     </span>: <span class="t-val">610 kV</span> <span class="t-unit">← Vres (209,6) &lt;&lt; BIL (610) → <span class="t-ok">ISOLATOR AMAN ✓</span></span></div>
+    <div><span class="t-key">IBF (d=340mm)    </span>: <span class="t-val">132,4 kA</span> <span class="t-unit">← arus minimum penyebab BFO</span></div>
+    <div class="t-sep">────────────────────────────────────────────────────────────────</div>
+    <div>Margin BIL : 610 / 209,6 = <span class="t-val">2,91×</span> · Sparkover gap 34 cm berhasil breakdown saat surja −219 kA.</div>
   </div>
 
-  <div class="section-title">Ringkasan Konstrain IEC 60099-8</div>
-  <table class="data-table">
-    <thead>
-      <tr><th>Konstrain</th><th>Tipe</th><th>Syarat</th><th>Makna Fisik</th><th>Status @d=340mm</th><th>Status @d*=299mm</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>g₁(d)</strong></td><td>Hard inequality</td>
-        <td class="left">Vso(d) > Vso,max ≈ 71,7 kV<br><small>(1,25 × Vsys,pf = 1,25 × 70√2/√3)</small></td>
-        <td class="left">Gap tidak sparkover saat tegangan switching — jaga imunitas switching</td>
-        <td><span class="c-ok"><i class="fa-solid fa-check"></i> 209,6 kV &gt; 71,7 kV</span></td>
-        <td><span class="c-ok"><i class="fa-solid fa-check"></i> 183,4 kV (2,56×)</span></td>
-      </tr>
-      <tr>
-        <td><strong>g₂(d)</strong></td><td>Hard inequality</td>
-        <td class="left">Vres(d, Imax) ≤ BIL = 610 kV</td>
-        <td class="left">Tegangan residual di bawah BIL isolator pada surja terburuk</td>
-        <td><span class="c-ok"><i class="fa-solid fa-check"></i> 209,6 kV ≤ 610 kV (2,91×)</span></td>
-        <td><span class="c-ok"><i class="fa-solid fa-check"></i> 187,2 kV (3,26×)</span></td>
-      </tr>
-      <tr>
-        <td><strong>g₃(d)</strong></td><td>Bound constraint</td>
-        <td class="left">dmin = 250 mm ≤ d ≤ dmax = 500 mm</td>
-        <td class="left">Batas fisik: clearance IEC 60099-8 min & geometri crossarm tower</td>
-        <td><span class="c-ok"><i class="fa-solid fa-check"></i> 340 ∈ [250, 500]</span></td>
-        <td><span class="c-ok"><i class="fa-solid fa-check"></i> 299 ∈ [250, 500]</span></td>
-      </tr>
-    </tbody>
-  </table>
-  <div class="note"><i class="fa-solid fa-lightbulb"></i> d* = 299 mm memberikan margin BIL <strong>3,26×</strong> (lebih baik dari 2,91× pada d=340mm) — gap yang lebih kecil justru meningkatkan proteksi karena SVU beroperasi lebih awal dan menjepit Vres lebih rendah.</div>
+  <div class="section-title">✅ Verifikasi Konstrain IEC 60099-8</div>
+  <div class="table-scroll">
+    <table>
+      <thead><tr>
+        <th>Konstrain</th><th>Syarat Fisik</th>
+        <th class="center">d=340mm (baseline)</th>
+        <th class="center">d*=299mm (PSO)</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>g₁(d)</strong> — Sparkover immunity switching</td>
+          <td>Vso(d) &gt; 71,7 kV (= 1,25 × Vsys,pf)</td>
+          <td class="td-center"><span class="badge-ok">209,6 kV ✓ (2,91×)</span></td>
+          <td class="td-center"><span class="badge-ok">183,4 kV ✓ (2,56×)</span></td>
+        </tr>
+        <tr>
+          <td><strong>g₂(d)</strong> — BIL insulator protection</td>
+          <td>Vres(d, Imax) ≤ BIL = 610 kV</td>
+          <td class="td-center"><span class="badge-ok">209,6 kV ✓ (2,91×)</span></td>
+          <td class="td-center"><span class="badge-ok">187,2 kV ✓ (3,26×)</span></td>
+        </tr>
+        <tr>
+          <td><strong>g₃(d)</strong> — Physical gap range</td>
+          <td>d ∈ [250, 500] mm</td>
+          <td class="td-center"><span class="badge-ok">340 ✓</span></td>
+          <td class="td-center"><span class="badge-ok">299 ✓</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="alert ok"><strong>d*=299 mm memberikan margin BIL 3,26× — lebih baik dari baseline 2,91×.</strong> Gap yang lebih kecil meningkatkan proteksi karena SVU beroperasi lebih awal dan menjepit Vres lebih rendah (187,2 kV vs 209,6 kV).</div>
 </div>
 
-<!-- ═══ TAB 3 — OPTIMASI PSO ═══ -->
-<div class="pane" id="pane3">
+<!-- ════ TAB: OPTIMASI PSO ════ -->
+<div id="tab-pso" class="tab-panel">
 
-  <div class="section-title">Formulasi Masalah Optimasi</div>
-  <div class="spec-card">
-    <h3><i class="fa-solid fa-function" style="color:var(--tx)"></i> Fungsi Objektif: Minimasi Back Flashover Rate (BFR)</h3>
-    <div style="background:#F0F5FF;border-radius:6px;padding:14px;margin:10px 0;font-family:monospace;font-size:.82rem;color:var(--tx-dk);line-height:2">
-      <div style="text-align:center">min BFR(d) = N<sub>L</sub> · Φ[(μ*<sub>lnI</sub> − ln I<sub>BF</sub>(d)) / σ<sub>lnI</sub>]</div>
-      <div style="font-size:.72rem;color:var(--neutral);margin-top:6px">
-        di mana: N<sub>L</sub> = insiden petir tahunan per 100 km · Φ = CDF normal standar<br>
-        I<sub>BF</sub>(d) = arus petir minimum yang menyebabkan BFO (dievaluasi via EMTP) · d ∈ [250, 500] mm
-      </div>
-    </div>
-    <p style="font-size:.78rem;line-height:1.7;color:#374151">
-      N<sub>L</sub> = Ng · b · L/10, dengan b = 4h⁰·⁶ = 34,9 m (h=27,35m), L=70km (IEEE Std 1243 EGM).
-      BFR(d) adalah fungsi non-analitik karena setiap kandidat d memerlukan simulasi EMTP penuh untuk menghitung Vres(d,I) dan menentukan I<sub>BF</sub>(d) via binary search pada I ∈ [1, 250] kA.
-    </p>
-  </div>
-
-  <div class="section-title">Parameter PSO</div>
-  <div class="kpi-grid">
-    <div class="kpi"><div class="val">30</div><div class="unit">partikel</div><div class="lbl">N — ukuran swarm</div></div>
-    <div class="kpi"><div class="val">100</div><div class="unit">iterasi</div><div class="lbl">k_max (budget)</div></div>
-    <div class="kpi"><div class="val">20</div><div class="unit">run</div><div class="lbl">M — independent runs (robustness)</div></div>
-    <div class="kpi"><div class="val">30.000</div><div class="unit">evaluasi EMTP</div><div class="lbl">Total = N × k_max × (1+9) budget</div></div>
-    <div class="kpi"><div class="val">0,9→0,4</div><div class="unit">ω (inertia)</div><div class="lbl">Linear decreasing weight (LDIW-PSO)</div></div>
-    <div class="kpi"><div class="val">25 mm/iter</div><div class="unit">vmax</div><div class="lbl">10% dari search range [250,500mm]</div></div>
-  </div>
-
-  <div class="section-title">Hasil Optimasi PSO</div>
+  <div class="section-title">🎯 Hasil Optimasi PSO</div>
   <div class="result-box">
-    <div class="main">d* = 299,2 ± 2,8 mm</div>
-    <div class="desc">Gap optimal PSO (mean ± std dari M=20 independent runs) · d*best = 295 mm (Run 3)</div>
+    <div class="main-val">d* = 299,2 ± 2,8 mm</div>
+    <div class="sub">Gap optimal PSO — mean ± std dari M=20 independent runs · d*best = 295 mm (Run 3)</div>
   </div>
 
   <div class="kpi-grid">
-    <div class="kpi ok"><div class="val">49,3 ± 3,9</div><div class="unit">iterasi</div><div class="lbl">Konvergensi rata-rata (49% dari budget)</div></div>
-    <div class="kpi ok"><div class="val">99,6%</div><div class="unit">collapse</div><div class="lbl">Particle diversity: 72,7 → 0,305 mm</div></div>
-    <div class="kpi ok"><div class="val">20/20</div><div class="unit">runs</div><div class="lbl">Semua run konvergen ke d*≈295–305 mm</div></div>
-    <div class="kpi ok"><div class="val">0,00411</div><div class="unit">fl/100km/yr</div><div class="lbl">BFR optimal (dari 0,0128 baseline)</div></div>
-  </div>
-
-  <div class="section-title">Perbandingan BFR — 5 Konfigurasi Gap</div>
-  <table class="data-table">
-    <thead>
-      <tr><th>Konfigurasi</th><th>d (mm)</th><th>I<sub>BF</sub> (kA)</th><th>V<sub>res</sub> (kV)</th><th>BFR<br>(f/100km/yr)</th><th>Reduksi<br>vs Baseline</th></tr>
-    </thead>
-    <tbody>
-      <tr class="highlight"><td class="left"><strong>Existing (Baseline)</strong></td><td>340</td><td>132,4</td><td>209,6</td><td>0,0128</td><td>—</td></tr>
-      <tr><td class="left">IEC 60099-8 Nominal</td><td>320</td><td>118,7</td><td>198,3</td><td>0,0089</td><td>−30,5%</td></tr>
-      <tr style="background:#EFF6FF"><td class="left"><strong>PSO-Optimised (mean)</strong></td><td><strong>299</strong></td><td><strong>104,1</strong></td><td><strong>187,2</strong></td><td><strong>0,00411</strong></td><td><strong>−67,9%</strong></td></tr>
-      <tr><td class="left">PSO Best-of-20</td><td>295</td><td>101,8</td><td>185,4</td><td>0,0040</td><td>−68,8%</td></tr>
-      <tr><td class="left">Lower Bound (d_min)</td><td>250</td><td>79,3</td><td>168,5</td><td>0,0018</td><td>−85,9%</td></tr>
-    </tbody>
-  </table>
-  <div class="note"><i class="fa-solid fa-lightbulb"></i> d=250 mm tidak direkomendasikan meskipun BFR terendah — karena g₁(d) binding (sparkover margin switching hanya 1,2×). PSO mengidentifikasi d*≈299 mm sebagai optimum yang menjaga semua margin konstrain.</div>
-
-  <div class="chart-row">
-    <div class="chart-wrap">
-      <h3>BFR per Konfigurasi Gap</h3>
-      <canvas id="chartBFR" height="200"></canvas>
-      <div class="src">BFR (f/100km/yr) · PSO minimizes BFR(d) subject to constraints g₁–g₃</div>
+    <div class="kpi-card ok">
+      <div class="kpi-label">Reduksi BFR</div>
+      <div class="kpi-value ok">−67,9%</div>
+      <div class="kpi-unit">0,0128 → 0,00411 fl/100km/yr</div>
+      <div class="kpi-note">vs baseline d=340mm</div>
     </div>
-    <div class="chart-wrap">
-      <h3>Reduksi BFR vs Gap Distance</h3>
-      <canvas id="chartReduksi" height="200"></canvas>
-      <div class="src">Reduksi (%) relatif terhadap baseline d=340 mm</div>
+    <div class="kpi-card">
+      <div class="kpi-label">Konvergensi (k_conv)</div>
+      <div class="kpi-value">49,3</div>
+      <div class="kpi-unit">± 3,9 iterasi</div>
+      <div class="kpi-note">49% dari budget k_max=100</div>
+    </div>
+    <div class="kpi-card ok">
+      <div class="kpi-label">Particle Diversity Collapse</div>
+      <div class="kpi-value ok">99,6%</div>
+      <div class="kpi-unit">72,7 → 0,305 mm</div>
+      <div class="kpi-note">Konfirmasi konvergensi unimodal</div>
+    </div>
+    <div class="kpi-card ok">
+      <div class="kpi-label">Proyeksi Trip/thn</div>
+      <div class="kpi-value ok">~0,38</div>
+      <div class="kpi-unit">trip/yr (dari ~2,2/yr)</div>
+      <div class="kpi-note">Pre-EGLA rata-rata 2020–2022</div>
     </div>
   </div>
 
-  <div class="section-title">Interpretasi Fisik: Mengapa d*=299 mm Lebih Baik dari d=250 mm?</div>
-  <div class="spec-card">
-    <h3><i class="fa-solid fa-magnifying-glass-chart" style="color:var(--tx)"></i> Non-Trivial Mechanism PSO</h3>
-    <p style="font-size:.78rem;line-height:1.8;color:#374151">
-      Mereduksi d dari 340 mm → 299 mm <strong>menurunkan threshold leader inception</strong> (E₀·d), sehingga SVU
-      terlibat 15% lebih cepat (~−0,2 μs → −0,17 μs). Keterlibatan lebih awal meningkatkan clamping awal:
-      Vres turun dari 209,6 kV → 187,2 kV, dan I<sub>BF</sub> dari 132,4 kA → 104,1 kA.
-      <br><br>
-      Melalui amplifikasi CCDF log-normal, penurunan I<sub>BF</sub> sebesar 11,6% ini menghasilkan
-      reduksi BFR sebesar <strong>67,9%</strong>. Optimum bukan pada d=250 mm (d_min) karena
-      pada d≈272 mm, g₁ (sparkover margin switching) menjadi binding — PSO mengidentifikasi
-      batas ini dengan tepat melalui penalty function eksterior.
-      <br><br>
-      <strong>Implikasi praktis:</strong> Hanya perlu mereposis elektroda sejauh 41 mm — tanpa biaya kapital,
-      dapat dilakukan dalam siklus pemeliharaan semi-tahunan ULTG Cirebon.
-    </p>
+  <div class="section-title">📊 Perbandingan BFR — 5 Konfigurasi Gap</div>
+  <div class="table-scroll">
+    <table>
+      <thead><tr>
+        <th>Konfigurasi</th><th class="center">d (mm)</th>
+        <th class="center">I_BF (kA)</th><th class="center">V_res (kV)</th>
+        <th class="center">BFR (fl/100km/yr)</th><th class="center">Reduksi</th>
+      </tr></thead>
+      <tbody>
+        <tr class="highlight-row">
+          <td><strong>Existing (Baseline)</strong></td>
+          <td class="td-center">340</td><td class="td-num">132,4</td><td class="td-num">209,6</td>
+          <td class="td-num">0,0128</td><td class="td-center">—</td>
+        </tr>
+        <tr>
+          <td>IEC 60099-8 Nominal</td>
+          <td class="td-center">320</td><td class="td-num">118,7</td><td class="td-num">198,3</td>
+          <td class="td-num">0,0089</td><td class="td-center"><span class="badge-warn">−30,5%</span></td>
+        </tr>
+        <tr style="background:#EFF6FF">
+          <td><strong>PSO-Optimised (mean)</strong></td>
+          <td class="td-center"><strong>299</strong></td><td class="td-num"><strong>104,1</strong></td><td class="td-num"><strong>187,2</strong></td>
+          <td class="td-num"><strong>0,00411</strong></td><td class="td-center"><span class="badge-ok">−67,9% ✓</span></td>
+        </tr>
+        <tr>
+          <td>PSO Best-of-20</td>
+          <td class="td-center">295</td><td class="td-num">101,8</td><td class="td-num">185,4</td>
+          <td class="td-num">0,0040</td><td class="td-center"><span class="badge-ok">−68,8%</span></td>
+        </tr>
+        <tr>
+          <td>Lower Bound (d_min)</td>
+          <td class="td-center">250</td><td class="td-num">79,3</td><td class="td-num">168,5</td>
+          <td class="td-num">0,0018</td><td class="td-center"><span class="badge-blue">−85,9%</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="alert warn"><strong>d_min=250mm tidak direkomendasikan</strong> — meskipun BFR terendah, constraint g₁ binding (sparkover margin switching hanya 1,2×). PSO mengidentifikasi g₁ boundary pada d≈272mm.</div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <h4>BFR per Konfigurasi Gap</h4>
+      <div class="chart-wrap sm"><canvas id="chartBFR"></canvas></div>
+      <p class="src">fl/100km/yr · PSO minimizes BFR(d) subject to g₁–g₃</p>
+    </div>
+    <div class="chart-card">
+      <h4>Proyeksi Trip Petir Tahunan</h4>
+      <div class="chart-wrap sm"><canvas id="chartTrip"></canvas></div>
+      <p class="src">Estimasi berdasarkan BFR × panjang saluran</p>
+    </div>
   </div>
 
-  <div class="section-title">Proyeksi Gangguan Tahunan</div>
-  <div class="chart-wrap">
-    <h3>Estimasi Trip Petir per Tahun — Pre vs Post Optimasi PSO</h3>
-    <canvas id="chartTrip" height="90"></canvas>
-    <div class="src">Asumsi rata-rata pre-EGLA (2020–2022): ~2,2 trip/yr · Post-PSO projected: ~0,38 trip/yr</div>
+  <div class="section-title">🔬 Mekanisme Fisik: Mengapa d*=299mm, Bukan d_min=250mm?</div>
+  <div class="info-card">
+    <h4>Non-Trivial PSO Mechanism</h4>
+    <p>Mereduksi d dari 340mm → 299mm <strong>menurunkan threshold leader inception</strong> (E₀·d), sehingga SVU terlibat ~15% lebih awal (tso dari ~0,2 μs → 0,17 μs). Keterlibatan lebih awal meningkatkan clamping awal: Vres turun 209,6 kV → 187,2 kV, dan I_BF dari 132,4 kA → 104,1 kA.</p>
+    <br>
+    <p>Melalui amplifikasi CCDF log-normal, penurunan I_BF sebesar 11,6% menghasilkan reduksi BFR 67,9%. Optimum bukan pada d=250mm karena pada d≈272mm, g₁ (sparkover immunity switching) menjadi binding — PSO mengidentifikasi batas ini via exterior penalty function.</p>
+    <br>
+    <p><strong>Implikasi praktis:</strong> Hanya perlu mereposis elektroda sejauh <strong>41 mm</strong> — nol biaya kapital, dapat dilakukan dalam siklus pemeliharaan semi-tahunan ULTG Cirebon yang sudah ada.</p>
   </div>
 </div>
 
-<!-- ═══ TAB 4 — PUBLIKASI & CoP ═══ -->
-<div class="pane" id="pane4">
+<!-- ════ TAB: PUBLIKASI & CoP ════ -->
+<div id="tab-pub" class="tab-panel">
 
-  <div class="section-title">Publikasi Ilmiah</div>
+  <div class="section-title">📄 Publikasi Ilmiah</div>
   <div class="paper-card">
-    <div class="title">Particle Swarm Optimization of Air Gap Distance for Externally Gapped Line Arrester (EGLA) on High Isokeraunic 70 kV Transmission Line Based on Field-Measured Lightning Data</div>
-    <div class="meta">
-      <strong>Conference:</strong> ICT-PEP PLN 2026 (International Conference on Technology and Policy in Electric Power &amp; Energy)<br>
-      <strong>Penulis:</strong>
-      Reza Wahyu Firdaus (TC Dalophar Trans &amp; GI, ULTG Cirebon, PT PLN, Cirebon, Indonesia) ·
-      Dino Arla (Transaction of Energy, PT PLN, Indramayu, Indonesia) ·
-      Mansur Maturidi Arief (Dept. of Industrial &amp; System Engineering, King Fahd University of Petroleum &amp; Minerals, Dhahran, Saudi Arabia)<br>
-      <strong>Status:</strong> Accepted / Published 2026<br>
-      <strong>Keywords:</strong>
-      <span class="tag">EGLA</span><span class="tag">PSO</span><span class="tag">EMTP</span>
-      <span class="tag">CIGRE Leader Progression Model</span><span class="tag">log-normal distribution</span>
-      <span class="tag">Vaisala FALLS</span><span class="tag">isokeraunik</span>
+    <div class="ptitle">Particle Swarm Optimization of Air Gap Distance for Externally Gapped Line Arrester (EGLA) on High Isokeraunic 70 kV Transmission Line Based on Field-Measured Lightning Data</div>
+    <div class="pmeta">
+      <strong>Conference:</strong> ICT-PEP PLN 2026 — International Conference on Technology and Policy in Electric Power &amp; Energy<br>
+      <strong>Penulis:</strong> Reza Wahyu Firdaus (TC Dalophar Trans &amp; GI, ULTG Cirebon, PT PLN) · Dino Arla (Transaction of Energy, PT PLN, Indramayu) · Mansur Maturidi Arief (Dept. Industrial &amp; System Engineering, KFUPM, Dhahran, Saudi Arabia)<br>
+      <strong>Status:</strong> Accepted / Published 2026
     </div>
-    <div class="abstract">
+    <div style="margin-top:8px">
+      <span class="kw-chip">EGLA</span><span class="kw-chip">PSO</span><span class="kw-chip">EMTP</span>
+      <span class="kw-chip">CIGRE Leader Progression Model</span><span class="kw-chip">log-normal distribution</span>
+      <span class="kw-chip">Vaisala FALLS</span><span class="kw-chip">isokeraunik</span>
+    </div>
+    <div class="pabstract">
       <strong>Abstract:</strong> This paper presents a Particle Swarm Optimization (PSO) framework for data-driven optimization of the air gap distance d of Externally Gapped Line Arresters (EGLA) on the SUTT 70 kV Parakan–Kadipaten corridor, West Java, Indonesia. The existing d = 340 mm was derived from the manufacturer's voltage-based procedure (JSC Polymer-Apparat PA-LA-L112-132), which provides a permissible range of 51.2 to 108.0 cm but makes no use of site-specific lightning statistics. Six years (2020–2025) of Vaisala FALLS lightning location system data comprising 17,506 recorded negative CG strokes are used to estimate a site-specific log-normal stroke current distribution via Method of Moments, yielding a pooled median of 20.27 kA (34.7% below IEEE Std 1243). An EMTP model incorporating the CIGRE Leader Progression Model serves as the physics-based fitness evaluator. PSO minimizes the annual backflashover rate BFR(d) subject to IEC 60099-8 sparkover immunity and insulator BIL constraints. Across 20 independent runs, PSO converges to d* = 299 mm, achieving a 67.9% BFR reduction (0.0128 to 0.00411 fl/100 km/yr) with all constraint margins superior to the existing baseline.
     </div>
   </div>
 
-  <div class="section-title">Community of Practice (CoP) — ULTG Cirebon Semester II 2025</div>
-  <table class="info-table">
-    <tr><td>Nama CoP</td><td>Studi Implementasi EGLA SUTT 70 kV Parakan–Kadipaten</td></tr>
-    <tr><td>Nomor CoP</td><td>IV.37.202511</td></tr>
-    <tr><td>Subjek Pengetahuan</td><td>Transmisi &amp; Sistem Operasi</td></tr>
-    <tr><td>Tempat</td><td>SUTT 70 kV Parakan–Kadipaten; ULTG Cirebon</td></tr>
-    <tr><td>Tujuan CoP</td><td>Melakukan studi pada performa ketahanan SUTT 70 kV Parakan–Kadipaten terhadap gangguan akibat petir</td></tr>
-    <tr><td>Target</td><td>Memperoleh pengetahuan dari perbandingan gangguan yang terjadi sebelum dan sesudah implementasi EGLA</td></tr>
-    <tr><td>Lingkup</td><td>ULTG Cirebon</td></tr>
-    <tr><td>Tanggal Diskusi</td><td>14 November 2025 (Rencana: 15 Okt 2025 → Pelaksanaan: 14 Nov 2025)</td></tr>
-    <tr><td>Nilai Hasil CoP</td><td>9/9 — Ide solusi menghasilkan nilai tambah pada perusahaan (tertinggi)</td></tr>
-    <tr><td>Penyelenggara</td><td>Danantara Indonesia Sovereign Fund (co-branding event)</td></tr>
-  </table>
-
-  <div class="section-title">Tim CoP</div>
-  <table class="data-table">
-    <thead>
-      <tr><th>Peran</th><th>Nama</th><th>Inisial</th><th>NIP</th><th>Jabatan</th></tr>
-    </thead>
-    <tbody>
-      <tr><td class="left"><strong>Sponsor</strong></td><td class="left">Juma'in</td><td>JMN</td><td>8908045P3B</td><td class="left">Manager ULTG Cirebon</td></tr>
-      <tr><td class="left"><strong>Champion</strong></td><td class="left">Reza Wahyu Firdaus</td><td>RWF</td><td>9319877ZY</td><td class="left">TC Dalophar Trans &amp; GI ULTG Cirebon</td></tr>
-      <tr><td class="left">Koordinator</td><td class="left">Agus Nuryaman</td><td>GUS</td><td>8808104P3B</td><td class="left">TL HARJAR ULTG Cirebon</td></tr>
-      <tr><td class="left">Approver / SME KM</td><td class="left">Muhamad Risna Indi</td><td>IND</td><td>93171463ZY</td><td class="left">SOF Kin &amp; Adm Trans &amp; GI ULTG Cirebon</td></tr>
-      <tr><td class="left">Anggota</td><td class="left">Rahmat Saepudin</td><td>RAH</td><td>8908121P3B</td><td class="left">TL JARGI Parakan</td></tr>
-      <tr><td class="left">Anggota</td><td class="left">Muhamad Zaqi</td><td>ZAQ</td><td>9313033P3Y</td><td class="left">TC HARJAR ULTG Cirebon</td></tr>
-      <tr><td class="left">Anggota</td><td class="left">Muhamad Alif</td><td>LIF</td><td>9717111TBY</td><td class="left">JTC HARJAR ULTG Cirebon</td></tr>
-      <tr><td class="left">Anggota</td><td class="left">M. Fadhil Aldan</td><td>DIL</td><td>9820743ZY</td><td class="left">JTC HARJAR ULTG Cirebon</td></tr>
-    </tbody>
-  </table>
-
-  <div class="section-title">Temuan & Tindak Lanjut CoP</div>
-  <div class="spec-card">
-    <h3><i class="fa-solid fa-comments" style="color:var(--tx)"></i> Catatan Diskusi (14 November 2025)</h3>
-    <ol style="font-size:.78rem;line-height:2;color:#374151;padding-left:1.2em">
-      <li>SUTT 70 kV Parakan–Kadipaten merupakan salah satu ruas penghantar dengan tingkat isokeraunik tinggi di wilayah ULTG Cirebon</li>
-      <li>Berbagai perkuatan proteksi petir telah diimplementasikan di ruas ini, termasuk terakhir adalah EGLA — perlu studi untuk menilai hasil implementasinya</li>
-      <li>Bagaimana trend gangguan yang terjadi pada ruas penghantar SUTT 70 kV Parakan–Kadipaten?</li>
-    </ol>
-    <br>
-    <h3 style="margin-bottom:8px"><i class="fa-solid fa-lightbulb" style="color:var(--warn)"></i> Hasil Diskusi & Action Plan</h3>
-    <ol style="font-size:.78rem;line-height:2;color:#374151;padding-left:1.2em">
-      <li>Perlu kajian mendalam tentang kuantitas sambaran petir pada ruas penghantar SUTT 70 kV Parakan–Kadipaten</li>
-      <li>Trend perbandingan jumlah sambaran terhadap gangguan sebagai pendekatan penilaian dampak implementasi proteksi petir</li>
-      <li>Performa desain dan implementasi EGLA terhadap respon sambaran petir → <strong>direalisasikan sebagai paper ICT-PEP 2026</strong></li>
-      <li>Evaluasi kontinu: level isokeraunik, jumlah gangguan, ketahanan struktur, respon EGLA — untuk perbaikan berkelanjutan</li>
-    </ol>
+  <div class="section-title">👥 Community of Practice — ULTG Cirebon Sem-II 2025</div>
+  <div class="table-scroll">
+    <table>
+      <tr><th style="width:34%">Parameter CoP</th><th>Keterangan</th></tr>
+      <tr><td>Nama CoP</td><td>Studi Implementasi EGLA SUTT 70 kV Parakan–Kadipaten</td></tr>
+      <tr><td>Nomor</td><td>IV.37.202511</td></tr>
+      <tr><td>Subjek Pengetahuan</td><td>Transmisi &amp; Sistem Operasi</td></tr>
+      <tr><td>Tempat</td><td>SUTT 70 kV Parakan–Kadipaten; ULTG Cirebon</td></tr>
+      <tr><td>Tanggal Diskusi</td><td>14 November 2025</td></tr>
+      <tr><td>Nilai Hasil CoP</td><td>9/9 — Ide solusi menghasilkan nilai tambah bagi perusahaan (tertinggi)</td></tr>
+    </table>
   </div>
 
-  <div class="section-title">Referensi Utama</div>
-  <ol class="ref-list">
-    <li>CIGRE Working Group C4.407, "Lightning Parameters for Engineering Applications," CIGRE, Paris, 2013.</li>
-    <li>Y. Warmi &amp; M. Michishita, "Investigation of lightning tripouts on 150-kV transmission lines in West Sumatra," <em>IEEJ Trans. EEE</em>, vol. 11, no. 5, 2016.</li>
-    <li>S. Widjaja et al., "Lightning Protection System for High Voltage Transmission Line in Indonesia," ICSEEA 2019.</li>
-    <li>O.Jr. Pinto et al., "Negative lightning parameters in tropical regions," <em>J. Geophys. Res.: Atmospheres</em>, 2013.</li>
-    <li>PT PLN (Persero) ULTG Cirebon, "CoP — Studi Implementasi EGLA SUTT 70 kV Parakan–Kadipaten," Nov. 2025.</li>
-    <li>IEC 60099-8, "Surge Arresters — Part 8: Externally Gapped Line Surge Arresters for AC Systems above 1 kV," 2017.</li>
-    <li>JSC Polymer-Apparat, "Externally Gapped Line Arresters PA-LA-L112-132 Technical Manual," 2025.</li>
-    <li>M. Khodsuz &amp; M. Mirzaie, "Externally gapped line arresters placement effect on TL lightning performance," <em>IET GTD</em>, vol. 17, no. 20, 2023.</li>
-    <li>A. Taheri et al., "Optimal design of ZnO surge arresters using PSO and finite element analysis," <em>Sustainability</em>, vol. 15, no. 10, 2023.</li>
-    <li>IEEE Std 1243, "IEEE Guide for Improving the Lightning Performance of Transmission Lines," 1997.</li>
-    <li>CIGRE WG 33.01, "Guide to Procedures for Estimating the Lightning Performance of Transmission Lines," 1991.</li>
-    <li>Z.A. Datsios &amp; T.E. Tsovilis, "Implementation of leader development models in ATP-EMTP using a Type-94 circuit component," ICLP Shanghai, 2014.</li>
-    <li>CIGRE WG 33.07, "Guidelines for the Evaluation of the Dielectric Strength of External Insulation," 1992.</li>
-    <li>J.R. Marti, "Accurate modelling of frequency-dependent transmission lines," <em>IEEE Trans. Power App. Syst.</em>, 1982.</li>
-    <li>A.C. Liew &amp; M. Darveniza, "Dynamic model of impulse characteristics of concentrated earths," <em>Proc. IEE</em>, 1974.</li>
-    <li>PT PLN (Persero) ULTG Cirebon, "CoP — Studi Transien Backflashover SUTET 500 kV Mandirancan–Indramayu 1T," May 2025.</li>
-  </ol>
+  <div class="section-title">🧑‍🤝‍🧑 Tim CoP</div>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Peran</th><th>Nama</th><th>Inisial</th><th>NIP</th><th>Jabatan</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Sponsor</strong></td><td>Juma'in</td><td>JMN</td><td>8908045P3B</td><td>Manager ULTG Cirebon</td></tr>
+        <tr><td><strong>Champion</strong></td><td>Reza Wahyu Firdaus</td><td>RWF</td><td>9319877ZY</td><td>TC Dalophar Trans &amp; GI ULTG Cirebon</td></tr>
+        <tr><td>Koordinator</td><td>Agus Nuryaman</td><td>GUS</td><td>8808104P3B</td><td>TL HARJAR ULTG Cirebon</td></tr>
+        <tr><td>Approver / SME KM</td><td>Muhamad Risna Indi</td><td>IND</td><td>93171463ZY</td><td>SOF Kin &amp; Adm Trans &amp; GI ULTG Cirebon</td></tr>
+        <tr><td>Anggota</td><td>Rahmat Saepudin</td><td>RAH</td><td>8908121P3B</td><td>TL JARGI Parakan</td></tr>
+        <tr><td>Anggota</td><td>Muhamad Zaqi</td><td>ZAQ</td><td>9313033P3Y</td><td>TC HARJAR ULTG Cirebon</td></tr>
+        <tr><td>Anggota</td><td>Muhamad Alif</td><td>LIF</td><td>9717111TBY</td><td>JTC HARJAR ULTG Cirebon</td></tr>
+        <tr><td>Anggota</td><td>M. Fadhil Aldan</td><td>DIL</td><td>9820743ZY</td><td>JTC HARJAR ULTG Cirebon</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">📚 Referensi Utama</div>
+  <div class="ref-box">
+    <ol>
+      <li>CIGRE WG C4.407, "Lightning Parameters for Engineering Applications," CIGRE, Paris, 2013.</li>
+      <li>Y. Warmi &amp; M. Michishita, "Investigation of lightning tripouts on 150-kV transmission lines in West Sumatra," <em>IEEJ Trans. EEE</em>, vol. 11, no. 5, 2016.</li>
+      <li>S. Widjaja et al., "Lightning Protection System for High Voltage Transmission Line in Indonesia," ICSEEA 2019.</li>
+      <li>O.Jr. Pinto et al., "Negative lightning parameters in tropical regions," <em>J. Geophys. Res.: Atmospheres</em>, 2013.</li>
+      <li>PT PLN ULTG Cirebon, "CoP — Studi Implementasi EGLA SUTT 70 kV Parakan–Kadipaten," Nov. 2025.</li>
+      <li>IEC 60099-8, "Surge Arresters — Part 8: EGLA for AC Systems above 1 kV," 2017.</li>
+      <li>JSC Polymer-Apparat, "PA-LA-L112-132 Technical Manual," 2025.</li>
+      <li>M. Khodsuz &amp; M. Mirzaie, "EGLA placement effect on TL lightning performance," <em>IET GTD</em>, vol. 17, no. 20, 2023.</li>
+      <li>A. Taheri et al., "Optimal design of ZnO surge arresters using PSO and FEM," <em>Sustainability</em>, vol. 15, 2023.</li>
+      <li>IEEE Std 1243, "Guide for Improving the Lightning Performance of Transmission Lines," 1997.</li>
+      <li>CIGRE WG 33.01, "Guide to Procedures for Estimating the Lightning Performance of TL," 1991.</li>
+      <li>Z.A. Datsios &amp; T.E. Tsovilis, "Leader development models in ATP-EMTP using Type-94," ICLP 2014.</li>
+      <li>CIGRE WG 33.07, "Guidelines for Evaluation of Dielectric Strength of External Insulation," 1992.</li>
+      <li>J.R. Marti, "Accurate modelling of frequency-dependent transmission lines," <em>IEEE Trans. PAS</em>, 1982.</li>
+      <li>A.C. Liew &amp; M. Darveniza, "Dynamic model of impulse characteristics of concentrated earths," <em>Proc. IEE</em>, 1974.</li>
+      <li>PT PLN ULTG Cirebon, "CoP — Studi Transien BFO SUTET 500 kV Mandirancan–Indramayu 1T," May 2025.</li>
+    </ol>
+  </div>
 </div>
 
+</div><!-- /page-body -->
+
 <script>
-const tabs = document.querySelectorAll('.tab');
-const panes = document.querySelectorAll('.pane');
-function showTab(i) {
-  tabs.forEach((t,j) => { t.classList.toggle('active', i===j); panes[j].classList.toggle('active', i===j); });
-  if (i === 0 && !window._c0) { initTab0(); window._c0=1; }
-  if (i === 1 && !window._c1) { initTab1(); window._c1=1; }
-  if (i === 3 && !window._c3) { initTab3(); window._c3=1; }
-}
+// ── TABS ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
 
 const YEARS = ['2020','2021','2022','2023','2024','2025*'];
 const GANGGUAN = [1,2,6,3,0,1];
-const TOTAL_PETIR = [3595,2765,4346,3040,3157,2115];
+const TOTAL = [3595,2765,4346,3040,3157,2115];
 const NEG = [3318,2516,4100,2689,2935,1948];
 const POS = [277,249,246,351,222,167];
-const DOM_COUNT = [172,154,247,153,167,136];
+const ACCENT = '#1D4ED8';
+const ACCENT_A = (a) => `rgba(29,78,216,${a})`;
 
-function txColor(alpha){ return `rgba(29,78,216,${alpha})`; }
-const WARN = 'rgba(245,158,11,0.85)';
-const OK   = 'rgba(16,185,129,0.85)';
+// ── Chart: Gangguan vs Sambaran ──
+new Chart(document.getElementById('chartGangguan'), {
+  data: {
+    labels: YEARS,
+    datasets: [
+      { type:'bar', label:'Total Sambaran (÷100)', data: TOTAL.map(v=>v/100),
+        backgroundColor: YEARS.map((_,i)=>i>=3?'rgba(16,163,74,0.2)':ACCENT_A(0.2)),
+        borderColor: YEARS.map((_,i)=>i>=3?'rgba(16,163,74,0.7)':ACCENT_A(0.6)),
+        borderWidth:1.5, yAxisID:'y2' },
+      { type:'line', label:'Jumlah Gangguan', data: GANGGUAN,
+        borderColor:'#DC2626', backgroundColor:'rgba(220,38,38,0.08)',
+        borderWidth:2.5, pointRadius:6,
+        pointBackgroundColor: GANGGUAN.map(v=>v===0?'#16A34A':v>=5?'#DC2626':'#D97706'),
+        tension:0.3, yAxisID:'y1' }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false, interaction:{mode:'index'},
+    scales: {
+      y1:{type:'linear',position:'left',min:0,max:8,ticks:{stepSize:1},title:{display:true,text:'Gangguan'}},
+      y2:{type:'linear',position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'Sambaran ÷ 100'}}
+    },
+    plugins:{ legend:{position:'bottom'}, tooltip:{callbacks:{label:function(c){
+      return c.datasetIndex===0 ? `Total Sambaran: ${TOTAL[c.dataIndex].toLocaleString('id')}` : `Gangguan: ${c.raw}`;
+    }}}}
+  }
+});
 
-function initTab0() {
-  const ctx = document.getElementById('chartGangguan').getContext('2d');
-  new Chart(ctx, {
-    data: {
-      labels: YEARS,
-      datasets: [
-        { type:'bar', label:'Total Sambaran (÷100)', data:TOTAL_PETIR.map(v=>v/100),
-          backgroundColor: YEARS.map((_,i)=>i>=3?'rgba(16,185,129,0.25)':'rgba(29,78,216,0.25)'),
-          borderColor: YEARS.map((_,i)=>i>=3?OK:txColor(0.6)), borderWidth:1.5, yAxisID:'y2' },
-        { type:'line', label:'Jumlah Gangguan', data:GANGGUAN,
-          borderColor:'#EF4444', backgroundColor:'rgba(239,68,68,0.1)', borderWidth:2.5,
-          pointRadius:5, pointBackgroundColor:GANGGUAN.map(v=>v===0?OK:v>=5?'#EF4444':'#F59E0B'),
-          tension:.3, yAxisID:'y1' }
-      ]
-    },
-    options: {
-      responsive:true, interaction:{mode:'index'},
-      scales:{
-        y1:{type:'linear',position:'left',title:{display:true,text:'Gangguan'},min:0,max:8,ticks:{stepSize:1}},
-        y2:{type:'linear',position:'right',title:{display:true,text:'Sambaran ÷ 100'},grid:{drawOnChartArea:false}}
-      },
-      plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:function(c){
-        if(c.datasetIndex===0) return `Total Sambaran: ${TOTAL_PETIR[c.dataIndex].toLocaleString('id')}`;
-        return `Gangguan: ${c.raw}`;
-      }}}}
-    }
-  });
-}
+// ── Chart: Petir Total stacked ──
+new Chart(document.getElementById('chartPetirTotal'), {
+  type:'bar',
+  data:{ labels:YEARS, datasets:[
+    { label:'Petir (−)', data:NEG, backgroundColor:ACCENT_A(0.75), borderRadius:3 },
+    { label:'Petir (+)', data:POS, backgroundColor:'rgba(217,119,6,0.75)', borderRadius:3 }
+  ]},
+  options:{ responsive:true, maintainAspectRatio:false,
+    scales:{x:{stacked:true},y:{stacked:true}}, plugins:{legend:{position:'bottom'}} }
+});
 
-function initTab1() {
-  // Stacked bar — petir negatif vs positif per tahun
-  new Chart(document.getElementById('chartPetirTotal').getContext('2d'), {
-    type:'bar',
-    data:{
-      labels:YEARS,
-      datasets:[
-        { label:'Petir (−)', data:NEG, backgroundColor:'rgba(29,78,216,0.75)', borderRadius:3 },
-        { label:'Petir (+)', data:POS, backgroundColor:'rgba(245,158,11,0.75)', borderRadius:3 }
-      ]
-    },
-    options:{
-      responsive:true, scales:{x:{stacked:true},y:{stacked:true}},
-      plugins:{legend:{position:'bottom'}}
-    }
-  });
-  // Doughnut neg/pos total
-  new Chart(document.getElementById('chartNegPos').getContext('2d'), {
-    type:'doughnut',
-    data:{
-      labels:['Petir Negatif (−) : 17.506','Petir Positif (+) : 1.412'],
-      datasets:[{ data:[17506,1412], backgroundColor:[txColor(0.8), WARN], borderWidth:2 }]
-    },
-    options:{
-      responsive:true, cutout:'60%',
-      plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw.toLocaleString('id')} (${(c.raw/18918*100).toFixed(1)}%)`}}}
-    }
-  });
-  // Dominant tower count vs gangguan
-  new Chart(document.getElementById('chartDominant').getContext('2d'), {
-    data:{
-      labels:YEARS,
-      datasets:[
-        { type:'bar', label:'Sambaran Tower Dominan', data:DOM_COUNT,
-          backgroundColor:txColor(0.35), borderColor:txColor(0.7), borderWidth:1.5, yAxisID:'y2' },
-        { type:'line', label:'Jumlah Gangguan', data:GANGGUAN,
-          borderColor:'#EF4444', backgroundColor:'rgba(239,68,68,0.1)', borderWidth:2.5,
-          pointRadius:5, tension:.3, yAxisID:'y1' }
-      ]
-    },
-    options:{
-      responsive:true, interaction:{mode:'index'},
-      scales:{
-        y1:{type:'linear',position:'left',title:{display:true,text:'Gangguan'},min:0,max:8},
-        y2:{type:'linear',position:'right',title:{display:true,text:'Count Sambaran'},grid:{drawOnChartArea:false}}
-      },
-      plugins:{legend:{position:'bottom'}}
-    }
-  });
-}
+// ── Chart: Doughnut neg/pos ──
+new Chart(document.getElementById('chartNegPos'), {
+  type:'doughnut',
+  data:{ labels:['Negatif (−) 92,5%','Positif (+) 7,5%'],
+    datasets:[{ data:[17506,1412], backgroundColor:[ACCENT,'#D97706'], borderWidth:2 }] },
+  options:{ responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{legend:{position:'bottom'}} }
+});
 
-function initTab3() {
-  const gaps = [340,320,299,295,250];
-  const bfrs = [0.0128,0.0089,0.00411,0.0040,0.0018];
-  const reds = [0,30.5,67.9,68.8,85.9];
-  const colors = ['rgba(239,68,68,0.8)','rgba(245,158,11,0.8)','rgba(29,78,216,0.9)','rgba(37,99,235,0.7)','rgba(16,185,129,0.7)'];
-  new Chart(document.getElementById('chartBFR').getContext('2d'),{
-    type:'bar',
-    data:{ labels:gaps.map(g=>g+' mm'), datasets:[{ label:'BFR (f/100km/yr)', data:bfrs, backgroundColor:colors, borderRadius:4 }] },
-    options:{ responsive:true, plugins:{legend:{display:false},datalabels:{display:false}},
-      scales:{y:{title:{display:true,text:'BFR (f/100km/yr)'},beginAtZero:true}} }
-  });
-  new Chart(document.getElementById('chartReduksi').getContext('2d'),{
-    type:'bar',
-    data:{ labels:gaps.map(g=>g+' mm'), datasets:[{ label:'Reduksi BFR (%)', data:reds, backgroundColor:colors, borderRadius:4 }] },
-    options:{ responsive:true, plugins:{legend:{display:false}},
-      scales:{y:{title:{display:true,text:'Reduksi (%)'},max:100,min:0}} }
-  });
-  // Trip projection
-  new Chart(document.getElementById('chartTrip').getContext('2d'),{
-    type:'bar',
-    data:{
-      labels:['Pre-EGLA\n(rata-rata 2020–2022)','Post-EGLA existing\n(d=340mm, PSO BFR)','Post-PSO optimal\n(d=299mm)'],
-      datasets:[{ label:'Estimasi Trip Petir/thn', data:[2.2,0.0128*100,0.00411*100],
-        backgroundColor:['rgba(239,68,68,0.8)','rgba(245,158,11,0.8)','rgba(16,185,129,0.8)'], borderRadius:4 }]
-    },
-    options:{ indexAxis:'y', responsive:true, plugins:{legend:{display:false}},
-      scales:{x:{title:{display:true,text:'Trip/thn (estimasi)'},min:0}} }
-  });
-}
+// ── Chart: BFR comparison ──
+const gaps = ['340 mm\n(Baseline)','320 mm\n(IEC nom.)','299 mm\n(PSO-opt)','295 mm\n(PSO best)','250 mm\n(d_min)'];
+const bfrs = [0.0128, 0.0089, 0.00411, 0.0040, 0.0018];
+const bfrColors = ['rgba(220,38,38,0.8)','rgba(217,119,6,0.8)','rgba(29,78,216,0.9)','rgba(37,99,235,0.7)','rgba(16,163,74,0.7)'];
+new Chart(document.getElementById('chartBFR'), {
+  type:'bar',
+  data:{ labels:['340 mm','320 mm','299 mm*','295 mm','250 mm'],
+    datasets:[{ label:'BFR (fl/100km/yr)', data:bfrs, backgroundColor:bfrColors, borderRadius:5 }] },
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+    scales:{ y:{title:{display:true,text:'fl/100km/yr'},beginAtZero:true} } }
+});
 
-// Init tab 0 on load
-window.addEventListener('DOMContentLoaded', () => { initTab0(); window._c0=1; });
+// ── Chart: Trip projection ──
+new Chart(document.getElementById('chartTrip'), {
+  type:'bar',
+  data:{ labels:['Pre-EGLA\n(2020–2022)','EGLA d=340mm','PSO d*=299mm'],
+    datasets:[{ label:'Trip/thn (estimasi)',
+      data:[2.2, (0.0128*100).toFixed(3)*1, (0.00411*100).toFixed(3)*1],
+      backgroundColor:['rgba(220,38,38,0.8)','rgba(217,119,6,0.8)','rgba(16,163,74,0.85)'], borderRadius:5 }] },
+  options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}}, scales:{x:{title:{display:true,text:'Estimasi trip/tahun'}}} }
+});
 </script>
 </body>
 </html>
