@@ -18,7 +18,7 @@
 [![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-0.45-FF4D00?style=flat-square&logoColor=white)](https://orm.drizzle.team)
 [![License](https://img.shields.io/badge/License-Proprietary-161B22?style=flat-square)](LICENSE)
 
-*Satu portal terpusat, aman, dan extensible untuk semua dataset riset PhD.*
+*Satu portal terpusat, aman, dan extensible untuk semua dataset riset PhD*
 
 </div>
 
