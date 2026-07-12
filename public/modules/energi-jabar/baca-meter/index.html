@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baca Meter Pascabayar Jabar | Cockpit</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --blue:#1D4ED8; --blue-dk:#1E3A8A; --blue-lt:#EFF6FF;
+  --bg:#F0F5FF; --card:#FFFFFF; --border:#BFDBFE;
+  --text:#1E293B; --muted:#64748B; --dim:#94A3B8;
+  --green:#16A34A; --red:#DC2626; --amber:#D97706;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+a{color:var(--blue);text-decoration:none}
+
+.module-header{background:linear-gradient(135deg,var(--blue-dk) 0%,var(--blue) 60%,#2563EB 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:12px;font-weight:500;letter-spacing:.04em;transition:color .15s}
+.back-link:hover{color:#fff}
+.back-link svg{width:14px;height:14px}
+.breadcrumb{padding:6px 24px 0;font-size:11px;color:rgba(255,255,255,.6);letter-spacing:.03em}
+.breadcrumb span{color:rgba(255,255,255,.4);margin:0 5px}
+.header-body{padding:16px 24px 20px}
+.header-title{font-size:22px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.header-title .badge{font-size:10px;font-weight:600;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);padding:3px 9px;border-radius:12px;letter-spacing:.04em}
+.header-desc{font-size:13px;color:rgba(255,255,255,.82);max-width:720px;line-height:1.55;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px}
+.meta-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,.85)}
+
+.tabs-bar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 18px;font-size:13px;font-weight:500;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 56px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.section-title{font-size:15px;font-weight:700;color:var(--blue-dk);margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.section-title:first-child{margin-top:0}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:1000px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:4px}
+.kpi-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.kpi-value{font-size:22px;font-weight:700;color:var(--blue-dk);line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi-unit{font-size:12px;color:var(--muted);margin-top:2px}
+.kpi-note{font-size:10px;color:var(--dim);margin-top:2px}
+
+.chart-grid{display:grid;gap:16px;margin-bottom:24px}
+.chart-grid.cols-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:768px){.chart-grid.cols-2{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.chart-card h4{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--blue-dk)}
+.chart-card p.src{font-size:10px;color:var(--dim);margin-top:8px}
+.chart-wrap{position:relative;height:280px}
+.chart-wrap.lg{height:340px}
+.chart-wrap.sm{height:200px}
+.no-data{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--dim);font-size:12px;gap:6px}
+.no-data strong{color:var(--amber);font-size:13px}
+
+.ctrl-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.ctrl-row label{font-size:12px;font-weight:600;color:var(--muted)}
+.ctrl-row select{border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;background:#fff;color:var(--text);cursor:pointer}
+.ctrl-row select:focus{outline:none;border-color:var(--blue)}
+
+.table-scroll{overflow-x:auto;margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:var(--blue-dk);color:#fff;font-size:11px;font-weight:600;text-align:left;padding:9px 12px;white-space:nowrap}
+td{border-bottom:1px solid var(--border);padding:8px 12px}
+tr:hover td{background:#F0F5FF}
+tr:last-child td{border-bottom:none}
+.td-num{text-align:right;font-variant-numeric:tabular-nums}
+.td-bold{font-weight:700}
+.td-center{text-align:center}
+
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px}
+.info-card h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--blue-dk)}
+.info-card ul{font-size:12.5px;color:var(--muted);padding-left:16px;line-height:1.9}
+.info-card p{font-size:12.5px;color:var(--muted);line-height:1.7}
+.info-card code{background:#F1F5F9;padding:2px 6px;border-radius:4px;font-size:11px}
+
+.import-alert{background:#FEF9C3;border:1px solid #FDE047;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:12.5px;color:#713F12}
+.import-alert strong{display:block;margin-bottom:4px;color:var(--blue-dk)}
+.import-alert code{background:rgba(0,0,0,.07);padding:2px 6px;border-radius:4px;font-size:11px}
+
+.badge-normal{display:inline-block;background:#DCFCE7;color:#166534;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.badge-anomali{display:inline-block;background:#FEE2E2;color:#991B1B;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+
+@media(max-width:600px){
+  .header-title{font-size:18px}.header-body{padding:12px 14px 16px}
+  .back-link,.breadcrumb{padding-left:14px}
+  .page-body{padding:16px 12px 36px}
+}
+</style>
+</head>
+<body>
+
+<header class="module-header">
+  <a href="/menu.html" class="back-link">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg>
+    Kembali ke Menu
+  </a>
+  <div class="breadcrumb">
+    Energi Jabar <span>›</span> Distribusi <span>›</span> Baca Meter Pascabayar
+  </div>
+  <div class="header-body">
+    <div class="header-title">
+      Baca Meter Pascabayar
+      <span class="badge">Jawa Barat 2026</span>
+    </div>
+    <div class="header-desc">
+      Agregat pembacaan meter pelanggan pascabayar PLN Jawa Barat — mencakup 18 UP3, data bulanan 2026 (Februari, April, Mei, Juni, Juli). Menyajikan volume pembacaan, sebaran tarif &amp; daya, pola kode pesan, dan tren kWh antar unit.
+    </div>
+    <div class="meta-row">
+      <div class="meta-badge" id="meta-bulan">Memuat…</div>
+      <div class="meta-badge">18 UP3 · Jawa Barat</div>
+      <div class="meta-badge">Pascabayar</div>
+      <div class="meta-badge">PLN UP3 &amp; ULP</div>
+    </div>
+  </div>
+</header>
+
+<div class="tabs-bar">
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="overview"  role="tab">📊 Overview</button>
+    <button class="tab-btn"        data-tab="trend"     role="tab">📈 Tren Bulanan</button>
+    <button class="tab-btn"        data-tab="tarif"     role="tab">🏷️ Sebaran Tarif</button>
+    <button class="tab-btn"        data-tab="kode"      role="tab">🔔 Status Baca</button>
+    <button class="tab-btn"        data-tab="daya"      role="tab">⚡ Daya Pelanggan</button>
+    <button class="tab-btn"        data-tab="jam"       role="tab">🕐 Jam Pembacaan</button>
+    <button class="tab-btn"        data-tab="tentang"   role="tab">ℹ️ Tentang</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <!-- ════ TAB 0: OVERVIEW ════ -->
+  <div id="tab-overview" class="tab-panel active">
+
+    <div id="overview-import-alert" class="import-alert" style="display:none">
+      <strong>Data belum diimpor</strong>
+      Jalankan: <code>python3 drizzle/aggregate_baca_meter.py &gt; /tmp/baca_meter_import.sql</code>
+      lalu impor ke phpMyAdmin, kemudian jalankan <code>drizzle/register_baca_meter.sql</code>.
+    </div>
+
+    <div class="section-title">🔑 Ringkasan Bulan Terbaru</div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Baris Data Terbaca</div>
+        <div class="kpi-value" id="kpi-pel">—</div>
+        <div class="kpi-unit">entri pembacaan meter</div>
+        <div class="kpi-note" id="kpi-pel-note">memuat…</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total kWh Terbaca</div>
+        <div class="kpi-value" id="kpi-kwh">—</div>
+        <div class="kpi-unit" id="kpi-kwh-unit">kWh</div>
+        <div class="kpi-note" id="kpi-kwh-note">memuat…</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Rata-rata kWh</div>
+        <div class="kpi-value" id="kpi-avg">—</div>
+        <div class="kpi-unit">kWh / pelanggan</div>
+        <div class="kpi-note" id="kpi-avg-note">bulan terbaru</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">% Baca Normal</div>
+        <div class="kpi-value" id="kpi-normal">—</div>
+        <div class="kpi-unit">% kode Z-NORMAL</div>
+        <div class="kpi-note" id="kpi-normal-note">rata-rata 18 UP3</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Baca Ulang</div>
+        <div class="kpi-value" id="kpi-bu">—</div>
+        <div class="kpi-unit">entri baca ulang</div>
+        <div class="kpi-note" id="kpi-bu-note">bulan terbaru</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Data Semua Bulan</div>
+        <div class="kpi-value" id="kpi-total-all">—</div>
+        <div class="kpi-unit">baris pembacaan meter</div>
+        <div class="kpi-note" id="kpi-total-all-note">akumulasi seluruh periode</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Rata-rata Jam Baca</div>
+        <div class="kpi-value" id="kpi-avg-jam">—</div>
+        <div class="kpi-unit">jam pembacaan</div>
+        <div class="kpi-note" id="kpi-avg-jam-note">rata-rata 18 UP3</div>
+      </div>
+    </div>
+
+    <div class="section-title">🏙️ kWh Terbaca per UP3 — Bulan Terbaru</div>
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Total kWh per UP3</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-kwh-up3"><strong>Memuat data…</strong></div>
+          <canvas id="kwhUp3Chart" style="display:none"></canvas>
+        </div>
+        <p class="src" id="src-up3">Sumber: baca_meter_summary · bulan terbaru</p>
+      </div>
+      <div class="chart-card">
+        <h4>% Baca Normal per UP3</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-pct-up3"><strong>Memuat data…</strong></div>
+          <canvas id="pctUp3Chart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: baca_meter_summary · % kode Z-NORMAL</p>
+      </div>
+    </div>
+
+    <div class="section-title">📋 Tabel Ringkasan per UP3</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>UP3</th>
+            <th class="td-num">Baris Data</th>
+            <th class="td-num">Total kWh</th>
+            <th class="td-num">Avg kWh</th>
+            <th class="td-num">% Normal</th>
+            <th class="td-num">Baca Ulang</th>
+          </tr>
+        </thead>
+        <tbody id="overview-table-body">
+          <tr><td colspan="7" style="text-align:center;color:var(--dim);padding:20px">Memuat…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /overview -->
+
+
+  <!-- ════ TAB 1: TREN BULANAN ════ -->
+  <div id="tab-trend" class="tab-panel">
+
+    <div class="section-title">📈 Tren Total Jawa Barat</div>
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Total kWh Terbaca per Bulan — Seluruh Jabar</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-trend-kwh"><strong>Memuat data…</strong></div>
+          <canvas id="trendKwhChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: baca_meter_summary · agregat 18 UP3</p>
+      </div>
+      <div class="chart-card">
+        <h4>% Baca Normal Rata-rata — Seluruh Jabar</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-trend-pct"><strong>Memuat data…</strong></div>
+          <canvas id="trendPctChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: baca_meter_summary · rata-rata pct_normal per bulan</p>
+      </div>
+    </div>
+
+    <div class="section-title">📋 Jumlah Data per Bulan</div>
+    <div class="table-scroll" id="trend-row-count-table"></div>
+
+    <div class="section-title">🏙️ Perbandingan kWh antar UP3</div>
+    <div class="ctrl-row">
+      <label>Pilih UP3:</label>
+      <select id="trendUp3Sel" onchange="renderTrendUp3()">
+        <option value="ALL">Semua UP3</option>
+      </select>
+    </div>
+    <div class="chart-card">
+      <h4 id="trend-up3-title">Tren kWh per Bulan — Semua UP3</h4>
+      <div class="chart-wrap lg">
+        <div class="no-data" id="nd-trend-up3"><strong>Memuat data…</strong></div>
+        <canvas id="trendUp3Chart" style="display:none"></canvas>
+      </div>
+      <p class="src">Sumber: baca_meter_summary</p>
+    </div>
+
+  </div><!-- /trend -->
+
+
+  <!-- ════ TAB 2: SEBARAN TARIF ════ -->
+  <div id="tab-tarif" class="tab-panel">
+
+    <div class="ctrl-row">
+      <label>Bulan:</label>
+      <select id="tarifBulanSel" onchange="loadTarif()"></select>
+    </div>
+
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Komposisi Pelanggan per Golongan Tarif</h4>
+        <div class="chart-wrap">
+          <div class="no-data" id="nd-tarif-pie"><strong>Pilih bulan</strong></div>
+          <canvas id="tarifPieChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: baca_meter_tarif · seluruh Jabar</p>
+      </div>
+      <div class="chart-card">
+        <h4>Total kWh per Golongan Tarif</h4>
+        <div class="chart-wrap">
+          <div class="no-data" id="nd-tarif-kwh"><strong>Pilih bulan</strong></div>
+          <canvas id="tarifKwhChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: baca_meter_tarif · seluruh Jabar</p>
+      </div>
+    </div>
+
+    <div class="section-title">📋 Detail per Golongan Tarif</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Tarif</th>
+            <th>Keterangan</th>
+            <th class="td-num">Pelanggan</th>
+            <th class="td-num">%</th>
+            <th class="td-num">Total kWh</th>
+            <th class="td-num">Avg kWh</th>
+          </tr>
+        </thead>
+        <tbody id="tarif-table-body">
+          <tr><td colspan="6" style="text-align:center;color:var(--dim);padding:20px">Pilih bulan untuk memuat data</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /tarif -->
+
+
+  <!-- ════ TAB 3: STATUS BACA ════ -->
+  <div id="tab-kode" class="tab-panel">
+
+    <div class="ctrl-row">
+      <label>Bulan:</label>
+      <select id="kodeBulanSel" onchange="loadKode()"></select>
+      <label>UP3:</label>
+      <select id="kodeUp3Sel" onchange="loadKode()">
+        <option value="">Semua Jabar</option>
+      </select>
+    </div>
+
+    <div class="section-title">📊 Distribusi Kode Pesan</div>
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Top 10 Kode Pesan — Jumlah Entri</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-kode-bar"><strong>Pilih bulan untuk memuat</strong></div>
+          <canvas id="kodeBarChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: baca_meter_kode_pesan</p>
+      </div>
+      <div class="chart-card">
+        <h4>Normal vs Anomali</h4>
+        <div class="chart-wrap">
+          <div class="no-data" id="nd-kode-pie"><strong>Pilih bulan untuk memuat</strong></div>
+          <canvas id="kodePieChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: baca_meter_kode_pesan · Z-NORMAL vs kode lainnya</p>
+      </div>
+    </div>
+
+    <div class="section-title">📋 Tabel Kode Pesan Lengkap</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Kode Pesan</th>
+            <th class="td-num">Jumlah</th>
+            <th class="td-num">%</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="kode-table-body">
+          <tr><td colspan="5" style="text-align:center;color:var(--dim);padding:20px">Pilih bulan untuk memuat data</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /kode -->
+
+
+  <!-- ════ TAB 4: DAYA PELANGGAN ════ -->
+  <div id="tab-daya" class="tab-panel">
+
+    <div class="ctrl-row">
+      <label>Bulan:</label>
+      <select id="dayaBulanSel" onchange="loadDaya()"></select>
+    </div>
+
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Komposisi Pelanggan per Kelompok Daya</h4>
+        <div class="chart-wrap">
+          <div class="no-data" id="nd-daya-pie"><strong>Pilih bulan</strong></div>
+          <canvas id="dayaPieChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: baca_meter_daya · seluruh Jabar</p>
+      </div>
+      <div class="chart-card">
+        <h4>Total kWh per Kelompok Daya</h4>
+        <div class="chart-wrap">
+          <div class="no-data" id="nd-daya-kwh"><strong>Pilih bulan</strong></div>
+          <canvas id="dayaKwhChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: baca_meter_daya · seluruh Jabar</p>
+      </div>
+    </div>
+
+    <div class="section-title">📋 Detail per Kelompok Daya</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Kelompok Daya</th>
+            <th class="td-num">Pelanggan</th>
+            <th class="td-num">%</th>
+            <th class="td-num">Total kWh</th>
+            <th class="td-num">Avg kWh</th>
+          </tr>
+        </thead>
+        <tbody id="daya-table-body">
+          <tr><td colspan="5" style="text-align:center;color:var(--dim);padding:20px">Pilih bulan untuk memuat data</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /daya -->
+
+
+  <!-- ════ TAB 5: TENTANG ════ -->
+  <!-- ── JAM PEMBACAAN ── -->
+  <div id="tab-jam" class="tab-panel">
+    <div class="controls-row">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <label style="font-size:13px;font-weight:500">Bulan:</label>
+        <select id="jamBulanSel" class="sel-ctrl" onchange="loadJam()"></select>
+        <label style="font-size:13px;font-weight:500">UP3:</label>
+        <select id="jamUp3Sel" class="sel-ctrl" onchange="loadJam()">
+          <option value="">Semua UP3 (Jabar)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Rata-rata Jam Baca</div>
+        <div class="kpi-value" id="jam-kpi-avg">—</div>
+        <div class="kpi-note">jam:menit</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Baca Lebih Awal (&lt;07:00)</div>
+        <div class="kpi-value" id="jam-kpi-early" style="color:#DC2626">—</div>
+        <div class="kpi-note">% dari total baca</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Baca Lebih Sore (&ge;17:00)</div>
+        <div class="kpi-value" id="jam-kpi-late" style="color:#D97706">—</div>
+        <div class="kpi-note">% dari total baca</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Data Jam</div>
+        <div class="kpi-value" id="jam-kpi-total">—</div>
+        <div class="kpi-note">baris dengan jam valid</div>
+      </div>
+    </div>
+
+    <div class="section-title">🕐 Distribusi Jam Pembacaan Meter</div>
+    <div style="position:relative;height:320px;margin-bottom:8px">
+      <canvas id="jamHistChart"></canvas>
+      <div id="nd-jam-hist" class="nd-placeholder" style="display:none"></div>
+    </div>
+    <p style="font-size:11px;color:var(--dim);margin-top:4px">
+      <span style="color:#DC2626">■</span> &lt;07:00 (terlalu awal) &nbsp;
+      <span style="color:#1D4ED8">■</span> 07:00–16:59 (normal) &nbsp;
+      <span style="color:#D97706">■</span> &ge;17:00 (terlalu sore)
+    </p>
+  </div>
+
+  <div id="tab-tentang" class="tab-panel">
+
+    <div class="section-title">📋 Tentang Modul Ini</div>
+
+    <div class="info-card">
+      <h4>Sumber Data</h4>
+      <p>Data berasal dari sistem pembacaan meter (Cater/SWACAM) PLN Distribusi Jawa Barat. File mentah berformat Excel (.xlsx), satu file per UP3 per bulan. Setiap baris merepresentasikan satu pembacaan meter untuk satu pelanggan pascabayar.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Kolom Data Utama</h4>
+      <ul>
+        <li><strong>UP3</strong> — Kode unit pelaksana pelayanan pelanggan (mis. 53BDG = Bandung)</li>
+        <li><strong>ULP</strong> — Unit layanan pelanggan (sub-unit di bawah UP3)</li>
+        <li><strong>IDPEL</strong> — ID pelanggan (12 digit)</li>
+        <li><strong>TARIF</strong> — Golongan tarif (R1, R2, R3, S1, B1, B2, P1, P3, I1, I2, L)</li>
+        <li><strong>DAYA</strong> — Daya kontrak dalam VA</li>
+        <li><strong>TANGGAL_PEMBACAAN</strong> — Tanggal meter dibaca petugas</li>
+        <li><strong>KODE_PESAN</strong> — Status pembacaan (Z-NORMAL = berhasil normal)</li>
+        <li><strong>PEMAKAIAN_KWH</strong> — Pemakaian listrik bulan berjalan (kWh)</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h4>Kode Pesan Umum</h4>
+      <ul>
+        <li><strong>Z - NORMAL</strong> — Pembacaan normal, kWh terverifikasi</li>
+        <li><strong>F - RUMAH KOSONG</strong> — Tidak ada aktivitas penghuni</li>
+        <li><strong>E - RUMAH TUTUP</strong> — Pintu/akses terkunci</li>
+        <li><strong>N - KWH LEBIH TAGIH</strong> — Anomali pemakaian tinggi</li>
+        <li><strong>2 - GANTI KWH METER</strong> — Pergantian meter, stan direset</li>
+        <li><strong>A - KWH METER MACET</strong> — Meter tidak berfungsi normal</li>
+        <li><strong>1 - KWH METER TINGGI</strong> — Melebihi batas wajar</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h4>Cara Mengimpor Data</h4>
+      <ul>
+        <li>Pastikan folder <code>~/Downloads/DATA BACA METER JABAR 2026</code> berisi subfolder bulan (202602, 202604, dst.)</li>
+        <li>Jalankan: <code>python3 drizzle/aggregate_baca_meter.py &gt; /tmp/baca_meter_import.sql</code></li>
+        <li>Import <code>/tmp/baca_meter_import.sql</code> ke phpMyAdmin (database <code>u164655286_cockpit</code>)</li>
+        <li>Jalankan <code>drizzle/register_baca_meter.sql</code> untuk membuat tabel dan mendaftarkan modul</li>
+        <li>Restart Cockpit: <code>node dist/index.js</code></li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h4>Catatan Metodologi</h4>
+      <ul>
+        <li>Data hanya mencakup <strong>pelanggan pascabayar</strong>; pelanggan prabayar (token) tidak termasuk</li>
+        <li>Nilai PEMAKAIAN_KWH negatif dikecualikan dari agregasi (terjadi saat pergantian meter)</li>
+        <li>Juni 2026: file unit dari subfolder V2 (data revisi)</li>
+        <li>Bulan Januari dan Maret 2026 tidak tersedia dalam dataset ini</li>
+        <li>Kode Sumedang berubah: SDM (Feb) → SMD (Apr+), digabung sebagai Sumedang</li>
+      </ul>
+    </div>
+
+  </div><!-- /tentang -->
+
+</div><!-- /page-body -->
+
+<script>
+/* ── TAB SWITCHING ── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    onTabActivate(btn.dataset.tab);
+  });
+});
+
+/* ── CHART REGISTRY ── */
+const _ch = {};
+function reg(id, cfg) {
+  if (_ch[id]) { _ch[id].destroy(); delete _ch[id]; }
+  const ctx = document.getElementById(id);
+  if (ctx) _ch[id] = new Chart(ctx, cfg);
+}
+
+/* ── HELPERS ── */
+function showCanvas(cvId, ndId) {
+  const nd = document.getElementById(ndId), cv = document.getElementById(cvId);
+  if (nd) nd.style.display = 'none';
+  if (cv) cv.style.display = 'block';
+}
+function showND(id, msg) {
+  const el = document.getElementById(id);
+  if (el) { el.style.display = 'flex'; el.innerHTML = `<strong>${msg}</strong>`; }
+}
+const fmt  = n => n == null ? '—' : Number(n).toLocaleString('id');
+const fmtM = n => (n / 1e9 >= 1) ? (n / 1e9).toFixed(2) + ' TWh' : (n / 1e6 >= 1) ? (n / 1e6).toFixed(1) + ' jt kWh' : fmt(n) + ' kWh';
+const BULAN_LABEL = {'202601':'Jan 26','202602':'Feb 26','202603':'Mar 26','202604':'Apr 26','202605':'Mei 26','202606':'Jun 26','202607':'Jul 26','202608':'Agt 26','202609':'Sep 26','202610':'Okt 26','202611':'Nov 26','202612':'Des 26'};
+const bl = b => BULAN_LABEL[b] || b;
+
+/* ── COLOR PALETTE ── */
+const UP3_COLORS = [
+  '#1D4ED8','#7C3AED','#DB2777','#D97706','#16A34A',
+  '#0891B2','#BE185D','#5B21B6','#1E40AF','#065F46',
+  '#92400E','#1F2937','#6D28D9','#B45309','#0F766E',
+  '#991B1B','#1D4ED8','#374151'
+];
+const TARIF_COLORS = {
+  R1:'#1D4ED8', R1M:'#3B82F6', R2:'#7C3AED', R3:'#A855F7',
+  S1:'#16A34A', B1:'#D97706', B2:'#F59E0B', P1:'#DC2626',
+  P3:'#EF4444', I1:'#0891B2', I2:'#06B6D4', L:'#64748B',
+  C:'#94A3B8', '?':'#CBD5E1'
+};
+const TARIF_DESC = {
+  R1:'Rumah Tangga ≤2.200 VA',R1M:'Rumah Tangga Subsidi ≤900 VA',
+  R2:'Rumah Tangga 3.500–5.500 VA',R3:'Rumah Tangga ≥6.600 VA',
+  S1:'Sosial ≤2.200 VA',B1:'Bisnis ≤5.500 VA',B2:'Bisnis 6.600–200 kVA',
+  P1:'Pemerintah ≤200 kVA',P3:'Pemerintah ≥201 kVA',
+  I1:'Industri ≤200 kVA',I2:'Industri ≥201 kVA',L:'Layanan Khusus',C:'Curah'
+};
+const DAYA_ORDER = ['≤450 VA','900 VA','1.300–2.200 VA','3.500–5.500 VA','6.600–13.200 VA','≥16.500 VA','Tidak Diketahui'];
+const DAYA_COLORS = ['#1D4ED8','#3B82F6','#7C3AED','#16A34A','#D97706','#DC2626','#94A3B8'];
+
+/* ── STATE ── */
+let _summaryData = null;   // [{bulan, total_pelanggan, total_kwh, avg_kwh, pct_normal, baca_ulang}]
+let _byUp3Data   = null;   // [{bulan, up3_kode, up3_nama, total_pelanggan, total_kwh, avg_kwh, pct_normal, ...}]
+let _bulanList   = [];
+let _up3List     = [];
+
+/* ── INIT ── */
+async function init() {
+  try {
+    const [sumRes, up3Res] = await Promise.all([
+      fetch('/api/baca-meter/summary'),
+      fetch('/api/baca-meter/by-up3'),
+    ]);
+    if (!sumRes.ok || !up3Res.ok) throw new Error('not_imported');
+    _summaryData = await sumRes.json();
+    _byUp3Data   = await up3Res.json();
+
+    if (!_summaryData?.length) throw new Error('no_data');
+
+    // Build bulan list and UP3 list
+    _bulanList = [...new Set(_summaryData.map(d => d.bulan))].sort();
+    const up3Map = {};
+    _byUp3Data.forEach(d => { up3Map[d.up3_kode] = d.up3_nama; });
+    _up3List = Object.entries(up3Map).sort((a, b) => a[1].localeCompare(b[1]));
+
+    // Update meta badge
+    const metaBadge = document.getElementById('meta-bulan');
+    if (metaBadge) metaBadge.textContent = `${_bulanList.length} Bulan Tersedia`;
+
+    // Populate selects
+    ['tarifBulanSel','kodeBulanSel','dayaBulanSel','jamBulanSel'].forEach(selId => {
+      const sel = document.getElementById(selId);
+      if (!sel) return;
+      sel.innerHTML = _bulanList.map(b => `<option value="${b}">${bl(b)}</option>`).join('');
+      sel.value = _bulanList[_bulanList.length - 1];
+    });
+
+    // Trend UP3 select
+    const trendSel = document.getElementById('trendUp3Sel');
+    if (trendSel) {
+      _up3List.forEach(([kode, nama]) => {
+        trendSel.insertAdjacentHTML('beforeend', `<option value="${kode}">${nama}</option>`);
+      });
+    }
+
+    // Kode UP3 select
+    const kodeSel = document.getElementById('kodeUp3Sel');
+    if (kodeSel) {
+      _up3List.forEach(([kode, nama]) => {
+        kodeSel.insertAdjacentHTML('beforeend', `<option value="${kode}">${nama}</option>`);
+      });
+    }
+
+    // Jam UP3 select
+    const jamUp3Sel = document.getElementById('jamUp3Sel');
+    if (jamUp3Sel) {
+      _up3List.forEach(([kode, nama]) => {
+        jamUp3Sel.insertAdjacentHTML('beforeend', `<option value="${kode}">${nama}</option>`);
+      });
+    }
+
+    renderOverview();
+    renderTrend();
+
+  } catch (e) {
+    document.getElementById('overview-import-alert').style.display = '';
+    ['nd-kwh-up3','nd-pct-up3','nd-trend-kwh','nd-trend-pct','nd-trend-up3'].forEach(id => showND(id, 'Import data terlebih dahulu'));
+  }
+}
+
+function onTabActivate(tab) {
+  if (tab === 'tarif' && _bulanList.length) loadTarif();
+  if (tab === 'kode'  && _bulanList.length) loadKode();
+  if (tab === 'daya'  && _bulanList.length) loadDaya();
+  if (tab === 'jam'   && _bulanList.length) loadJam();
+}
+
+/* ── OVERVIEW ── */
+function renderOverview() {
+  const latest = _bulanList[_bulanList.length - 1];
+  const latestSum = _summaryData.find(d => d.bulan === latest);
+  if (!latestSum) return;
+
+  document.getElementById('kpi-pel').textContent      = fmt(latestSum.total_pelanggan);
+  document.getElementById('kpi-pel-note').textContent = bl(latest);
+
+  const grandTotal = _summaryData.reduce((s, d) => s + Number(d.total_pelanggan), 0);
+  document.getElementById('kpi-total-all').textContent      = fmt(grandTotal);
+  document.getElementById('kpi-total-all-note').textContent = `${_bulanList.length} bulan · ${_bulanList.map(bl).join(', ')}`;
+  document.getElementById('kpi-kwh').textContent     = fmtM(latestSum.total_kwh);
+  document.getElementById('kpi-kwh-note').textContent = bl(latest);
+  document.getElementById('kpi-avg').textContent     = fmt(Math.round(latestSum.avg_kwh));
+  document.getElementById('kpi-normal').textContent  = Number(latestSum.pct_normal).toFixed(1) + '%';
+  document.getElementById('kpi-bu').textContent      = fmt(latestSum.baca_ulang);
+  document.getElementById('kpi-bu-note').textContent = bl(latest);
+  if (latestSum.avg_jam != null) {
+    const aj = Number(latestSum.avg_jam);
+    const h  = Math.floor(aj);
+    const m  = Math.round((aj - h) * 60);
+    document.getElementById('kpi-avg-jam').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  }
+
+  // Bar charts
+  const latestUp3 = _byUp3Data.filter(d => d.bulan === latest)
+    .sort((a, b) => b.total_kwh - a.total_kwh);
+
+  document.getElementById('src-up3').textContent = `Sumber: baca_meter_summary · ${bl(latest)}`;
+
+  showCanvas('kwhUp3Chart', 'nd-kwh-up3');
+  reg('kwhUp3Chart', {
+    type: 'bar',
+    data: {
+      labels: latestUp3.map(d => d.up3_nama),
+      datasets: [{ label: 'Total kWh', data: latestUp3.map(d => d.total_kwh),
+        backgroundColor: UP3_COLORS, borderRadius: 5 }]
+    },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { ticks: { callback: v => fmtM(v) }, grid: { color: '#E5E7EB' } },
+                y: { grid: { display: false }, ticks: { font: { size: 11 } } } } }
+  });
+
+  showCanvas('pctUp3Chart', 'nd-pct-up3');
+  reg('pctUp3Chart', {
+    type: 'bar',
+    data: {
+      labels: latestUp3.map(d => d.up3_nama),
+      datasets: [{ label: '% Normal', data: latestUp3.map(d => Number(d.pct_normal)),
+        backgroundColor: latestUp3.map(d => Number(d.pct_normal) >= 97 ? '#16A34A' : Number(d.pct_normal) >= 95 ? '#D97706' : '#DC2626'),
+        borderRadius: 5 }]
+    },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { min: 90, max: 100, ticks: { callback: v => v + '%' }, grid: { color: '#E5E7EB' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      } }
+  });
+
+  // Table
+  const tbody = document.getElementById('overview-table-body');
+  tbody.innerHTML = latestUp3.map((d, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td class="td-bold">${d.up3_nama} <span style="font-size:10px;color:var(--dim)">(${d.up3_kode})</span></td>
+      <td class="td-num">${fmt(d.total_pelanggan)}</td>
+      <td class="td-num">${fmtM(d.total_kwh)}</td>
+      <td class="td-num">${fmt(Math.round(d.avg_kwh))}</td>
+      <td class="td-num">${Number(d.pct_normal).toFixed(1)}%</td>
+      <td class="td-num">${fmt(d.baca_ulang)}</td>
+    </tr>
+  `).join('');
+}
+
+/* ── TREND ── */
+function renderTrend() {
+  const labels  = _summaryData.map(d => bl(d.bulan));
+  const kwhData = _summaryData.map(d => Number(d.total_kwh));
+  const pctData = _summaryData.map(d => Number(d.pct_normal));
+
+  showCanvas('trendKwhChart', 'nd-trend-kwh');
+  reg('trendKwhChart', {
+    type: 'line',
+    data: { labels, datasets: [{ label: 'Total kWh Jabar', data: kwhData,
+      borderColor: '#1D4ED8', backgroundColor: 'rgba(29,78,216,.08)',
+      tension: 0.3, pointRadius: 5, pointBackgroundColor: '#1D4ED8', fill: true }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { ticks: { callback: v => fmtM(v) }, grid: { color: '#E5E7EB' } },
+                x: { grid: { display: false } } } }
+  });
+
+  showCanvas('trendPctChart', 'nd-trend-pct');
+  reg('trendPctChart', {
+    type: 'line',
+    data: { labels, datasets: [{ label: '% Normal', data: pctData,
+      borderColor: '#16A34A', backgroundColor: 'rgba(22,163,74,.08)',
+      tension: 0.3, pointRadius: 5, pointBackgroundColor: '#16A34A', fill: true }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 90, max: 100, ticks: { callback: v => v + '%' }, grid: { color: '#E5E7EB' } },
+        x: { grid: { display: false } }
+      } }
+  });
+
+  // Tabel jumlah baris per bulan
+  const grandTotal = _summaryData.reduce((s, d) => s + Number(d.total_pelanggan), 0);
+  const trcEl = document.getElementById('trend-row-count-table');
+  if (trcEl) {
+    trcEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>Bulan</th>
+          <th class="td-num">Jumlah Baris Data</th>
+          <th class="td-num">Total kWh</th>
+          <th class="td-num">% Normal</th>
+          <th class="td-num">Baca Ulang</th>
+        </tr></thead>
+        <tbody>
+          ${_summaryData.map(d => `
+            <tr>
+              <td class="td-bold">${bl(d.bulan)}</td>
+              <td class="td-num">${fmt(d.total_pelanggan)}</td>
+              <td class="td-num">${fmtM(d.total_kwh)}</td>
+              <td class="td-num">${Number(d.pct_normal).toFixed(2)}%</td>
+              <td class="td-num">${fmt(d.baca_ulang)}</td>
+            </tr>
+          `).join('')}
+          <tr style="font-weight:700;border-top:2px solid var(--border);background:var(--bg)">
+            <td>Total</td>
+            <td class="td-num">${fmt(grandTotal)}</td>
+            <td class="td-num">${fmtM(_summaryData.reduce((s,d)=>s+Number(d.total_kwh),0))}</td>
+            <td class="td-num">—</td>
+            <td class="td-num">${fmt(_summaryData.reduce((s,d)=>s+Number(d.baca_ulang),0))}</td>
+          </tr>
+        </tbody>
+      </table>`;
+  }
+
+  renderTrendUp3();
+}
+
+function renderTrendUp3() {
+  const sel   = document.getElementById('trendUp3Sel').value;
+  const title = document.getElementById('trend-up3-title');
+
+  if (sel === 'ALL') {
+    // Multi-line: one line per UP3
+    const bulanArr = _bulanList;
+    const up3s = _up3List;
+    const datasets = up3s.map(([kode, nama], i) => ({
+      label: nama,
+      data: bulanArr.map(b => {
+        const row = _byUp3Data.find(d => d.bulan === b && d.up3_kode === kode);
+        return row ? Number(row.total_kwh) : null;
+      }),
+      borderColor: UP3_COLORS[i % UP3_COLORS.length],
+      backgroundColor: 'transparent',
+      tension: 0.3, pointRadius: 3, spanGaps: true
+    }));
+    title.textContent = 'Tren kWh per Bulan — Semua UP3';
+    showCanvas('trendUp3Chart', 'nd-trend-up3');
+    reg('trendUp3Chart', {
+      type: 'line',
+      data: { labels: bulanArr.map(bl), datasets },
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10 } } },
+        scales: { y: { ticks: { callback: v => fmtM(v) }, grid: { color: '#E5E7EB' } },
+                  x: { grid: { display: false } } } }
+    });
+  } else {
+    const nama = _up3List.find(([k]) => k === sel)?.[1] || sel;
+    const filtered = _byUp3Data.filter(d => d.up3_kode === sel).sort((a, b) => a.bulan.localeCompare(b.bulan));
+    title.textContent = `Tren kWh per Bulan — UP3 ${nama}`;
+    showCanvas('trendUp3Chart', 'nd-trend-up3');
+    reg('trendUp3Chart', {
+      type: 'line',
+      data: { labels: filtered.map(d => bl(d.bulan)), datasets: [{
+        label: 'Total kWh', data: filtered.map(d => Number(d.total_kwh)),
+        borderColor: '#1D4ED8', backgroundColor: 'rgba(29,78,216,.08)',
+        tension: 0.3, pointRadius: 5, fill: true
+      }] },
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { ticks: { callback: v => fmtM(v) }, grid: { color: '#E5E7EB' } },
+                  x: { grid: { display: false } } } }
+    });
+  }
+}
+
+/* ── TARIF ── */
+async function loadTarif() {
+  const bulan = document.getElementById('tarifBulanSel').value;
+  if (!bulan) return;
+  try {
+    const res = await fetch(`/api/baca-meter/tarif-jabar?bulan=${bulan}`);
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (!data?.length) throw new Error('no_data');
+
+    const totalPel = data.reduce((s, d) => s + Number(d.pelanggan), 0);
+    const labels   = data.map(d => d.tarif);
+    const pelData  = data.map(d => Number(d.pelanggan));
+    const kwhData  = data.map(d => Number(d.total_kwh));
+    const bgColors = labels.map(t => TARIF_COLORS[t] || '#64748B');
+
+    showCanvas('tarifPieChart', 'nd-tarif-pie');
+    reg('tarifPieChart', {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data: pelData, backgroundColor: bgColors, borderWidth: 2, borderColor: '#fff' }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '55%',
+        plugins: { legend: { position: 'right', labels: { font: { size: 11 } } },
+          tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.parsed)} (${(ctx.parsed/totalPel*100).toFixed(1)}%)` } } } }
+    });
+
+    showCanvas('tarifKwhChart', 'nd-tarif-kwh');
+    reg('tarifKwhChart', {
+      type: 'bar',
+      data: { labels, datasets: [{ label: 'Total kWh', data: kwhData, backgroundColor: bgColors, borderRadius: 5 }] },
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { ticks: { callback: v => fmtM(v) }, grid: { color: '#E5E7EB' } },
+                  x: { grid: { display: false } } } }
+    });
+
+    const tbody = document.getElementById('tarif-table-body');
+    tbody.innerHTML = data.map(d => {
+      const pel = Number(d.pelanggan);
+      const kwh = Number(d.total_kwh);
+      return `
+        <tr>
+          <td class="td-bold" style="color:${TARIF_COLORS[d.tarif]||'#374151'}">${d.tarif}</td>
+          <td style="font-size:12px;color:var(--muted)">${TARIF_DESC[d.tarif] || '—'}</td>
+          <td class="td-num">${fmt(pel)}</td>
+          <td class="td-num">${(pel / totalPel * 100).toFixed(1)}%</td>
+          <td class="td-num">${fmtM(kwh)}</td>
+          <td class="td-num">${pel ? fmt(Math.round(kwh / pel)) : '—'}</td>
+        </tr>
+      `;
+    }).join('');
+
+  } catch {
+    ['nd-tarif-pie','nd-tarif-kwh'].forEach(id => showND(id, 'Gagal memuat data'));
+  }
+}
+
+/* ── KODE PESAN ── */
+async function loadKode() {
+  const bulan = document.getElementById('kodeBulanSel').value;
+  const up3   = document.getElementById('kodeUp3Sel').value;
+  if (!bulan) return;
+  try {
+    const url = up3
+      ? `/api/baca-meter/kode-pesan?bulan=${bulan}&up3=${up3}`
+      : `/api/baca-meter/kode-pesan?bulan=${bulan}`;
+    const res  = await fetch(url);
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (!data?.length) throw new Error();
+
+    const total   = data.reduce((s, d) => s + Number(d.jumlah), 0);
+    const top10   = data.slice(0, 10);
+    const normal  = Number(data.find(d => d.kode_pesan === 'Z - NORMAL')?.jumlah ?? 0);
+    const anomali = total - normal;
+
+    showCanvas('kodeBarChart', 'nd-kode-bar');
+    reg('kodeBarChart', {
+      type: 'bar',
+      data: {
+        labels: top10.map(d => d.kode_pesan),
+        datasets: [{ label: 'Jumlah', data: top10.map(d => Number(d.jumlah)),
+          backgroundColor: top10.map(d => d.kode_pesan === 'Z - NORMAL' ? '#16A34A' : '#DC2626'),
+          borderRadius: 4 }]
+      },
+      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { ticks: { callback: v => fmt(v) }, grid: { color: '#E5E7EB' } },
+                  y: { grid: { display: false }, ticks: { font: { size: 10 } } } } }
+    });
+
+    showCanvas('kodePieChart', 'nd-kode-pie');
+    reg('kodePieChart', {
+      type: 'doughnut',
+      data: { labels: ['Z - NORMAL', 'Anomali/Lainnya'],
+        datasets: [{ data: [normal, anomali], backgroundColor: ['#16A34A', '#DC2626'], borderWidth: 2, borderColor: '#fff' }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '55%',
+        plugins: { legend: { position: 'bottom' },
+          tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.parsed)} (${(ctx.parsed/total*100).toFixed(1)}%)` } } } }
+    });
+
+    const tbody = document.getElementById('kode-table-body');
+    tbody.innerHTML = data.map((d, i) => {
+      const cnt = Number(d.jumlah);
+      const isNormal = d.kode_pesan === 'Z - NORMAL';
+      return `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${d.kode_pesan}</td>
+          <td class="td-num">${fmt(cnt)}</td>
+          <td class="td-num">${(cnt / total * 100).toFixed(2)}%</td>
+          <td>${isNormal ? '<span class="badge-normal">Normal</span>' : '<span class="badge-anomali">Anomali</span>'}</td>
+        </tr>
+      `;
+    }).join('');
+
+  } catch {
+    ['nd-kode-bar','nd-kode-pie'].forEach(id => showND(id, 'Gagal memuat data'));
+  }
+}
+
+/* ── DAYA ── */
+async function loadDaya() {
+  const bulan = document.getElementById('dayaBulanSel').value;
+  if (!bulan) return;
+  try {
+    const res  = await fetch(`/api/baca-meter/daya?bulan=${bulan}`);
+    if (!res.ok) throw new Error();
+    const raw = await res.json();
+    if (!raw?.length) throw new Error();
+
+    // Sort by DAYA_ORDER
+    const data = DAYA_ORDER
+      .map(dg => raw.find(d => d.daya_group === dg))
+      .filter(Boolean);
+    const otherData = raw.filter(d => !DAYA_ORDER.includes(d.daya_group));
+    const allData = [...data, ...otherData];
+
+    const totalPel = allData.reduce((s, d) => s + Number(d.pelanggan), 0);
+    const labels   = allData.map(d => d.daya_group);
+    const pelData  = allData.map(d => Number(d.pelanggan));
+    const kwhData  = allData.map(d => Number(d.total_kwh));
+    const bgColors = allData.map((d, i) => DAYA_COLORS[DAYA_ORDER.indexOf(d.daya_group)] ?? '#94A3B8');
+
+    showCanvas('dayaPieChart', 'nd-daya-pie');
+    reg('dayaPieChart', {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data: pelData, backgroundColor: bgColors, borderWidth: 2, borderColor: '#fff' }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '55%',
+        plugins: { legend: { position: 'right', labels: { font: { size: 11 } } },
+          tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.parsed)} (${(ctx.parsed/totalPel*100).toFixed(1)}%)` } } } }
+    });
+
+    showCanvas('dayaKwhChart', 'nd-daya-kwh');
+    reg('dayaKwhChart', {
+      type: 'bar',
+      data: { labels, datasets: [{ label: 'Total kWh', data: kwhData, backgroundColor: bgColors, borderRadius: 5 }] },
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { ticks: { callback: v => fmtM(v) }, grid: { color: '#E5E7EB' } },
+                  x: { grid: { display: false }, ticks: { font: { size: 10 } } } } }
+    });
+
+    const tbody = document.getElementById('daya-table-body');
+    tbody.innerHTML = allData.map(d => {
+      const pel = Number(d.pelanggan), kwh = Number(d.total_kwh);
+      return `
+        <tr>
+          <td class="td-bold">${d.daya_group}</td>
+          <td class="td-num">${fmt(pel)}</td>
+          <td class="td-num">${(pel / totalPel * 100).toFixed(1)}%</td>
+          <td class="td-num">${fmtM(kwh)}</td>
+          <td class="td-num">${pel ? fmt(Math.round(kwh / pel)) : '—'}</td>
+        </tr>
+      `;
+    }).join('');
+
+  } catch {
+    ['nd-daya-pie','nd-daya-kwh'].forEach(id => showND(id, 'Gagal memuat data'));
+  }
+}
+
+/* ── JAM PEMBACAAN ── */
+async function loadJam() {
+  const bulan = document.getElementById('jamBulanSel').value;
+  const up3   = document.getElementById('jamUp3Sel').value;
+  if (!bulan) return;
+  try {
+    const url  = up3
+      ? `/api/baca-meter/jam?bulan=${bulan}&up3=${up3}`
+      : `/api/baca-meter/jam?bulan=${bulan}`;
+    const res  = await fetch(url);
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (!data?.length) throw new Error();
+
+    // Build full 0-23 array with zeros for missing hours
+    const jumlahByJam = {};
+    data.forEach(d => { jumlahByJam[Number(d.jam)] = Number(d.jumlah); });
+    const hours  = Array.from({length: 24}, (_, i) => i);
+    const counts = hours.map(h => jumlahByJam[h] ?? 0);
+    const total  = counts.reduce((s, v) => s + v, 0);
+
+    // avg jam (weighted mean)
+    const sumH   = hours.reduce((s, h) => s + h * (jumlahByJam[h] ?? 0), 0);
+    const avgJam = total > 0 ? (sumH / total) : 0;
+    const h      = Math.floor(avgJam);
+    const m      = Math.round((avgJam - h) * 60);
+
+    // pct early (<7) and late (>=17)
+    const early = hours.filter(h => h < 7 ).reduce((s, h) => s + counts[h], 0);
+    const late  = hours.filter(h => h >= 17).reduce((s, h) => s + counts[h], 0);
+
+    document.getElementById('jam-kpi-avg').textContent    = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    document.getElementById('jam-kpi-early').textContent  = total ? (early / total * 100).toFixed(1) + '%' : '—';
+    document.getElementById('jam-kpi-late').textContent   = total ? (late  / total * 100).toFixed(1) + '%' : '—';
+    document.getElementById('jam-kpi-total').textContent  = fmt(total);
+
+    const labels = hours.map(h => `${String(h).padStart(2,'0')}:00`);
+    const bgColors = counts.map((_, h) =>
+      h < 7  ? '#DC2626' :   // early red
+      h >= 17 ? '#D97706' :  // late amber
+               '#1D4ED8'     // normal blue
+    );
+
+    showCanvas('jamHistChart', 'nd-jam-hist');
+    reg('jamHistChart', {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{ label: 'Jumlah Pembacaan', data: counts, backgroundColor: bgColors, borderRadius: 3 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            label: ctx => `${fmt(ctx.parsed.y)} baca (${total ? (ctx.parsed.y / total * 100).toFixed(1) : 0}%)`
+          }}
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
+          y: { ticks: { callback: v => fmt(v) }, grid: { color: '#E5E7EB' } }
+        }
+      }
+    });
+
+  } catch {
+    showND('nd-jam-hist', 'Gagal memuat data jam');
+  }
+}
+
+/* ── BOOT ── */
+init();
+</script>
+</body>
+</html>

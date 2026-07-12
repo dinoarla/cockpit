@@ -20,6 +20,7 @@ import { plnStatRoutes } from "./routes/pln-stat.js";
 import { plnSrRoutes } from "./routes/pln-sr.js";
 import { plnArRoutes } from "./routes/pln-ar.js";
 import { simbaRoutes } from "./routes/simba.js";
+import { bacaMeterRoutes } from "./routes/baca-meter.js";
 import { db } from "./db/client.js";
 import { domains, domainModules, userDomainAccess, userModuleAccess, sessions } from "./db/schema.js";
 import { eq, and, sql, gt } from "drizzle-orm";
@@ -105,6 +106,7 @@ app.route("/api/pln-stat", plnStatRoutes);
 app.route("/api/pln-sr", plnSrRoutes);
 app.route("/api/pln-ar", plnArRoutes);
 app.route("/api/simba", simbaRoutes);
+app.route("/api/baca-meter", bacaMeterRoutes);
 app.use("/menu.html", requireAuth, serveStatic({ root: publicDir }));
 app.use("/admin/*", requireAuth, serveStatic({ root: publicDir }));
 // ── TOKEN-BASED MODULE HANDLER ──
