@@ -4,31 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EGLA SUTT 70 kV Parakan–Kadipaten | Cockpit</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
 :root{
-  --accent:#1D4ED8; --accent-dk:#1E3A8A; --accent-lt:#EFF6FF;
-  --bg:#F0F5FF; --card:#FFFFFF; --border:#BFDBFE;
-  --text:#1E293B; --muted:#64748B; --dim:#94A3B8;
+  --navy:#0D1117; --orange:#FF4D00; --yellow:#FFD600;
+  --accent:#FF4D00; --accent-dk:#C2410C; --accent-lt:rgba(255,77,0,.08);
+  --bg:#FFFBF0; --card:#FFFFFF; --border:#E2E8F0;
+  --text:#111118; --muted:#64748B; --dim:#94A3B8;
   --green:#16A34A; --red:#DC2626; --amber:#D97706;
   --warn-bg:#FFFBEB; --warn-border:#FCD34D;
   --ok-bg:#F0FDF4; --ok-border:#86EFAC;
+  --font-d:'Space Grotesk',sans-serif;
+  --font-b:'Inter',sans-serif;
+  --font-m:'JetBrains Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+body{font-family:var(--font-b),'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:var(--accent);text-decoration:none}
 
 /* ── HEADER ── */
-.module-header{background:linear-gradient(135deg,var(--accent-dk) 0%,var(--accent) 60%,#2563EB 100%);color:#fff;padding:0}
-.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:12px;font-weight:500;letter-spacing:.04em;transition:color .15s}
-.back-link:hover{color:#fff;text-decoration:none}
-.back-link svg{width:14px;height:14px}
-.breadcrumb{padding:6px 24px 0;font-size:11px;color:rgba(255,255,255,.6);letter-spacing:.03em}
-.breadcrumb span{color:rgba(255,255,255,.4);margin:0 5px}
+.module-header{background:var(--navy);color:#E6EDF3;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(230,237,243,.45);font-size:12px;font-weight:600;letter-spacing:.02em;transition:color .15s;text-decoration:none}
+.back-link:hover{color:#E6EDF3}
+.back-link svg{width:14px;height:14px;display:none}
+.breadcrumb{padding:6px 24px 0;font-family:var(--font-m);font-size:11px;color:rgba(255,77,0,.7);letter-spacing:.12em;text-transform:uppercase}
 .header-body{padding:16px 24px 20px}
-.header-title{font-size:22px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
-.header-title .badge{font-size:10px;font-weight:600;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);padding:3px 9px;border-radius:12px;letter-spacing:.04em}
-.header-desc{font-size:13px;color:rgba(255,255,255,.82);max-width:720px;line-height:1.55;margin-bottom:14px}
+.header-title{font-family:var(--font-d);font-size:22px;font-weight:700;color:#fff;margin-bottom:5px;display:flex;align-items:center;gap:10px}
+.header-title .badge{font-size:10px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:3px 9px;border-radius:12px;letter-spacing:.04em}
+.header-desc{font-size:13px;color:rgba(230,237,243,.5);max-width:720px;line-height:1.55;margin-bottom:14px}
 .meta-row{display:flex;flex-wrap:wrap;gap:10px}
 .meta-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,.85)}
 
@@ -54,7 +60,7 @@ a{color:var(--accent);text-decoration:none}
 .kpi-card.ok{border-left:4px solid var(--green)}
 .kpi-card.danger{border-left:4px solid var(--red)}
 .kpi-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.kpi-value{font-size:24px;font-weight:700;color:var(--accent-dk);line-height:1.1}
+.kpi-value{font-size:24px;font-weight:700;color:var(--text);line-height:1.1}
 .kpi-value.ok{color:var(--green)}
 .kpi-value.warn{color:var(--amber)}
 .kpi-value.danger{color:var(--red)}
@@ -75,10 +81,10 @@ a{color:var(--accent);text-decoration:none}
 /* ── TABLES ── */
 .table-scroll{overflow-x:auto;margin-bottom:24px;border-radius:10px;border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--card)}
-th{background:var(--accent-dk);color:#fff;font-size:11px;font-weight:600;text-align:left;padding:9px 12px;white-space:nowrap}
+th{background:#0D1117;color:#E6EDF3;font-size:11px;font-weight:600;text-align:left;padding:9px 12px;white-space:nowrap}
 th.center{text-align:center}
 td{border-bottom:1px solid var(--border);padding:8px 12px;vertical-align:middle}
-tr:hover td{background:#F0F5FF}
+tr:hover td{background:rgba(255,77,0,.025)}
 tr:last-child td{border-bottom:none}
 tr.total-row td{background:var(--accent-lt);font-weight:700;color:var(--accent-dk)}
 tr.highlight-row td{background:#FFFBEB;font-weight:600}
@@ -123,7 +129,7 @@ tr.highlight-row td{background:#FFFBEB;font-weight:600}
 .emtp-terminal .t-sep{color:#1E293B;user-select:none}
 
 /* ── RESULT BOX ── */
-.result-box{background:linear-gradient(135deg,var(--accent-lt),#DBEAFE);border:2px solid var(--accent);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px}
+.result-box{background:linear-gradient(135deg,var(--accent-lt),rgba(255,214,0,.08));border:2px solid var(--accent);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px}
 .result-box .main-val{font-size:2.2rem;font-weight:800;color:var(--accent-dk)}
 .result-box .sub{font-size:13px;color:var(--muted);margin-top:4px}
 
@@ -151,13 +157,8 @@ tr.highlight-row td{background:#FFFBEB;font-weight:600}
 
 <!-- ══ HEADER ══ -->
 <header class="module-header">
-  <a href="/menu.html" class="back-link">
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg>
-    Kembali ke Menu
-  </a>
-  <div class="breadcrumb">
-    Energi Jabar <span>›</span> Transmisi <span>›</span> EGLA SUTT 70 kV Parakan–Kadipaten
-  </div>
+  <a href="/menu.html" class="back-link">← Kembali ke Menu</a>
+  <div class="breadcrumb">TRANSMISI · ULTG CIREBON</div>
   <div class="header-body">
     <div class="header-title">
       ⚡ EGLA Parakan–Kadipaten
