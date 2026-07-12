@@ -1489,15 +1489,35 @@ function initKnowledgeGraph(domainList) {
     'open-data-nasional-4': 'Sosial',
   };
   const XLINKS = [
-    ['pln-ar',        'pln-sr'],
-    ['pln-ar',        'pln-stat'],
-    ['pln-stat',      'mdp'],
-    ['ruptl',         'mdp'],
-    ['ruptl',         'atlas-pembangkit'],
-    ['olap-tagihan',  'pelanggan'],
-    ['pencurian',     'losses-integritas'],
-    ['mdp',           'pln-sr'],
-    ['pln-scholar',   'pln-ar'],
+    // ── PLN internal ────────────────────────────────────
+    ['pln-ar',             'pln-sr'],
+    ['pln-ar',             'pln-stat'],
+    ['pln-scholar',        'pln-ar'],
+    ['mdp',                'pln-sr'],
+    // ── PLN → Pembangkitan ───────────────────────────────
+    ['pln-stat',           'mdp'],
+    ['ruptl',              'mdp'],
+    ['ruptl',              'atlas-pembangkit'],
+    // ── PLN → Transmisi ──────────────────────────────────
+    ['ruptl',              'rencana-transmisi'],
+    ['pln-stat',           'sistem-transmisi'],
+    ['pln-scholar',        'proteksi-transmisi'],
+    // ── Pembangkitan → Transmisi (rantai nilai utama) ────
+    ['mdp',                'sistem-transmisi'],
+    ['atlas-pembangkit',   'sistem-transmisi'],
+    ['ekonomi-transisi',   'rencana-transmisi'],
+    ['simba',              'proteksi-transmisi'],
+    // ── Transmisi → Distribusi (rantai nilai utama) ──────
+    ['sistem-transmisi',   'infrastruktur-distribusi'],
+    ['rencana-transmisi',  'infrastruktur-distribusi'],
+    ['proteksi-transmisi', 'keandalan-layanan'],
+    ['egla-pkdn',          'keandalan-layanan'],
+    // ── PLN → Distribusi ─────────────────────────────────
+    ['pln-stat',           'infrastruktur-distribusi'],
+    ['tariff-adjustment',  'olap-tagihan'],
+    // ── Distribusi internal ──────────────────────────────
+    ['olap-tagihan',       'pelanggan'],
+    ['pencurian',          'losses-integritas'],
   ];
 
   const nodeMap = {}, nodes = [], links = [];
@@ -1674,9 +1694,22 @@ function initFullGraph(domainList) {
     'open-data-nasional-3':'Geospasial','open-data-nasional-4':'Sosial',
   };
   const XLINKS = [
-    ['pln-ar','pln-sr'],['pln-ar','pln-stat'],['pln-scholar','pln-ar'],
+    // PLN internal
+    ['pln-ar','pln-sr'],['pln-ar','pln-stat'],['pln-scholar','pln-ar'],['mdp','pln-sr'],
+    // PLN → Pembangkitan
     ['pln-stat','mdp'],['ruptl','mdp'],['ruptl','atlas-pembangkit'],
-    ['olap-tagihan','pelanggan'],['pencurian','losses-integritas'],['mdp','pln-sr'],
+    // PLN → Transmisi
+    ['ruptl','rencana-transmisi'],['pln-stat','sistem-transmisi'],['pln-scholar','proteksi-transmisi'],
+    // Pembangkitan → Transmisi
+    ['mdp','sistem-transmisi'],['atlas-pembangkit','sistem-transmisi'],
+    ['ekonomi-transisi','rencana-transmisi'],['simba','proteksi-transmisi'],
+    // Transmisi → Distribusi
+    ['sistem-transmisi','infrastruktur-distribusi'],['rencana-transmisi','infrastruktur-distribusi'],
+    ['proteksi-transmisi','keandalan-layanan'],['egla-pkdn','keandalan-layanan'],
+    // PLN → Distribusi
+    ['pln-stat','infrastruktur-distribusi'],['tariff-adjustment','olap-tagihan'],
+    // Distribusi internal
+    ['olap-tagihan','pelanggan'],['pencurian','losses-integritas'],
   ];
 
   // Build graph data
