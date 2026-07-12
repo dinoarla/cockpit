@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studi Proteksi Sistem Distribusi — COCKPIT</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #F8FAFC; color: #1E293B; }
+
+    /* ── Header ── */
+    .mod-header {
+      background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
+      color: #fff; padding: 28px 32px 20px; position: relative; overflow: hidden;
+    }
+    .mod-header::after {
+      content: ''; position: absolute; top: -40px; right: -60px;
+      width: 240px; height: 240px; background: rgba(255,255,255,.06); border-radius: 50%;
+    }
+    .mod-header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; position: relative; z-index: 1; }
+    .mod-header .subtitle { font-size: .85rem; color: rgba(255,255,255,.78); position: relative; z-index: 1; }
+    .header-meta { display: flex; gap: 20px; margin-top: 14px; flex-wrap: wrap; position: relative; z-index: 1; }
+    .header-meta-item { display: flex; align-items: center; gap: 6px; font-size: .8rem; color: rgba(255,255,255,.85); }
+    .header-meta-item i { font-size: .9rem; }
+
+    /* ── Stat bar ── */
+    .stat-bar {
+      display: flex; flex-wrap: wrap; gap: 1px; background: #E2E8F0;
+      border-bottom: 1px solid #E2E8F0;
+    }
+    .stat-item {
+      flex: 1 1 140px; background: #fff; padding: 14px 20px; text-align: center;
+    }
+    .stat-item .sv { font-size: 1.6rem; font-weight: 700; color: #1D4ED8; line-height: 1.1; }
+    .stat-item .sl { font-size: .72rem; color: #64748B; margin-top: 3px; text-transform: uppercase; letter-spacing: .04em; }
+
+    /* ── Main layout ── */
+    .main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
+
+    /* ── Filter bar ── */
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; align-items: center; }
+    .filter-btn {
+      padding: 6px 16px; border-radius: 20px; border: 1.5px solid #CBD5E1;
+      background: #fff; color: #475569; font-size: .82rem; cursor: pointer; font-weight: 500;
+      transition: all .15s;
+    }
+    .filter-btn:hover { border-color: #1D4ED8; color: #1D4ED8; }
+    .filter-btn.active { background: #1D4ED8; border-color: #1D4ED8; color: #fff; }
+    .filter-label { font-size: .8rem; color: #64748B; margin-right: 4px; }
+
+    /* ── Document card grid ── */
+    .card-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); gap: 18px;
+    }
+    @media (max-width: 520px) { .card-grid { grid-template-columns: 1fr; } }
+
+    .doc-card {
+      background: #fff; border-radius: 12px; border: 1px solid #E2E8F0;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06); padding: 20px; display: flex; flex-direction: column; gap: 12px;
+      transition: box-shadow .15s, transform .12s;
+    }
+    .doc-card:hover { box-shadow: 0 4px 16px rgba(29,78,216,.12); transform: translateY(-2px); }
+    .doc-card.placeholder { opacity: .85; }
+
+    /* Badge + no. ref */
+    .card-top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+      border-radius: 12px; font-size: .72rem; font-weight: 600; letter-spacing: .03em;
+    }
+    .badge-studi    { background: #EFF6FF; color: #1D4ED8; }
+    .badge-monitor  { background: #ECFDF5; color: #059669; }
+    .badge-inovasi  { background: #FFF7ED; color: #C2410C; }
+    .badge-prosedur { background: #FAF5FF; color: #7C3AED; }
+    .badge-publikasi{ background: #FFF1F2; color: #BE123C; }
+    .badge-kajian   { background: #F0FDF4; color: #166534; }
+    .badge-teknis   { background: #F0F9FF; color: #0369A1; }
+    .doc-no { font-size: .72rem; color: #94A3B8; background: #F8FAFC; padding: 3px 8px; border-radius: 6px; border: 1px solid #E2E8F0; }
+    .badge-placeholder { font-size: .68rem; color: #94A3B8; background: #F1F5F9; padding: 2px 8px; border-radius: 6px; border: 1px solid #E2E8F0; }
+
+    /* Title */
+    .doc-title { font-size: .97rem; font-weight: 700; color: #1E293B; line-height: 1.4; }
+    .doc-meta { font-size: .77rem; color: #64748B; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+    .doc-meta i { color: #94A3B8; }
+
+    /* Abstract */
+    .doc-abstract { font-size: .83rem; color: #475569; line-height: 1.6; }
+
+    /* Metrics grid */
+    .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .metric-item { background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0; padding: 10px 12px; }
+    .metric-value { font-size: .97rem; font-weight: 700; color: #1D4ED8; }
+    .metric-label { font-size: .72rem; color: #64748B; margin-top: 2px; }
+    .metric-note  { font-size: .68rem; color: #94A3B8; margin-top: 1px; }
+
+    /* Tools + tags */
+    .card-footer { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .tool-tag { font-size: .7rem; color: #1D4ED8; background: #EFF6FF; padding: 3px 8px; border-radius: 6px; font-weight: 500; }
+    .kw-tag   { font-size: .7rem; color: #64748B; background: #F1F5F9; padding: 3px 8px; border-radius: 6px; }
+
+    /* About panel */
+    .about-panel {
+      background: #fff; border-radius: 12px; border: 1px solid #E2E8F0; padding: 28px 32px; margin-top: 32px;
+    }
+    .about-panel h2 { font-size: 1rem; font-weight: 700; color: #1D4ED8; margin-bottom: 12px; }
+    .about-panel p  { font-size: .85rem; color: #475569; line-height: 1.7; margin-bottom: 10px; }
+    .about-panel ul { margin-left: 18px; font-size: .85rem; color: #475569; line-height: 1.8; }
+
+    /* Section separator */
+    .section-label {
+      font-size: .78rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: .07em;
+      grid-column: 1 / -1; margin-top: 8px; margin-bottom: -4px; display: flex; align-items: center; gap: 8px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: #E2E8F0; }
+  </style>
+</head>
+<body>
+
+<div class="mod-header">
+  <h1><i class="fa-solid fa-shield-halved" style="margin-right:8px;"></i>Studi Proteksi Sistem Distribusi</h1>
+  <div class="subtitle">Repositori Community of Practice &amp; Publikasi Ilmiah — ULTG Cirebon · ICT-PEP PLN 2026</div>
+  <div class="header-meta">
+    <div class="header-meta-item"><i class="fa-solid fa-building"></i> PT PLN (Persero) UPT Cirebon / ULTG Cirebon</div>
+    <div class="header-meta-item"><i class="fa-solid fa-calendar-days"></i> 2023 – 2026</div>
+    <div class="header-meta-item"><i class="fa-solid fa-file-lines"></i> 16 Dokumen</div>
+  </div>
+</div>
+
+<div class="stat-bar">
+  <div class="stat-item"><div class="sv">1</div><div class="sl">Publikasi Ilmiah</div></div>
+  <div class="stat-item"><div class="sv">9</div><div class="sl">Community of Practice</div></div>
+  <div class="stat-item"><div class="sv">3</div><div class="sl">Kajian Singkat</div></div>
+  <div class="stat-item"><div class="sv">3</div><div class="sl">Instruksi Kerja & Teknis</div></div>
+</div>
+
+<div class="main">
+
+  <div class="filter-bar">
+    <span class="filter-label"><i class="fa-solid fa-filter"></i> Kategori:</span>
+    <button class="filter-btn active" data-cat="semua">Semua</button>
+    <button class="filter-btn" data-cat="Studi Teknis">Studi Teknis</button>
+    <button class="filter-btn" data-cat="Sistem Monitoring">Sistem Monitoring</button>
+    <button class="filter-btn" data-cat="Inovasi">Inovasi</button>
+    <button class="filter-btn" data-cat="Prosedur">Prosedur</button>
+    <button class="filter-btn" data-cat="Publikasi">Publikasi</button>
+    <button class="filter-btn" data-cat="Kajian Singkat">Kajian Singkat</button>
+    <button class="filter-btn" data-cat="Teknis">Teknis / IK</button>
+  </div>
+
+  <div class="card-grid" id="cardGrid"></div>
+
+  <div class="about-panel">
+    <h2><i class="fa-solid fa-circle-info" style="margin-right:6px;"></i>Tentang Modul</h2>
+    <p>Modul ini merupakan repositori digital dokumen-dokumen teknis yang dikembangkan oleh pegawai PT PLN (Persero) UPT Cirebon / ULTG Cirebon dalam kerangka <strong>Community of Practice (CoP)</strong> bidang Proteksi Sistem Tenaga Listrik, serta publikasi ilmiah pada <strong>Conference on ICT for Power, Energy and Environment (ICT-PEP) PLN 2026</strong>.</p>
+    <p>CoP ULTG Cirebon berfokus pada pengembangan pengetahuan dan inovasi di bidang proteksi rele, monitoring aset, simulasi sistem tenaga, dan digitalisasi proses kerja. Dokumen-dokumen ini mewakili studi aktual dari sistem 70 kV dan 150 kV yang dioperasikan di wilayah UPT Cirebon.</p>
+    <p><strong>Penulis utama:</strong> Reza Wahyu Firdaus (PT PLN (Persero) ULTG Cirebon) &mdash; dengan kolaborasi lintas unit di lingkup UPT Cirebon.</p>
+    <p><strong>Cakupan geografis:</strong> Gardu Induk dan jalur transmisi di wilayah UPT Cirebon — meliputi GI Sunyaragi, GI Mandiracan, GI Kadipaten, GI Arjawinangun, GI Kanci, GITET Cangkring, dan jalur SUTT/SUTET terkait.</p>
+  </div>
+
+</div>
+
+<script>
+const BADGE_CLASS = {
+  'Studi Teknis':      'badge-studi',
+  'Sistem Monitoring': 'badge-monitor',
+  'Inovasi':           'badge-inovasi',
+  'Prosedur':          'badge-prosedur',
+  'Publikasi':         'badge-publikasi',
+  'Kajian Singkat':    'badge-kajian',
+  'Teknis':            'badge-teknis',
+};
+
+const DOCS = [
+  /* ── PUBLIKASI ILMIAH ─────────────────────────────────────────── */
+  {
+    id: 'P01',
+    no: 'ICT-PEP PLN 2026',
+    kategori: 'Publikasi',
+    judul: 'Particle Swarm Optimization of Air Gap Distance for Externally Gapped Line Arrester (EGLA) on High Isokeraunic 70 kV Transmission Line Based on Field-Measured Lightning Data',
+    penulis: 'Reza Wahyu Firdaus, et al.',
+    tanggal: 'Juni 2026',
+    forum: 'Conference on ICT for Power, Energy and Environment — ICT-PEP PLN 2026',
+    abstract: 'Makalah ilmiah yang mengoptimasi celah udara (air gap) EGLA pada jaringan transmisi SUTT 70 kV berisokeraunik tinggi menggunakan algoritma Particle Swarm Optimization (PSO), berbasis data pengukuran kilat lapangan dari sensor Vaisala FALLS®. Hasil optimasi memberikan parameter EGLA yang optimal secara teknis dan ekonomis untuk kondisi isokeraunik spesifik di Jawa Barat, sekaligus memvalidasi model simulasi EMTP dengan data lapangan nyata.',
+    metrics: [
+      { label: 'Metode Optimasi', value: 'PSO', note: 'Particle Swarm Optimization' },
+      { label: 'Objek Studi', value: 'SUTT 70 kV', note: 'Parakan–Kadipaten, Jabar' },
+      { label: 'Data Petir', value: 'Vaisala FALLS®', note: '2020–2025, 5 tahun' },
+      { label: 'Forum', value: 'ICT-PEP 2026', note: 'Konferensi Nasional PLN' },
+    ],
+    tools: ['PSO Algorithm', 'EMTP-ATPDraw', 'Vaisala FALLS®', 'CIGRE LPM'],
+    tags: ['EGLA', 'PSO', 'optimasi', 'petir', 'SUTT 70 kV'],
+    placeholder: false,
+  },
+
+  /* ── COMMUNITY OF PRACTICE: STUDI TEKNIS ─────────────────────── */
+  {
+    id: 'C01',
+    no: 'IV.37.202511',
+    kategori: 'Studi Teknis',
+    judul: 'Studi Implementasi EGLA SUTT 70 kV Parakan–Kadipaten',
+    penulis: 'Reza Wahyu Firdaus',
+    tanggal: 'November 2025',
+    forum: 'CoP ULTG Cirebon, Semester II-2025',
+    abstract: 'Evaluasi efektivitas implementasi Externally Gapped Line Arrester (EGLA) pada penghantar SUTT 70 kV Parakan–Kadipaten sebagai proteksi terhadap gangguan petir. Studi menggunakan data historis Vaisala FALLS® (2020–2025) untuk analisis paparan petir dan simulasi surja tegangan pada perangkat ATP-EMTP. Simulasi membuktikan bahwa celah udara EGLA 340 mm mampu menekan tegangan surja dari 816 kV menjadi 209,6 kV — di bawah BIL isolator 610 kV, sehingga tidak terjadi flashover. Validasi data lapangan menunjukkan nol gangguan akibat petir sejak pemasangan EGLA pada 2023, dibandingkan 6 kali gangguan pada 2022.',
+    metrics: [
+      { label: 'Celah Udara EGLA', value: '340 mm', note: 'Gap from line, by design' },
+      { label: 'Tegangan Sisa', value: '209,6 kV', note: 'Dari 816 kV (EMTP sim.)' },
+      { label: 'BIL Isolator', value: '610 kV', note: 'Aman — tidak flashover' },
+      { label: 'Gangguan Petir', value: '6 → 0', note: 'Sebelum / sesudah 2023' },
+    ],
+    tools: ['EMTP-ATPDraw', 'Vaisala FALLS®', 'CIGRE Leader Progression Model'],
+    tags: ['EGLA', 'proteksi petir', 'SUTT 70 kV', 'surge arrester', 'EMTP'],
+    placeholder: false,
+  },
+  {
+    id: 'C02',
+    no: 'IV.39.202511',
+    kategori: 'Studi Teknis',
+    judul: 'Studi Keandalan Penyaluran ke PT. ITP Semen Palimanan',
+    penulis: 'Reza Wahyu Firdaus',
+    tanggal: 'November 2025',
+    forum: 'CoP ULTG Cirebon, Semester II-2025',
+    abstract: 'Analisis keandalan sistem penyaluran 70 kV ke pelanggan industri PT. Indonesia Toray Plastics Semen Palimanan melalui SUTT 70 kV Sunyaragi–Arjawinangun–Semen. Studi mencakup simulasi aliran daya, hubung singkat (3 fasa dan line-to-ground dengan impedansi busur), dan analisis durasi pemulihan gangguan menggunakan ETAP 22.0. Gangguan Force Majeure 2023 (kilat menyambar menara) mengakibatkan pemadaman 206 jam dengan kerugian produksi 23.562 ton semen.',
+    metrics: [
+      { label: 'Arus HS 3 Fasa', value: '4.087 kA', note: 'Bus SEMEN4, 70 kV' },
+      { label: 'Arus HS L-G', value: '1.481 kA', note: 'Zf = 20 Ω (busur monyet)' },
+      { label: 'Lama Padam FM 2023', value: '206 jam', note: '23.562 ton loss produksi' },
+      { label: 'Voltage Dip L-G', value: '73,27%', note: 'Tegangan turun saat HS' },
+    ],
+    tools: ['ETAP 22.0', 'Short Circuit Analysis', 'Load Flow', 'Arc Flash'],
+    tags: ['keandalan', 'hubung singkat', 'industri', 'SUTT 70 kV', 'ETAP'],
+    placeholder: false,
+  },
+  {
+    id: 'C03',
+    no: 'IV.2025',
+    kategori: 'Studi Teknis',
+    judul: 'Studi Transien BFO SUTET Mandiracan–Indramayu 1 (T.71)',
+    penulis: 'Reza Wahyu Firdaus',
+    tanggal: '2025',
+    forum: 'CoP ULTG Cirebon, 2025',
+    abstract: 'Simulasi dan analisis transien Breaker Failure Operation (BFO) pada penghantar SUTET Mandiracan–Indramayu 1 (T.71). Studi bertujuan mengevaluasi respons sistem proteksi terhadap kondisi kegagalan PMT dan pengaruh surja tegangan transien yang timbul terhadap isolasi peralatan di GI Mandiracan dan GI Indramayu. Hasil menjadi dasar evaluasi setting waktu backup dan koordinasi proteksi.',
+    metrics: [],
+    tools: ['EMTP / PSCAD', 'Transient Simulation', 'Protection Coordination'],
+    tags: ['BFO', 'transien', 'SUTET', 'PMT', 'proteksi backup'],
+    placeholder: true,
+  },
+
+  /* ── COMMUNITY OF PRACTICE: SISTEM MONITORING ────────────────── */
+  {
+    id: 'C04',
+    no: 'IV.32.202507',
+    kategori: 'Sistem Monitoring',
+    judul: 'Sistem Monitoring Anomali Gardu Induk ULTG Cirebon',
+    penulis: 'Reza Wahyu Firdaus',
+    tanggal: 'Juli 2025',
+    forum: 'CoP ULTG Cirebon, Semester II-2025',
+    abstract: 'Dashboard terpadu berbasis laporan rutin Kamis Inspeksi sebagai sistem monitoring anomali aset GI/GITET di lingkup ULTG Cirebon. Sistem mencakup 10 Gardu Induk dengan klasifikasi anomali berdasarkan jenis peralatan (Primary, Secondary, Transmisi), dilengkapi visualisasi tren penyelesaian bulanan, geomap populasi anomali per GI, dan monitoring pending item aset GI baru (GIS Cangkring, GI New Arjawinangun, GI Mandiracan).',
+    metrics: [
+      { label: 'Total Anomali 2025', value: '178', note: 'Per November 2025' },
+      { label: 'Diselesaikan', value: '92 (51,7%)', note: 'Dari total 178 anomali' },
+      { label: 'Cakupan GI', value: '10 GI/GITET', note: 'Sunyaragi, Mdcan, Kadipaten…' },
+      { label: 'Klasifikasi', value: 'P:92 | S:52 | T:34', note: 'Primary | Secondary | Transmisi' },
+    ],
+    tools: ['Dashboard (Power BI / Custom)', 'Vaisala RTD', 'Google Maps API', 'TRION'],
+    tags: ['monitoring', 'anomali', 'gardu induk', 'aset', 'ULTG Cirebon'],
+    placeholder: false,
+  },
+  {
+    id: 'C05',
+    no: 'IV.2025',
+    kategori: 'Sistem Monitoring',
+    judul: 'Sistem Informasi & Monitoring Terpadu GIS Cangkring',
+    penulis: 'Reza Wahyu Firdaus',
+    tanggal: '2025',
+    forum: 'CoP ULTG Cirebon, 2025',
+    abstract: 'Pengembangan sistem informasi dan monitoring terpadu untuk Gas Insulated Switchgear (GIS) Cangkring 150 kV. Platform digital menyatukan data operasi, monitoring kondisi peralatan (partial discharge, SF6 density, suhu), dan manajemen pemeliharaan dalam satu antarmuka guna mendukung keandalan operasi GIS baru di ULTG Cirebon.',
+    metrics: [],
+    tools: ['Dashboard Digital', 'IoT Sensor', 'IEC 61850 GOOSE', 'Partial Discharge Monitor'],
+    tags: ['GIS', 'monitoring', 'sistem informasi', 'Cangkring', '150 kV'],
+    placeholder: true,
+  },
+  {
+    id: 'C06',
+    no: 'IV.2025',
+    kategori: 'Sistem Monitoring',
+    judul: 'Sistem Monitoring DC via Protocol Modbus — Rectifier GI',
+    penulis: 'Reza Wahyu Firdaus',
+    tanggal: '2025',
+    forum: 'CoP ULTG Cirebon, 2025',
+    abstract: 'Implementasi sistem monitoring sistem DC (catu daya arus searah) di Gardu Induk melalui protokol komunikasi Modbus dari perangkat rectifier (Techfill TFM D400). Sistem memungkinkan pemantauan parameter DC (tegangan bus, arus pengisian, status charger, suhu baterai) secara terpusat dan real-time, mendukung keandalan catu daya auxiliary untuk operasi rele proteksi dan kontrol GI.',
+    metrics: [],
+    tools: ['Modbus RTU/TCP', 'Techfill TFM D400', 'SCADA Integration', 'RS-485'],
+    tags: ['monitoring DC', 'Modbus', 'rectifier', 'catu daya auxiliary', 'gardu induk'],
+    placeholder: true,
+  },
+  {
+    id: 'C07',
+    no: 'IV.2025',
+    kategori: 'Sistem Monitoring',
+    judul: 'Sistem Monitoring & Manajemen Aset Tanah Transmisi',
+    penulis: 'Reza Wahyu Firdaus',
+    tanggal: '2025',
+    forum: 'CoP ULTG Cirebon, 2025',
+    abstract: 'Platform digital untuk monitoring dan manajemen aset tanah (right-of-way / ROW) jalur transmisi di wilayah UPT Cirebon. Sistem mencakup inventarisasi data sertifikat tanah, status pengamanan ROW, monitoring progres sertifikasi tapak tower, serta integrasi peta geospasial untuk pemantauan visual koridor transmisi dan tindak lanjut penyerobotan lahan.',
+    metrics: [],
+    tools: ['GIS Mapping', 'Dashboard', 'Google Maps API', 'Spreadsheet DB'],
+    tags: ['aset tanah', 'ROW', 'transmisi', 'sertifikasi', 'manajemen aset'],
+    placeholder: true,
+  },
+
+  /* ── COMMUNITY OF PRACTICE: INOVASI ──────────────────────────── */
+  {
+    id: 'C08',
+    no: 'IV.30.202505',
+    kategori: 'Inovasi',
+    judul: 'Simulator Proteksi & Kontrol (SIMULTAN) — ULTG Cirebon',
+    penulis: 'Reza Wahyu Firdaus',
+    tanggal: 'Mei 2025',
+    forum: 'CoP ULTG Cirebon, Semester I-2025',
+    abstract: 'Pengembangan simulator fisik Proteksi & Kontrol "SIMULTAN" sebagai sarana pelatihan dan knowledge management di ULTG Cirebon. Simulator berupa panel cubicle 2200×600×610 mm yang dilengkapi relay Distance (CSC-101, P442), OC/GF (P127), Differential (P543), Lockout (195), dan Trip Circuit Supervision (7PA30), serta transformator arus/tegangan untuk pengujian aktual. Terintegrasi dengan sistem TRION AI UPT Cirebon untuk monitoring relay trip secara real-time melalui 3 kanal online.',
+    metrics: [
+      { label: 'Dimensi Cubicle', value: '2200×600×610 mm', note: 'By Memerli Rekayasa Elektrika' },
+      { label: 'Jenis Relay', value: '5 Tipe', note: 'Distance, OC/GF, Diff, Lockout, TCS' },
+      { label: 'Integrasi Online', value: 'TRION AI', note: '3 channel, UPT Cirebon' },
+      { label: 'Timeline', value: 'Sem2-2024 → Sem1-2025', note: 'Perancangan – Selesai' },
+    ],
+    tools: ['TRION AI', 'IEC 61850', 'Alstom P127 / P442 / P543', 'Siemens 7PA30', 'Sifang CSC-101'],
+    tags: ['simulator', 'training', 'relay proteksi', 'knowledge management', 'ULTG Cirebon'],
+    placeholder: false,
+  },
+
+  /* ── COMMUNITY OF PRACTICE: PROSEDUR ─────────────────────────── */
+  {
+    id: 'C09',
+    no: 'IV.2025',
+    kategori: 'Prosedur',
+    judul: 'Alur Koordinasi Sertifikasi Tapak Tower Transmisi — UPT Cirebon',
+    penulis: 'Reza Wahyu Firdaus',
+    tanggal: '2025',
+    forum: 'CoP ULTG Cirebon, 2025',
+    abstract: 'Dokumentasi alur proses dan koordinasi antar-unit dalam pelaksanaan sertifikasi tapak tower transmisi di wilayah UPT Cirebon. Mencakup tahapan identifikasi dan inventarisasi tower, pengukuran tapak, koordinasi dengan BPN/ATR, pengurusan sertifikat hak atas tanah, monitoring progres sertifikasi secara berkala, serta eskalasi kasus-kasus bermasalah (sengketa lahan, pemilik tidak diketahui).',
+    metrics: [],
+    tools: ['Workflow Management', 'BPN/ATR Coordination', 'Geospasial GIS'],
+    tags: ['sertifikasi', 'tapak tower', 'ROW', 'prosedur', 'aset tanah'],
+    placeholder: true,
+  },
+
+  /* ── KAJIAN SINGKAT (KS) ──────────────────────────────────────── */
+  {
+    id: 'K01',
+    no: 'KS Eksternal 2025',
+    kategori: 'Kajian Singkat',
+    judul: 'KS Eksternal: Operasi Relay Siemens & MiCOM — GITET Ciepret',
+    penulis: 'Tim ULTG Cirebon',
+    tanggal: '2025',
+    forum: 'Kajian Singkat Internal UPT Cirebon',
+    abstract: 'Kajian singkat teknis mengenai prosedur operasi relay proteksi merk Siemens (seri 7SA/7SD) dan MiCOM (Alstom/Schneider) di GITET Ciepret. Dokumen memuat prosedur komisioning, pengujian, penyetingan, dan pemeliharaan berkala relay distance, differential, dan overcurrent di GITET 500 kV.',
+    metrics: [],
+    tools: ['Siemens 7SA / 7SD', 'MiCOM Alstom', 'Relay Testing Equipment'],
+    tags: ['relay Siemens', 'MiCOM', 'GITET', 'operasi', 'kajian singkat'],
+    placeholder: true,
+  },
+  {
+    id: 'K02',
+    no: 'KS Eksternal 2025',
+    kategori: 'Kajian Singkat',
+    judul: 'KS Eksternal: Penyaluran ke PT. ITP Semen Palimanan',
+    penulis: 'Tim ULTG Cirebon',
+    tanggal: '2025',
+    forum: 'Kajian Singkat Internal UPT Cirebon',
+    abstract: 'Kajian singkat eksternal mengenai sistem penyaluran 70 kV ke PT. Indonesia Toray Plastics Semen Palimanan. Dokumen merupakan kajian lapangan pelengkap studi keandalan CoP, memuat kondisi aktual peralatan, catatan gangguan historis, dan rekomendasi tindak lanjut perbaikan keandalan.',
+    metrics: [],
+    tools: ['Site Survey', 'Data Historis Gangguan'],
+    tags: ['keandalan', 'pelanggan industri', 'kajian singkat', 'Semen Palimanan'],
+    placeholder: true,
+  },
+  {
+    id: 'K03',
+    no: 'KS 2025',
+    kategori: 'Kajian Singkat',
+    judul: 'KS VIDEOTRON MSCC — UPT Cirebon',
+    penulis: 'Tim ULTG Cirebon',
+    tanggal: '2025',
+    forum: 'Kajian Singkat Internal UPT Cirebon',
+    abstract: 'Kajian singkat mengenai videotron Media Substation Control Center (MSCC) di UPT Cirebon. Dokumen memuat analisis kebutuhan, spesifikasi teknis tampilan dashboard real-time MSCC, dan rekomendasi konten monitoring yang ditampilkan pada sistem videotron pusat kendali.',
+    metrics: [],
+    tools: ['MSCC Dashboard', 'Videotron System', 'SCADA Display'],
+    tags: ['MSCC', 'videotron', 'dashboard', 'monitoring', 'UPT Cirebon'],
+    placeholder: true,
+  },
+
+  /* ── TEKNIS / INSTRUKSI KERJA ─────────────────────────────────── */
+  {
+    id: 'T01',
+    no: 'IK 2025',
+    kategori: 'Teknis',
+    judul: 'Instruksi Kerja: Konfigurasi GOOSE & IEC 61850 — Relay NR PCS / P14D',
+    penulis: 'Tim ULTG Cirebon',
+    tanggal: '2025',
+    forum: 'Instruksi Kerja UPT Cirebon',
+    abstract: 'Panduan teknis konfigurasi komunikasi GOOSE (Generic Object Oriented Substation Event) sesuai standar IEC 61850 pada relay NR PCS (NR Electric) dan Schneider P14D. Mencakup prosedur konfigurasi IED, pemetaan dataset GOOSE, pengujian komunikasi antar-relay, dan troubleshooting.',
+    metrics: [],
+    tools: ['IEC 61850', 'GOOSE Protocol', 'NR PCS', 'P14D', 'Relay Configuration Tool'],
+    tags: ['IEC 61850', 'GOOSE', 'NR PCS', 'P14D', 'instruksi kerja'],
+    placeholder: true,
+  },
+  {
+    id: 'T02',
+    no: 'IK 2024',
+    kategori: 'Teknis',
+    judul: 'Instruksi Kerja Relay & DFR — GIS Cangkring 150 kV',
+    penulis: 'Tim ULTG Cirebon',
+    tanggal: '2024',
+    forum: 'Instruksi Kerja UPT Cirebon',
+    abstract: 'Instruksi kerja operasi dan pemeliharaan relay proteksi serta Digital Fault Recorder (DFR) di GIS Cangkring 150 kV. Dokumen mencakup prosedur komisioning awal, setting relay, pengujian rutin, pembacaan rekaman DFR, dan respon terhadap gangguan.',
+    metrics: [],
+    tools: ['DFR Digital Fault Recorder', 'Relay Tester', 'GIS 150 kV'],
+    tags: ['DFR', 'relay', 'GIS Cangkring', 'instruksi kerja', '150 kV'],
+    placeholder: true,
+  },
+  {
+    id: 'T03',
+    no: 'Teknis 2025',
+    kategori: 'Teknis',
+    judul: 'Upgrade Firmware BI Module — Sifang CSC-326 & CSC-101',
+    penulis: 'Tim ULTG Cirebon',
+    tanggal: '2024',
+    forum: 'Dokumen Teknis Internal UPT Cirebon',
+    abstract: 'Prosedur teknis upgrade firmware modul Binary Input (BI) pada relay digital Sifang CSC-326 dan CSC-101. Dokumen memuat checklist pra-upgrade, langkah-langkah instalasi firmware, pengujian pasca-upgrade, dan rollback jika terjadi kegagalan.',
+    metrics: [],
+    tools: ['Sifang CSC-326', 'Sifang CSC-101', 'Firmware Tool'],
+    tags: ['firmware', 'Sifang', 'CSC-326', 'CSC-101', 'upgrade'],
+    placeholder: true,
+  },
+];
+
+function badgeClass(k) {
+  return BADGE_CLASS[k] || 'badge-teknis';
+}
+
+function metricsHtml(m) {
+  if (!m || m.length === 0) return '';
+  return `<div class="metrics-grid">
+    ${m.map(x => `<div class="metric-item">
+      <div class="metric-value">${x.value}</div>
+      <div class="metric-label">${x.label}</div>
+      ${x.note ? `<div class="metric-note">${x.note}</div>` : ''}
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderCard(d) {
+  const div = document.createElement('div');
+  div.className = `doc-card${d.placeholder ? ' placeholder' : ''}`;
+  div.dataset.cat = d.kategori;
+  div.innerHTML = `
+    <div class="card-top">
+      <span class="badge ${badgeClass(d.kategori)}">${d.kategori}</span>
+      <span class="doc-no">${d.no}</span>
+      ${d.placeholder ? '<span class="badge-placeholder"><i class="fa-solid fa-lock-open" style="font-size:.65rem;"></i> Ringkasan</span>' : ''}
+    </div>
+    <div class="doc-title">${d.judul}</div>
+    <div class="doc-meta">
+      <span><i class="fa-solid fa-user"></i> ${d.penulis}</span>
+      <span><i class="fa-solid fa-calendar"></i> ${d.tanggal}</span>
+    </div>
+    <div class="doc-meta" style="margin-top:-6px;">
+      <span><i class="fa-solid fa-users"></i> ${d.forum}</span>
+    </div>
+    <div class="doc-abstract">${d.abstract}</div>
+    ${metricsHtml(d.metrics)}
+    <div class="card-footer">
+      ${d.tools.map(t => `<span class="tool-tag">${t}</span>`).join('')}
+    </div>
+    <div class="card-footer">
+      ${d.tags.map(t => `<span class="kw-tag">#${t}</span>`).join('')}
+    </div>
+  `;
+  return div;
+}
+
+function render(cat) {
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = '';
+
+  const filtered = cat === 'semua' ? DOCS : DOCS.filter(d => d.kategori === cat);
+
+  if (cat === 'semua') {
+    const groups = {};
+    filtered.forEach(d => {
+      (groups[d.kategori] = groups[d.kategori] || []).push(d);
+    });
+    const ORDER = ['Publikasi', 'Studi Teknis', 'Sistem Monitoring', 'Inovasi', 'Prosedur', 'Kajian Singkat', 'Teknis'];
+    ORDER.forEach(g => {
+      if (!groups[g]) return;
+      const label = document.createElement('div');
+      label.className = 'section-label';
+      const icon = { Publikasi:'fa-star', 'Studi Teknis':'fa-flask-vial', 'Sistem Monitoring':'fa-desktop', Inovasi:'fa-lightbulb', Prosedur:'fa-list-check', 'Kajian Singkat':'fa-magnifying-glass', Teknis:'fa-screwdriver-wrench' }[g] || 'fa-file';
+      label.innerHTML = `<i class="fa-solid ${icon}"></i> ${g}`;
+      grid.appendChild(label);
+      groups[g].forEach(d => grid.appendChild(renderCard(d)));
+    });
+  } else {
+    filtered.forEach(d => grid.appendChild(renderCard(d)));
+  }
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render(btn.dataset.cat);
+  });
+});
+
+render('semua');
+</script>
+</body>
+</html>
