@@ -51,7 +51,7 @@ SELECT
   d.`id`,
   'proteksi-transmisi',
   'prottrans2024',
-  'Studi Proteksi Sistem Transmisi',
+  'Studi Proteksi Sistem Tenaga Listrik',
   '/modules/energi-jabar/proteksi-transmisi/',
   'internal',
   'aktif',

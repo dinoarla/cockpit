@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Studi Proteksi Sistem Transmisi — COCKPIT</title>
+  <title>Studi Proteksi Sistem Tenaga Listrik — COCKPIT</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -15,12 +15,12 @@
     .header-meta{display:flex;gap:20px;margin-top:14px;flex-wrap:wrap;position:relative;z-index:1}
     .header-meta-item{display:flex;align-items:center;gap:6px;font-size:.8rem;color:rgba(255,255,255,.85)}
     .stat-bar{display:flex;flex-wrap:wrap;gap:1px;background:#E2E8F0;border-bottom:1px solid #E2E8F0}
-    .stat-item{flex:1 1 140px;background:#fff;padding:14px 20px;text-align:center}
-    .stat-item .sv{font-size:1.6rem;font-weight:700;color:#1D4ED8;line-height:1.1}
-    .stat-item .sl{font-size:.72rem;color:#64748B;margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
+    .stat-item{flex:1 1 120px;background:#fff;padding:14px 16px;text-align:center}
+    .stat-item .sv{font-size:1.5rem;font-weight:700;color:#1D4ED8;line-height:1.1}
+    .stat-item .sl{font-size:.7rem;color:#64748B;margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
     .main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
     .filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;align-items:center}
-    .filter-btn{padding:6px 16px;border-radius:20px;border:1.5px solid #CBD5E1;background:#fff;color:#475569;font-size:.82rem;cursor:pointer;font-weight:500;transition:all .15s}
+    .filter-btn{padding:6px 14px;border-radius:20px;border:1.5px solid #CBD5E1;background:#fff;color:#475569;font-size:.8rem;cursor:pointer;font-weight:500;transition:all .15s}
     .filter-btn:hover{border-color:#1D4ED8;color:#1D4ED8}
     .filter-btn.active{background:#1D4ED8;border-color:#1D4ED8;color:#fff}
     .filter-label{font-size:.8rem;color:#64748B;margin-right:4px}
@@ -28,36 +28,44 @@
     @media(max-width:520px){.card-grid{grid-template-columns:1fr}}
     .doc-card{background:#fff;border-radius:12px;border:1px solid #E2E8F0;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:20px;display:flex;flex-direction:column;gap:12px;transition:box-shadow .15s,transform .12s}
     .doc-card:hover{box-shadow:0 4px 16px rgba(29,78,216,.12);transform:translateY(-2px)}
-    .doc-card.db-card{grid-column:1/-1}
+    .doc-card.placeholder{opacity:.85}
     .card-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:.72rem;font-weight:600;letter-spacing:.03em}
-    .badge-pub    {background:#FFF1F2;color:#BE123C}
-    .badge-std    {background:#FAF5FF;color:#7C3AED}
-    .badge-db     {background:#F0FDF4;color:#166534}
-    .badge-draft  {background:#FFF7ED;color:#C2410C}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:.72rem;font-weight:600}
+    .b-pub   {background:#FFF1F2;color:#BE123C}
+    .b-cop-t {background:#EFF6FF;color:#1D4ED8}
+    .b-cop-m {background:#ECFDF5;color:#059669}
+    .b-cop-i {background:#FFF7ED;color:#C2410C}
+    .b-cop-p {background:#FAF5FF;color:#7C3AED}
+    .b-std   {background:#F0F9FF;color:#0369A1}
+    .b-ks    {background:#F0FDF4;color:#166534}
+    .b-ik    {background:#F8FAFC;color:#475569;border:1px solid #E2E8F0}
+    .b-db    {background:#ECFDF5;color:#059669}
+    .b-ph    {background:#F8FAFC;color:#94A3B8;border:1px solid #E2E8F0;font-size:.68rem}
     .doc-no{font-size:.72rem;color:#94A3B8;background:#F8FAFC;padding:3px 8px;border-radius:6px;border:1px solid #E2E8F0}
     .doc-title{font-size:.97rem;font-weight:700;color:#1E293B;line-height:1.4}
-    .doc-meta{font-size:.77rem;color:#64748B;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+    .doc-meta{font-size:.77rem;color:#64748B;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
     .doc-meta i{color:#94A3B8}
     .doc-abstract{font-size:.83rem;color:#475569;line-height:1.6}
     .metrics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-    .metric-item{background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;padding:10px 12px}
-    .metric-value{font-size:.97rem;font-weight:700;color:#1D4ED8}
-    .metric-label{font-size:.72rem;color:#64748B;margin-top:2px}
-    .metric-note{font-size:.68rem;color:#94A3B8;margin-top:1px}
-    .card-footer{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-    .tool-tag{font-size:.7rem;color:#1D4ED8;background:#EFF6FF;padding:3px 8px;border-radius:6px;font-weight:500}
-    .kw-tag{font-size:.7rem;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px}
+    .mi{background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;padding:10px 12px}
+    .mv{font-size:.95rem;font-weight:700;color:#1D4ED8}
+    .ml{font-size:.72rem;color:#64748B;margin-top:2px}
+    .mn{font-size:.68rem;color:#94A3B8;margin-top:1px}
+    .card-footer{display:flex;gap:6px;flex-wrap:wrap}
+    .tt{font-size:.7rem;color:#1D4ED8;background:#EFF6FF;padding:3px 8px;border-radius:6px;font-weight:500}
+    .kt{font-size:.7rem;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px}
     .section-label{font-size:.78rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.07em;grid-column:1/-1;margin-top:8px;margin-bottom:-4px;display:flex;align-items:center;gap:8px}
     .section-label::after{content:'';flex:1;height:1px;background:#E2E8F0}
-    /* Database card special */
-    .db-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:4px}
+    /* Database card */
+    .db-card{grid-column:1/-1;background:#fff;border-radius:12px;border:1px solid #E2E8F0;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:20px;display:flex;flex-direction:column;gap:14px;transition:box-shadow .15s}
+    .db-card:hover{box-shadow:0 4px 16px rgba(29,78,216,.12)}
+    .db-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
     .db-item{background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0;padding:14px 16px}
-    .db-item-icon{font-size:1.4rem;color:#1D4ED8;margin-bottom:8px}
-    .db-item-title{font-size:.83rem;font-weight:700;color:#1E293B;margin-bottom:4px}
-    .db-item-count{font-size:1.3rem;font-weight:700;color:#1D4ED8;margin-bottom:2px}
-    .db-item-desc{font-size:.73rem;color:#64748B;line-height:1.5}
-    .file-list{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+    .db-icon{font-size:1.4rem;color:#1D4ED8;margin-bottom:8px}
+    .db-title{font-size:.83rem;font-weight:700;color:#1E293B;margin-bottom:4px}
+    .db-count{font-size:1.3rem;font-weight:700;color:#1D4ED8;margin-bottom:2px}
+    .db-desc{font-size:.73rem;color:#64748B;line-height:1.5}
+    .file-list{display:flex;flex-direction:column;gap:4px}
     .file-row{font-size:.77rem;color:#475569;display:flex;align-items:center;gap:8px;padding:5px 8px;background:#F8FAFC;border-radius:6px}
     .file-row i{color:#94A3B8;width:14px;flex-shrink:0}
     .about-panel{background:#fff;border-radius:12px;border:1px solid #E2E8F0;padding:28px 32px;margin-top:32px}
@@ -67,217 +75,360 @@
 </head>
 <body>
 <div class="mod-header">
-  <h1><i class="fa-solid fa-shield-halved" style="margin-right:8px"></i>Studi Proteksi Sistem Transmisi</h1>
-  <div class="subtitle">Arc Flash, Digital Substation, Standar Terminal Relay, &amp; Database Proteksi Petir — UIT JBT / ULTG Cirebon</div>
+  <h1><i class="fa-solid fa-shield-halved" style="margin-right:8px"></i>Studi Proteksi Sistem Tenaga Listrik</h1>
+  <div class="subtitle">CoP ULTG Cirebon 2025 · ICT-PEP PLN 2026 · Pedoman DSS & Standar UIT JBT · Database Proteksi Petir</div>
   <div class="header-meta">
     <div class="header-meta-item"><i class="fa-solid fa-building"></i> UIT Jawa Bagian Tengah &amp; ULTG Cirebon</div>
-    <div class="header-meta-item"><i class="fa-solid fa-calendar-days"></i> 2018 – 2024</div>
-    <div class="header-meta-item"><i class="fa-solid fa-file-lines"></i> 3 Dokumen + 1 Database</div>
+    <div class="header-meta-item"><i class="fa-solid fa-calendar-days"></i> 2018 – 2026</div>
+    <div class="header-meta-item"><i class="fa-solid fa-file-lines"></i> 19 Dokumen + 1 Database</div>
   </div>
 </div>
 <div class="stat-bar">
-  <div class="stat-item"><div class="sv">1</div><div class="sl">Publikasi Ilmiah</div></div>
+  <div class="stat-item"><div class="sv">2</div><div class="sl">Publikasi Ilmiah</div></div>
+  <div class="stat-item"><div class="sv">9</div><div class="sl">Community of Practice</div></div>
   <div class="stat-item"><div class="sv">2</div><div class="sl">Standar & Pedoman</div></div>
-  <div class="stat-item"><div class="sv">200+</div><div class="sl">File Data Proteksi Petir</div></div>
-  <div class="stat-item"><div class="sv">4</div><div class="sl">Kategori Data Petir</div></div>
+  <div class="stat-item"><div class="sv">3</div><div class="sl">Kajian Singkat</div></div>
+  <div class="stat-item"><div class="sv">3</div><div class="sl">Instruksi Kerja</div></div>
+  <div class="stat-item"><div class="sv">200+</div><div class="sl">File Data Petir</div></div>
 </div>
 
 <div class="main">
   <div class="filter-bar">
-    <span class="filter-label"><i class="fa-solid fa-filter"></i> Kategori:</span>
+    <span class="filter-label"><i class="fa-solid fa-filter"></i></span>
     <button class="filter-btn active" data-cat="semua">Semua</button>
-    <button class="filter-btn" data-cat="Publikasi">Publikasi Ilmiah</button>
-    <button class="filter-btn" data-cat="Standar">Standar & Pedoman</button>
+    <button class="filter-btn" data-cat="Publikasi">Publikasi</button>
+    <button class="filter-btn" data-cat="CoP">Community of Practice</button>
+    <button class="filter-btn" data-cat="Standar &amp; Pedoman">Standar &amp; Pedoman</button>
+    <button class="filter-btn" data-cat="Kajian Singkat">Kajian Singkat</button>
+    <button class="filter-btn" data-cat="Teknis / IK">Teknis / IK</button>
     <button class="filter-btn" data-cat="Database">Database</button>
   </div>
-
-  <div class="card-grid" id="cardGrid">
-
-    <div class="section-label"><i class="fa-solid fa-star"></i> Publikasi Ilmiah</div>
-
-    <div class="doc-card" data-cat="Publikasi">
-      <div class="card-top">
-        <span class="badge badge-pub">Publikasi Ilmiah</span>
-        <span class="doc-no">IV.01.201806 · SinarFE7</span>
-      </div>
-      <div class="doc-title">Studi Analisis Arc Flash pada Sistem Kelistrikan PT. SC Johnson and Son Indonesia – Jakarta</div>
-      <div class="doc-meta">
-        <span><i class="fa-solid fa-user"></i> Reza Wahyu Firdaus, Machmud Effendy, Diding Suhardi</span>
-        <span><i class="fa-solid fa-calendar"></i> 25 Juni 2018</span>
-      </div>
-      <div class="doc-meta" style="margin-top:-4px">
-        <span><i class="fa-solid fa-graduation-cap"></i> Jurusan Teknik Elektro, Universitas Muhammadiyah Malang</span>
-      </div>
-      <div class="doc-meta" style="margin-top:-4px">
-        <span><i class="fa-solid fa-newspaper"></i> Seminar Nasional Fortei Regional 7 (SinarFE7) — ISSN Print: 2621-3540 · Online: 2621-5551</span>
-      </div>
-      <div class="doc-abstract">
-        Jurnal ilmiah yang dipresentasikan di Seminar Nasional Fortei Regional 7 (SinarFE7). Studi analisis arc flash merupakan bagian dari safety dan elemen keselamatan kerja yang bertujuan memberikan perlindungan terhadap potensi bahaya di tempat kerja. Analisis dilakukan secara berkala untuk menentukan level minimum Personal Protective Equipment (PPE) yang harus digunakan pekerja saat bekerja pada peralatan kelistrikan dalam kondisi energized. Studi menentukan: (a) nilai incident energy yang berpotensi ada selama peristiwa arc flash, (b) arc flash boundary berdasarkan kategori besaran energy, (c) PPE yang diperlukan berdasarkan NFPA 70E. Merupakan publikasi awal Reza Wahyu Firdaus (kini di ULTG Cirebon) saat masih mahasiswa S1 di UMM.
-      </div>
-      <div class="metrics-grid">
-        <div class="metric-item"><div class="metric-value">NFPA 70E</div><div class="metric-label">Standar Acuan</div><div class="metric-note">Penentuan PPE & Flash Boundary</div></div>
-        <div class="metric-item"><div class="metric-value">35.000°F</div><div class="metric-label">Suhu Max Arc Flash</div><div class="metric-note">> 19.000°C, radiasi + ledakan</div></div>
-        <div class="metric-item"><div class="metric-value">PT. SC Johnson</div><div class="metric-label">Objek Studi</div><div class="metric-note">Sistem kelistrikan industri, Jakarta</div></div>
-        <div class="metric-item"><div class="metric-value">Incident Energy</div><div class="metric-label">Keluaran Analisis</div><div class="metric-note">+ Flash Protection Boundary</div></div>
-      </div>
-      <div class="card-footer">
-        <span class="tool-tag">NFPA 70E</span><span class="tool-tag">Arc Flash Analysis</span><span class="tool-tag">PPE Determination</span><span class="tool-tag">Flash Protection Boundary</span>
-      </div>
-      <div class="card-footer">
-        <span class="kw-tag">#arc flash</span><span class="kw-tag">#keselamatan kerja</span><span class="kw-tag">#PPE</span><span class="kw-tag">#NFPA 70E</span><span class="kw-tag">#jurnal SinarFE7</span>
-      </div>
-    </div>
-
-    <div class="section-label"><i class="fa-solid fa-scale-balanced"></i> Standar & Pedoman</div>
-
-    <div class="doc-card" data-cat="Standar">
-      <div class="card-top">
-        <span class="badge badge-draft">Draft Standar</span>
-        <span class="doc-no">0004.DOK/LAP/HAR/UITJBT/2024</span>
-      </div>
-      <div class="doc-title">Buku Standar Terminal Relai Proteksi dan Test Block (BIBO) 2024</div>
-      <div class="doc-meta">
-        <span><i class="fa-solid fa-building"></i> PT PLN (Persero) UIT Jawa Bagian Tengah — Bidang Pemeliharaan Transmisi</span>
-        <span><i class="fa-solid fa-calendar"></i> April 2024 (Berlaku Efektif)</span>
-      </div>
-      <div class="doc-abstract">
-        Draft buku standar konfigurasi terminal relai proteksi dan test block (perangkat pengujian relay tanpa memutus sirkuit sekunder) untuk keseragaman pemeliharaan di seluruh lingkup UIT Jawa Bagian Tengah. Dokumen ini menstandardisasi penomoran terminal, wiring, dan prosedur penggunaan test block pada berbagai tipe relay proteksi yang terpasang di GI/GITET UIT JBT, guna memudahkan pengujian, komisioning, dan pemeliharaan berkala.
-      </div>
-      <div class="metrics-grid">
-        <div class="metric-item"><div class="metric-value">Edisi 01</div><div class="metric-label">Versi Dokumen</div><div class="metric-note">Revisi 00, Draft</div></div>
-        <div class="metric-item"><div class="metric-value">April 2024</div><div class="metric-label">Berlaku Efektif</div><div class="metric-note">UIT Jawa Bagian Tengah</div></div>
-        <div class="metric-item"><div class="metric-value">Terminal Relay</div><div class="metric-label">Cakupan Standar</div><div class="metric-note">+ Test Block configuration</div></div>
-        <div class="metric-item"><div class="metric-value">Har. Transmisi</div><div class="metric-label">Bidang Penerbit</div><div class="metric-note">Pemeliharaan Transmisi UIT JBT</div></div>
-      </div>
-      <div class="card-footer">
-        <span class="tool-tag">Terminal Block Standard</span><span class="tool-tag">Test Block</span><span class="tool-tag">Relay Protection</span><span class="tool-tag">Commissioning</span>
-      </div>
-      <div class="card-footer">
-        <span class="kw-tag">#terminal relay</span><span class="kw-tag">#test block</span><span class="kw-tag">#standar pemeliharaan</span><span class="kw-tag">#UIT JBT</span><span class="kw-tag">#BIBO</span>
-      </div>
-    </div>
-
-    <div class="doc-card" data-cat="Standar">
-      <div class="card-top">
-        <span class="badge badge-std">Pedoman Nasional</span>
-        <span class="doc-no">PLN Direktorat Transmisi, Juli 2024</span>
-      </div>
-      <div class="doc-title">Pedoman Desain dan Arsitektur Pembangunan Digital Substation (DSS) 2024</div>
-      <div class="doc-meta">
-        <span><i class="fa-solid fa-building"></i> PLN — Direktorat Transmisi &amp; Perencanaan Sistem</span>
-        <span><i class="fa-solid fa-calendar"></i> Juli 2024</span>
-      </div>
-      <div class="doc-meta" style="margin-top:-4px">
-        <span><i class="fa-solid fa-user"></i> EVP DIV TSJ: Eko Yudo Pramono | EVP DIV TKS: Erwin Ansori</span>
-      </div>
-      <div class="doc-abstract">
-        Pedoman nasional bagi Unit Induk Transmisi (UIT), Unit Induk Penyaluran dan Pengatur Beban (UIP3B), serta Unit Induk Wilayah (UIW) dalam pengadaan dan pembangunan Digital Substation (DSS). Dokumen menetapkan standar komprehensif meliputi: Kriteria Pabrikan, Sertifikasi, Performance dan Pengalaman Operasi, Arsitektur Jaringan dan Peralatan, Approval dan As Built Drawing, Pengujian, Supply, Konstruksi Outdoor, Retrofit, Komunikasi Peralatan Pengatur Beban, Cyber Security, Training DSS Engineer, Material Cadang, serta Arsitektur Umum Digital Substation dan Detail Arsitektur Sistem Kontrol dan Proteksi.
-      </div>
-      <div class="metrics-grid">
-        <div class="metric-item"><div class="metric-value">Nasional</div><div class="metric-label">Cakupan Berlaku</div><div class="metric-note">UIT, UIP3B, UIW seluruh Indonesia</div></div>
-        <div class="metric-item"><div class="metric-value">Juli 2024</div><div class="metric-label">Terbit</div><div class="metric-note">Div. Transmisi Sumjamali + Kalsulmapana</div></div>
-        <div class="metric-item"><div class="metric-value">IEC 61850</div><div class="metric-label">Standar Komunikasi</div><div class="metric-note">GOOSE, MMS, Sampled Values</div></div>
-        <div class="metric-item"><div class="metric-value">Cyber Security</div><div class="metric-label">Kriteria Khusus</div><div class="metric-note">+ Firmware management</div></div>
-      </div>
-      <div style="font-size:.81rem;font-weight:600;color:#475569;margin-top:2px">Kriteria yang dicakup:</div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">
-        <span style="font-size:.72rem;background:#F1F5F9;color:#475569;padding:3px 8px;border-radius:6px">Pabrikan & Sertifikasi</span>
-        <span style="font-size:.72rem;background:#F1F5F9;color:#475569;padding:3px 8px;border-radius:6px">Arsitektur Jaringan</span>
-        <span style="font-size:.72rem;background:#F1F5F9;color:#475569;padding:3px 8px;border-radius:6px">Pengujian & Komisioning</span>
-        <span style="font-size:.72rem;background:#F1F5F9;color:#475569;padding:3px 8px;border-radius:6px">Retrofit</span>
-        <span style="font-size:.72rem;background:#F1F5F9;color:#475569;padding:3px 8px;border-radius:6px">Cyber Security</span>
-        <span style="font-size:.72rem;background:#F1F5F9;color:#475569;padding:3px 8px;border-radius:6px">Training DSS Engineer</span>
-        <span style="font-size:.72rem;background:#F1F5F9;color:#475569;padding:3px 8px;border-radius:6px">Material Cadang</span>
-        <span style="font-size:.72rem;background:#F1F5F9;color:#475569;padding:3px 8px;border-radius:6px">As Built Drawing</span>
-      </div>
-      <div class="card-footer" style="margin-top:4px">
-        <span class="tool-tag">IEC 61850</span><span class="tool-tag">Digital Substation</span><span class="tool-tag">GOOSE Protocol</span><span class="tool-tag">Cyber Security</span><span class="tool-tag">SCADA Integration</span>
-      </div>
-      <div class="card-footer">
-        <span class="kw-tag">#digital substation</span><span class="kw-tag">#DSS</span><span class="kw-tag">#IEC 61850</span><span class="kw-tag">#arsitektur GI</span><span class="kw-tag">#standar nasional</span>
-      </div>
-    </div>
-
-    <div class="section-label"><i class="fa-solid fa-database"></i> Database Proteksi Petir</div>
-
-    <div class="doc-card db-card" data-cat="Database">
-      <div class="card-top">
-        <span class="badge badge-db">Database Teknis</span>
-        <span class="doc-no">ULTG Cirebon, 2019–2024</span>
-      </div>
-      <div class="doc-title">Database Proteksi Petir ULTG Cirebon</div>
-      <div class="doc-meta">
-        <span><i class="fa-solid fa-building"></i> PT PLN (Persero) ULTG Cirebon</span>
-        <span><i class="fa-solid fa-calendar"></i> 2019–2024 (multi-periode)</span>
-        <span><i class="fa-solid fa-folder-open"></i> 200+ file (Excel, PDF, DWG)</span>
-      </div>
-      <div class="doc-abstract">Kumpulan data teknis proteksi petir di wilayah ULTG Cirebon, mencakup desain pentanahan, data pengukuran impedansi tanah (counterpoise), pemeriksaan proteksi petir (PSPT), dan data IGSW (Instalasi Ground Shield Wire). Merupakan basis data referensi untuk evaluasi dan peningkatan sistem proteksi petir pada jaringan transmisi ULTG Cirebon.</div>
-      <div class="db-grid">
-        <div class="db-item">
-          <div class="db-item-icon"><i class="fa-solid fa-bolt"></i></div>
-          <div class="db-item-title">Data PSPT</div>
-          <div class="db-item-count">102 file</div>
-          <div class="db-item-desc">Pemeriksaan Sistem Proteksi Petir — data per tower/line, nilai impedansi pentanahan, dan hasil inspeksi berkala</div>
-        </div>
-        <div class="db-item">
-          <div class="db-item-icon"><i class="fa-solid fa-table-cells"></i></div>
-          <div class="db-item-title">Data Counterpoise</div>
-          <div class="db-item-count">79 file</div>
-          <div class="db-item-desc">Data desain dan pengukuran kawat counterpoise per tower SUTT/SUTET, termasuk gambar teknis desain pemasangan</div>
-        </div>
-        <div class="db-item">
-          <div class="db-item-icon"><i class="fa-solid fa-shield-halved"></i></div>
-          <div class="db-item-title">Data IGSW</div>
-          <div class="db-item-count">17 file</div>
-          <div class="db-item-desc">Instalasi Ground Shield Wire — data per gardu induk, drawing tower IGSW-HV-2019-JBT, dan dokumen teknis terkait</div>
-        </div>
-        <div class="db-item">
-          <div class="db-item-icon"><i class="fa-solid fa-file-excel"></i></div>
-          <div class="db-item-title">Data Pentanahan & Rekap</div>
-          <div class="db-item-count">6 file utama</div>
-          <div class="db-item-desc">Rekap Gangguan Petir, data Pentanahan GI, Proteksi Petir ULTG Cirebon, Perhitungan Flashover Insulator, Harga Satuan Ground Rod</div>
-        </div>
-      </div>
-      <div style="font-size:.82rem;font-weight:600;color:#475569;margin-top:8px">Dokumen standar referensi yang disertakan:</div>
-      <div class="file-list">
-        <div class="file-row"><i class="fa-solid fa-file-pdf"></i>SPLN T5.012:2020 — Pembumian pada Gardu Induk dan Jaringan Transmisi</div>
-        <div class="file-row"><i class="fa-solid fa-file-pdf"></i>Approval Drawing Counter Poise (2021)</div>
-        <div class="file-row"><i class="fa-solid fa-file-pdf"></i>Basic Drawing Tower IGSW-HV-2019-JBT</div>
-        <div class="file-row"><i class="fa-solid fa-file-pdf"></i>Desain Counter Poise &amp; Desain Ground Rod (ULTG Cirebon, 2021)</div>
-        <div class="file-row"><i class="fa-solid fa-file-pdf"></i>IIGWS_290420 — dokumen standar IGSW</div>
-      </div>
-      <div class="card-footer" style="margin-top:4px">
-        <span class="tool-tag">Lightning Protection</span><span class="tool-tag">Grounding / Earthing</span><span class="tool-tag">Counterpoise</span><span class="tool-tag">IGSW</span><span class="tool-tag">SPLN T5.012</span>
-      </div>
-      <div class="card-footer">
-        <span class="kw-tag">#proteksi petir</span><span class="kw-tag">#PSPT</span><span class="kw-tag">#counterpoise</span><span class="kw-tag">#IGSW</span><span class="kw-tag">#pentanahan</span><span class="kw-tag">#ULTG Cirebon</span>
-      </div>
-    </div>
-
-  </div>
-
+  <div class="card-grid" id="cardGrid"></div>
   <div class="about-panel">
     <h2><i class="fa-solid fa-circle-info" style="margin-right:6px"></i>Tentang Modul</h2>
-    <p>Modul ini berisi dokumen teknis proteksi sistem transmisi dari dua organisasi: UIT Jawa Bagian Tengah (standar pemeliharaan dan pedoman digital substation) dan ULTG Cirebon (database proteksi petir dan publikasi arc flash). Cakupan topik: arc flash analysis, standardisasi terminal relay & test block, arsitektur Digital Substation (IEC 61850), dan database sistem proteksi petir (PSPT, IGSW, counterpoise, pentanahan).</p>
-    <p><strong>Digital Substation (DSS)</strong> adalah evolusi gardu induk konvensional menuju sistem berbasis IEC 61850 dengan komunikasi GOOSE, pengukuran digital (Sampled Values), dan integrasi cyber security — topik yang semakin relevan seiring modernisasi GI baru di lingkup UIT JBT (GIS Cangkring, GI New Arjawinangun, GI Mandiracan).</p>
-    <p><strong>Database Proteksi Petir ULTG Cirebon</strong> merupakan kumpulan data lapangan multi-tahun yang menjadi basis evaluasi efektivitas sistem proteksi petir dan dasar studi-studi seperti penelitian EGLA SUTT 70 kV Parakan–Kadipaten (lihat modul egla-pkdn).</p>
+    <p>Modul ini merupakan repositori terpadu dokumen teknis proteksi sistem tenaga listrik yang dikembangkan oleh PT PLN (Persero) ULTG Cirebon dan UIT Jawa Bagian Tengah. Cakupannya meliputi: publikasi ilmiah (ICT-PEP PLN 2026 & SinarFE7 2018), Community of Practice (CoP) ULTG Cirebon 2025, pedoman Digital Substation & standar terminal relay nasional UIT JBT, kajian singkat internal, instruksi kerja, dan database proteksi petir lapangan.</p>
+    <p><strong>Penulis utama CoP:</strong> Reza Wahyu Firdaus (PT PLN (Persero) ULTG Cirebon). <strong>Cakupan GI:</strong> Sunyaragi, Mandiracan, Kadipaten, Arjawinangun, Kanci, GITET Cangkring, dan jalur SUTT/SUTET terkait di wilayah UPT Cirebon.</p>
+    <p><strong>Database Proteksi Petir</strong> merupakan kumpulan data lapangan multi-tahun yang menjadi basis evaluasi sistem proteksi petir dan dasar penelitian EGLA (lihat juga modul <em>egla-pkdn</em>).</p>
   </div>
 </div>
 
 <script>
-document.querySelectorAll('.filter-btn').forEach(b => {
-  b.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    const cat = b.dataset.cat;
-    document.querySelectorAll('.doc-card').forEach(c => {
-      c.style.display = cat === 'semua' || c.dataset.cat === cat ? '' : 'none';
+const CAT_BADGE = {
+  'Publikasi':        'b-pub',
+  'CoP: Studi Teknis':'b-cop-t',
+  'CoP: Monitoring':  'b-cop-m',
+  'CoP: Inovasi':     'b-cop-i',
+  'CoP: Prosedur':    'b-cop-p',
+  'Standar & Pedoman':'b-std',
+  'Kajian Singkat':   'b-ks',
+  'Teknis / IK':      'b-ik',
+  'Database':         'b-db',
+};
+const CAT_FILTER = {
+  'Publikasi':        'Publikasi',
+  'CoP: Studi Teknis':'CoP',
+  'CoP: Monitoring':  'CoP',
+  'CoP: Inovasi':     'CoP',
+  'CoP: Prosedur':    'CoP',
+  'Standar & Pedoman':'Standar & Pedoman',
+  'Kajian Singkat':   'Kajian Singkat',
+  'Teknis / IK':      'Teknis / IK',
+  'Database':         'Database',
+};
+const DOCS = [
+  /* ── PUBLIKASI ──────────────────────────────────────────── */
+  {no:'ICT-PEP PLN 2026',kat:'Publikasi',
+   judul:'Particle Swarm Optimization of Air Gap Distance for EGLA on High Isokeraunic 70 kV Transmission Line',
+   penulis:'Reza Wahyu Firdaus, et al.',tanggal:'Juni 2026',
+   forum:'Conference on ICT for Power, Energy and Environment — ICT-PEP PLN 2026',
+   abstract:'Makalah ilmiah yang mengoptimasi celah udara (air gap) EGLA pada SUTT 70 kV berisokeraunik tinggi menggunakan algoritma Particle Swarm Optimization (PSO), berbasis data pengukuran kilat lapangan Vaisala FALLS® (2020–2025). Hasil optimasi memberikan parameter EGLA optimal secara teknis dan ekonomis, sekaligus memvalidasi model simulasi EMTP-CIGRE LPM dengan data lapangan nyata.',
+   metrics:[
+     {v:'PSO Algorithm',l:'Metode Optimasi',n:'Particle Swarm Optimization'},
+     {v:'SUTT 70 kV',l:'Objek Studi',n:'Parakan–Kadipaten, Jawa Barat'},
+     {v:'2020–2025',l:'Data Petir Vaisala',n:'FALLS® field-measured'},
+     {v:'ICT-PEP 2026',l:'Forum Publikasi',n:'Konferensi Nasional PLN'},
+   ],tools:['PSO Algorithm','EMTP-ATPDraw','Vaisala FALLS®','CIGRE LPM'],
+   tags:['EGLA','PSO','optimasi','petir','ICT-PEP 2026'],ph:false},
+
+  {no:'IV.01.201806 · SinarFE7',kat:'Publikasi',
+   judul:'Studi Analisis Arc Flash pada Sistem Kelistrikan PT. SC Johnson and Son Indonesia – Jakarta',
+   penulis:'Reza Wahyu Firdaus, Machmud Effendy, Diding Suhardi',tanggal:'25 Juni 2018',
+   forum:'Seminar Nasional Fortei Regional 7 (SinarFE7) · ISSN 2621-3540 / 2621-5551 — Univ. Muhammadiyah Malang',
+   abstract:'Jurnal ilmiah SinarFE7 tentang studi analisis arc flash pada sistem kelistrikan industri PT. SC Johnson and Son Indonesia. Tujuan: menentukan incident energy, arc flash boundary, dan Personal Protective Equipment (PPE) minimum berdasarkan NFPA 70E. Merupakan publikasi awal Reza Wahyu Firdaus saat masih mahasiswa S1 Teknik Elektro UMM (kini di ULTG Cirebon).',
+   metrics:[
+     {v:'NFPA 70E',l:'Standar Acuan',n:'Flash boundary & PPE determination'},
+     {v:'35.000°F',l:'Suhu Max Arc Flash',n:'> 19.000°C, radiasi + blast'},
+     {v:'PT. SC Johnson',l:'Objek Studi',n:'Sistem kelistrikan industri Jakarta'},
+     {v:'Incident Energy',l:'Keluaran Analisis',n:'+ Flash Protection Boundary'},
+   ],tools:['NFPA 70E','Arc Flash Analysis','PPE Determination'],
+   tags:['arc flash','keselamatan kerja','PPE','NFPA 70E','SinarFE7'],ph:false},
+
+  /* ── CoP: STUDI TEKNIS ───────────────────────────────────── */
+  {no:'IV.37.202511',kat:'CoP: Studi Teknis',
+   judul:'Studi Implementasi EGLA SUTT 70 kV Parakan–Kadipaten',
+   penulis:'Reza Wahyu Firdaus',tanggal:'November 2025',
+   forum:'CoP ULTG Cirebon, Semester II-2025',
+   abstract:'Evaluasi efektivitas implementasi Externally Gapped Line Arrester (EGLA) pada SUTT 70 kV Parakan–Kadipaten sebagai proteksi gangguan petir. Simulasi EMTP-ATPDraw membuktikan celah udara 340 mm mampu menekan tegangan surja dari 816 kV menjadi 209,6 kV — di bawah BIL isolator 610 kV (tidak flashover). Validasi: nol gangguan petir sejak pemasangan EGLA 2023, turun dari 6 kali gangguan pada 2022.',
+   metrics:[
+     {v:'340 mm',l:'Celah Udara EGLA',n:'Gap from line, by design'},
+     {v:'209,6 kV',l:'Tegangan Sisa',n:'Dari 816 kV (simulasi EMTP)'},
+     {v:'610 kV',l:'BIL Isolator',n:'Aman — tidak terjadi flashover'},
+     {v:'6 → 0',l:'Gangguan Petir',n:'Sebelum / sesudah 2023'},
+   ],tools:['EMTP-ATPDraw','Vaisala FALLS®','CIGRE Leader Progression Model'],
+   tags:['EGLA','proteksi petir','SUTT 70 kV','surge arrester'],ph:false},
+
+  {no:'IV.39.202511',kat:'CoP: Studi Teknis',
+   judul:'Studi Keandalan Penyaluran ke PT. ITP Semen Palimanan',
+   penulis:'Reza Wahyu Firdaus',tanggal:'November 2025',
+   forum:'CoP ULTG Cirebon, Semester II-2025',
+   abstract:'Analisis keandalan sistem penyaluran 70 kV ke PT. Indonesia Toray Plastics Semen Palimanan melalui SUTT 70 kV Sunyaragi–Arjawinangun–Semen. Simulasi aliran daya dan hubung singkat (3 fasa & L-G, Zf = 20 Ω busur monyet) menggunakan ETAP 22.0. Gangguan Force Majeure 2023 mengakibatkan padamnya pasokan selama 206 jam dengan kerugian produksi 23.562 ton semen.',
+   metrics:[
+     {v:'4.087 kA',l:'Arus HS 3 Fasa',n:'Bus SEMEN4, 70 kV'},
+     {v:'1.481 kA',l:'Arus HS L-G',n:'Zf = 20 Ω (busur monyet)'},
+     {v:'206 jam',l:'Lama Padam FM 2023',n:'23.562 ton loss produksi'},
+     {v:'73,27%',l:'Voltage Dip L-G',n:'Tegangan turun saat gangguan HS'},
+   ],tools:['ETAP 22.0','Short Circuit Analysis','Load Flow'],
+   tags:['keandalan','hubung singkat','industri','SUTT 70 kV'],ph:false},
+
+  {no:'IV.2025',kat:'CoP: Studi Teknis',
+   judul:'Studi Transien BFO SUTET Mandiracan–Indramayu 1 (T.71)',
+   penulis:'Reza Wahyu Firdaus',tanggal:'2025',
+   forum:'CoP ULTG Cirebon, 2025',
+   abstract:'Simulasi dan analisis transien Breaker Failure Operation (BFO) pada penghantar SUTET Mandiracan–Indramayu 1 (T.71). Studi mengevaluasi respons sistem proteksi terhadap kondisi kegagalan PMT dan pengaruh surja tegangan transien terhadap isolasi peralatan di GI Mandiracan dan GI Indramayu. Menjadi dasar evaluasi setting waktu backup dan koordinasi proteksi.',
+   metrics:[],tools:['EMTP / PSCAD','Transient Analysis','Protection Coordination'],
+   tags:['BFO','transien','SUTET','PMT','proteksi backup'],ph:true},
+
+  /* ── CoP: MONITORING ─────────────────────────────────────── */
+  {no:'IV.32.202507',kat:'CoP: Monitoring',
+   judul:'Sistem Monitoring Anomali Gardu Induk ULTG Cirebon',
+   penulis:'Reza Wahyu Firdaus',tanggal:'Juli 2025',
+   forum:'CoP ULTG Cirebon, Semester II-2025',
+   abstract:'Dashboard terpadu berbasis laporan Kamis Inspeksi untuk monitoring anomali aset GI/GITET di lingkup ULTG Cirebon. Mencakup 10 GI dengan klasifikasi anomali (Primary, Secondary, Transmisi), visualisasi tren penyelesaian bulanan, geomap populasi anomali, dan monitoring pending item aset GI baru (GIS Cangkring, GI New Arjawinangun, GI Mandiracan).',
+   metrics:[
+     {v:'178',l:'Total Anomali 2025',n:'Per November 2025'},
+     {v:'92 (51,7%)',l:'Diselesaikan',n:'Dari total 178 anomali'},
+     {v:'10 GI/GITET',l:'Cakupan',n:'Sunyaragi, Mdcan, Kadipaten…'},
+     {v:'P:92|S:52|T:34',l:'Klasifikasi',n:'Primary | Secondary | Transmisi'},
+   ],tools:['Dashboard','Vaisala RTD','Google Maps API','TRION'],
+   tags:['monitoring','anomali','gardu induk','aset','ULTG Cirebon'],ph:false},
+
+  {no:'IV.2025',kat:'CoP: Monitoring',
+   judul:'Sistem Informasi & Monitoring Terpadu GIS Cangkring',
+   penulis:'Reza Wahyu Firdaus',tanggal:'2025',
+   forum:'CoP ULTG Cirebon, 2025',
+   abstract:'Sistem informasi dan monitoring terpadu untuk Gas Insulated Switchgear (GIS) Cangkring 150 kV. Platform digital menyatukan data operasi, monitoring kondisi peralatan (partial discharge, SF6 density, suhu), dan manajemen pemeliharaan dalam satu antarmuka guna mendukung keandalan GIS baru di ULTG Cirebon.',
+   metrics:[],tools:['Dashboard','IoT Sensor','IEC 61850','PD Monitor'],
+   tags:['GIS','monitoring','Cangkring','150 kV','sistem informasi'],ph:true},
+
+  {no:'IV.2025',kat:'CoP: Monitoring',
+   judul:'Sistem Monitoring DC via Protocol Modbus — Rectifier GI',
+   penulis:'Reza Wahyu Firdaus',tanggal:'2025',
+   forum:'CoP ULTG Cirebon, 2025',
+   abstract:'Sistem monitoring catu daya DC di Gardu Induk melalui protokol Modbus dari perangkat rectifier (Techfill TFM D400). Memantau parameter DC (tegangan bus, arus pengisian, status charger, suhu baterai) secara terpusat dan real-time untuk mendukung keandalan catu daya auxiliary relay proteksi dan kontrol GI.',
+   metrics:[],tools:['Modbus RTU/TCP','Techfill TFM D400','SCADA','RS-485'],
+   tags:['monitoring DC','Modbus','rectifier','catu daya auxiliary'],ph:true},
+
+  {no:'IV.2025',kat:'CoP: Monitoring',
+   judul:'Sistem Monitoring & Manajemen Aset Tanah Transmisi',
+   penulis:'Reza Wahyu Firdaus',tanggal:'2025',
+   forum:'CoP ULTG Cirebon, 2025',
+   abstract:'Platform digital monitoring dan manajemen aset tanah (right-of-way / ROW) jalur transmisi di wilayah UPT Cirebon. Mencakup inventarisasi sertifikat tanah, status pengamanan ROW, monitoring progres sertifikasi tapak tower, dan integrasi peta geospasial untuk pemantauan visual koridor transmisi.',
+   metrics:[],tools:['GIS Mapping','Dashboard','Google Maps'],
+   tags:['aset tanah','ROW','transmisi','sertifikasi'],ph:true},
+
+  /* ── CoP: INOVASI ────────────────────────────────────────── */
+  {no:'IV.30.202505',kat:'CoP: Inovasi',
+   judul:'Simulator Proteksi & Kontrol (SIMULTAN) — ULTG Cirebon',
+   penulis:'Reza Wahyu Firdaus',tanggal:'Mei 2025',
+   forum:'CoP ULTG Cirebon, Semester I-2025',
+   abstract:'Pengembangan simulator fisik Proteksi & Kontrol "SIMULTAN" sebagai sarana pelatihan dan knowledge management di ULTG Cirebon. Panel cubicle 2200×600×610 mm dilengkapi relay Distance (CSC-101, P442), OC/GF (P127), Differential (P543), Lockout (195), dan Trip Circuit Supervision (7PA30), serta CT/VT untuk pengujian aktual. Terintegrasi dengan TRION AI UPT Cirebon untuk monitoring relay trip real-time melalui 3 kanal online.',
+   metrics:[
+     {v:'2200×600×610 mm',l:'Dimensi Cubicle',n:'Memerli Rekayasa Elektrika'},
+     {v:'5 Tipe',l:'Jenis Relay',n:'Distance, OC/GF, Diff, Lockout, TCS'},
+     {v:'TRION AI',l:'Integrasi Online',n:'3 channel, UPT Cirebon'},
+     {v:'Sem2-2024→Sem1-2025',l:'Timeline',n:'Perancangan – Selesai'},
+   ],tools:['TRION AI','IEC 61850','Alstom P127/P442/P543','Siemens 7PA30','Sifang CSC-101'],
+   tags:['simulator','training','relay proteksi','knowledge management'],ph:false},
+
+  /* ── CoP: PROSEDUR ───────────────────────────────────────── */
+  {no:'IV.2025',kat:'CoP: Prosedur',
+   judul:'Alur Koordinasi Sertifikasi Tapak Tower Transmisi — UPT Cirebon',
+   penulis:'Reza Wahyu Firdaus',tanggal:'2025',
+   forum:'CoP ULTG Cirebon, 2025',
+   abstract:'Dokumentasi alur proses dan koordinasi antar-unit dalam pelaksanaan sertifikasi tapak tower transmisi di wilayah UPT Cirebon. Mencakup identifikasi, inventarisasi, pengukuran tapak, koordinasi dengan BPN/ATR, pengurusan sertifikat, monitoring progres sertifikasi, dan eskalasi kasus bermasalah (sengketa lahan, pemilik tidak diketahui).',
+   metrics:[],tools:['Workflow Management','BPN/ATR Coordination','Geospasial'],
+   tags:['sertifikasi','tapak tower','ROW','prosedur'],ph:true},
+
+  /* ── STANDAR & PEDOMAN ───────────────────────────────────── */
+  {no:'PLN Direktorat Transmisi, Juli 2024',kat:'Standar & Pedoman',
+   judul:'Pedoman Desain dan Arsitektur Pembangunan Digital Substation (DSS) 2024',
+   penulis:'PLN — Direktorat Transmisi & Perencanaan Sistem',tanggal:'Juli 2024',
+   forum:'Berlaku nasional: UIT, UIP3B, UIW seluruh Indonesia',
+   abstract:'Pedoman nasional bagi UIT, UIP3B, dan UIW dalam pengadaan dan pembangunan Digital Substation (DSS). Menetapkan standar: Kriteria Pabrikan, Sertifikasi, Performance, Arsitektur Jaringan & Peralatan, Approval & As Built Drawing, Pengujian, Supply, Konstruksi Outdoor, Retrofit, Komunikasi Pengatur Beban, Firmware, Cyber Security, Training DSS Engineer, Material Cadang, Arsitektur DSS, dan Detail Arsitektur Sistem Kontrol & Proteksi.',
+   metrics:[
+     {v:'Nasional',l:'Cakupan Berlaku',n:'UIT, UIP3B, UIW Indonesia'},
+     {v:'IEC 61850',l:'Standar Komunikasi',n:'GOOSE, MMS, Sampled Values'},
+     {v:'Cyber Security',l:'Kriteria Khusus',n:'+ Firmware management'},
+     {v:'EVP TSJ & TKS',l:'Disahkan',n:'Eko Yudo P. & Erwin Ansori'},
+   ],tools:['IEC 61850','Digital Substation','GOOSE','Cyber Security','SCADA'],
+   tags:['digital substation','DSS','IEC 61850','arsitektur GI','standar nasional'],ph:false},
+
+  {no:'0004.DOK/LAP/HAR/UITJBT/2024',kat:'Standar & Pedoman',
+   judul:'Buku Standar Terminal Relai Proteksi dan Test Block (BIBO) 2024',
+   penulis:'PT PLN (Persero) UIT Jawa Bagian Tengah — Bidang Pemeliharaan Transmisi',tanggal:'April 2024',
+   forum:'Berlaku efektif April 2024 — lingkup UIT Jawa Bagian Tengah',
+   abstract:'Draft buku standar konfigurasi terminal relai proteksi dan test block untuk keseragaman pemeliharaan di seluruh GI/GITET UIT JBT. Menstandardisasi penomoran terminal, wiring, dan prosedur penggunaan test block pada berbagai tipe relay proteksi, guna memudahkan pengujian, komisioning, dan pemeliharaan berkala tanpa memutus sirkuit sekunder.',
+   metrics:[
+     {v:'Edisi 01',l:'Versi Dokumen',n:'Revisi 00, Draft'},
+     {v:'April 2024',l:'Berlaku Efektif',n:'UIT Jawa Bagian Tengah'},
+     {v:'Terminal Relay',l:'Cakupan',n:'+ Test Block configuration'},
+     {v:'Har. Transmisi',l:'Bidang Penerbit',n:'UIT JBT'},
+   ],tools:['Terminal Block Standard','Test Block','Relay Protection','Commissioning'],
+   tags:['terminal relay','test block','BIBO','standar pemeliharaan','UIT JBT'],ph:false},
+
+  /* ── KAJIAN SINGKAT ──────────────────────────────────────── */
+  {no:'KS Eksternal 2025',kat:'Kajian Singkat',
+   judul:'KS Eksternal: Operasi Relay Siemens & MiCOM — GITET Ciepret',
+   penulis:'Tim ULTG Cirebon',tanggal:'2025',forum:'Kajian Singkat Internal UPT Cirebon',
+   abstract:'Kajian singkat prosedur operasi relay proteksi merk Siemens (seri 7SA/7SD) dan MiCOM (Alstom/Schneider) di GITET Ciepret. Memuat prosedur komisioning, pengujian, setting, dan pemeliharaan berkala relay distance, differential, dan overcurrent di GITET 500 kV.',
+   metrics:[],tools:['Siemens 7SA/7SD','MiCOM Alstom','Relay Testing'],
+   tags:['relay Siemens','MiCOM','GITET','operasi','kajian singkat'],ph:true},
+
+  {no:'KS Eksternal 2025',kat:'Kajian Singkat',
+   judul:'KS Eksternal: Penyaluran ke PT. ITP Semen Palimanan',
+   penulis:'Tim ULTG Cirebon',tanggal:'2025',forum:'Kajian Singkat Internal UPT Cirebon',
+   abstract:'Kajian lapangan pelengkap studi keandalan CoP untuk PT. ITP Semen Palimanan. Memuat kondisi aktual peralatan, catatan gangguan historis, dan rekomendasi tindak lanjut perbaikan keandalan sistem penyaluran 70 kV ke pelanggan industri.',
+   metrics:[],tools:['Site Survey','Data Historis Gangguan'],
+   tags:['keandalan','pelanggan industri','kajian singkat','Semen Palimanan'],ph:true},
+
+  {no:'KS 2025',kat:'Kajian Singkat',
+   judul:'KS Videotron MSCC — UPT Cirebon',
+   penulis:'Tim ULTG Cirebon',tanggal:'2025',forum:'Kajian Singkat Internal UPT Cirebon',
+   abstract:'Kajian mengenai videotron Media Substation Control Center (MSCC) di UPT Cirebon. Memuat analisis kebutuhan, spesifikasi teknis tampilan dashboard real-time MSCC, dan rekomendasi konten monitoring yang ditampilkan pada sistem videotron pusat kendali.',
+   metrics:[],tools:['MSCC Dashboard','Videotron','SCADA Display'],
+   tags:['MSCC','videotron','dashboard','monitoring','UPT Cirebon'],ph:true},
+
+  /* ── TEKNIS / IK ─────────────────────────────────────────── */
+  {no:'IK 2025',kat:'Teknis / IK',
+   judul:'Instruksi Kerja: Konfigurasi GOOSE & IEC 61850 — Relay NR PCS / P14D',
+   penulis:'Tim ULTG Cirebon',tanggal:'2025',forum:'Instruksi Kerja UPT Cirebon',
+   abstract:'Panduan teknis konfigurasi komunikasi GOOSE sesuai IEC 61850 pada relay NR PCS (NR Electric) dan Schneider P14D. Mencakup prosedur konfigurasi IED, pemetaan dataset GOOSE, pengujian komunikasi antar-relay, dan troubleshooting.',
+   metrics:[],tools:['IEC 61850','GOOSE Protocol','NR PCS','P14D'],
+   tags:['IEC 61850','GOOSE','NR PCS','P14D','instruksi kerja'],ph:true},
+
+  {no:'IK 2024',kat:'Teknis / IK',
+   judul:'Instruksi Kerja Relay & DFR — GIS Cangkring 150 kV',
+   penulis:'Tim ULTG Cirebon',tanggal:'2024',forum:'Instruksi Kerja UPT Cirebon',
+   abstract:'Instruksi kerja operasi dan pemeliharaan relay proteksi serta Digital Fault Recorder (DFR) di GIS Cangkring 150 kV. Mencakup komisioning awal, setting relay, pengujian rutin, pembacaan rekaman DFR, dan respon terhadap gangguan.',
+   metrics:[],tools:['DFR Digital Fault Recorder','Relay Tester','GIS 150 kV'],
+   tags:['DFR','relay','GIS Cangkring','instruksi kerja','150 kV'],ph:true},
+
+  {no:'Teknis 2024',kat:'Teknis / IK',
+   judul:'Upgrade Firmware BI Module — Sifang CSC-326 & CSC-101',
+   penulis:'Tim ULTG Cirebon',tanggal:'2024',forum:'Dokumen Teknis Internal UPT Cirebon',
+   abstract:'Prosedur upgrade firmware modul Binary Input (BI) pada relay digital Sifang CSC-326 dan CSC-101. Mencakup checklist pra-upgrade, langkah instalasi firmware, pengujian pasca-upgrade, dan rollback jika terjadi kegagalan.',
+   metrics:[],tools:['Sifang CSC-326','Sifang CSC-101','Firmware Tool'],
+   tags:['firmware','Sifang','CSC-326','CSC-101','upgrade'],ph:true},
+];
+
+const ORDER_SECTIONS = [
+  {key:'Publikasi',      icon:'fa-star',            label:'Publikasi Ilmiah'},
+  {key:'CoP: Studi Teknis',icon:'fa-flask-vial',    label:'CoP — Studi Teknis'},
+  {key:'CoP: Monitoring',icon:'fa-desktop',          label:'CoP — Sistem Monitoring'},
+  {key:'CoP: Inovasi',   icon:'fa-lightbulb',        label:'CoP — Inovasi'},
+  {key:'CoP: Prosedur',  icon:'fa-list-check',       label:'CoP — Prosedur'},
+  {key:'Standar & Pedoman',icon:'fa-scale-balanced', label:'Standar & Pedoman'},
+  {key:'Kajian Singkat', icon:'fa-magnifying-glass', label:'Kajian Singkat'},
+  {key:'Teknis / IK',    icon:'fa-screwdriver-wrench',label:'Teknis / Instruksi Kerja'},
+];
+
+function mHtml(m){
+  if(!m||!m.length)return'';
+  return`<div class="metrics-grid">${m.map(x=>`<div class="mi"><div class="mv">${x.v}</div><div class="ml">${x.l}</div>${x.n?`<div class="mn">${x.n}</div>`:''}</div>`).join('')}</div>`;
+}
+
+function card(d){
+  const el=document.createElement('div');
+  el.className=`doc-card${d.ph?' placeholder':''}`;
+  el.dataset.filter=CAT_FILTER[d.kat]||d.kat;
+  el.innerHTML=`
+    <div class="card-top">
+      <span class="badge ${CAT_BADGE[d.kat]||'b-ik'}">${d.kat}</span>
+      <span class="doc-no">${d.no}</span>
+      ${d.ph?'<span class="badge b-ph"><i class="fa-solid fa-lock-open" style="font-size:.65rem"></i> Ringkasan</span>':''}
+    </div>
+    <div class="doc-title">${d.judul}</div>
+    <div class="doc-meta"><span><i class="fa-solid fa-user"></i>${d.penulis}</span><span><i class="fa-solid fa-calendar"></i>${d.tanggal}</span></div>
+    <div class="doc-meta" style="margin-top:-6px"><span><i class="fa-solid fa-users"></i>${d.forum}</span></div>
+    <div class="doc-abstract">${d.abstract}</div>
+    ${mHtml(d.metrics)}
+    <div class="card-footer">${d.tools.map(t=>`<span class="tt">${t}</span>`).join('')}</div>
+    <div class="card-footer">${d.tags.map(t=>`<span class="kt">#${t}</span>`).join('')}</div>
+  `;
+  return el;
+}
+
+function dbCard(){
+  const el=document.createElement('div');
+  el.className='db-card';
+  el.dataset.filter='Database';
+  el.innerHTML=`
+    <div class="card-top">
+      <span class="badge b-db">Database Teknis</span>
+      <span class="doc-no">ULTG Cirebon, 2019–2024</span>
+    </div>
+    <div class="doc-title">Database Proteksi Petir ULTG Cirebon</div>
+    <div class="doc-meta"><span><i class="fa-solid fa-building"></i>PT PLN (Persero) ULTG Cirebon</span><span><i class="fa-solid fa-folder-open"></i>200+ file (Excel, PDF, DWG)</span></div>
+    <div class="doc-abstract">Kumpulan data teknis proteksi petir di wilayah ULTG Cirebon, mencakup desain pentanahan, pengukuran impedansi tanah (counterpoise), pemeriksaan proteksi petir (PSPT), dan data IGSW. Basis data referensi untuk evaluasi sistem proteksi petir dan penelitian lanjutan.</div>
+    <div class="db-grid">
+      <div class="db-item"><div class="db-icon"><i class="fa-solid fa-bolt"></i></div><div class="db-title">Data PSPT</div><div class="db-count">102 file</div><div class="db-desc">Pemeriksaan Sistem Proteksi Petir — data per tower/line, impedansi pentanahan, inspeksi berkala</div></div>
+      <div class="db-item"><div class="db-icon"><i class="fa-solid fa-table-cells"></i></div><div class="db-title">Data Counterpoise</div><div class="db-count">79 file</div><div class="db-desc">Desain & pengukuran kawat counterpoise per tower SUTT/SUTET, gambar teknis pemasangan</div></div>
+      <div class="db-item"><div class="db-icon"><i class="fa-solid fa-shield-halved"></i></div><div class="db-title">Data IGSW</div><div class="db-count">17 file</div><div class="db-desc">Instalasi Ground Shield Wire per GI, drawing tower IGSW-HV-2019-JBT</div></div>
+      <div class="db-item"><div class="db-icon"><i class="fa-solid fa-file-excel"></i></div><div class="db-title">Rekap & Pentanahan</div><div class="db-count">6 file utama</div><div class="db-desc">Rekap Gangguan Petir, Pentanahan GI, Proteksi Petir ULTG Cirebon, Perhitungan Flashover Insulator</div></div>
+    </div>
+    <div style="font-size:.82rem;font-weight:600;color:#475569">Standar referensi:</div>
+    <div class="file-list">
+      <div class="file-row"><i class="fa-solid fa-file-pdf"></i>SPLN T5.012:2020 — Pembumian pada GI dan Jaringan Transmisi</div>
+      <div class="file-row"><i class="fa-solid fa-file-pdf"></i>Approval Drawing Counter Poise (2021) &amp; Desain Ground Rod</div>
+      <div class="file-row"><i class="fa-solid fa-file-pdf"></i>Basic Drawing Tower IGSW-HV-2019-JBT · IIGWS_290420</div>
+    </div>
+    <div class="card-footer"><span class="tt">Lightning Protection</span><span class="tt">Grounding</span><span class="tt">Counterpoise</span><span class="tt">IGSW</span><span class="tt">SPLN T5.012</span></div>
+    <div class="card-footer"><span class="kt">#PSPT</span><span class="kt">#counterpoise</span><span class="kt">#IGSW</span><span class="kt">#pentanahan</span><span class="kt">#ULTG Cirebon</span></div>
+  `;
+  return el;
+}
+
+function render(filterCat){
+  const g=document.getElementById('cardGrid');
+  g.innerHTML='';
+  if(filterCat==='semua'){
+    ORDER_SECTIONS.forEach(s=>{
+      const group=DOCS.filter(d=>d.kat===s.key);
+      if(!group.length)return;
+      const lbl=document.createElement('div');
+      lbl.className='section-label';
+      lbl.innerHTML=`<i class="fa-solid ${s.icon}"></i> ${s.label}`;
+      g.appendChild(lbl);
+      group.forEach(d=>g.appendChild(card(d)));
     });
-    document.querySelectorAll('.section-label').forEach(sl => {
-      sl.style.display = cat === 'semua' ? '' : 'none';
-    });
-  });
-});
+    const dbLbl=document.createElement('div');
+    dbLbl.className='section-label';
+    dbLbl.innerHTML='<i class="fa-solid fa-database"></i> Database Proteksi Petir';
+    g.appendChild(dbLbl);
+    g.appendChild(dbCard());
+  } else {
+    const filtered=DOCS.filter(d=>CAT_FILTER[d.kat]===filterCat||d.kat===filterCat);
+    filtered.forEach(d=>g.appendChild(card(d)));
+    if(filterCat==='Database'||filterCat==='semua') g.appendChild(dbCard());
+  }
+}
+
+document.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  render(b.dataset.cat);
+}));
+render('semua');
 </script>
 </body>
 </html>
