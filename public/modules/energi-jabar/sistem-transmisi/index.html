@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Topologi & Keandalan Sistem Transmisi — COCKPIT</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#F8FAFC;color:#1E293B}
+    .mod-header{background:linear-gradient(135deg,#1D4ED8 0%,#1E40AF 100%);color:#fff;padding:28px 32px 20px;position:relative;overflow:hidden}
+    .mod-header::after{content:'';position:absolute;top:-40px;right:-60px;width:240px;height:240px;background:rgba(255,255,255,.06);border-radius:50%}
+    .mod-header h1{font-size:1.5rem;font-weight:700;margin-bottom:4px;position:relative;z-index:1}
+    .mod-header .subtitle{font-size:.85rem;color:rgba(255,255,255,.78);position:relative;z-index:1}
+    .header-meta{display:flex;gap:20px;margin-top:14px;flex-wrap:wrap;position:relative;z-index:1}
+    .header-meta-item{display:flex;align-items:center;gap:6px;font-size:.8rem;color:rgba(255,255,255,.85)}
+    .stat-bar{display:flex;flex-wrap:wrap;gap:1px;background:#E2E8F0;border-bottom:1px solid #E2E8F0}
+    .stat-item{flex:1 1 140px;background:#fff;padding:14px 20px;text-align:center}
+    .stat-item .sv{font-size:1.6rem;font-weight:700;color:#1D4ED8;line-height:1.1}
+    .stat-item .sl{font-size:.72rem;color:#64748B;margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
+    .main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+    .filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;align-items:center}
+    .filter-btn{padding:6px 16px;border-radius:20px;border:1.5px solid #CBD5E1;background:#fff;color:#475569;font-size:.82rem;cursor:pointer;font-weight:500;transition:all .15s}
+    .filter-btn:hover{border-color:#1D4ED8;color:#1D4ED8}
+    .filter-btn.active{background:#1D4ED8;border-color:#1D4ED8;color:#fff}
+    .filter-label{font-size:.8rem;color:#64748B;margin-right:4px}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(460px,1fr));gap:18px}
+    @media(max-width:520px){.card-grid{grid-template-columns:1fr}}
+    .doc-card{background:#fff;border-radius:12px;border:1px solid #E2E8F0;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:20px;display:flex;flex-direction:column;gap:12px;transition:box-shadow .15s,transform .12s}
+    .doc-card:hover{box-shadow:0 4px 16px rgba(29,78,216,.12);transform:translateY(-2px)}
+    .doc-card.xref{border-style:dashed;opacity:.8}
+    .card-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:.72rem;font-weight:600;letter-spacing:.03em}
+    .badge-ops    {background:#EFF6FF;color:#1D4ED8}
+    .badge-kajian {background:#FFF7ED;color:#C2410C}
+    .badge-data   {background:#F0FDF4;color:#166534}
+    .badge-standar{background:#FAF5FF;color:#7C3AED}
+    .badge-lesson {background:#FFF1F2;color:#BE123C}
+    .badge-teknis {background:#F0F9FF;color:#0369A1}
+    .badge-xref   {background:#F8FAFC;color:#64748B}
+    .doc-no{font-size:.72rem;color:#94A3B8;background:#F8FAFC;padding:3px 8px;border-radius:6px;border:1px solid #E2E8F0}
+    .doc-title{font-size:.97rem;font-weight:700;color:#1E293B;line-height:1.4}
+    .doc-meta{font-size:.77rem;color:#64748B;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+    .doc-meta i{color:#94A3B8}
+    .doc-abstract{font-size:.83rem;color:#475569;line-height:1.6}
+    .metrics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    .metric-item{background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;padding:10px 12px}
+    .metric-value{font-size:.97rem;font-weight:700;color:#1D4ED8}
+    .metric-label{font-size:.72rem;color:#64748B;margin-top:2px}
+    .metric-note{font-size:.68rem;color:#94A3B8;margin-top:1px}
+    .card-footer{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+    .tool-tag{font-size:.7rem;color:#1D4ED8;background:#EFF6FF;padding:3px 8px;border-radius:6px;font-weight:500}
+    .kw-tag{font-size:.7rem;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px}
+    .about-panel{background:#fff;border-radius:12px;border:1px solid #E2E8F0;padding:28px 32px;margin-top:32px}
+    .about-panel h2{font-size:1rem;font-weight:700;color:#1D4ED8;margin-bottom:12px}
+    .about-panel p{font-size:.85rem;color:#475569;line-height:1.7;margin-bottom:10px}
+    .section-label{font-size:.78rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.07em;grid-column:1/-1;margin-top:8px;margin-bottom:-4px;display:flex;align-items:center;gap:8px}
+    .section-label::after{content:'';flex:1;height:1px;background:#E2E8F0}
+  </style>
+</head>
+<body>
+<div class="mod-header">
+  <h1><i class="fa-solid fa-network-wired" style="margin-right:8px"></i>Topologi & Keandalan Sistem Transmisi</h1>
+  <div class="subtitle">Panduan Operasi Defense Scheme, Data Hubung Singkat & Standar Aset — UIT JBT / UP2B Jabar</div>
+  <div class="header-meta">
+    <div class="header-meta-item"><i class="fa-solid fa-building"></i> PT PLN (Persero) UIT Jawa Bagian Tengah / UP2B Jawa Barat</div>
+    <div class="header-meta-item"><i class="fa-solid fa-calendar-days"></i> 2022 – 2025</div>
+    <div class="header-meta-item"><i class="fa-solid fa-file-lines"></i> 12 Dokumen</div>
+  </div>
+</div>
+<div class="stat-bar">
+  <div class="stat-item"><div class="sv">3</div><div class="sl">Panduan Operasi</div></div>
+  <div class="stat-item"><div class="sv">1</div><div class="sl">Kajian Defense Scheme</div></div>
+  <div class="stat-item"><div class="sv">3</div><div class="sl">Data Teknis IHS</div></div>
+  <div class="stat-item"><div class="sv">2</div><div class="sl">Standar & Koordinasi</div></div>
+  <div class="stat-item"><div class="sv">1</div><div class="sl">Lesson Learned</div></div>
+</div>
+
+<div class="main">
+  <div class="filter-bar">
+    <span class="filter-label"><i class="fa-solid fa-filter"></i> Kategori:</span>
+    <button class="filter-btn active" data-cat="semua">Semua</button>
+    <button class="filter-btn" data-cat="Panduan Operasi">Panduan Operasi</button>
+    <button class="filter-btn" data-cat="Kajian Operasi">Kajian Operasi</button>
+    <button class="filter-btn" data-cat="Data Teknis">Data Teknis</button>
+    <button class="filter-btn" data-cat="Standar & Kebijakan">Standar & Kebijakan</button>
+    <button class="filter-btn" data-cat="Lesson Learned">Lesson Learned</button>
+  </div>
+  <div class="card-grid" id="cardGrid"></div>
+  <div class="about-panel">
+    <h2><i class="fa-solid fa-circle-info" style="margin-right:6px"></i>Tentang Modul</h2>
+    <p>Modul ini merupakan repositori dokumen teknis sistem transmisi Jawa Barat yang meliputi panduan operasi Defense Scheme UP2B Jabar, data arus hubung singkat GI/GITET sistem Jawa-Bali, standar manajemen kesehatan aset transmisi, serta lesson learned dari incident operasional UIT JBT.</p>
+    <p>Defense Scheme adalah sistem pertahanan operasional untuk mencegah cascading failure dan blackout sistem yang mencakup Over Load Shedding (OLS), Over Generation Shedding (OGS), Under Frequency Relay (UFR), dan Island Operation. Dokumen-dokumen ini menjadi acuan operasional bagi Dispatcher UP2B Jabar dan Engineer UIT JBT.</p>
+    <p><strong>Cakupan sistem:</strong> Jaringan transmisi 500/150/70 kV di wilayah Jawa Barat — UIT JBT dengan koordinasi ke UIP2B JAMALI (UP2B Jateng dan UP2B DKI Jakarta & Banten).</p>
+  </div>
+</div>
+
+<script>
+const BC = {
+  'Panduan Operasi':    'badge-ops',
+  'Kajian Operasi':     'badge-kajian',
+  'Data Teknis':        'badge-data',
+  'Standar & Kebijakan':'badge-standar',
+  'Lesson Learned':     'badge-lesson',
+  'Teknis':             'badge-teknis',
+  'Cross-Reference':    'badge-xref',
+};
+const DOCS = [
+  {id:'O1', no:'34/RK/JBR-RNV-RAV/2024', kat:'Panduan Operasi',
+   judul:'Buku Panduan Defense Scheme Jawa Barat 2024',
+   penulis:'UP2B Jawa Barat / UIT Jawa Bagian Tengah',
+   tanggal:'30 Desember 2024', hal:'118 halaman',
+   abstract:'Panduan operasi Defense Scheme sistem Jawa Barat yang mencakup skema Over Load Shedding (OLS) dan Over Generation Shedding (OGS), skema Under Frequency Relay (UFR) bertahap (Tahap 4 s/d 7), dan skema Island Operation. Buku ini merupakan update dari versi 2023 dan menjadi acuan utama Dispatcher UP2B Jabar dalam mengoperasikan sistem secara real-time, termasuk penentuan besaran shed beban dan mekanisme pemulihan sistem.',
+   metrics:[
+     {label:'Halaman',value:'118 hal',note:'Edisi 01, Revisi 00'},
+     {label:'Berlaku Efektif',value:'30 Des 2024',note:'Update dari versi Des 2023'},
+     {label:'Skema OLS/OGS',value:'Termasuk',note:'Over Load & Generation Shedding'},
+     {label:'UFR Tahap',value:'4 s/d 7',note:'Under Frequency Relay bertahap'},
+   ],
+   tools:['Defense Scheme','OLS','OGS','UFR','Island Operation'],
+   tags:['defense scheme','OLS','UFR','island operation','UP2B Jabar'],
+  },
+  {id:'O2', no:'038/RK/JBR-RNV-RAV/2023', kat:'Panduan Operasi',
+   judul:'Buku Defense Scheme UP2B Jawa Barat 2023',
+   penulis:'UP2B Jawa Barat / UIT Jawa Bagian Tengah',
+   tanggal:'25 Desember 2023', hal:'—',
+   abstract:'Versi sebelumnya dari Buku Defense Scheme UP2B Jawa Barat yang menjadi acuan sebelum update Desember 2024. Berisi informasi strategi dan skema pertahanan operasi sistem tenaga listrik subsistem Jawa Barat yang meliputi OLS, OGS, UFR, dan Island Operation. Digunakan sebagai referensi historis dan perbandingan dengan versi 2024.',
+   metrics:[],
+   tools:['Defense Scheme','OLS','OGS','UFR'],
+   tags:['defense scheme','2023','referensi historis'],
+  },
+  {id:'O3', no:'—', kat:'Panduan Operasi',
+   judul:'Mitigasi Pencegahan Gangguan pada Saat Musim Hujan',
+   penulis:'UIT Jawa Bagian Tengah',
+   tanggal:'2023', hal:'Foto-dokumentasi',
+   abstract:'Panduan visual mitigasi pencegahan gangguan peralatan Gardu Induk pada musim hujan, berisi foto-dokumentasi langkah-langkah perawatan preventif di lapangan. Mencakup: (1) Pemasangan seal/karet pada box MTU, Trafo dan MK; (2) Heater pada box PMT, Trafo dan MK; (3) Heater kubikEl INC 20 kV dengan validasi termografi FLIR (normal ≤35,9°C vs abnormal 113°C); (4) Pompa pada duct 20 kV; (5) Pembersihan lubang pembuangan air di GI.',
+   metrics:[
+     {label:'Item Mitigasi',value:'5 item',note:'Preventif musim hujan'},
+     {label:'Termografi',value:'FLIR',note:'Normal ≤35,9°C | Abnormal 113°C'},
+     {label:'Cakupan',value:'Box MTU, PMT, MK',note:'Heater, seal, pompa duct'},
+     {label:'Metode Validasi',value:'Thermal Imaging',note:'FLIR camera'},
+   ],
+   tools:['FLIR Thermal Camera','Preventive Maintenance'],
+   tags:['mitigasi','musim hujan','heater','seal','thermography'],
+  },
+  {id:'K1', no:'RENEV UP2B Jabar, Nov 2024', kat:'Kajian Operasi',
+   judul:'Skema Defense Scheme Subsistem Mandirancan 1,2',
+   penulis:'RENEV UP2B Jawa Barat',
+   tanggal:'13 November 2024', hal:'Slide presentasi + SLD',
+   abstract:'Kajian revisi skema Defense Scheme (OLS) untuk Subsistem Mandirancan 1 dan 2, berdasarkan kondisi operasional aktual Oktober 2024. Kajian mencakup Single Line Diagram (SLD) subsistem SS Cibatu 3,4 – Mandirancan 1,2 yang terhubung ke Indramayu, Arjawinangun, Kadipaten, dan Parakan. Asumsi kajian: PLTU CEP trip, pembatasan transfer ke UP2B Jateng 0 MW, subsistem Mandirancan looping dengan Cibatu 3,4, split di kopel GI Jatigede, dan PLTU Indramayu beroperasi 600–650 MW (Unit 3 derating).',
+   metrics:[
+     {label:'Subsistem',value:'Mandirancan 1,2',note:'Looping dengan Cibatu 3,4'},
+     {label:'Asumsi Transfer',value:'0 MW',note:'Ke UP2B Jateng (CEP trip)'},
+     {label:'PLTU Indramayu',value:'600–650 MW',note:'Unit 3 derating'},
+     {label:'Referensi Data',value:'13 Okt 2024',note:'Kondisi operasional aktual'},
+   ],
+   tools:['SLD Sistem','Defense Scheme Analysis','Load Flow'],
+   tags:['Mandirancan','OLS','defense scheme','SLD','subsistem Jabar'],
+  },
+  {id:'D1', no:'Sem 1 2024', kat:'Data Teknis',
+   judul:'Arus Hubung Singkat GI/GITET Sistem Jawa-Bali Semester 1 2024',
+   penulis:'UIP2B JAMALI',
+   tanggal:'Semester 1, 2024', hal:'Tabel data teknis',
+   abstract:'Data arus hubung singkat untuk seluruh bus GI/GITET sistem Jawa-Bali semester 1 tahun 2024. Berisi parameter impedansi urutan positif (R1, X1), negatif (R2, X2), dan nol (R0, X0) dalam per-unit (pu), serta nilai arus hubung singkat satu fasa (1ph) dan tiga fasa (3ph) dalam kA. Data tersedia untuk kondisi Pebangkit DMN ROB Januari 2024 dan KIT AKTIF ROB Januari 2024. Cakupan: ~92 bus 500 kV dan ratusan bus 150 kV dari UP2B DKI Jakarta & Banten, UP2B Jawa Barat, UP2B Jawa Tengah.',
+   metrics:[
+     {label:'Cakupan 500 kV',value:'~92 Bus',note:'Adipala, BdgSel, Bekasi, Cawang, dll'},
+     {label:'Cakupan 150 kV',value:'Ratusan Bus',note:'UP2B DKI-Banten, Jabar, Jateng'},
+     {label:'Parameter',value:'R1/X1/R2/X2/R0/X0',note:'Impedansi per-unit (pu)'},
+     {label:'Arus HS',value:'1ph & 3ph (kA)',note:'DMN ROB & KIT AKTIF Jan 2024'},
+   ],
+   tools:['Short Circuit Analysis','Power System Simulation'],
+   tags:['arus hubung singkat','IHS','impedansi','500 kV','150 kV','Jawa-Bali'],
+  },
+  {id:'D2', no:'Sem 2 2024', kat:'Data Teknis',
+   judul:'Lampiran IHS KIT AKTIF Semester 2 2024',
+   penulis:'UIP2B JAMALI',
+   tanggal:'Juli 2024', hal:'Lampiran data',
+   abstract:'Lampiran data Indeks Hubung Singkat (IHS) untuk kondisi KIT AKTIF semester 2 tahun 2024. Merupakan data pendukung untuk perencanaan pemeliharaan dan setting proteksi berdasarkan kondisi pembangkit yang sedang beroperasi (KIT AKTIF) di sistem Jawa-Bali pada semester kedua 2024.',
+   metrics:[],
+   tools:['IHS Calculation','Short Circuit Analysis'],
+   tags:['IHS','KIT AKTIF','hubung singkat','Sem 2 2024'],
+  },
+  {id:'D3', no:'Sem 2 2024', kat:'Data Teknis',
+   judul:'Lampiran IHS Semester 2 2024',
+   penulis:'UIP2B JAMALI',
+   tanggal:'Juli 2024', hal:'Lampiran data',
+   abstract:'Lampiran data Indeks Hubung Singkat (IHS) sistem Jawa-Bali semester 2 tahun 2024. Data referensi teknis untuk evaluasi kapabilitas sistem proteksi dan koordinasi relay di seluruh GI/GITET berdasarkan kondisi sistem terkini.',
+   metrics:[],
+   tools:['IHS Calculation','Protection Coordination'],
+   tags:['IHS','hubung singkat','Sem 2 2024'],
+  },
+  {id:'S1', no:'Edisi 01, Maret 2024', kat:'Standar & Kebijakan',
+   judul:'Dokumen Norm Asset Health Index Transmisi 2024',
+   penulis:'PT PLN (Persero) — Direktorat Transmisi',
+   tanggal:'Maret 2024', hal:'—',
+   abstract:'Dokumen nasional panduan pembobotan dalam menilai kondisi kesehatan (Asset Health Index/AHI) setiap jenis aset transmisi PLN. Mencakup 12 jenis peralatan: PMT (Pemutus Tenaga), Lightning Arrester, NGR (Neutral Grounding Resistor), PMS (Pemisah), Trafo Tenaga, Trafo Arus, Trafo Tegangan, Reaktor, Kapasitor, Relay, Charger, dan Baterai. Digunakan sebagai acuan normalisasi dalam program pemeliharaan berbasis kondisi (Condition-Based Maintenance/CBM).',
+   metrics:[
+     {label:'Jenis Aset',value:'12 Tipe',note:'PMT, LA, NGR, PMS, Trafo, Relay, dll'},
+     {label:'Pendekatan',value:'AHI / CBM',note:'Asset Health Index, Cond.-Based Maint.'},
+     {label:'Disahkan',value:'EVP TSJ, TKS, RST',note:'Eko Yudo, Erwin Ansori, Ova Kurniawan'},
+     {label:'Berlaku',value:'Maret 2024',note:'Edisi 01, berlaku nasional'},
+   ],
+   tools:['Asset Health Index','Condition-Based Maintenance','Predictive Maintenance'],
+   tags:['AHI','asset health','PMT','trafo','relay','standar nasional'],
+  },
+  {id:'S2', no:'2022', kat:'Standar & Kebijakan',
+   judul:'Buku Kesepakatan Bersama DISJABAR 2022',
+   penulis:'Unit-unit di Distribusi Jawa Barat & Transmisi',
+   tanggal:'2022', hal:'—',
+   abstract:'Dokumen kesepakatan bersama antar-unit dalam lingkup Distribusi Jawa Barat (DISJABAR) yang mengatur koordinasi operasional sistem tenaga listrik di batas antara jaringan transmisi dan distribusi. Mencakup prosedur manuver, batas operasional tegangan, koordinasi penanganan gangguan, dan mekanisme eskalasi antar unit transmisi dan distribusi di wilayah Jawa Barat.',
+   metrics:[],
+   tools:['Koordinasi Operasi','Batas Tegangan','SOP Manuver'],
+   tags:['DISJABAR','koordinasi','manuver','transmisi-distribusi','2022'],
+  },
+  {id:'L1', no:'0789/TRS.00.01/F33000000/2025', kat:'Lesson Learned',
+   judul:'Lesson Learned & Action for Improvement: Pencegahan Gangguan NSF Aset Baru UIT JBT',
+   penulis:'GM UIT JBT — Abdul Salam Nganro',
+   tanggal:'14 Februari 2025', hal:'3 halaman',
+   abstract:'Surat resmi GM UIT JBT perihal lesson learned dan action for improvement pasca dua insiden Non System Fault (NSF) pada aset baru di wilayah UIT JBT. Kasus 1: GITET 500 kV Muaratawar — PMT 7B5 open (22 Jan 2025) akibat auxiliary K0553O terpicu oleh kondisi panel RTU yang terlalu penuh, memungkinkan kabel ties menekan auxiliary. Kasus 2: GI 150 kV Wadaslintang Bay Trafo #1 (1 Feb 2025) — kesalahan wiring command saat pengujian RCD/RTU baru menyebabkan PMT Bay Wonosobo #2 close tidak terduga. Delapan action item pencegahan mencakup validasi dokumen IK/JSA/WP, pembahasan IK sebelum pekerjaan, approval bertahap (70-150 kV: Manager UPT; 500 kV: Senior Manager Kantor Induk), pemasangan tagging bahaya, dan peningkatan kompetensi personil pengawas.',
+   metrics:[
+     {label:'Kasus NSF',value:'2 Kejadian',note:'GITET Muaratawar & GI Wadaslintang'},
+     {label:'Action Items',value:'8 Item',note:'Prosedur, approval, tagging, kompetensi'},
+     {label:'Approval 500 kV',value:'Sr. Manager Kantor Induk',note:'Sebelum pekerjaan'},
+     {label:'Approval 150/70 kV',value:'Manager UPT',note:'Sebelum pekerjaan'},
+   ],
+   tools:['NSF Prevention','IK/JSA Review','Safety Tagging','RCD/RTU Testing'],
+   tags:['NSF','lesson learned','Muaratawar','Wadaslintang','PMT','safety'],
+  },
+  {id:'T1', no:'2024', kat:'Teknis',
+   judul:'Design Panel Box Trafo',
+   penulis:'UIT Jawa Bagian Tengah',
+   tanggal:'Februari 2024', hal:'Gambar teknis',
+   abstract:'Dokumen gambar teknis (technical drawing) desain panel box trafo di Gardu Induk. Berisi spesifikasi dimensi, tata letak komponen, wiring diagram, dan material yang digunakan untuk panel box trafo di lingkup UIT JBT. Dokumen referensi untuk keseragaman konstruksi dan pemeliharaan panel box trafo di seluruh GI UIT JBT.',
+   metrics:[],
+   tools:['Technical Drawing','Panel Box Design','Trafo Maintenance'],
+   tags:['panel box','trafo','gambar teknis','konstruksi GI'],
+  },
+  {id:'X1', no:'IV.39.202511', kat:'Cross-Reference',
+   judul:'CoP: Studi Keandalan Penyaluran ke PT. ITP Semen Palimanan',
+   penulis:'Reza Wahyu Firdaus — ULTG Cirebon',
+   tanggal:'November 2025', hal:'Lihat modul Studi Proteksi Distribusi',
+   abstract:'Studi keandalan sistem penyaluran 70 kV ke PT. ITP Semen Palimanan yang juga relevan dalam konteks keandalan sistem transmisi Jawa Barat. Mencakup simulasi aliran daya, hubung singkat 3 fasa dan L-G (Zf = 20 Ω), dan analisis durasi pemulihan gangguan Force Majeure 2023. Dokumen lengkap tersedia di modul Studi Proteksi Sistem Distribusi.',
+   metrics:[],
+   tools:['ETAP 22.0','Short Circuit Analysis','Load Flow'],
+   tags:['keandalan','SUTT 70 kV','Semen Palimanan','cross-reference'],
+  },
+];
+
+function renderCard(d){
+  const el=document.createElement('div');
+  el.className=`doc-card${d.kat==='Cross-Reference'?' xref':''}`;
+  el.dataset.cat=d.kat;
+  const mHtml=d.metrics&&d.metrics.length?`<div class="metrics-grid">${d.metrics.map(m=>`<div class="metric-item"><div class="metric-value">${m.value}</div><div class="metric-label">${m.label}</div>${m.note?`<div class="metric-note">${m.note}</div>`:''}</div>`).join('')}</div>`:'';
+  el.innerHTML=`
+    <div class="card-top">
+      <span class="badge ${BC[d.kat]||'badge-teknis'}">${d.kat}</span>
+      <span class="doc-no">${d.no}</span>
+      ${d.hal?`<span style="font-size:.7rem;color:#94A3B8">${d.hal}</span>`:''}
+    </div>
+    <div class="doc-title">${d.judul}</div>
+    <div class="doc-meta"><span><i class="fa-solid fa-user"></i> ${d.penulis}</span><span><i class="fa-solid fa-calendar"></i> ${d.tanggal}</span></div>
+    <div class="doc-abstract">${d.abstract}</div>
+    ${mHtml}
+    <div class="card-footer">${d.tools.map(t=>`<span class="tool-tag">${t}</span>`).join('')}</div>
+    <div class="card-footer">${d.tags.map(t=>`<span class="kw-tag">#${t}</span>`).join('')}</div>
+  `;
+  return el;
+}
+
+function render(cat){
+  const g=document.getElementById('cardGrid');
+  g.innerHTML='';
+  const filtered=cat==='semua'?DOCS:DOCS.filter(d=>d.kat===cat);
+  if(cat==='semua'){
+    const grp={};
+    filtered.forEach(d=>(grp[d.kat]=grp[d.kat]||[]).push(d));
+    const ORDER=['Panduan Operasi','Kajian Operasi','Data Teknis','Standar & Kebijakan','Lesson Learned','Teknis','Cross-Reference'];
+    const ICON={'Panduan Operasi':'fa-book-open','Kajian Operasi':'fa-magnifying-glass-chart','Data Teknis':'fa-table','Standar & Kebijakan':'fa-scale-balanced','Lesson Learned':'fa-triangle-exclamation','Teknis':'fa-screwdriver-wrench','Cross-Reference':'fa-arrow-up-right-from-square'};
+    ORDER.forEach(gk=>{
+      if(!grp[gk])return;
+      const lbl=document.createElement('div');
+      lbl.className='section-label';
+      lbl.innerHTML=`<i class="fa-solid ${ICON[gk]||'fa-folder'}"></i> ${gk}`;
+      g.appendChild(lbl);
+      grp[gk].forEach(d=>g.appendChild(renderCard(d)));
+    });
+  }else{
+    filtered.forEach(d=>g.appendChild(renderCard(d)));
+  }
+}
+document.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  render(b.dataset.cat);
+}));
+render('semua');
+</script>
+</body>
+</html>

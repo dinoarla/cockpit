@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rencana Pengembangan & Investasi Transmisi — COCKPIT</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#F8FAFC;color:#1E293B}
+    .mod-header{background:linear-gradient(135deg,#1D4ED8 0%,#1E40AF 100%);color:#fff;padding:28px 32px 20px;position:relative;overflow:hidden}
+    .mod-header::after{content:'';position:absolute;top:-40px;right:-60px;width:240px;height:240px;background:rgba(255,255,255,.06);border-radius:50%}
+    .mod-header h1{font-size:1.5rem;font-weight:700;margin-bottom:4px;position:relative;z-index:1}
+    .mod-header .subtitle{font-size:.85rem;color:rgba(255,255,255,.78);position:relative;z-index:1}
+    .header-meta{display:flex;gap:20px;margin-top:14px;flex-wrap:wrap;position:relative;z-index:1}
+    .header-meta-item{display:flex;align-items:center;gap:6px;font-size:.8rem;color:rgba(255,255,255,.85)}
+    .stat-bar{display:flex;flex-wrap:wrap;gap:1px;background:#E2E8F0;border-bottom:1px solid #E2E8F0}
+    .stat-item{flex:1 1 140px;background:#fff;padding:14px 20px;text-align:center}
+    .stat-item .sv{font-size:1.6rem;font-weight:700;color:#1D4ED8;line-height:1.1}
+    .stat-item .sl{font-size:.72rem;color:#64748B;margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
+    .main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(460px,1fr));gap:18px}
+    @media(max-width:520px){.card-grid{grid-template-columns:1fr}}
+    .doc-card{background:#fff;border-radius:12px;border:1px solid #E2E8F0;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:20px;display:flex;flex-direction:column;gap:12px;transition:box-shadow .15s,transform .12s}
+    .doc-card:hover{box-shadow:0 4px 16px rgba(29,78,216,.12);transform:translateY(-2px)}
+    .card-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:.72rem;font-weight:600;letter-spacing:.03em}
+    .badge-rencana  {background:#EFF6FF;color:#1D4ED8}
+    .badge-kebijakan{background:#FFF7ED;color:#C2410C}
+    .badge-konfidensial{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA}
+    .doc-no{font-size:.72rem;color:#94A3B8;background:#F8FAFC;padding:3px 8px;border-radius:6px;border:1px solid #E2E8F0}
+    .doc-title{font-size:.97rem;font-weight:700;color:#1E293B;line-height:1.4}
+    .doc-meta{font-size:.77rem;color:#64748B;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+    .doc-meta i{color:#94A3B8}
+    .doc-abstract{font-size:.83rem;color:#475569;line-height:1.6}
+    .notice{font-size:.78rem;color:#92400E;background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:10px 14px;display:flex;align-items:flex-start;gap:8px}
+    .metrics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    .metric-item{background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;padding:10px 12px}
+    .metric-value{font-size:.97rem;font-weight:700;color:#1D4ED8}
+    .metric-label{font-size:.72rem;color:#64748B;margin-top:2px}
+    .metric-note{font-size:.68rem;color:#94A3B8;margin-top:1px}
+    .card-footer{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+    .tool-tag{font-size:.7rem;color:#1D4ED8;background:#EFF6FF;padding:3px 8px;border-radius:6px;font-weight:500}
+    .kw-tag{font-size:.7rem;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px}
+    .about-panel{background:#fff;border-radius:12px;border:1px solid #E2E8F0;padding:28px 32px;margin-top:32px}
+    .about-panel h2{font-size:1rem;font-weight:700;color:#1D4ED8;margin-bottom:12px}
+    .about-panel p{font-size:.85rem;color:#475569;line-height:1.7;margin-bottom:10px}
+    .chapter-list{margin:12px 0;display:flex;flex-direction:column;gap:6px}
+    .chapter-item{display:flex;align-items:flex-start;gap:10px;font-size:.83rem;color:#475569;padding:8px 12px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0}
+    .chapter-item .num{font-weight:700;color:#1D4ED8;min-width:20px}
+  </style>
+</head>
+<body>
+<div class="mod-header">
+  <h1><i class="fa-solid fa-road" style="margin-right:8px"></i>Rencana Pengembangan &amp; Investasi Transmisi</h1>
+  <div class="subtitle">RPTL Sistem Jawa-Madura-Bali 2025–2029 &amp; Draft RUPTL 2024–2033 — UIP2B JAMALI / PLN Pusat</div>
+  <div class="header-meta">
+    <div class="header-meta-item"><i class="fa-solid fa-building"></i> PT PLN (Persero) UIP2B JAMALI &amp; Direktorat Transmisi</div>
+    <div class="header-meta-item"><i class="fa-solid fa-calendar-days"></i> 2024 – 2029</div>
+    <div class="header-meta-item"><i class="fa-solid fa-file-lines"></i> 2 Dokumen</div>
+  </div>
+</div>
+<div class="stat-bar">
+  <div class="stat-item"><div class="sv">2025</div><div class="sl">Tahun Awal RPTL</div></div>
+  <div class="stat-item"><div class="sv">2029</div><div class="sl">Tahun Akhir RPTL</div></div>
+  <div class="stat-item"><div class="sv">2024</div><div class="sl">Draft RUPTL Mulai</div></div>
+  <div class="stat-item"><div class="sv">2033</div><div class="sl">Cakupan Draft RUPTL</div></div>
+</div>
+
+<div class="main">
+  <div class="card-grid">
+
+    <div class="doc-card">
+      <div class="card-top">
+        <span class="badge badge-rencana">Rencana Pengembangan</span>
+        <span class="doc-no">01/RK/P2B-REN-RNS/2024</span>
+      </div>
+      <div class="doc-title">RPTL Sistem Jawa-Madura-Bali 2025–2029</div>
+      <div class="doc-meta">
+        <span><i class="fa-solid fa-building"></i> PT PLN (Persero) UIP2B JAMALI</span>
+        <span><i class="fa-solid fa-calendar"></i> Berlaku 30 Desember 2024</span>
+      </div>
+      <div class="doc-meta" style="margin-top:-4px">
+        <span><i class="fa-solid fa-user"></i> GM: Munawwar Furqan | Sr. Mgr Perencanaan: Marwah</span>
+      </div>
+      <div class="doc-abstract">
+        Buku Rencana Penyediaan Tenaga Listrik (RPTL) Sistem Jawa-Madura-Bali tahun 2025–2029 yang disusun sebagai panduan perencanaan dan pengembangan sistem lebih detail dari dokumen draft RUPTL 2025–2034. Mencakup kondisi operasional sistem saat ini dan tinjauan 5 tahun ke depan, lengkap dengan data dari masing-masing Unit Pelaksana Pengatur Beban (UP2B) meliputi rencana pengembangan pembangkit, gardu induk (GI), transmisi, evolusi sub-sistem, dan ketersediaan pasokan sub-sistem di Sistem Jawa-Madura-Bali. Dokumen ini bersifat terbatas untuk kalangan internal PLN.
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-item"><div class="metric-value">5 Tahun</div><div class="metric-label">Horizon Perencanaan</div><div class="metric-note">2025 – 2029</div></div>
+        <div class="metric-item"><div class="metric-value">UIP2B JAMALI</div><div class="metric-label">Penerbit</div><div class="metric-note">Jawa, Madura, Bali</div></div>
+        <div class="metric-item"><div class="metric-value">30 Des 2024</div><div class="metric-label">Berlaku Efektif</div><div class="metric-note">Revisi 0, Sub Bidang Perencanaan</div></div>
+        <div class="metric-item"><div class="metric-value">Terintegrasi</div><div class="metric-label">Analisa Neraca Daya</div><div class="metric-note">Aliran daya + HS per tahun</div></div>
+      </div>
+      <div style="font-size:.82rem;font-weight:600;color:#475569;margin-top:4px">Cakupan dokumen:</div>
+      <div class="chapter-list">
+        <div class="chapter-item"><span class="num">1</span>Rencana pengembangan pembangkit per sub-sistem</div>
+        <div class="chapter-item"><span class="num">2</span>Rencana pengembangan Gardu Induk (GI) dan transmisi</div>
+        <div class="chapter-item"><span class="num">3</span>Neraca daya, ketersediaan pasokan, evolusi sub-sistem</div>
+        <div class="chapter-item"><span class="num">4</span>Analisa aliran daya dan hubung singkat setiap tahun</div>
+        <div class="chapter-item"><span class="num">5</span>Manajemen hubung singkat &amp; daya reaktif</div>
+        <div class="chapter-item"><span class="num">6</span>Susut sistem, stabilitas sistem</div>
+        <div class="chapter-item"><span class="num">7</span>Usulan masukan RUPTL periode selanjutnya</div>
+      </div>
+      <div class="notice"><i class="fa-solid fa-lock" style="margin-top:2px;flex-shrink:0"></i><span>Dokumen ini bersifat terbatas untuk kalangan internal PLN. Penggunaan informasi oleh pihak eksternal memerlukan persetujuan UIP2B JAMALI.</span></div>
+      <div class="card-footer">
+        <span class="tool-tag">Neraca Daya</span><span class="tool-tag">Load Flow Analysis</span><span class="tool-tag">Short Circuit</span><span class="tool-tag">Stability Analysis</span>
+      </div>
+      <div class="card-footer">
+        <span class="kw-tag">#RPTL</span><span class="kw-tag">#Jawa-Madura-Bali</span><span class="kw-tag">#perencanaan transmisi</span><span class="kw-tag">#GI development</span>
+      </div>
+    </div>
+
+    <div class="doc-card">
+      <div class="card-top">
+        <span class="badge badge-kebijakan">Kebijakan & Transisi Energi</span>
+        <span class="doc-no">Draft RUPTL 2024–2033</span>
+        <span class="badge badge-konfidensial"><i class="fa-solid fa-lock" style="font-size:.65rem"></i> Confidential</span>
+      </div>
+      <div class="doc-title">Materi Transisi Energi pada Draft RUPTL 2024–2033</div>
+      <div class="doc-meta">
+        <span><i class="fa-solid fa-building"></i> Divisi Perencanaan Sistem Ketenagalistrikan, PLN Pusat</span>
+        <span><i class="fa-solid fa-calendar"></i> 15 Mei 2024</span>
+      </div>
+      <div class="doc-abstract">
+        Materi presentasi internal PLN tentang transisi energi dalam kerangka Draft RUPTL 2024–2033 "Beyond The Greenest RUPTL (ALL NEW RUPTL)". Dokumen ini menjelaskan transformasi PLN melalui inisiatif <strong>Green Enabling</strong> (Green Super Grid, Smart Grid, Storage System, Flexibility System), percepatan eksekusi melalui <strong>Enhancing</strong> (RE Bundling Cluster), dan peningkatan melalui <strong>Up-Lifting</strong> dengan metodologi baru berbasis Geospasial (GeoRensis). Mencakup proyeksi permintaan, kapasitas tambahan pembangkitan, komposisi energi, ekspansi transmisi, dan proyeksi emisi hingga 2033.
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-item"><div class="metric-value">2024–2033</div><div class="metric-label">Periode RUPTL</div><div class="metric-note">"Beyond The Greenest RUPTL"</div></div>
+        <div class="metric-item"><div class="metric-value">GeoRensis</div><div class="metric-label">Metodologi Baru</div><div class="metric-note">Berbasis Geospasial</div></div>
+        <div class="metric-item"><div class="metric-value">Green Super Grid</div><div class="metric-label">Green Enabling</div><div class="metric-note">Smart Grid + Storage + Flexibility</div></div>
+        <div class="metric-item"><div class="metric-value">RE Bundling</div><div class="metric-label">Enhancing</div><div class="metric-note">Cluster-based RE acceleration</div></div>
+      </div>
+      <div style="font-size:.82rem;font-weight:600;color:#475569;margin-top:4px">Outline presentasi:</div>
+      <div class="chapter-list">
+        <div class="chapter-item"><span class="num">1</span>Pendahuluan — evolusi dari RUPTL 2021–2030 ke 2024–2033</div>
+        <div class="chapter-item"><span class="num">2</span>Demand Projections — proyeksi pertumbuhan beban</div>
+        <div class="chapter-item"><span class="num">3</span>Additional Generation Capacity — kapasitas pembangkit tambahan</div>
+        <div class="chapter-item"><span class="num">4</span>Energy Composition — bauran energi 2024–2033</div>
+        <div class="chapter-item"><span class="num">5</span>Transmission Expansion — rencana ekspansi transmisi</div>
+        <div class="chapter-item"><span class="num">6</span>Emission — proyeksi dan target penurunan emisi</div>
+      </div>
+      <div class="notice"><i class="fa-solid fa-triangle-exclamation" style="margin-top:2px;flex-shrink:0"></i><span>"Highly confidential, for internal use only. Not to be distributed." — Dokumen ini hanya untuk keperluan riset internal.</span></div>
+      <div class="card-footer">
+        <span class="tool-tag">RUPTL Planning</span><span class="tool-tag">GeoRensis</span><span class="tool-tag">Green Enabling</span><span class="tool-tag">Smart Grid</span><span class="tool-tag">RE Bundling</span>
+      </div>
+      <div class="card-footer">
+        <span class="kw-tag">#RUPTL</span><span class="kw-tag">#transisi energi</span><span class="kw-tag">#green enabling</span><span class="kw-tag">#smart grid</span><span class="kw-tag">#geospasial</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="background:#fff;border-radius:12px;border:1px solid #E2E8F0;padding:28px 32px;margin-top:32px">
+    <h2 style="font-size:1rem;font-weight:700;color:#1D4ED8;margin-bottom:12px"><i class="fa-solid fa-circle-info" style="margin-right:6px"></i>Tentang Modul</h2>
+    <p style="font-size:.85rem;color:#475569;line-height:1.7;margin-bottom:10px">Modul ini menyimpan dokumen-dokumen perencanaan pengembangan sistem transmisi dan penyediaan tenaga listrik di Jawa-Madura-Bali. Dua dokumen utama saling melengkapi: RPTL UIP2B JAMALI memberikan detail operasional 5 tahun ke depan, sementara Draft RUPTL memberikan kerangka kebijakan dan arah transisi energi jangka panjang.</p>
+    <p style="font-size:.85rem;color:#475569;line-height:1.7;margin-bottom:10px"><strong>RPTL</strong> (Rencana Penyediaan Tenaga Listrik) adalah dokumen perencanaan teknis lebih detail yang disusun oleh UIP2B JAMALI sebagai masukan untuk RUPTL nasional. <strong>RUPTL</strong> (Rencana Usaha Penyediaan Tenaga Listrik) adalah dokumen kebijakan nasional PLN yang ditetapkan oleh Kementerian ESDM.</p>
+    <p style="font-size:.85rem;color:#475569;line-height:1.7"><strong>Catatan aksesibilitas:</strong> Kedua dokumen bersifat terbatas/internal PLN. Tersedia di COCKPIT untuk keperluan riset dan referensi akademis. Penyebaran ulang di luar konteks ini memerlukan persetujuan dari penerbit dokumen.</p>
+  </div>
+</div>
+</body>
+</html>
