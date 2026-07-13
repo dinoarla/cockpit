@@ -327,8 +327,8 @@ tr.highlight-row td{background:#FFFBEB;font-weight:600}
         <tr class="highlight-row"><td>2022</td><td class="td-num">4.346</td><td class="td-num">4.100</td><td class="td-num">246</td><td class="td-center">16,7×</td><td class="td-center"><span class="badge-warn">6 ⚠</span></td></tr>
         <tr><td>2023</td><td class="td-num">3.040</td><td class="td-num">2.689</td><td class="td-num">351</td><td class="td-center">7,7×</td><td class="td-center">3</td></tr>
         <tr><td>2024</td><td class="td-num">3.157</td><td class="td-num">2.935</td><td class="td-num">222</td><td class="td-center">13,2×</td><td class="td-center"><span class="badge-ok">0 ✓</span></td></tr>
-        <tr><td>2025*</td><td class="td-num">2.115</td><td class="td-num">1.948</td><td class="td-num">167</td><td class="td-center">11,7×</td><td class="td-center">1</td></tr>
-        <tr class="total-row"><td>Total</td><td class="td-num">18.918</td><td class="td-num">17.506</td><td class="td-num">1.412</td><td class="td-center">12,4×</td><td class="td-center">13</td></tr>
+        <tr><td>2025</td><td class="td-num">3.191</td><td class="td-num">2.941</td><td class="td-num">250</td><td class="td-center">11,8×</td><td class="td-center">1</td></tr>
+        <tr class="total-row"><td>Total</td><td class="td-num">20.094</td><td class="td-num">18.499</td><td class="td-num">1.595</td><td class="td-center">11,6×</td><td class="td-center">13</td></tr>
       </tbody>
     </table>
   </div>
@@ -337,12 +337,12 @@ tr.highlight-row td{background:#FFFBEB;font-weight:600}
     <div class="chart-card">
       <h4>Total Sambaran CG per Tahun (Negatif vs Positif)</h4>
       <div class="chart-wrap"><canvas id="chartPetirTotal"></canvas></div>
-      <p class="src">Sumber: Vaisala FALLS® · *2025 s.d. Okt 2025</p>
+      <p class="src">Sumber: Vaisala FALLS® Client · Data 2025 penuh (Jan–Des)</p>
     </div>
     <div class="chart-card">
       <h4>Distribusi Polaritas (Total 6 Tahun)</h4>
       <div class="chart-wrap sm"><canvas id="chartNegPos"></canvas></div>
-      <p class="src">17.506 negatif (92,5%) : 1.412 positif (7,5%)</p>
+      <p class="src">18.499 negatif (92,1%) : 1.595 positif (7,9%)</p>
     </div>
   </div>
 
@@ -360,11 +360,11 @@ tr.highlight-row td{background:#FFFBEB;font-weight:600}
         <tr><td>2022</td><td class="td-num">−142</td><td class="td-num">−3</td><td class="td-num">−19,71</td><td class="td-num">+5</td><td class="td-num">+78</td><td class="td-num">+28,26</td></tr>
         <tr class="highlight-row"><td>2023</td><td class="td-num"><strong>−219</strong></td><td class="td-num">−2</td><td class="td-num">−22,88</td><td class="td-num">+4</td><td class="td-num">+123</td><td class="td-num">+33,20</td></tr>
         <tr><td>2024</td><td class="td-num">−160</td><td class="td-num">−2</td><td class="td-num">−20,29</td><td class="td-num">+3</td><td class="td-num">+91</td><td class="td-num">+33,69</td></tr>
-        <tr><td>2025*</td><td class="td-num">−138</td><td class="td-num">−3</td><td class="td-num">−23,03</td><td class="td-num">+7</td><td class="td-num">+74</td><td class="td-num">+33,74</td></tr>
+        <tr><td>2025</td><td class="td-num">−138</td><td class="td-num">−3</td><td class="td-num">−23,37</td><td class="td-num">+7</td><td class="td-num">+106</td><td class="td-num">+37,03</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="alert warn"><strong>Arus puncak terburuk: −219 kA (2023, T.15-A)</strong> — digunakan sebagai skenario worst-case dalam simulasi EMTP. Vsurge injeksi = 839,48 kV pada titik tower.</div>
+  <div class="alert warn"><strong>Arus puncak terburuk: −219 kA (2023, T.15-A)</strong> — digunakan sebagai skenario worst-case dalam simulasi EMTP. Vsurge injeksi = 839,48 kV pada titik tower. Arus positif tertinggi: +106 kA (2025, T.05B).</div>
 
   <div class="section-title">📐 Parameter Log-Normal Spesifik Lokasi (Method of Moments)</div>
   <div class="table-scroll">
@@ -379,12 +379,12 @@ tr.highlight-row td{background:#FFFBEB;font-weight:600}
         <tr><td>2022</td><td class="td-num">4.100</td><td class="td-num">19,71</td><td class="td-num">2,979</td><td class="td-num">0,601</td><td class="td-num">19,67</td></tr>
         <tr><td>2023</td><td class="td-num">2.689</td><td class="td-num">22,88</td><td class="td-num">3,089</td><td class="td-num">0,601</td><td class="td-num">21,98</td></tr>
         <tr><td>2024</td><td class="td-num">2.935</td><td class="td-num">20,29</td><td class="td-num">2,994</td><td class="td-num">0,601</td><td class="td-num">19,97</td></tr>
-        <tr><td>2025*</td><td class="td-num">1.948</td><td class="td-num">23,03</td><td class="td-num">3,096</td><td class="td-num">0,601</td><td class="td-num">22,10</td></tr>
-        <tr class="total-row"><td>Pooled</td><td class="td-num">17.506</td><td class="td-num">20,55</td><td class="td-num">3,009</td><td class="td-num">0,601</td><td class="td-num"><strong>20,27</strong></td></tr>
+        <tr><td>2025</td><td class="td-num">2.941</td><td class="td-num">23,37</td><td class="td-num">3,111</td><td class="td-num">0,601</td><td class="td-num">22,43</td></tr>
+        <tr class="total-row"><td>Pooled</td><td class="td-num">18.499</td><td class="td-num">20,73</td><td class="td-num">3,031</td><td class="td-num">0,601</td><td class="td-num"><strong>20,71</strong></td></tr>
       </tbody>
     </table>
   </div>
-  <div class="alert ok"><strong>Median pooled 20,27 kA</strong> — 34,7% di bawah IEEE Std 1243 (31,1 kA) dan 19% di bawah CIGRE tropis (~25 kA). Semua 15 uji K-S inter-tahunan lulus pada α=0,05. Distribusi standar bersifat non-konservatif untuk koridor ini.</div>
+  <div class="alert ok"><strong>Median pooled 20,71 kA</strong> — 33,4% di bawah IEEE Std 1243 (31,1 kA) dan 17,2% di bawah CIGRE tropis (~25 kA). Semua 15 uji K-S inter-tahunan lulus pada α=0,05. Distribusi standar bersifat non-konservatif untuk koridor ini. <em>(Data 2025 diperbarui ke tahun penuh Jan–Des.)</em></div>
 
   <div class="section-title">📍 Lokasi Tower Dominan Sambaran per Tahun</div>
   <div class="table-scroll">
@@ -692,11 +692,11 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-const YEARS = ['2020','2021','2022','2023','2024','2025*'];
+const YEARS = ['2020','2021','2022','2023','2024','2025'];
 const GANGGUAN = [1,2,6,3,0,1];
-const TOTAL = [3595,2765,4346,3040,3157,2115];
-const NEG = [3318,2516,4100,2689,2935,1948];
-const POS = [277,249,246,351,222,167];
+const TOTAL = [3595,2765,4346,3040,3157,3191];
+const NEG = [3318,2516,4100,2689,2935,2941];
+const POS = [277,249,246,351,222,250];
 const ACCENT = '#1D4ED8';
 const ACCENT_A = (a) => `rgba(29,78,216,${a})`;
 
@@ -742,8 +742,8 @@ new Chart(document.getElementById('chartPetirTotal'), {
 // ── Chart: Doughnut neg/pos ──
 new Chart(document.getElementById('chartNegPos'), {
   type:'doughnut',
-  data:{ labels:['Negatif (−) 92,5%','Positif (+) 7,5%'],
-    datasets:[{ data:[17506,1412], backgroundColor:[ACCENT,'#D97706'], borderWidth:2 }] },
+  data:{ labels:['Negatif (−) 92,1%','Positif (+) 7,9%'],
+    datasets:[{ data:[18499,1595], backgroundColor:[ACCENT,'#D97706'], borderWidth:2 }] },
   options:{ responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{legend:{position:'bottom'}} }
 });
 
