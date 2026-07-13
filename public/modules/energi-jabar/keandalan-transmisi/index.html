@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analitik Keandalan & Gangguan Transmisi — COCKPIT</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',system-ui,sans-serif;background:#FFFBF0;color:#111118;-webkit-font-smoothing:antialiased}
+    .mod-header{background:#0D1117;color:#E6EDF3;padding:28px 32px 24px}
+    .btn-back{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:rgba(230,237,243,.45);text-decoration:none;margin-bottom:12px;transition:color .15s;letter-spacing:.02em}
+    .btn-back:hover{color:#E6EDF3}
+    .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,77,0,.7);margin-bottom:7px}
+    .mod-header h1{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:5px}
+    .mod-header .subtitle{font-size:.83rem;color:rgba(230,237,243,.5);max-width:720px;line-height:1.6;margin-bottom:14px}
+    .header-meta{display:flex;gap:18px;flex-wrap:wrap}
+    .header-meta-item{display:flex;align-items:center;gap:6px;font-size:.78rem;color:rgba(230,237,243,.55)}
+    /* TABS */
+    .tabs-bar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid #E2E8F0;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+    .tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab-btn{flex-shrink:0;padding:12px 18px;font-size:13px;font-weight:500;color:#64748B;border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+    .tab-btn.active{color:#FF4D00;border-bottom-color:#FF4D00;font-weight:600}
+    .tab-btn:hover:not(.active){color:#111118}
+    .page-body{max-width:1140px;margin:0 auto;padding:28px 20px 80px}
+    .tab-panel{display:none}.tab-panel.active{display:block}
+    /* SECTION */
+    .section-title{font-size:14px;font-weight:700;color:#C2410C;margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid #FED7AA;display:flex;align-items:center;gap:8px}
+    .section-title:first-child{margin-top:0}
+    /* KPI GRID */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+    .kpi-card{background:#fff;border-radius:12px;border:1px solid #E2E8F0;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+    .kpi-label{font-size:.7rem;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+    .kpi-value{font-size:1.7rem;font-weight:700;color:#FF4D00;line-height:1;font-family:'Space Grotesk',sans-serif}
+    .kpi-unit{font-size:.73rem;color:#94A3B8;margin-top:4px}
+    .kpi-note{font-size:.7rem;color:#64748B;margin-top:2px}
+    .kpi-card.ok .kpi-value{color:#16A34A}
+    .kpi-card.warn .kpi-value{color:#D97706}
+    .kpi-card.neutral .kpi-value{color:#1D4ED8}
+    /* CHARTS */
+    .chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px;margin-bottom:24px}
+    .chart-card{background:#fff;border-radius:12px;border:1px solid #E2E8F0;padding:20px}
+    .chart-card h4{font-size:.86rem;font-weight:700;color:#1E293B;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+    .chart-wrap{position:relative;height:250px}
+    .chart-wrap.tall{height:310px}
+    .chart-wrap.sm{height:200px}
+    .src{font-size:.7rem;color:#94A3B8;margin-top:8px}
+    /* TABLE */
+    .tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid #E2E8F0;margin-bottom:20px}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff}
+    th{background:#0D1117;color:#E6EDF3;padding:8px 12px;text-align:left;font-weight:600;font-size:.7rem;letter-spacing:.04em;white-space:nowrap}
+    td{padding:7px 12px;border-bottom:1px solid #F1F5F9;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:rgba(255,77,0,.025)}
+    .tr{text-align:right;font-variant-numeric:tabular-nums;font-family:'JetBrains Mono',monospace;font-size:.78rem}
+    .tc{text-align:center}
+    .total-row td{background:#FFF7ED;font-weight:700;border-top:2px solid #FED7AA;color:#C2410C}
+    .hl-row td{background:#FFF1F2}
+    /* BADGES */
+    .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.68rem;font-weight:700}
+    .b-ok{background:#DCFCE7;color:#166534}
+    .b-warn{background:#FEF3C7;color:#92400E}
+    .b-red{background:#FEE2E2;color:#B91C1C}
+    .b-blue{background:#EFF6FF;color:#1D4ED8}
+    .b-500{background:#FEE2E2;color:#B91C1C}
+    .b-150{background:#EFF6FF;color:#1D4ED8}
+    .b-70{background:#FFF7ED;color:#C2410C}
+    /* ALERT */
+    .alert{border-radius:8px;padding:12px 16px;font-size:.82rem;line-height:1.6;margin-bottom:20px;border-left:4px solid}
+    .alert.ok{background:#F0FDF4;border-color:#16A34A;color:#166534}
+    .alert.warn{background:#FFF7ED;border-color:#FF4D00;color:#9A3412}
+    .alert.info{background:#EFF6FF;border-color:#3B82F6;color:#1D4ED8}
+    /* STATUS BAR */
+    .prot-bar{height:8px;border-radius:4px;background:#E2E8F0;overflow:hidden;margin-top:4px}
+    .prot-fill{height:100%;border-radius:4px;background:#FF4D00}
+    .prot-fill.ok{background:#16A34A}
+    .prot-fill.warn{background:#D97706}
+    /* PSPT TABLE special styling */
+    .pspt-val{font-family:'JetBrains Mono',monospace;font-size:.8rem}
+    .pspt-low{color:#16A34A;font-weight:600}
+    .pspt-high{color:#DC2626;font-weight:600}
+    .pspt-mid{color:#D97706}
+    @media(max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.chart-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<div class="mod-header">
+  <a href="/menu.html" class="btn-back">← Kembali ke Menu</a>
+  <div class="eyebrow">TRANSMISI · UPT CIREBON · ANALITIK DATA</div>
+  <h1><i class="fa-solid fa-chart-column" style="margin-right:8px"></i>Analitik Keandalan & Gangguan Transmisi</h1>
+  <div class="subtitle">Dashboard statistik gangguan PHT, gangguan petir, proteksi petir, dan pengukuran pentanahan aset transmisi wilayah UPT Cirebon. Sumber: FOIS 2016–2026, Vaisala FALLS® 2020–2025, database lapangan ULTG Cirebon.</div>
+  <div class="header-meta">
+    <div class="header-meta-item"><i class="fa-solid fa-building"></i> PT PLN (Persero) UPT Cirebon / ULTG Cirebon</div>
+    <div class="header-meta-item"><i class="fa-solid fa-calendar-days"></i> Data 2016 – 2026</div>
+    <div class="header-meta-item"><i class="fa-solid fa-database"></i> FOIS + Vaisala FALLS® + Survey Lapangan</div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="ikhtisar">📊 Ikhtisar</button>
+    <button class="tab-btn" data-tab="pht">⚡ Gangguan PHT</button>
+    <button class="tab-btn" data-tab="petir">🌩 Gangguan Petir</button>
+    <button class="tab-btn" data-tab="proteksi">🛡 Proteksi Petir</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TAB 1: IKHTISAR                                          -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="tab-ikhtisar" class="tab-panel active">
+
+  <div class="section-title">📌 Indikator Keandalan Utama</div>
+  <div class="kpi-grid">
+    <div class="kpi-card warn">
+      <div class="kpi-label">Total Gangguan PHT</div>
+      <div class="kpi-value">338</div>
+      <div class="kpi-unit">kejadian · 2021–2025</div>
+      <div class="kpi-note">Rata-rata 67,6/tahun</div>
+    </div>
+    <div class="kpi-card warn">
+      <div class="kpi-label">Tahun Terburuk</div>
+      <div class="kpi-value">93</div>
+      <div class="kpi-unit">gangguan · 2023</div>
+      <div class="kpi-note">BENDA LAIN dominan (48)</div>
+    </div>
+    <div class="kpi-card ok">
+      <div class="kpi-label">Tren 2024–2025</div>
+      <div class="kpi-value">−63%</div>
+      <div class="kpi-unit">93 → 34 gangguan</div>
+      <div class="kpi-note">Penurunan signifikan</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Dominasi ALAM</div>
+      <div class="kpi-value">58,9%</div>
+      <div class="kpi-unit">199 dari 338 gangguan</div>
+      <div class="kpi-note">Sambaran petir & alam</div>
+    </div>
+    <div class="kpi-card neutral">
+      <div class="kpi-label">Sambaran Petir CG</div>
+      <div class="kpi-value">20.094</div>
+      <div class="kpi-unit">total 2020–2025</div>
+      <div class="kpi-note">Koridor Prkan–Kdptn</div>
+    </div>
+    <div class="kpi-card warn">
+      <div class="kpi-label">Gangguan Petir Terparah</div>
+      <div class="kpi-value">26×</div>
+      <div class="kpi-unit">SMDRA–PMPEK 2016–2020</div>
+      <div class="kpi-note">Jalur 70 kV tertinggi</div>
+    </div>
+    <div class="kpi-card ok">
+      <div class="kpi-label">EGLA Implementasi</div>
+      <div class="kpi-value">0 trip</div>
+      <div class="kpi-unit">2024 (post EGLA aktif)</div>
+      <div class="kpi-note">Dari 6 trip/tahun (2022)</div>
+    </div>
+    <div class="kpi-card ok">
+      <div class="kpi-label">Arus Petir Worst-Case</div>
+      <div class="kpi-value">−219 kA</div>
+      <div class="kpi-unit">2023 · T.15-A Prkan-Kdptn</div>
+      <div class="kpi-note">Vaisala FALLS® record</div>
+    </div>
+  </div>
+
+  <div class="alert warn"><strong>Konteks 2023:</strong> Lonjakan BENDA LAIN (48 kejadian) didominasi layang-layang dan spanduk yang bersentuhan dengan jaringan. Penurunan drastis pada 2024–2025 disebabkan oleh kombinasi mitigasi dan kondisi musim. Gangguan ALAM tetap menjadi penyebab terbesar secara kumulatif (58,9%).</div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h4><i class="fa-solid fa-chart-line" style="color:#FF4D00"></i> Tren Total Gangguan PHT (2021–2025)</h4>
+      <div class="chart-wrap"><canvas id="cTrend"></canvas></div>
+      <p class="src">Sumber: Report Gangguan FOIS UPT Cirebon · PHT = Penghantar Transmisi</p>
+    </div>
+    <div class="chart-card">
+      <h4><i class="fa-solid fa-chart-pie" style="color:#FF4D00"></i> Proporsi Penyebab Gangguan (2021–2025)</h4>
+      <div class="chart-wrap"><canvas id="cDonut"></canvas></div>
+      <p class="src">Total 338 gangguan PHT · ALAM = petir + bencana alam</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TAB 2: GANGGUAN PHT                                      -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="tab-pht" class="tab-panel">
+
+  <div class="alert info"><strong>Catatan data:</strong> Gangguan PHT (Penghantar Transmisi) mencakup jalur 70/150/500 kV di wilayah UPT Cirebon. Kategori <em>ALAM</em> mencakup sambaran petir langsung dan bencana alam. Kategori <em>BENDA LAIN</em> mencakup layang-layang, spanduk, pohon, dan objek asing lainnya. Data APPL = Aplikasi/sistem otomasi.</div>
+
+  <div class="section-title">📊 Gangguan PHT per Kategori (2021–2025)</div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h4><i class="fa-solid fa-chart-bar" style="color:#FF4D00"></i> Stacked Bar per Kategori</h4>
+      <div class="chart-wrap tall"><canvas id="cStack"></canvas></div>
+      <p class="src">Sumber: FOIS Report Gangguan 2016–2026 · grafik sheet (PHT)</p>
+    </div>
+    <div class="chart-card">
+      <h4><i class="fa-solid fa-chart-bar" style="color:#FF4D00"></i> ALAM vs Non-ALAM per Tahun</h4>
+      <div class="chart-wrap tall"><canvas id="cAlamVsNon"></canvas></div>
+      <p class="src">Batang biru = Non-ALAM · Merah = ALAM (petir & alam)</p>
+    </div>
+  </div>
+
+  <div class="section-title">📋 Rekap Lengkap Gangguan PHT per Tahun</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Kategori Penyebab</th>
+          <th class="tr">2021</th><th class="tr">2022</th><th class="tr">2023</th>
+          <th class="tr">2024</th><th class="tr">2025</th><th class="tr">2026*</th>
+          <th class="tr">Total</th><th class="tc">% dari Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><i class="fa-solid fa-bolt" style="color:#FF4D00;margin-right:5px"></i><strong>ALAM</strong> (petir, alam)</td>
+          <td class="tr">39</td><td class="tr">56</td><td class="tr">31</td><td class="tr">41</td><td class="tr">19</td><td class="tr">13</td>
+          <td class="tr"><strong>199</strong></td><td class="tc"><span class="badge b-red">58,9%</span></td></tr>
+        <tr><td><i class="fa-solid fa-kite" style="color:#D97706;margin-right:5px"></i>BENDA LAIN (layang², spanduk, pohon)</td>
+          <td class="tr">20</td><td class="tr">8</td><td class="tr">48</td><td class="tr">11</td><td class="tr">3</td><td class="tr">10</td>
+          <td class="tr"><strong>100</strong></td><td class="tc"><span class="badge b-warn">29,6%</span></td></tr>
+        <tr><td><i class="fa-solid fa-plug-circle-exclamation" style="color:#8B5CF6;margin-right:5px"></i>GANGGUAN PEMBANGKIT</td>
+          <td class="tr">6</td><td class="tr">4</td><td class="tr">1</td><td class="tr">5</td><td class="tr">5</td><td class="tr">0</td>
+          <td class="tr"><strong>21</strong></td><td class="tc">6,2%</td></tr>
+        <tr><td><i class="fa-solid fa-gears" style="color:#3B82F6;margin-right:5px"></i>ALAT (peralatan)</td>
+          <td class="tr">6</td><td class="tr">5</td><td class="tr">1</td><td class="tr">0</td><td class="tr">2</td><td class="tr">1</td>
+          <td class="tr"><strong>15</strong></td><td class="tc">4,4%</td></tr>
+        <tr><td><i class="fa-solid fa-robot" style="color:#10B981;margin-right:5px"></i>APPL (aplikasi/otomasi)</td>
+          <td class="tr">2</td><td class="tr">2</td><td class="tr">8</td><td class="tr">0</td><td class="tr">2</td><td class="tr">0</td>
+          <td class="tr"><strong>14</strong></td><td class="tc">4,1%</td></tr>
+        <tr><td><i class="fa-solid fa-paw" style="color:#64748B;margin-right:5px"></i>BINATANG</td>
+          <td class="tr">0</td><td class="tr">2</td><td class="tr">4</td><td class="tr">1</td><td class="tr">1</td><td class="tr">3</td>
+          <td class="tr"><strong>11</strong></td><td class="tc">3,3%</td></tr>
+        <tr><td><i class="fa-solid fa-network-wired" style="color:#94A3B8;margin-right:5px"></i>SISTEM</td>
+          <td class="tr">1</td><td class="tr">1</td><td class="tr">0</td><td class="tr">1</td><td class="tr">2</td><td class="tr">1</td>
+          <td class="tr"><strong>6</strong></td><td class="tc">1,8%</td></tr>
+        <tr class="total-row">
+          <td>TOTAL PHT</td>
+          <td class="tr">74</td><td class="tr">78</td><td class="tr">93</td><td class="tr">59</td><td class="tr">34</td><td class="tr">28*</td>
+          <td class="tr">366</td><td class="tc">100%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="src" style="margin-bottom:20px">*2026 = parsial Q1 · Sumber: FOIS Report Gangguan 2016–2026 (sheet grafik) · Cakupan: PHT 70/150/500 kV UPT Cirebon</p>
+
+  <div class="section-title">🔁 Gangguan Trafo (2016–2024)</div>
+  <div class="alert info"><strong>Berbeda dengan gangguan PHT</strong> — data ini mencakup kegagalan transformator GI/GITET. Sumber: sheet Kinerja, Report Gangguan FOIS. Penurunan konsisten pasca 2017 menunjukkan perbaikan dalam pemeliharaan prediktif trafo.</div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h4><i class="fa-solid fa-transformer-bolt" style="color:#FF4D00"></i> Tren Gangguan Trafo per Tahun</h4>
+      <div class="chart-wrap sm"><canvas id="cTrafo"></canvas></div>
+      <p class="src">Sumber: sheet Kinerja · Data kumulatif + kinerja (terencana)</p>
+    </div>
+    <div class="chart-card">
+      <h4><i class="fa-solid fa-chart-bar" style="color:#FF4D00"></i> Perbandingan: Gangguan PHT vs Trafo</h4>
+      <div class="chart-wrap sm"><canvas id="cPHTvsTrafo"></canvas></div>
+      <p class="src">PHT = jalur transmisi · Trafo = transformator GI/GITET</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TAB 3: GANGGUAN PETIR                                    -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="tab-petir" class="tab-panel">
+
+  <div class="alert warn"><strong>Petir = penyebab terbesar gangguan transmisi.</strong> Dari 2016–2020, total 156 gangguan akibat sambaran petir tercatat: 5 di SUTET 500 kV, 38 di SUTT 150 kV, dan 113 di SUTT 70 kV. Jalur 70 kV Sumadera–Pameungpeuk (SMDRA-PMPEK) menjadi koridor paling rawan dengan 26 kejadian dalam 5 tahun.</div>
+
+  <div class="section-title">⚡ Gangguan Petir per Tegangan (2016–2020)</div>
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h4><i class="fa-solid fa-chart-bar" style="color:#FF4D00"></i> Gangguan Petir per Tahun & Tegangan</h4>
+      <div class="chart-wrap tall"><canvas id="cPetirVolt"></canvas></div>
+      <p class="src">Sumber: Rekap Gangguan Petir.xlsx · APP/UPT Cirebon · 2016–2020</p>
+    </div>
+    <div class="chart-card">
+      <h4><i class="fa-solid fa-chart-bar" style="color:#FF4D00"></i> Top 10 Jalur 70 kV (Gangguan Petir, 2016–2020)</h4>
+      <div class="chart-wrap tall"><canvas id="cTop10"></canvas></div>
+      <p class="src">*PRKAN–KDPTN = lokasi studi EGLA (telah diimplementasikan 2023)</p>
+    </div>
+  </div>
+
+  <div class="section-title">📋 Detail Gangguan Petir per Jalur 70 kV (2016–2020)</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>No</th><th>Jalur SUTT 70 kV</th><th class="tr">Jml Tower</th>
+          <th class="tr">2016</th><th class="tr">2017</th><th class="tr">2018</th>
+          <th class="tr">2019</th><th class="tr">2020</th><th class="tr">Total</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>SMDRA – PMPEK</td><td class="tr">81</td><td class="tr">9</td><td class="tr">6</td><td class="tr">5</td><td class="tr">6</td><td class="tr">10</td><td class="tr"><strong>26</strong></td><td><span class="badge b-red">Tertinggi</span></td></tr>
+        <tr><td>2</td><td>TASIK – MLBNG</td><td class="tr">125</td><td class="tr">4</td><td class="tr">1</td><td class="tr">4</td><td class="tr">5</td><td class="tr">2</td><td class="tr"><strong>14</strong></td><td><span class="badge b-warn">Tinggi</span></td></tr>
+        <tr><td>3</td><td>KDPTN – ARJWN</td><td class="tr">94</td><td class="tr">1</td><td class="tr">2</td><td class="tr">4</td><td class="tr">8</td><td class="tr">3</td><td class="tr"><strong>15</strong></td><td><span class="badge b-warn">Tinggi</span></td></tr>
+        <tr><td>4</td><td>SRAGI – ARJWN</td><td class="tr">85</td><td class="tr">5</td><td class="tr">1</td><td class="tr">3</td><td class="tr">4</td><td class="tr">4</td><td class="tr"><strong>13</strong></td><td><span class="badge b-warn">Tinggi</span></td></tr>
+        <tr><td>5</td><td>BNJAR – PNDRN</td><td class="tr">146</td><td class="tr">6</td><td class="tr">2</td><td class="tr">2</td><td class="tr">1</td><td class="tr">2</td><td class="tr"><strong>11</strong></td><td><span class="badge b-warn">Tinggi</span></td></tr>
+        <tr><td>6</td><td>SMDRA – SNTSA / LMJAN</td><td class="tr">43</td><td class="tr">4</td><td class="tr">0</td><td class="tr">4</td><td class="tr">1</td><td class="tr">0</td><td class="tr"><strong>9</strong></td><td><span class="badge b-warn">Sedang</span></td></tr>
+        <tr><td>7</td><td>SRAGI – KNGAN</td><td class="tr">93</td><td class="tr">3</td><td class="tr">2</td><td class="tr">3</td><td class="tr">0</td><td class="tr">1</td><td class="tr"><strong>8</strong></td><td><span class="badge b-warn">Sedang</span></td></tr>
+        <tr class="hl-row"><td>8</td><td><strong>PRKAN – KDPTN</strong> <span style="font-size:.68rem;color:#BE123C">● EGLA Study</span></td><td class="tr">28</td><td class="tr">2</td><td class="tr">1</td><td class="tr">0</td><td class="tr">0</td><td class="tr">4</td><td class="tr"><strong>7</strong></td><td><span class="badge b-ok">EGLA 2023</span></td></tr>
+        <tr><td>9</td><td>PRKAN – SMDNG</td><td class="tr">78</td><td class="tr">3</td><td class="tr">1</td><td class="tr">0</td><td class="tr">1</td><td class="tr">2</td><td class="tr"><strong>5</strong></td><td><span class="badge b-ok">Rendah</span></td></tr>
+        <tr><td>10</td><td>SRAGI – BBKAN</td><td class="tr">97</td><td class="tr">0</td><td class="tr">0</td><td class="tr">1</td><td class="tr">1</td><td class="tr">1</td><td class="tr"><strong>2</strong></td><td><span class="badge b-ok">Rendah</span></td></tr>
+        <tr class="total-row"><td colspan="3">JUMLAH 10 JALUR</td><td class="tr">37</td><td class="tr">14</td><td class="tr">22</td><td class="tr">17</td><td class="tr">26</td><td class="tr"><strong>100</strong></td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">📍 Investigasi Lapangan Gangguan Petir — Q1 2026</div>
+  <div class="alert ok"><strong>6 kejadian dicatat pada Q1 2026</strong> — seluruhnya berhasil di-reclose (tidak padam) namun meninggalkan kerusakan fisik (arching horn gosong, isolator flashover) yang memerlukan tindak lanjut pemeliharaan.</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>GI</th><th>Bay</th><th>Tanggal</th><th>Temuan Tower</th>
+          <th class="tr">Pent. (Ω)</th><th>Arus Petir (kA)</th><th>Proteksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>GI 70 kV Tasikmalaya</td><td>PHT 70 kV Malangbong#2</td><td>29 Mar 2026</td>
+          <td>Flash arching horn sisi tower</td>
+          <td class="tr pspt-mid">15,258</td>
+          <td><span style="font-family:'JetBrains Mono',monospace;font-size:.78rem">−19,9 & +37,8</span></td>
+          <td>MRG + MDG</td>
+        </tr>
+        <tr>
+          <td>GI 70 kV Pangandaran</td><td>PHT 70 kV Banjar#2</td><td>28 Mar 2026</td>
+          <td>Flash arching horn sisi tower</td>
+          <td class="tr pspt-low">4,01</td>
+          <td><span style="font-family:'JetBrains Mono',monospace;font-size:.78rem">−21 & −23</span></td>
+          <td>MRG + MDG</td>
+        </tr>
+        <tr class="hl-row">
+          <td>GI 70 kV Kuningan</td><td>PHT 70 kV Sunyaragi#1</td><td>23 Mar 2026</td>
+          <td>T.32 — arching horn gosong</td>
+          <td class="tr pspt-low">0,718</td>
+          <td><span style="font-family:'JetBrains Mono',monospace;font-size:.78rem">−77, −19, −49, −37, −3</span></td>
+          <td>MRG + MDG</td>
+        </tr>
+        <tr>
+          <td>GI 70 kV Kadipaten</td><td>PHT 70 kV Arjawinangun#1</td><td>19 Mar 2026</td>
+          <td>Arching horn gosong pada tower</td>
+          <td class="tr pspt-low">0,357</td>
+          <td><span style="font-family:'JetBrains Mono',monospace;font-size:.78rem">−24 & −61</span></td>
+          <td>MRG + IGSW</td>
+        </tr>
+        <tr>
+          <td>GI 70 kV Babakan</td><td>PHT 70 kV Sunyaragi#2</td><td>5 Mar 2026</td>
+          <td>T.31 — arching horn flash</td>
+          <td class="tr pspt-low">0,323</td>
+          <td><span style="font-family:'JetBrains Mono',monospace;font-size:.78rem">−3,012</span></td>
+          <td>MRG + MDG</td>
+        </tr>
+        <tr>
+          <td>GI 70 kV Sunyaragi</td><td>PHT 70 kV Babakan#2</td><td>6 Feb 2026</td>
+          <td>T.11 — isolator flashover fasa R</td>
+          <td class="tr pspt-low">0,626</td>
+          <td><span style="font-family:'JetBrains Mono',monospace;font-size:.78rem">−49</span></td>
+          <td>MRG + MDG</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="src" style="margin-bottom:24px">MRG = Multi Ring Grounding · MDG = Multi Deep Grounding · IGSW = Installed Ground Shield Wire · Pent. = Resistansi pentanahan tower terpasang (Ω)</p>
+
+  <div class="section-title">⚡ Eksposur Petir Koridor PRKAN–KDPTN (Vaisala FALLS® 2020–2025)</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tahun</th><th class="tr">Total CG</th><th class="tr">Petir (−)</th><th class="tr">Petir (+)</th>
+          <th class="tr">Rasio −/+</th><th class="tr">Mean kA (−)</th><th class="tr">Max kA (−)</th>
+          <th class="tr">Mean kA (+)</th><th class="tc">Gangguan</th><th>Tower Dominan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>2020</td><td class="tr">3.595</td><td class="tr">3.318</td><td class="tr">277</td><td class="tr">12,0×</td><td class="tr">−20,31</td><td class="tr">−187</td><td class="tr">+27,40</td><td class="tc">1</td><td>T.18AA (172 sambaran)</td></tr>
+        <tr><td>2021</td><td class="tr">2.765</td><td class="tr">2.516</td><td class="tr">249</td><td class="tr">10,1×</td><td class="tr">−18,25</td><td class="tr">−121</td><td class="tr">+26,90</td><td class="tc">2</td><td>T.14-A (154 sambaran)</td></tr>
+        <tr class="hl-row"><td>2022</td><td class="tr">4.346</td><td class="tr">4.100</td><td class="tr">246</td><td class="tr">16,7×</td><td class="tr">−19,71</td><td class="tr">−142</td><td class="tr">+28,26</td><td class="tc"><span class="badge b-red">6</span></td><td>T.14-D (247 sambaran) ⚠</td></tr>
+        <tr><td>2023</td><td class="tr">3.040</td><td class="tr">2.689</td><td class="tr">351</td><td class="tr">7,7×</td><td class="tr">−22,88</td><td class="tr">−219</td><td class="tr">+33,20</td><td class="tc">3</td><td>T.15-A (153 sambaran)</td></tr>
+        <tr><td>2024</td><td class="tr">3.157</td><td class="tr">2.935</td><td class="tr">222</td><td class="tr">13,2×</td><td class="tr">−20,29</td><td class="tr">−160</td><td class="tr">+33,69</td><td class="tc"><span class="badge b-ok">0 ✓</span></td><td>T.18C-A (167 sambaran)</td></tr>
+        <tr><td>2025</td><td class="tr">3.191</td><td class="tr">2.941</td><td class="tr">250</td><td class="tr">11,8×</td><td class="tr">−23,37</td><td class="tr">−138</td><td class="tr">+37,03</td><td class="tc">1</td><td>T.05B (136 sambaran)</td></tr>
+        <tr class="total-row"><td>Total</td><td class="tr">20.094</td><td class="tr">18.499</td><td class="tr">1.595</td><td class="tr">11,6×</td><td class="tr">−20,73</td><td class="tr">−219</td><td class="tr">—</td><td class="tc"><strong>13</strong></td><td>Pooled median 20,71 kA</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="src">Sumber: Vaisala FALLS® Client · Exposure analysis SUTT 70 kV Parakan–Kadipaten · Data 2025 penuh (Jan–Des) · Studi EGLA PSO: ICT-PEP PLN 2026</p>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TAB 4: PROTEKSI PETIR                                    -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="tab-proteksi" class="tab-panel">
+
+  <div class="section-title">🛡 Status Proteksi Petir per Jalur (ULTG Cirebon)</div>
+  <div class="alert info"><strong>Kolom Down Conductor (DC)</strong> = kawat grounding yang dipasang di badan tower untuk menyalurkan arus petir ke tanah. <strong>Ground Rod</strong> = elektroda pentanahan tertancap di tanah di kaki tower. Data bersumber dari database Proteksi Petir ULTG Cirebon (survei lapangan).</div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Jalur</th><th>Teg.</th><th class="tr">Jml Tower</th>
+          <th class="tr">Dengan DC</th><th class="tc">Coverage DC</th>
+          <th class="tr">Rata-rata GR</th><th class="tr">Tower tanpa GR</th><th>Kelengkapan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Sragi – Arjwn</td><td><span class="badge b-70">70 kV</span></td><td class="tr">86</td>
+          <td class="tr">85</td>
+          <td><div style="min-width:80px"><div style="font-size:.75rem;text-align:right;margin-bottom:2px">98,8%</div><div class="prot-bar"><div class="prot-fill ok" style="width:98.8%"></div></div></div></td>
+          <td class="tr">11,4 titik</td><td class="tr">2</td><td><span class="badge b-ok">✓ Baik</span></td></tr>
+        <tr><td>Arjwn – Kdpten</td><td><span class="badge b-70">70 kV</span></td><td class="tr">94</td>
+          <td class="tr">5</td>
+          <td><div style="min-width:80px"><div style="font-size:.75rem;text-align:right;margin-bottom:2px">5,3%</div><div class="prot-bar"><div class="prot-fill warn" style="width:5.3%"></div></div></div></td>
+          <td class="tr">10,5 titik</td><td class="tr">3</td><td><span class="badge b-warn">GR ✓ · DC ⚠</span></td></tr>
+        <tr><td>Prkan – Smdang</td><td><span class="badge b-70">70 kV</span></td><td class="tr">78</td>
+          <td class="tr">5</td>
+          <td><div style="min-width:80px"><div style="font-size:.75rem;text-align:right;margin-bottom:2px">6,4%</div><div class="prot-bar"><div class="prot-fill warn" style="width:6.4%"></div></div></div></td>
+          <td class="tr">9,6 titik</td><td class="tr">0</td><td><span class="badge b-warn">GR ✓ · DC ⚠</span></td></tr>
+        <tr class="hl-row"><td><strong>Prkan – Kdpten</strong> ⚡ EGLA</td><td><span class="badge b-70">70 kV</span></td><td class="tr">28</td>
+          <td class="tr">5</td>
+          <td><div style="min-width:80px"><div style="font-size:.75rem;text-align:right;margin-bottom:2px">17,9%</div><div class="prot-bar"><div class="prot-fill warn" style="width:17.9%"></div></div></div></td>
+          <td class="tr">8,5 titik</td><td class="tr">5</td><td><span class="badge b-blue">EGLA 2023</span></td></tr>
+        <tr><td>Sragi – Rckek</td><td><span class="badge b-150">150 kV</span></td><td class="tr">173</td>
+          <td class="tr">6</td>
+          <td><div style="min-width:80px"><div style="font-size:.75rem;text-align:right;margin-bottom:2px">3,5%</div><div class="prot-bar"><div class="prot-fill" style="width:3.5%;background:#DC2626"></div></div></div></td>
+          <td class="tr">1,8 titik</td><td class="tr">146</td><td><span class="badge b-red">⚠ Perlu Perbaikan</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="src" style="margin-bottom:24px">DC = Down Conductor · GR = Ground Rod · Sumber: Proteksi Petir ULTG Cirebon.xlsx (survei lapangan 2019–2023)</p>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h4><i class="fa-solid fa-chart-bar" style="color:#FF4D00"></i> Coverage Down Conductor per Jalur (%)</h4>
+      <div class="chart-wrap"><canvas id="cDCCoverage"></canvas></div>
+      <p class="src">% tower yang sudah terpasang Down Conductor dari total tower</p>
+    </div>
+    <div class="chart-card">
+      <h4><i class="fa-solid fa-chart-bar" style="color:#FF4D00"></i> Rata-rata Jumlah Ground Rod per Tower</h4>
+      <div class="chart-wrap"><canvas id="cGRAvg"></canvas></div>
+      <p class="src">Titik rod per tower · Sragi-Rckek sangat rendah (1,8 titik rata-rata)</p>
+    </div>
+  </div>
+
+  <div class="section-title">📐 Pengukuran Pentanahan — SUTT 70 kV Parakan–Kadipaten (Counterpoise)</div>
+  <div class="alert ok"><strong>Efektivitas counterpoise:</strong> Pemasangan kawat counterpoise sepanjang galian bawah tanah tower secara dramatis menurunkan resistansi pentanahan — dari rata-rata 1,60 Ω menjadi 0,67 Ω (penurunan 58%). Seluruh tower mencapai &lt; 1 Ω setelah instalasi counterpoise + tower.</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tower</th>
+          <th class="tr">Rod A (Ω)</th><th class="tr">Rod B (Ω)</th><th class="tr">Rod C (Ω)</th><th class="tr">Rod D (Ω)</th>
+          <th class="tr">Paralel (Pra)</th><th class="tr">+ Counterpoise</th><th class="tr">Final (Ω)</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>A13</td>
+          <td class="tr pspt-val">4,40</td><td class="tr pspt-val">3,65</td><td class="tr pspt-val">5,36</td><td class="tr pspt-val">3,67</td>
+          <td class="tr pspt-mid">1,73</td><td class="tr pspt-mid">0,83</td>
+          <td class="tr pspt-val"><strong class="pspt-low">0,15</strong></td><td><span class="badge b-ok">✓ &lt;1Ω</span></td></tr>
+        <tr><td>D15</td>
+          <td class="tr pspt-val">7,33</td><td class="tr pspt-val pspt-high">51,40</td><td class="tr pspt-val">19,96</td><td class="tr pspt-val">33,20</td>
+          <td class="tr pspt-low">1,02</td><td class="tr pspt-high">4,36</td>
+          <td class="tr pspt-val"><strong class="pspt-low">0,69</strong></td><td><span class="badge b-ok">✓ &lt;1Ω</span></td></tr>
+        <tr><td>D16</td>
+          <td class="tr pspt-val">17,88</td><td class="tr pspt-val">17,95</td><td class="tr pspt-val">15,08</td><td class="tr pspt-val">15,80</td>
+          <td class="tr pspt-mid">2,06</td><td class="tr pspt-mid">3,45</td>
+          <td class="tr pspt-val"><strong class="pspt-low">0,92</strong></td><td><span class="badge b-ok">✓ &lt;1Ω</span></td></tr>
+        <tr><td>A18</td>
+          <td class="tr pspt-val">13,05</td><td class="tr pspt-val">12,32</td><td class="tr pspt-val">10,87</td><td class="tr pspt-val">13,10</td>
+          <td class="tr pspt-mid">1,41</td><td class="tr pspt-mid">3,27</td>
+          <td class="tr pspt-val"><strong class="pspt-low">0,91</strong></td><td><span class="badge b-ok">✓ &lt;1Ω</span></td></tr>
+        <tr><td>A18a</td>
+          <td class="tr pspt-val">12,80</td><td class="tr pspt-val">5,26</td><td class="tr pspt-val">9,79</td><td class="tr pspt-val">10,27</td>
+          <td class="tr pspt-mid">1,81</td><td class="tr pspt-mid">1,20</td>
+          <td class="tr pspt-val"><strong class="pspt-low">0,70</strong></td><td><span class="badge b-ok">✓ &lt;1Ω</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">📐 Pengukuran Pentanahan — PSPT (Pemeriksaan Sistem Proteksi Petir)</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Jalur</th><th>Tower</th>
+          <th class="tr">Pra PSPT (Ω)</th><th class="tr">Rod PSPT (Ω)</th><th class="tr">Final (Ω)</th>
+          <th>Hasil</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td rowspan="9" style="vertical-align:top;padding-top:10px"><strong>SUTT 150 kV<br>MDCAN–JTBRG</strong></td>
+          <td>T.9</td><td class="tr pspt-high">6,47</td><td class="tr">2,14</td><td class="tr pspt-low"><strong>1,26</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.10</td><td class="tr pspt-low">1,49</td><td class="tr pspt-high">8,31</td><td class="tr pspt-mid"><strong>1,53</strong></td><td><span class="badge b-warn">⚠</span></td></tr>
+        <tr><td>T.11</td><td class="tr pspt-mid">2,81</td><td class="tr">3,12</td><td class="tr pspt-low"><strong>1,29</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.23</td><td class="tr pspt-low">1,12</td><td class="tr">2,12</td><td class="tr pspt-mid"><strong>1,80</strong></td><td><span class="badge b-warn">⚠</span></td></tr>
+        <tr><td>T.24</td><td class="tr pspt-mid">2,98</td><td class="tr">3,42</td><td class="tr pspt-low"><strong>1,03</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.25</td><td class="tr pspt-low">1,22</td><td class="tr">3,10</td><td class="tr pspt-mid"><strong>1,71</strong></td><td><span class="badge b-warn">⚠</span></td></tr>
+        <tr><td>T.45</td><td class="tr pspt-mid">2,83</td><td class="tr pspt-low">1,86</td><td class="tr pspt-low"><strong>0,73</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.46</td><td class="tr pspt-mid">3,31</td><td class="tr pspt-low">1,91</td><td class="tr pspt-low"><strong>0,79</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.47</td><td class="tr pspt-mid">4,55</td><td class="tr pspt-low">0,47</td><td class="tr pspt-low"><strong>0,40</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+
+        <tr><td rowspan="8" style="vertical-align:top;padding-top:10px"><strong>SUTT 70 kV<br>PRKAN–KDPTN</strong></td>
+          <td>T.9</td><td class="tr pspt-mid">5,50</td><td class="tr pspt-high">7,01</td><td class="tr pspt-mid"><strong>2,26</strong></td><td><span class="badge b-warn">⚠</span></td></tr>
+        <tr><td>T.10</td><td class="tr pspt-mid">3,83</td><td class="tr">3,47</td><td class="tr pspt-mid"><strong>1,84</strong></td><td><span class="badge b-warn">⚠</span></td></tr>
+        <tr><td>T.11</td><td class="tr pspt-low">0,56</td><td class="tr pspt-low">0,53</td><td class="tr pspt-low"><strong>0,50</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.14a</td><td class="tr pspt-mid">2,51</td><td class="tr pspt-low">1,64</td><td class="tr pspt-low"><strong>1,20</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.15</td><td class="tr pspt-mid">5,59</td><td class="tr pspt-mid">5,05</td><td class="tr pspt-mid"><strong>2,59</strong></td><td><span class="badge b-warn">⚠</span></td></tr>
+        <tr><td>T.18</td><td class="tr pspt-mid">2,77</td><td class="tr">3,23</td><td class="tr pspt-low"><strong>1,34</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.18a</td><td class="tr pspt-mid">1,81</td><td class="tr pspt-mid">5,31</td><td class="tr pspt-low"><strong>1,25</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.18b</td><td class="tr pspt-mid">2,00</td><td class="tr pspt-low">0,84</td><td class="tr pspt-low"><strong>0,58</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+
+        <tr><td rowspan="9" style="vertical-align:top;padding-top:10px"><strong>SUTT 70 kV<br>SNYG–KNGAN</strong></td>
+          <td>T.14</td><td class="tr pspt-mid">4,49</td><td class="tr pspt-mid">2,43</td><td class="tr pspt-low"><strong>1,32</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.15</td><td class="tr pspt-mid">4,63</td><td class="tr pspt-mid">2,57</td><td class="tr pspt-low"><strong>1,28</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.16</td><td class="tr pspt-mid">2,31</td><td class="tr pspt-low">1,24</td><td class="tr pspt-low"><strong>1,23</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.33</td><td class="tr pspt-mid">3,67</td><td class="tr pspt-low">1,73</td><td class="tr pspt-low"><strong>1,48</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.34</td><td class="tr pspt-low">0,71</td><td class="tr pspt-low">0,50</td><td class="tr pspt-low"><strong>0,46</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.35</td><td class="tr pspt-mid">3,25</td><td class="tr pspt-low">1,38</td><td class="tr pspt-low"><strong>1,37</strong></td><td><span class="badge b-ok">✓</span></td></tr>
+        <tr><td>T.45</td><td class="tr pspt-mid">5,90</td><td class="tr pspt-mid">4,64</td><td class="tr pspt-mid"><strong>2,10</strong></td><td><span class="badge b-warn">⚠</span></td></tr>
+        <tr><td>T.46</td><td class="tr pspt-high">6,85</td><td class="tr pspt-mid">2,40</td><td class="tr pspt-mid"><strong>2,07</strong></td><td><span class="badge b-warn">⚠</span></td></tr>
+        <tr><td>T.47</td><td class="tr pspt-mid">2,57</td><td class="tr pspt-high">6,40</td><td class="tr pspt-mid"><strong>1,76</strong></td><td><span class="badge b-warn">⚠</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="src">✓ = Final &lt; 1,5 Ω (memenuhi standar) · ⚠ = Final 1,5–3 Ω (perlu monitoring) · Merah tebal = nilai tinggi · Hijau = nilai rendah (baik)<br>Sumber: counter poist &amp; PSPT.xlsx · PSPT = Pemeriksaan Sistem Proteksi Petir · Rod PSPT = elektroda tambahan</p>
+
+</div>
+
+</div><!-- /page-body -->
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+(function(){
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
+  s.onload = init;
+  document.head.appendChild(s);
+
+  function init() {
+    const ACC = '#FF4D00';
+    const YRS5 = ['2021','2022','2023','2024','2025'];
+    const TOTAL5 = [74,78,93,59,34];
+    const ALAM  = [39,56,31,41,19];
+    const BENDA = [20, 8,48,11, 3];
+    const GGN_PB= [ 6, 4, 1, 5, 5];
+    const ALAT  = [ 6, 5, 1, 0, 2];
+    const APPL  = [ 2, 2, 8, 0, 2];
+    const BNTG  = [ 0, 2, 4, 1, 1];
+    const SIS   = [ 1, 1, 0, 1, 2];
+    const NON_ALAM = TOTAL5.map((t,i)=>t-ALAM[i]);
+
+    // 1. Trend
+    new Chart(document.getElementById('cTrend'), {
+      data: { labels: YRS5, datasets: [
+        { type:'bar', label:'Total Gangguan PHT', data:TOTAL5,
+          backgroundColor: TOTAL5.map(v=>v>80?'rgba(220,38,38,.25)':v>50?'rgba(217,119,6,.25)':'rgba(22,163,74,.25)'),
+          borderColor:     TOTAL5.map(v=>v>80?'rgba(220,38,38,.7)':v>50?'rgba(217,119,6,.7)':'rgba(22,163,74,.7)'),
+          borderWidth:1.5,borderRadius:4 },
+        { type:'line', label:'Tren', data:TOTAL5, borderColor:ACC, borderWidth:2.5,
+          pointRadius:6, pointBackgroundColor:TOTAL5.map(v=>v>80?'#DC2626':v>50?'#D97706':'#16A34A'),
+          tension:.3, fill:false }
+      ]},
+      options:{ responsive:true,maintainAspectRatio:false, scales:{y:{min:0,max:110,title:{display:true,text:'Gangguan'}}},
+        plugins:{legend:{display:false}} }
+    });
+
+    // 2. Donut penyebab
+    new Chart(document.getElementById('cDonut'), {
+      type:'doughnut',
+      data:{ labels:['ALAM','BENDA LAIN','GGN PEMBANGKIT','ALAT','APPL','BINATANG','SISTEM'],
+        datasets:[{ data:[199,100,21,15,14,11,6],
+          backgroundColor:['#FF4D00','#F59E0B','#8B5CF6','#3B82F6','#10B981','#64748B','#CBD5E1'],
+          borderWidth:2,borderColor:'#fff' }] },
+      options:{ responsive:true,maintainAspectRatio:false, cutout:'55%',
+        plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}} }
+    });
+
+    // 3. Stacked
+    new Chart(document.getElementById('cStack'), {
+      type:'bar',
+      data:{ labels:YRS5, datasets:[
+        {label:'ALAM',       data:ALAM,   backgroundColor:'rgba(255,77,0,.82)',    borderRadius:2},
+        {label:'BENDA LAIN', data:BENDA,  backgroundColor:'rgba(245,158,11,.80)',  borderRadius:2},
+        {label:'GGN PEMBANGKIT',data:GGN_PB,backgroundColor:'rgba(139,92,246,.78)',borderRadius:2},
+        {label:'APPL',       data:APPL,   backgroundColor:'rgba(16,185,129,.78)',  borderRadius:2},
+        {label:'ALAT',       data:ALAT,   backgroundColor:'rgba(59,130,246,.78)',  borderRadius:2},
+        {label:'BINATANG',   data:BNTG,   backgroundColor:'rgba(100,116,139,.78)', borderRadius:2},
+        {label:'SISTEM',     data:SIS,    backgroundColor:'rgba(148,163,184,.78)', borderRadius:2},
+      ]},
+      options:{ responsive:true,maintainAspectRatio:false,
+        scales:{ x:{stacked:true},y:{stacked:true,title:{display:true,text:'Jumlah'}} },
+        plugins:{ legend:{position:'bottom',labels:{boxWidth:11,font:{size:11}}},
+          tooltip:{callbacks:{footer:items=>'Total: '+items.reduce((s,i)=>s+i.raw,0)}} }
+      }
+    });
+
+    // 4. ALAM vs Non-ALAM
+    new Chart(document.getElementById('cAlamVsNon'), {
+      type:'bar',
+      data:{ labels:YRS5, datasets:[
+        {label:'ALAM (petir & alam)', data:ALAM,    backgroundColor:'rgba(220,38,38,.75)',  borderRadius:3},
+        {label:'Non-ALAM',           data:NON_ALAM, backgroundColor:'rgba(59,130,246,.65)', borderRadius:3},
+      ]},
+      options:{ responsive:true,maintainAspectRatio:false,
+        scales:{ x:{stacked:true},y:{stacked:true,title:{display:true,text:'Jumlah'}} },
+        plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:11}}}}
+      }
+    });
+
+    // 5. Trafo
+    const TRAFO_YRS = ['2016','2017','2018','2019','2020','2021','2022','2023','2024'];
+    const TRAFO_TOT = [14,19,17,10,16,15,10,6,10];
+    new Chart(document.getElementById('cTrafo'), {
+      type:'line',
+      data:{ labels:TRAFO_YRS, datasets:[{label:'Gangguan Trafo (kumulatif)', data:TRAFO_TOT,
+        borderColor:'#8B5CF6', backgroundColor:'rgba(139,92,246,.08)',
+        borderWidth:2.5, pointRadius:5, tension:.25 }] },
+      options:{ responsive:true,maintainAspectRatio:false, scales:{y:{min:0,max:25}},
+        plugins:{legend:{display:false}} }
+    });
+
+    // 6. PHT vs Trafo (2021-2024 overlap)
+    new Chart(document.getElementById('cPHTvsTrafo'), {
+      type:'bar',
+      data:{ labels:['2021','2022','2023','2024'], datasets:[
+        {label:'Gangguan PHT', data:[74,78,93,59], backgroundColor:'rgba(255,77,0,.75)', borderRadius:4},
+        {label:'Gangguan Trafo',data:[15,10, 6,10], backgroundColor:'rgba(139,92,246,.75)', borderRadius:4},
+      ]},
+      options:{ responsive:true,maintainAspectRatio:false,
+        scales:{y:{title:{display:true,text:'Jumlah'}}},
+        plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:11}}}}
+      }
+    });
+
+    // 7. Petir per voltage per year
+    new Chart(document.getElementById('cPetirVolt'), {
+      type:'bar',
+      data:{ labels:['2016','2017','2018','2019','2020'], datasets:[
+        {label:'SUTET 500 kV', data:[2,1,1,0,1], backgroundColor:'rgba(185,28,28,.82)',  borderRadius:3},
+        {label:'SUTT 150 kV',  data:[10,7,6,15,8],backgroundColor:'rgba(29,78,216,.78)', borderRadius:3},
+        {label:'SUTT 70 kV',   data:[38,17,30,28,30],backgroundColor:'rgba(255,77,0,.82)',borderRadius:3},
+      ]},
+      options:{ responsive:true,maintainAspectRatio:false,
+        scales:{ x:{stacked:true},y:{stacked:true,title:{display:true,text:'Gangguan Petir'}} },
+        plugins:{ legend:{position:'bottom',labels:{boxWidth:11,font:{size:11}}},
+          tooltip:{callbacks:{footer:items=>'Total: '+items.reduce((s,i)=>s+i.raw,0)}} }
+      }
+    });
+
+    // 8. Top 10 jalur
+    const L70=['SMDRA–PMPEK','KDPTN–ARJWN','TASIK–MLBNG','SRAGI–ARJWN','BNJAR–PNDRN','SMDRA–SNTSA','SRAGI–KNGAN','PRKAN–KDPTN*','PRKAN–SMDNG','SRAGI–BBKAN'];
+    const D70=[26,15,14,13,11,9,8,7,5,2];
+    new Chart(document.getElementById('cTop10'), {
+      type:'bar',
+      data:{ labels:L70, datasets:[{label:'Gangguan Petir 2016–2020', data:D70,
+        backgroundColor:L70.map((_,i)=>i===7?'rgba(220,38,38,.85)':'rgba(255,77,0,.72)'),
+        borderRadius:4 }] },
+      options:{ indexAxis:'y', responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},
+          tooltip:{callbacks:{label:ctx=>`${ctx.raw} gangguan${ctx.dataIndex===7?' ← studi EGLA':''}`}}},
+        scales:{x:{title:{display:true,text:'Jumlah Gangguan Petir'}}}
+      }
+    });
+
+    // 9. DC Coverage
+    const jalurLabels=['Sragi–Arjwn','Arjwn–Kdpten','Prkan–Smdang','Prkan–Kdpten','Sragi–Rckek'];
+    const dcPct=[98.8,5.3,6.4,17.9,3.5];
+    new Chart(document.getElementById('cDCCoverage'), {
+      type:'bar',
+      data:{ labels:jalurLabels, datasets:[{label:'Coverage DC (%)', data:dcPct,
+        backgroundColor:dcPct.map(v=>v>80?'rgba(22,163,74,.8)':v>30?'rgba(217,119,6,.8)':'rgba(220,38,38,.75)'),
+        borderRadius:4 }] },
+      options:{ indexAxis:'y', responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{x:{min:0,max:110,title:{display:true,text:'% Tower dengan Down Conductor'}}}
+      }
+    });
+
+    // 10. GR Average
+    const grAvg=[11.4,10.5,9.6,8.5,1.8];
+    new Chart(document.getElementById('cGRAvg'), {
+      type:'bar',
+      data:{ labels:jalurLabels, datasets:[{label:'Rata-rata GR (titik/tower)', data:grAvg,
+        backgroundColor:grAvg.map(v=>v<3?'rgba(220,38,38,.75)':v<8?'rgba(217,119,6,.75)':'rgba(22,163,74,.75)'),
+        borderRadius:4 }] },
+      options:{ indexAxis:'y', responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{x:{min:0,max:14,title:{display:true,text:'Rata-rata jumlah Ground Rod (titik/tower)'}}}
+      }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

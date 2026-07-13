@@ -876,6 +876,7 @@ const MODULE_ICONS = {
   'sistem-transmisi':        '<i class="fa-solid fa-network-wired"></i>',
   'rencana-transmisi':       '<i class="fa-solid fa-road"></i>',
   'proteksi-transmisi':      '<i class="fa-solid fa-shield-halved"></i>',
+  'keandalan-transmisi':     '<i class="fa-solid fa-chart-column"></i>',
   // energi-jabar: Distribusi
   'pelanggan':               '<i class="fa-solid fa-users"></i>',
   'olap-tagihan':            '<i class="fa-solid fa-file-invoice"></i>',
@@ -923,6 +924,7 @@ const MODULE_DESC = {
   'egla-pkdn':               'EGLA SUTT 70 kV Parakan–Kadipaten — optimasi gap PSO berbasis data Vaisala FALLS 6 tahun: BFR −67,9%, d*=299mm, simulasi EMTP-CIGRE LPM, publikasi ICT-PEP 2026 & CoP ULTG Cirebon Sem-II 2025',
   'sistem-transmisi':        'Panduan Defense Scheme OLS/OGS/UFR/Island Operation UP2B Jabar 2024, data arus hubung singkat GI/GITET Jawa-Bali Sem-1 2024, Norm AHI Transmisi 2024, kajian OLS Subsistem Mandirancan, dan lesson learned NSF UIT JBT 2025',
   'rencana-transmisi':       'RPTL Sistem Jawa-Madura-Bali 2025–2029 (UIP2B JAMALI) — neraca daya, pengembangan transmisi & GI, stabilitas sistem; dan materi transisi energi Draft RUPTL 2024–2033 Beyond The Greenest RUPTL',
+  'keandalan-transmisi':     'Dashboard analitik keandalan & gangguan transmisi wilayah UPT Cirebon — statistik gangguan PHT 2021–2025 (338 kejadian, 7 kategori), gangguan petir per tegangan & jalur 2016–2020, investigasi Q1 2026, data Vaisala FALLS® 2020–2025, dan pengukuran PSPT/counterpoise',
   'proteksi-transmisi':      'Repositori terpadu proteksi sistem tenaga — CoP ULTG Cirebon 2025 (EGLA, BFO, monitoring anomali GI, simulator relay SIMULTAN), publikasi ICT-PEP 2026 & SinarFE7 2018, Pedoman DSS PLN 2024, Standar Terminal Relay UIT JBT 2024, dan database proteksi petir (200+ file PSPT, IGSW, counterpoise)',
   // energi-jabar: Distribusi
   'pelanggan':               'Master data pelanggan PLN Jawa Barat — akses terbatas, data PII terenkripsi',
@@ -978,6 +980,7 @@ const SECTION_MAP = {
   'sistem-transmisi':        3,
   'rencana-transmisi':       3,
   'proteksi-transmisi':      3,
+  'keandalan-transmisi':     3,
   // energi-jabar — Section 04: Distribusi
   'pelanggan':               4,
   'olap-tagihan':            4,
@@ -1512,6 +1515,9 @@ function initKnowledgeGraph(domainList) {
     ['rencana-transmisi',  'infrastruktur-distribusi'],
     ['proteksi-transmisi', 'keandalan-layanan'],
     ['egla-pkdn',          'keandalan-layanan'],
+    ['egla-pkdn',          'keandalan-transmisi'],
+    ['proteksi-transmisi', 'keandalan-transmisi'],
+    ['sistem-transmisi',   'keandalan-transmisi'],
     // ── PLN → Distribusi ─────────────────────────────────
     ['pln-stat',           'infrastruktur-distribusi'],
     ['tariff-adjustment',  'olap-tagihan'],
@@ -1706,6 +1712,8 @@ function initFullGraph(domainList) {
     // Transmisi → Distribusi
     ['sistem-transmisi','infrastruktur-distribusi'],['rencana-transmisi','infrastruktur-distribusi'],
     ['proteksi-transmisi','keandalan-layanan'],['egla-pkdn','keandalan-layanan'],
+    ['egla-pkdn','keandalan-transmisi'],['proteksi-transmisi','keandalan-transmisi'],
+    ['sistem-transmisi','keandalan-transmisi'],
     // PLN → Distribusi
     ['pln-stat','infrastruktur-distribusi'],['tariff-adjustment','olap-tagihan'],
     // Distribusi internal
