@@ -258,6 +258,9 @@ tr:hover td{background:rgba(255,255,255,.02);}
     <div class="alert-info" style="border-radius:8px;padding:12px 16px;font-size:.79rem;line-height:1.6;background:rgba(59,130,246,.06);border-left:4px solid #3B82F6;color:#93c5fd">
       <strong>Cara kerja:</strong> Timer backup berjalan di dalam proses Node.js COCKPIT. Backup akan berjalan otomatis selama server aktif.
       Jika server restart, timer akan dimulai kembali dan backup berikutnya akan dihitung dari backup terakhir.
+      <br><br>
+      <strong>Lokasi penyimpanan:</strong> File backup disimpan di <code style="font-family:DM Mono,monospace;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px">~/cockpit_backups/</code> (home directory server) agar tidak hilang saat deploy ulang.
+      Bisa dikustomisasi via env var <code style="font-family:DM Mono,monospace;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px">BACKUP_DIR</code>.
     </div>
   </div>
 

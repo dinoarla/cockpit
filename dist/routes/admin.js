@@ -6,6 +6,7 @@ import { requireAuth, requireRole } from "../middleware/auth.js";
 import { hashPassword, validatePasswordStrength } from "../auth/password.js";
 import * as path from "path";
 import * as fs from "fs";
+import * as os from "os";
 export const adminRoutes = new Hono();
 adminRoutes.use("*", requireAuth, requireRole("admin"));
 /* ── USERS ── */
@@ -225,7 +226,7 @@ adminRoutes.get("/domains-modules", async (c) => {
     return c.json(result);
 });
 /* ── DATABASE MANAGEMENT ── */
-const BACKUP_DIR = path.join(process.cwd(), "backups");
+const BACKUP_DIR = process.env.BACKUP_DIR ?? path.join(os.homedir(), "cockpit_backups");
 const SCHEDULE_FILE = path.join(BACKUP_DIR, ".schedule.json");
 function ensureBackupDir() {
     if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });

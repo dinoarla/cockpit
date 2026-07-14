@@ -15,3 +15,7 @@ node_modules/
 # misc
 *.log
 .env.production
+
+# database backups (stored outside project root in production)
+backups/
+cockpit_backups/

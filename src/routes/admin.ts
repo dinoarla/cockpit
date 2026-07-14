@@ -9,6 +9,7 @@ import { requireAuth, requireRole } from "../middleware/auth.js";
 import { hashPassword, validatePasswordStrength } from "../auth/password.js";
 import * as path from "path";
 import * as fs from "fs";
+import * as os from "os";
 import { fileURLToPath } from "url";
 
 export const adminRoutes = new Hono();
@@ -274,7 +275,9 @@ adminRoutes.get("/domains-modules", async (c) => {
 
 /* ── DATABASE MANAGEMENT ── */
 
-const BACKUP_DIR = path.join(process.cwd(), "backups");
+// Use BACKUP_DIR env var if set (recommended for production), otherwise persist in home directory
+// so backups survive server restarts and re-deploys
+const BACKUP_DIR = process.env.BACKUP_DIR ?? path.join(os.homedir(), "cockpit_backups");
 const SCHEDULE_FILE = path.join(BACKUP_DIR, ".schedule.json");
 
 interface ScheduleConfig {
