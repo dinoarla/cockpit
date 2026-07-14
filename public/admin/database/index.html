@@ -39,11 +39,14 @@ html,body{min-height:100%;background:var(--navy);color:var(--ink);font-family:'D
 .tab-panel{display:none}.tab-panel.active{display:block}
 
 /* KPI */
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
-.kpi{background:var(--navy-2);border:1px solid var(--border-2);border-radius:10px;padding:16px 18px;}
-.kpi-label{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--ink-3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;}
-.kpi-value{font-size:1.55rem;font-weight:700;color:var(--orange);line-height:1;font-variant-numeric:tabular-nums;}
-.kpi-sub{font-size:.68rem;color:var(--ink-3);margin-top:3px;}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;}
+@media(max-width:768px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:400px){.kpi-row{grid-template-columns:1fr;}}
+.kpi{background:var(--navy-2);border:1px solid var(--border-2);border-radius:10px;padding:16px 18px;min-height:90px;display:flex;flex-direction:column;justify-content:space-between;}
+.kpi-label{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--ink-3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;}
+.kpi-value{font-size:1.55rem;font-weight:700;color:var(--orange);line-height:1.1;font-variant-numeric:tabular-nums;}
+.kpi-value.kpi-value-sm{font-size:1.15rem;word-break:break-word;}
+.kpi-sub{font-size:.64rem;color:var(--ink-3);margin-top:5px;word-break:break-all;}
 
 /* SECTION */
 .sec-head{display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px;}
@@ -156,9 +159,9 @@ tr:hover td{background:rgba(255,255,255,.02);}
   <div id="tab-info" class="tab-panel active">
     <div id="alert-info-zone"></div>
     <div class="kpi-row" id="kpiRow">
-      <div class="kpi"><div class="kpi-label">Database</div><div class="kpi-value" id="kpi-db">—</div><div class="kpi-sub" id="kpi-host">Memuat…</div></div>
+      <div class="kpi"><div class="kpi-label">Database</div><div class="kpi-value kpi-value-sm" id="kpi-db">—</div><div class="kpi-sub" id="kpi-host">Memuat…</div></div>
       <div class="kpi"><div class="kpi-label">Total Tabel</div><div class="kpi-value" id="kpi-tables">—</div><div class="kpi-sub">aktif di database</div></div>
-      <div class="kpi"><div class="kpi-label">Total Baris ≈</div><div class="kpi-value" id="kpi-rows">—</div><div class="kpi-sub">estimasi InnoDB</div></div>
+      <div class="kpi"><div class="kpi-label">Total Baris</div><div class="kpi-value" id="kpi-rows">—</div><div class="kpi-sub">±estimasi InnoDB</div></div>
       <div class="kpi"><div class="kpi-label">Ukuran Total</div><div class="kpi-value" id="kpi-size">—</div><div class="kpi-sub">data + index</div></div>
       <div class="kpi"><div class="kpi-label">Backup Tersimpan</div><div class="kpi-value" id="kpi-backups">—</div><div class="kpi-sub">di folder backups/</div></div>
     </div>
@@ -325,8 +328,10 @@ async function loadInfo() {
   if (!res.ok) { showAlert('alert-info-zone','err','Gagal memuat info database'); return; }
   const d = await res.json();
 
-  document.getElementById('kpi-db').textContent = d.dbName || '—';
-  document.getElementById('kpi-host').textContent = 'MySQL · ' + (d.dbName || '');
+  const fullDbName = d.dbName || '—';
+  const shortDbName = fullDbName.includes('_') ? fullDbName.split('_').slice(1).join('_') : fullDbName;
+  document.getElementById('kpi-db').textContent = shortDbName || fullDbName;
+  document.getElementById('kpi-host').textContent = 'MySQL · ' + fullDbName;
   document.getElementById('kpi-tables').textContent = d.tables.length;
   document.getElementById('kpi-rows').textContent = fmtNum(d.totalRows);
   document.getElementById('kpi-size').textContent = fmtBytes(d.totalSize);
