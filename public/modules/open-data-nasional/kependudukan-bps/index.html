@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kependudukan BPS — Jawa Barat | Cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal:#0F766E; --teal-dk:#134E4A; --teal-lt:#CCFBF1; --teal-mid:#14B8A6;
+  --bg:#F0FAF9; --card:#FFFFFF; --border:#C8E6E3; --border-dk:#9FD4CE;
+  --text:#111827; --muted:#6B7280; --dim:#9CA3AF;
+  --green:#16A34A; --red:#DC2626; --amber:#D97706; --blue:#1D4ED8; --purple:#7C3AED; --orange:#EA580C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+
+/* ── HEADER ── */
+.module-header{background:linear-gradient(135deg,var(--teal-dk) 0%,var(--teal) 55%,#0D9488 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase;transition:color .15s}
+.back-link:hover{color:#fff}
+.back-link svg{width:13px;height:13px;flex-shrink:0}
+.breadcrumb{padding:5px 24px 0;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.03em}
+.breadcrumb span{color:rgba(255,255,255,.3);margin:0 4px}
+.header-body{padding:14px 24px 22px}
+.header-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:5px}
+.header-desc{font-size:13px;color:rgba(255,255,255,.8);max-width:740px;line-height:1.6;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;letter-spacing:.02em}
+
+/* ── TABS ── */
+.tabs-bar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 20px;font-size:13px;font-weight:500;font-family:'Space Grotesk',sans-serif;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal);font-weight:600}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+/* ── LAYOUT ── */
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 56px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--teal-dk);margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.sec-title:first-child{margin-top:0}
+
+/* ── KPI ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:var(--teal-dk);line-height:1.05}
+.kpi-unit{font-size:11.5px;font-weight:400;color:var(--muted)}
+.kpi-delta{font-size:11px;font-weight:600;margin-top:1px}
+.kpi-delta.up{color:var(--green)}.kpi-delta.dn{color:var(--red)}.kpi-delta.neu{color:var(--amber)}
+
+/* ── CHART ── */
+.chart-grid{display:grid;gap:16px;margin-bottom:24px}
+.chart-grid.cols-2{grid-template-columns:2fr 1fr}
+@media(max-width:800px){.chart-grid.cols-2{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.chart-card h4{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.chart-card .src{font-size:10px;color:var(--dim);margin-top:8px}
+.chart-wrap{position:relative;height:260px}
+.chart-wrap.md{height:300px}
+.chart-wrap.xl{height:360px}
+.chart-wrap.hbar{height:520px}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#F8FFFE;border-bottom:1px solid var(--border);font-weight:500}
+th.r{text-align:right}
+td{padding:9px 12px;border-bottom:1px solid #EEF7F6;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F5FDFC}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.tr{text-align:right}
+.b-kab{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9.5px;padding:2px 7px;border-radius:5px;font-weight:500;background:rgba(14,165,233,.1);color:#0369A1;border:1px solid rgba(14,165,233,.2)}
+.b-kota{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9.5px;padding:2px 7px;border-radius:5px;font-weight:500;background:rgba(124,58,237,.1);color:var(--purple);border:1px solid rgba(124,58,237,.2)}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0}
+.rank-1{background:#FEF3C7;color:#92400E}
+.rank-2{background:#E5E7EB;color:#374151}
+.rank-3{background:#FDE8D8;color:#92400E}
+.rank-n{background:#F3F4F6;color:var(--muted)}
+
+/* ── NOTE ── */
+.note{background:#FFFBEB;border:1px solid #FDE68A;border-left:3px solid var(--amber);border-radius:8px;padding:12px 16px;font-size:12px;color:#78350F;line-height:1.65;margin-bottom:20px}
+.note strong{font-weight:600}
+
+/* ── CONTROLS ── */
+.controls-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.ctrl-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+select.ctrl-select{background:#fff;border:1px solid var(--border-dk);border-radius:7px;padding:6px 10px;font-size:13px;color:var(--text);outline:none;cursor:pointer;font-family:'Space Grotesk',sans-serif}
+select.ctrl-select:focus{border-color:var(--teal)}
+.toggle-group{display:flex;border:1px solid var(--border-dk);border-radius:7px;overflow:hidden}
+.toggle-opt{padding:5px 12px;font-size:12px;font-weight:500;font-family:'Space Grotesk',sans-serif;background:#fff;color:var(--muted);cursor:pointer;border:none;transition:all .15s}
+.toggle-opt.active{background:var(--teal);color:#fff}
+
+/* ── BARS ── */
+.mini-bar-wrap{display:flex;align-items:center;gap:8px}
+.mini-bar{height:7px;background:var(--teal);border-radius:3px;flex-shrink:0;transition:width .3s}
+.mini-bar.kota{background:var(--purple)}
+</style>
+</head>
+<body>
+
+<div class="module-header">
+  <a href="/menu.html" class="back-link">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+    Kembali ke Menu
+  </a>
+  <div class="breadcrumb">Open Data Nasional <span>›</span> Sosial & Kependudukan <span>›</span> BPS</div>
+  <div class="header-body">
+    <div class="header-title">Kependudukan BPS — Jawa Barat</div>
+    <div class="header-desc">Jumlah penduduk per kabupaten/kota di Jawa Barat tahun 2010–2025, berdasarkan Sensus Penduduk 2020 (SP2020) dan proyeksi BPS. Dataset mencakup 27 wilayah administratif (18 kabupaten + 9 kota).</div>
+    <div class="meta-row">
+      <span class="badge">BPS Open Data · ID 20495</span>
+      <span class="badge">27 Kab/Kota</span>
+      <span class="badge">2010–2025</span>
+      <span class="badge">Satuan: Ribu Jiwa</span>
+      <span class="badge">SP2020 Baseline</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="ikhtisar">Ikhtisar</button>
+    <button class="tab-btn" data-tab="perdaerah">Per Daerah</button>
+    <button class="tab-btn" data-tab="tren">Tren 2010–2025</button>
+    <button class="tab-btn" data-tab="tabel">Tabel Lengkap</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <!-- ══ TAB IKHTISAR ══ -->
+  <div id="tab-ikhtisar" class="tab-panel active">
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="note">
+      <strong>Catatan metodologi:</strong> Data 2010–2019 merupakan proyeksi berbasis Supas 2015. Data 2020 adalah hasil Sensus Penduduk 2020 (SP2020) yang menggunakan metodologi baru (de jure), sehingga terdapat diskontinuitas pada beberapa wilayah.
+      Data 2021–2025 merupakan proyeksi SP2020.
+    </div>
+
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Total Penduduk Jawa Barat 2010–2025 <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:JetBrains Mono">ribu jiwa</span></h4>
+        <div class="chart-wrap md"><canvas id="chartTotal"></canvas></div>
+        <p class="src">Sumber: BPS, Sensus Penduduk 2020 & proyeksi. Garis putus-putus = perubahan basis SP2020.</p>
+      </div>
+      <div class="chart-card">
+        <h4>Top 10 Terbesar 2025 <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:JetBrains Mono">ribu jiwa</span></h4>
+        <div class="chart-wrap md"><canvas id="chartTop10"></canvas></div>
+        <p class="src">Diurutkan berdasarkan penduduk 2025</p>
+      </div>
+    </div>
+
+    <div class="sec-title">Distribusi Wilayah 2025</div>
+    <div class="chart-grid" style="grid-template-columns:repeat(3,1fr);gap:14px">
+      <div class="chart-card">
+        <h4>Kabupaten vs Kota</h4>
+        <div class="chart-wrap" style="height:200px"><canvas id="chartDonut"></canvas></div>
+      </div>
+      <div class="chart-card" style="grid-column:span 2">
+        <h4>Pertumbuhan Absolut 2020→2025 (Top 10) <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:JetBrains Mono">ribu jiwa</span></h4>
+        <div class="chart-wrap" style="height:200px"><canvas id="chartGrowth"></canvas></div>
+        <p class="src">Berbasis SP2020 (2020→2025), pertumbuhan absolut 5 tahun</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB PER DAERAH ══ -->
+  <div id="tab-perdaerah" class="tab-panel">
+    <div class="controls-row">
+      <span class="ctrl-label">Tahun:</span>
+      <select class="ctrl-select" id="selTahun" onchange="renderPerDaerah()">
+        <option value="15" selected>2025</option>
+        <option value="14">2024</option>
+        <option value="13">2023</option>
+        <option value="12">2022</option>
+        <option value="11">2021</option>
+        <option value="10">2020 (SP2020)</option>
+        <option value="9">2019</option>
+        <option value="8">2018</option>
+        <option value="7">2017</option>
+        <option value="6">2016</option>
+        <option value="5">2015</option>
+        <option value="4">2014</option>
+        <option value="3">2013</option>
+        <option value="2">2012</option>
+        <option value="1">2011</option>
+        <option value="0">2010</option>
+      </select>
+      <span class="ctrl-label" style="margin-left:8px">Filter:</span>
+      <div class="toggle-group">
+        <button class="toggle-opt active" id="fAll"  onclick="setFilter('all')">Semua</button>
+        <button class="toggle-opt"        id="fKab"  onclick="setFilter('kabupaten')">Kabupaten</button>
+        <button class="toggle-opt"        id="fKota" onclick="setFilter('kota')">Kota</button>
+      </div>
+      <span id="labelTotal" style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--muted);margin-left:4px"></span>
+    </div>
+
+    <div class="chart-card">
+      <h4 id="hbarTitle">Jumlah Penduduk per Daerah — 2025 <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:JetBrains Mono">ribu jiwa</span></h4>
+      <div class="chart-wrap hbar"><canvas id="chartHBar"></canvas></div>
+      <p class="src">Diurutkan dari terbesar. Biru = Kabupaten, Ungu = Kota.</p>
+    </div>
+  </div>
+
+  <!-- ══ TAB TREN ══ -->
+  <div id="tab-tren" class="tab-panel">
+    <div class="controls-row">
+      <span class="ctrl-label">Tampilkan:</span>
+      <div class="toggle-group">
+        <button class="toggle-opt active" id="tTop5"  onclick="setTrenMode('top5')">Top 5</button>
+        <button class="toggle-opt"        id="tTop10" onclick="setTrenMode('top10')">Top 10</button>
+        <button class="toggle-opt"        id="tKota"  onclick="setTrenMode('kota')">9 Kota</button>
+      </div>
+    </div>
+
+    <div class="chart-card" style="margin-bottom:16px">
+      <h4 id="trendTitle">Tren Penduduk — Top 5 Wilayah 2010–2025 <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:JetBrains Mono">ribu jiwa</span></h4>
+      <div class="chart-wrap xl"><canvas id="chartTren"></canvas></div>
+      <p class="src">Tanda bintang pada 2020 = perubahan basis SP2020. Data 2021–2025 = proyeksi SP2020.</p>
+    </div>
+
+    <div class="sec-title">Perbandingan Antar Periode</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Wilayah</th><th>Tipe</th>
+            <th class="r">2010</th><th class="r">2015</th><th class="r">2020 (SP)</th><th class="r">2025</th>
+            <th class="r">Δ 2010–2019</th><th class="r">Δ 2020–2025</th>
+          </tr>
+        </thead>
+        <tbody id="trendTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ TAB TABEL LENGKAP ══ -->
+  <div id="tab-tabel" class="tab-panel">
+    <div class="controls-row">
+      <span class="ctrl-label">Urutkan:</span>
+      <select class="ctrl-select" id="sortCol" onchange="renderFullTable()">
+        <option value="2025">Populasi 2025 ↓</option>
+        <option value="2010">Populasi 2010 ↓</option>
+        <option value="delta">Pertumbuhan Absolut 2020-2025 ↓</option>
+        <option value="pct">Pertumbuhan % 2020-2025 ↓</option>
+        <option value="nama">Nama A–Z</option>
+      </select>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Wilayah</th><th>Tipe</th>
+            <th class="r">2010</th><th class="r">2011</th><th class="r">2012</th><th class="r">2013</th>
+            <th class="r">2014</th><th class="r">2015</th><th class="r">2016</th><th class="r">2017</th>
+            <th class="r">2018</th><th class="r">2019</th>
+            <th class="r" style="background:#FFFBEB;color:#92400E">2020 ★</th>
+            <th class="r">2021</th><th class="r">2022</th><th class="r">2023</th><th class="r">2024</th><th class="r">2025</th>
+            <th class="r">Δ 20–25</th>
+          </tr>
+        </thead>
+        <tbody id="fullTableBody"></tbody>
+      </table>
+    </div>
+    <p style="font-size:11px;color:var(--dim);margin-top:-12px">★ Tahun 2020 = Sensus Penduduk 2020 (SP2020) — terdapat perubahan metodologi. Satuan: ribu jiwa.</p>
+  </div>
+
+</div><!-- /page-body -->
+
+<script>
+/* ═══════════════════ DATA ═══════════════════ */
+const TAHUN = [2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+
+const AREAS = [
+  {kode:3201, nama:'Kab. Bogor',          tipe:'kabupaten', data:[4813.876,4943.746,5073.116,5202.097,5331.149,5459.668,5587.39,5715.009,5840.9,5965.4,5409.37,5484.15,5556.31,5627.02,5682.3,5721.62]},
+  {kode:3202, nama:'Kab. Sukabumi',       tipe:'kabupaten', data:[2358.418,2376.495,2393.191,2408.417,2422.113,2434.221,2444.616,2453.498,2460.7,2466.3,2718.74,2747.45,2775.31,2802.4,2828.02,2852.11]},
+  {kode:3203, nama:'Kab. Cianjur',        tipe:'kabupaten', data:[2186.794,2201.003,2213.889,2225.313,2235.418,2243.904,2250.977,2256.589,2260.6,2263.1,2470.56,2500.64,2529.81,2558.14,2584.99,2610.32]},
+  {kode:3204, nama:'Kab. Bandung',        tipe:'kabupaten', data:[3205.121,3272.828,3339.684,3405.475,3470.393,3534.114,3596.623,3657.601,3717.3,3775.3,3616.54,3652.4,3687.25,3721.11,3753.12,3783.21]},
+  {kode:3205, nama:'Kab. Garut',          tipe:'kabupaten', data:[2422.326,2450.43,2477.114,2502.41,2526.186,2548.723,2569.505,2588.839,2606.4,2622.4,2577.35,2613.53,2648.95,2683.67,2716.95,2748.7]},
+  {kode:3206, nama:'Kab. Tasikmalaya',    tipe:'kabupaten', data:[1687.776,1699.583,1710.426,1720.123,1728.587,1735.998,1742.276,1747.318,1751.3,1754.1,1861.06,1876.89,1892.22,1907.05,1920.92,1933.81]},
+  {kode:3207, nama:'Kab. Ciamis',         tipe:'kabupaten', data:[1135.724,1142.23,1148.782,1155.471,1162.102,1168.682,1175.389,1181.981,1188.6,1195.2,1226.05,1234.83,1243.32,1251.54,1259.23,1266.33]},
+  {kode:3208, nama:'Kab. Kuningan',       tipe:'kabupaten', data:[1023.907,1030.205,1036.494,1042.789,1049.084,1055.417,1061.886,1068.201,1074.5,1080.8,1162.59,1175.95,1189.01,1201.76,1213.93,1225.49]},
+  {kode:3209, nama:'Kab. Cirebon',        tipe:'kabupaten', data:[2044.181,2060.4,2076.615,2093.075,2109.588,2126.179,2142.999,2159.577,2176.2,2192.9,2270.35,2301.33,2331.36,2360.44,2387.96,2413.81]},
+  {kode:3210, nama:'Kab. Majalengka',     tipe:'kabupaten', data:[1153.226,1158.882,1164.724,1170.505,1176.313,1182.109,1188.004,1193.725,1199.3,1205.0,1301.57,1315.01,1328.01,1340.62,1352.54,1363.76]},
+  {kode:3211, nama:'Kab. Sumedang',       tipe:'kabupaten', data:[1101.578,1110.083,1117.919,1125.125,1131.516,1137.273,1142.097,1146.435,1149.9,1152.4,1149.47,1159.26,1168.84,1178.24,1187.13,1195.53]},
+  {kode:3212, nama:'Kab. Indramayu',      tipe:'kabupaten', data:[1645.024,1654.119,1663.397,1672.683,1682.022,1691.386,1700.815,1709.994,1719.2,1728.5,1829.23,1851.73,1873.4,1894.33,1914.04,1932.52]},
+  {kode:3213, nama:'Kab. Subang',         tipe:'kabupaten', data:[1449.207,1464.901,1480.708,1496.886,1513.093,1529.388,1546.0,1562.509,1579.0,1595.8,1605.25,1620.7,1635.56,1649.82,1663.16,1675.52]},
+  {kode:3214, nama:'Kab. Purwakarta',     tipe:'kabupaten', data:[859.186,872.599,885.386,898.001,910.007,921.598,932.701,943.337,953.4,962.9,994.33,1008.93,1023.18,1037.07,1050.34,1062.97]},
+  {kode:3215, nama:'Kab. Karawang',       tipe:'kabupaten', data:[2144.185,2172.289,2199.394,2225.383,2250.12,2273.579,2295.778,2316.489,2336.0,2353.9,2434.09,2465.57,2496.19,2526.0,2554.38,2581.25]},
+  {kode:3216, nama:'Kab. Bekasi',         tipe:'kabupaten', data:[2656.884,2769.18,2884.3,3002.112,3122.698,3246.013,3371.691,3500.023,3630.9,3763.9,3101.73,3148.74,3193.84,3237.42,3273.87,3303.02]},
+  {kode:3217, nama:'Kab. Bandung Barat',  tipe:'kabupaten', data:[1522.076,1545.118,1567.398,1588.781,1609.512,1629.423,1648.387,1666.51,1683.7,1699.9,1782.19,1808.42,1834.23,1859.64,1884.19,1907.82]},
+  {kode:3218, nama:'Kab. Pangandaran',    tipe:'kabupaten', data:[379.518,381.729,383.915,386.129,388.32,390.483,392.817,395.098,397.2,399.3,422.41,425.59,428.6,431.46,434.1,436.49]},
+  {kode:3271, nama:'Kota Bogor',          tipe:'kota',      data:[958.077,976.791,995.081,1013.019,1030.72,1047.922,1064.687,1081.009,1096.8,1112.1,1040.57,1050.92,1060.94,1070.72,1078.35,1083.78]},
+  {kode:3272, nama:'Kota Sukabumi',       tipe:'kota',      data:[301.014,304.704,308.405,311.822,315.001,318.117,321.097,323.788,326.3,328.7,344.83,350.15,355.42,360.64,365.74,370.68]},
+  {kode:3273, nama:'Kota Bandung',        tipe:'kota',      data:[2412.093,2429.176,2444.617,2458.503,2470.802,2481.469,2490.622,2497.938,2503.7,2507.9,2438.35,2461.41,2484.15,2506.6,2528.16,2548.78]},
+  {kode:3274, nama:'Kota Cirebon',        tipe:'kota',      data:[293.206,295.981,298.825,301.728,304.584,307.494,310.486,313.325,316.3,319.3,332.58,335.81,338.94,341.98,344.85,347.54]},
+  {kode:3275, nama:'Kota Bekasi',         tipe:'kota',      data:[2356.1,2427.075,2498.598,2570.397,2642.508,2714.825,2787.205,2859.63,2931.9,3003.9,2536.12,2568.02,2598.07,2627.21,2644.06,2648.27]},
+  {kode:3276, nama:'Kota Depok',          tipe:'kota',      data:[1755.612,1823.182,1891.981,1962.182,2033.508,2106.102,2179.813,2254.513,2330.3,2406.8,2046.83,2081.13,2113.62,2145.4,2163.64,2167.96]},
+  {kode:3277, nama:'Kota Cimahi',         tipe:'kota',      data:[545.505,554.175,562.721,570.991,579.015,586.58,594.021,601.099,607.8,614.3,566.17,574.45,582.65,590.78,598.7,606.38]},
+  {kode:3278, nama:'Kota Tasikmalaya',    tipe:'kota',      data:[639.987,644.305,648.178,651.676,654.794,657.477,659.606,661.404,662.7,663.5,713.67,723.1,732.48,741.76,750.73,759.37]},
+  {kode:3279, nama:'Kota Banjar',         tipe:'kota',      data:[176.506,177.587,178.728,179.706,180.515,181.425,181.901,182.388,182.8,183.1,200.27,202.72,205.14,207.51,209.79,211.96]},
+];
+
+/* ═══════════════════ HELPERS ═══════════════════ */
+function totalYear(yi) { return AREAS.reduce((s, a) => s + a.data[yi], 0); }
+function fmtN(v, dec=0) { return v.toLocaleString('id-ID', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+function fmtJuta(v) {
+  if (v >= 1000) return fmtN(v/1000, 2) + ' juta';
+  return fmtN(v, 1) + ' ribu';
+}
+const PALETTE = ['#0F766E','#0D9488','#14B8A6','#2DD4BF','#5EEAD4','#7C3AED','#8B5CF6','#A78BFA','#0369A1','#0EA5E9'];
+const BAR_CLR = {kabupaten:'rgba(15,118,110,.75)', kota:'rgba(124,58,237,.75)'};
+let chartInstances = {};
+
+function destroyChart(id) { if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; } }
+
+/* ═══════════════════ TAB IKHTISAR ═══════════════════ */
+function initIkhtisar() {
+  const tot25 = totalYear(15);
+  const tot20 = totalYear(10);
+  const sorted25 = [...AREAS].sort((a,b) => b.data[15] - a.data[15]);
+  const top = sorted25[0];
+  const bot = sorted25[sorted25.length-1];
+  const delta = tot25 - tot20;
+
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-label">Total Penduduk Jabar 2025</div>
+      <div class="kpi-value">${fmtN(tot25/1000, 2)}</div>
+      <div class="kpi-unit">juta jiwa</div>
+      <div class="kpi-delta up">▲ ${fmtN(delta, 0)} ribu dari 2020</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Pertumbuhan 2020→2025</div>
+      <div class="kpi-value">+${fmtN(delta/tot20*100, 1)}<span style="font-size:18px">%</span></div>
+      <div class="kpi-unit">dalam 5 tahun (basis SP2020)</div>
+      <div class="kpi-delta neu">~${fmtN(delta/tot20*100/5, 2)}% per tahun</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Wilayah Terbesar 2025</div>
+      <div class="kpi-value" style="font-size:20px">${top.nama}</div>
+      <div class="kpi-unit">${fmtN(top.data[15], 2)} ribu jiwa</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Wilayah Terkecil 2025</div>
+      <div class="kpi-value" style="font-size:20px">${bot.nama}</div>
+      <div class="kpi-unit">${fmtN(bot.data[15], 2)} ribu jiwa</div>
+    </div>
+  `;
+
+  // Total trend chart
+  const totals = TAHUN.map((_, i) => totalYear(i));
+  destroyChart('chartTotal');
+  chartInstances['chartTotal'] = new Chart(document.getElementById('chartTotal'), {
+    type: 'line',
+    data: {
+      labels: TAHUN,
+      datasets: [{
+        label: 'Total Jabar',
+        data: totals,
+        borderColor: '#0F766E',
+        backgroundColor: 'rgba(15,118,110,.07)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: TAHUN.map((_, i) => i === 10 ? 8 : 3),
+        pointBackgroundColor: TAHUN.map((_, i) => i === 10 ? '#D97706' : '#0F766E'),
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        segment: { borderDash: ctx => ctx.p0DataIndex === 9 ? [5,3] : [] }
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + fmtN(ctx.raw, 0) + ' ribu jiwa' } }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,.05)' } },
+        y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { callback: v => fmtN(v/1000, 0) + ' jt' } }
+      }
+    }
+  });
+
+  // Top 10 bar
+  const top10 = sorted25.slice(0,10);
+  destroyChart('chartTop10');
+  chartInstances['chartTop10'] = new Chart(document.getElementById('chartTop10'), {
+    type: 'bar',
+    data: {
+      labels: top10.map(a => a.nama.replace('Kab. ','').replace('Kota ','')),
+      datasets: [{
+        data: top10.map(a => a.data[15]),
+        backgroundColor: top10.map(a => a.tipe === 'kabupaten' ? 'rgba(15,118,110,.75)' : 'rgba(124,58,237,.75)'),
+        borderRadius: 5,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + fmtN(ctx.raw, 2) + ' ribu jiwa' } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 40 } },
+        y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { callback: v => fmtN(v/1000, 1) + ' jt' } }
+      }
+    }
+  });
+
+  // Donut kab vs kota
+  const totKab = AREAS.filter(a => a.tipe==='kabupaten').reduce((s,a) => s+a.data[15], 0);
+  const totKota = AREAS.filter(a => a.tipe==='kota').reduce((s,a) => s+a.data[15], 0);
+  destroyChart('chartDonut');
+  chartInstances['chartDonut'] = new Chart(document.getElementById('chartDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Kabupaten (18)', 'Kota (9)'],
+      datasets: [{ data: [totKab, totKota], backgroundColor: ['rgba(15,118,110,.8)','rgba(124,58,237,.8)'], borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => ' ' + fmtN(ctx.raw, 0) + ' ribu (' + fmtN(ctx.raw/(totKab+totKota)*100, 1) + '%)' } }
+      }
+    }
+  });
+
+  // Growth chart 2020-2025 top 10
+  const growthData = AREAS.map(a => ({ nama: a.nama, tipe: a.tipe, delta: a.data[15] - a.data[10] }))
+    .sort((a,b) => b.delta - a.delta).slice(0,10);
+  destroyChart('chartGrowth');
+  chartInstances['chartGrowth'] = new Chart(document.getElementById('chartGrowth'), {
+    type: 'bar',
+    data: {
+      labels: growthData.map(a => a.nama.replace('Kab. ','').replace('Kota ','')),
+      datasets: [{
+        data: growthData.map(a => a.delta),
+        backgroundColor: growthData.map(a => a.tipe==='kabupaten' ? 'rgba(15,118,110,.75)' : 'rgba(124,58,237,.75)'),
+        borderRadius: 4,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' +' + fmtN(ctx.raw, 2) + ' ribu jiwa' } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 35 } },
+        y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { callback: v => '+' + fmtN(v, 0) } }
+      }
+    }
+  });
+}
+
+/* ═══════════════════ TAB PER DAERAH ═══════════════════ */
+let areaFilter = 'all';
+function setFilter(f) {
+  areaFilter = f;
+  ['all','kabupaten','kota'].forEach(k => document.getElementById('f' + k.charAt(0).toUpperCase() + k.slice(1).replace('abupaten','ab').replace('ota','ota')).classList.remove('active'));
+  document.getElementById(f==='all'?'fAll':f==='kabupaten'?'fKab':'fKota').classList.add('active');
+  renderPerDaerah();
+}
+
+function renderPerDaerah() {
+  const yi = +document.getElementById('selTahun').value;
+  const yr = TAHUN[yi];
+  const filtered = areaFilter === 'all' ? AREAS : AREAS.filter(a => a.tipe === areaFilter);
+  const sorted = [...filtered].sort((a,b) => b.data[yi] - a.data[yi]);
+  const tot = sorted.reduce((s,a) => s+a.data[yi], 0);
+
+  document.getElementById('hbarTitle').textContent = `Jumlah Penduduk per Daerah — ${yr} `;
+  document.getElementById('labelTotal').textContent = `Total: ${fmtN(tot, 0)} ribu = ${fmtN(tot/1000, 2)} juta jiwa`;
+
+  destroyChart('chartHBar');
+  chartInstances['chartHBar'] = new Chart(document.getElementById('chartHBar'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(a => a.nama),
+      datasets: [{
+        data: sorted.map(a => a.data[yi]),
+        backgroundColor: sorted.map(a => a.tipe==='kabupaten' ? 'rgba(15,118,110,.75)' : 'rgba(124,58,237,.75)'),
+        borderRadius: 4
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + fmtN(ctx.raw, 3) + ' ribu jiwa' } }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { callback: v => fmtN(v/1000, 1) + ' jt' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+/* ═══════════════════ TAB TREN ═══════════════════ */
+let trenMode = 'top5';
+function setTrenMode(m) {
+  trenMode = m;
+  ['top5','top10','kota'].forEach(k => document.getElementById('t'+k.charAt(0).toUpperCase()+k.slice(1)).classList.remove('active'));
+  document.getElementById('t'+m.charAt(0).toUpperCase()+m.slice(1)).classList.add('active');
+  renderTren();
+}
+
+function renderTren() {
+  let areas;
+  let titleSuffix;
+  const sorted25 = [...AREAS].sort((a,b) => b.data[15] - a.data[15]);
+  if (trenMode === 'top5')  { areas = sorted25.slice(0,5); titleSuffix = 'Top 5 Wilayah'; }
+  else if (trenMode === 'top10') { areas = sorted25.slice(0,10); titleSuffix = 'Top 10 Wilayah'; }
+  else { areas = AREAS.filter(a => a.tipe === 'kota'); titleSuffix = '9 Kota'; }
+
+  document.getElementById('trendTitle').textContent = `Tren Penduduk — ${titleSuffix} 2010–2025`;
+
+  destroyChart('chartTren');
+  chartInstances['chartTren'] = new Chart(document.getElementById('chartTren'), {
+    type: 'line',
+    data: {
+      labels: TAHUN,
+      datasets: areas.map((a, i) => ({
+        label: a.nama,
+        data: a.data,
+        borderColor: PALETTE[i % PALETTE.length],
+        backgroundColor: 'transparent',
+        tension: 0.3,
+        pointRadius: TAHUN.map((_, yi) => yi === 10 ? 6 : 2),
+        pointBackgroundColor: TAHUN.map((_, yi) => yi === 10 ? '#D97706' : PALETTE[i % PALETTE.length]),
+        borderWidth: 2
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 16, padding: 12 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmtN(ctx.raw, 2) + ' ribu' } }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,.05)' } },
+        y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { callback: v => fmtN(v/1000, 1) + ' jt' } }
+      }
+    }
+  });
+
+  // Trend comparison table
+  const tbody = document.getElementById('trendTableBody');
+  const sorted = [...AREAS].sort((a,b) => b.data[15] - a.data[15]);
+  const maxDelta = Math.max(...AREAS.map(a => a.data[15] - a.data[10]));
+  tbody.innerHTML = sorted.map((a, i) => {
+    const d10 = a.data[0], d15 = a.data[5], d20 = a.data[10], d25 = a.data[15];
+    const delta1019 = a.data[9] - a.data[0];
+    const delta2025 = d25 - d20;
+    const pct2025 = (delta2025/d20*100);
+    const badge = a.tipe === 'kabupaten' ? '<span class="b-kab">KAB</span>' : '<span class="b-kota">KOTA</span>';
+    const rankCls = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
+    return `<tr>
+      <td><span class="rank-badge ${rankCls}">${i+1}</span></td>
+      <td><strong>${a.nama}</strong></td>
+      <td>${badge}</td>
+      <td class="tr mono">${fmtN(d10, 2)}</td>
+      <td class="tr mono">${fmtN(d15, 2)}</td>
+      <td class="tr mono" style="background:#FFFBEB">${fmtN(d20, 2)}</td>
+      <td class="tr mono" style="font-weight:600;color:var(--teal-dk)">${fmtN(d25, 2)}</td>
+      <td class="tr mono" style="color:${delta1019>0?'var(--green)':'var(--red)'}">+${fmtN(delta1019, 1)}</td>
+      <td class="tr mono" style="color:var(--green)">+${fmtN(delta2025, 1)} <span style="color:var(--muted);font-size:10px">(${fmtN(pct2025,1)}%)</span></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════════════════ TAB TABEL LENGKAP ═══════════════════ */
+function renderFullTable() {
+  const sortKey = document.getElementById('sortCol').value;
+  let sorted = [...AREAS];
+  if (sortKey === '2025') sorted.sort((a,b) => b.data[15]-a.data[15]);
+  else if (sortKey === '2010') sorted.sort((a,b) => b.data[0]-a.data[0]);
+  else if (sortKey === 'delta') sorted.sort((a,b) => (b.data[15]-b.data[10])-(a.data[15]-a.data[10]));
+  else if (sortKey === 'pct') sorted.sort((a,b) => (b.data[15]-b.data[10])/b.data[10]-(a.data[15]-a.data[10])/a.data[10]);
+  else sorted.sort((a,b) => a.nama.localeCompare(b.nama));
+
+  const tbody = document.getElementById('fullTableBody');
+  tbody.innerHTML = sorted.map((a, i) => {
+    const delta = a.data[15] - a.data[10];
+    const badge = a.tipe === 'kabupaten' ? '<span class="b-kab">KAB</span>' : '<span class="b-kota">KOTA</span>';
+    const cells = a.data.map((v, yi) => `<td class="tr mono" style="${yi===10?'background:#FFFBEB;':''}${yi===15?'font-weight:600;color:var(--teal-dk);':''}">${fmtN(v,2)}</td>`).join('');
+    return `<tr>
+      <td style="color:var(--muted);font-size:11px">${i+1}</td>
+      <td><strong style="font-size:12.5px">${a.nama}</strong></td>
+      <td>${badge}</td>
+      ${cells}
+      <td class="tr mono" style="color:var(--green);font-weight:600">+${fmtN(delta,2)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════════════════ TABS + INIT ═══════════════════ */
+let tabReady = {};
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (!tabReady[tab]) {
+      if (tab === 'perdaerah') renderPerDaerah();
+      if (tab === 'tren') renderTren();
+      if (tab === 'tabel') renderFullTable();
+      tabReady[tab] = true;
+    }
+  });
+});
+
+// Load Chart.js then init
+(function() {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
+  s.onload = () => { initIkhtisar(); tabReady['ikhtisar'] = true; };
+  document.head.appendChild(s);
+})();
+</script>
+</body>
+</html>
