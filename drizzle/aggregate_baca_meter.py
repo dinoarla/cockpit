@@ -16,7 +16,7 @@ from collections import defaultdict
 import openpyxl
 
 DATA_DIR = Path.home() / "Downloads" / "DATA BACA METER JABAR 2026"
-MONTH_FOLDERS = ["202602", "202604", "202605", "202606", "202607"]
+MONTH_FOLDERS = ["202601", "202602", "202604", "202605", "202606", "202607"]
 
 # Comprehensive lookup: filename keyword OR column-0 value → (canonical_kode, nama)
 ALL_UP3 = {
