@@ -32,6 +32,10 @@ export const db = new Proxy({}, {
         return Reflect.get(_db, prop);
     },
 });
+export function getPool() {
+    ensureInit();
+    return _pool;
+}
 // pool.end() untuk migrate.ts dan createAdmin.ts
 export const pool = {
     end: async () => {

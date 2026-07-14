@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Management — COCKPIT Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,900&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D1117;--navy-2:#161B22;--navy-3:#1C2128;
+  --orange:#FF4D00;--green:#2ECC71;--red:#E74C3C;--blue:#3B82F6;--amber:#F59E0B;
+  --border:rgba(255,255,255,.07);--border-2:rgba(255,255,255,.12);
+  --ink:#E6EDF3;--ink-2:rgba(230,237,243,.5);--ink-3:rgba(230,237,243,.25);
+}
+html,body{min-height:100%;background:var(--navy);color:var(--ink);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:56px;}
+.topbar-left{display:flex;align-items:center;gap:16px;}
+.brand{display:flex;align-items:center;gap:8px;}
+.brand-mark{width:30px;height:30px;border-radius:7px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;}
+.brand-name{font-family:'Fraunces',serif;font-weight:900;font-size:.9rem;color:var(--ink);}
+.page-title{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;}
+.btn-back{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;color:var(--ink-2);text-decoration:none;padding:7px 14px;border-radius:8px;border:1px solid var(--border-2);transition:all .15s;}
+.btn-back:hover{color:var(--ink);background:rgba(255,255,255,.05);}
+.admin-pill{background:rgba(255,77,0,.12);border:1px solid rgba(255,77,0,.25);color:var(--orange);font-family:'DM Mono',monospace;font-size:.55rem;padding:3px 9px;border-radius:10px;letter-spacing:.06em;}
+
+/* TABS */
+.tabs-bar{background:var(--navy-2);border-bottom:1px solid var(--border);display:flex;padding:0 28px;overflow-x:auto;scrollbar-width:none;}
+.tabs-bar::-webkit-scrollbar{display:none}
+.tab-btn{padding:13px 18px;font-size:.78rem;font-weight:500;color:var(--ink-3);border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-1px;display:flex;align-items:center;gap:7px;}
+.tab-btn.active{color:var(--orange);border-bottom-color:var(--orange);font-weight:600;}
+.tab-btn:hover:not(.active){color:var(--ink-2);}
+
+/* MAIN */
+.main{max-width:1100px;margin:0 auto;padding:28px 28px 80px;}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
+.kpi{background:var(--navy-2);border:1px solid var(--border-2);border-radius:10px;padding:16px 18px;}
+.kpi-label{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--ink-3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;}
+.kpi-value{font-size:1.55rem;font-weight:700;color:var(--orange);line-height:1;font-variant-numeric:tabular-nums;}
+.kpi-sub{font-size:.68rem;color:var(--ink-3);margin-top:3px;}
+
+/* SECTION */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px;}
+.sec-head h2{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border-2);margin-bottom:20px;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:9px 13px;font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--border-2);}
+td{padding:10px 13px;border-bottom:1px solid var(--border);font-size:.82rem;vertical-align:middle;}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02);}
+.mono{font-family:'DM Mono',monospace;font-size:.75rem;}
+.tr{text-align:right;}
+.badge-small{font-family:'DM Mono',monospace;font-size:.52rem;padding:2px 7px;border-radius:6px;font-weight:500;}
+.b-ok{background:rgba(46,204,113,.12);color:var(--green);border:1px solid rgba(46,204,113,.2);}
+.b-warn{background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.2);}
+.b-red{background:rgba(231,76,60,.12);color:var(--red);border:1px solid rgba(231,76,60,.2);}
+.b-blue{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.2);}
+
+/* BUTTONS */
+.btn{border:none;padding:8px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .15s;}
+.btn-primary{background:var(--orange);color:#fff;}
+.btn-primary:hover{opacity:.85;}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ghost{background:transparent;border:1px solid var(--border-2);color:var(--ink-2);}
+.btn-ghost:hover{background:rgba(255,255,255,.05);color:var(--ink);}
+.btn-danger{background:rgba(231,76,60,.15);color:var(--red);border:1px solid rgba(231,76,60,.25);}
+.btn-danger:hover{background:rgba(231,76,60,.25);}
+.btn-sm{padding:5px 11px;font-size:.72rem;}
+.btn-green{background:rgba(46,204,113,.15);color:var(--green);border:1px solid rgba(46,204,113,.25);}
+.btn-green:hover{background:rgba(46,204,113,.25);}
+
+/* BACKUP LIST */
+.backup-item{background:var(--navy-2);border:1px solid var(--border-2);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:8px;}
+.backup-item .bi-icon{width:36px;height:36px;border-radius:8px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:.9rem;flex-shrink:0;}
+.backup-item .bi-name{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--ink);margin-bottom:2px;word-break:break-all;}
+.backup-item .bi-meta{font-size:.68rem;color:var(--ink-3);}
+.backup-item .bi-actions{margin-left:auto;display:flex;gap:6px;flex-shrink:0;}
+.backup-item.auto .bi-icon{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.2);color:var(--amber);}
+.empty-state{text-align:center;padding:40px 20px;color:var(--ink-3);}
+.empty-state i{font-size:2rem;margin-bottom:10px;opacity:.3;}
+
+/* ALERT */
+.alert{border-radius:8px;padding:12px 16px;font-size:.8rem;line-height:1.6;margin-bottom:16px;border-left:4px solid;}
+.alert-ok{background:rgba(46,204,113,.06);border-color:var(--green);color:#7aefaa;}
+.alert-warn{background:rgba(245,158,11,.06);border-color:var(--amber);color:var(--amber);}
+.alert-err{background:rgba(231,76,60,.06);border-color:var(--red);color:#f87171;}
+.alert-info{background:rgba(59,130,246,.06);border-color:var(--blue);color:#93c5fd;}
+
+/* FORM */
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-family:'DM Mono',monospace;font-size:.62rem;color:var(--ink-3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;}
+.form-group input,.form-group select{width:100%;background:var(--navy-3);border:1px solid var(--border-2);border-radius:8px;padding:9px 12px;font-size:.82rem;color:var(--ink);outline:none;transition:border-color .15s;}
+.form-group input:focus,.form-group select:focus{border-color:var(--orange);}
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+
+/* SCHEDULE CARD */
+.sched-card{background:var(--navy-2);border:1px solid var(--border-2);border-radius:12px;padding:20px 22px;margin-bottom:16px;}
+.sched-card h3{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.toggle-row label{font-size:.88rem;color:var(--ink);font-weight:500;}
+.toggle{position:relative;width:42px;height:22px;}
+.toggle input{opacity:0;width:0;height:0;}
+.slider{position:absolute;inset:0;border-radius:22px;background:rgba(255,255,255,.1);cursor:pointer;transition:.2s;}
+.slider::before{content:'';position:absolute;height:16px;width:16px;left:3px;top:3px;border-radius:50%;background:var(--ink-3);transition:.2s;}
+.toggle input:checked+.slider{background:var(--orange);}
+.toggle input:checked+.slider::before{transform:translateX(20px);background:#fff;}
+
+/* RESTORE */
+.drop-zone{border:2px dashed var(--border-2);border-radius:12px;padding:40px 20px;text-align:center;color:var(--ink-3);cursor:pointer;transition:border-color .2s;}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--orange);}
+.drop-zone i{font-size:2rem;margin-bottom:10px;opacity:.4;}
+.drop-zone p{font-size:.82rem;margin-bottom:4px;}
+.drop-zone .sub{font-size:.72rem;opacity:.5;}
+#file-name{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--blue);margin-top:8px;display:none;}
+
+/* PROGRESS */
+.progress-wrap{margin-top:12px;display:none;}
+.progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--orange);border-radius:3px;transition:width .3s;width:0%;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/menu.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Menu</a>
+    <div class="brand">
+      <div class="brand-mark"><i class="fa-solid fa-database"></i></div>
+      <div>
+        <div class="brand-name">Database Management</div>
+        <div class="page-title">COCKPIT · Admin</div>
+      </div>
+    </div>
+  </div>
+  <span class="admin-pill">ADMIN ONLY</span>
+</div>
+
+<div class="tabs-bar">
+  <button class="tab-btn active" data-tab="info"><i class="fa-solid fa-table-list"></i> Info & Tabel</button>
+  <button class="tab-btn" data-tab="backup"><i class="fa-solid fa-box-archive"></i> Backup</button>
+  <button class="tab-btn" data-tab="jadwal"><i class="fa-solid fa-clock-rotate-left"></i> Jadwal Otomatis</button>
+  <button class="tab-btn" data-tab="restore"><i class="fa-solid fa-rotate-left"></i> Restore</button>
+</div>
+
+<div class="main">
+
+  <!-- ══ TAB INFO ══ -->
+  <div id="tab-info" class="tab-panel active">
+    <div id="alert-info-zone"></div>
+    <div class="kpi-row" id="kpiRow">
+      <div class="kpi"><div class="kpi-label">Database</div><div class="kpi-value" id="kpi-db">—</div><div class="kpi-sub" id="kpi-host">Memuat…</div></div>
+      <div class="kpi"><div class="kpi-label">Total Tabel</div><div class="kpi-value" id="kpi-tables">—</div><div class="kpi-sub">aktif di database</div></div>
+      <div class="kpi"><div class="kpi-label">Total Baris ≈</div><div class="kpi-value" id="kpi-rows">—</div><div class="kpi-sub">estimasi InnoDB</div></div>
+      <div class="kpi"><div class="kpi-label">Ukuran Total</div><div class="kpi-value" id="kpi-size">—</div><div class="kpi-sub">data + index</div></div>
+      <div class="kpi"><div class="kpi-label">Backup Tersimpan</div><div class="kpi-value" id="kpi-backups">—</div><div class="kpi-sub">di folder backups/</div></div>
+    </div>
+
+    <div class="sec-head">
+      <h2>Detail Tabel</h2>
+      <button class="btn btn-ghost btn-sm" onclick="loadInfo()"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nama Tabel</th><th>Engine</th>
+            <th class="tr">Baris (est.)</th>
+            <th class="tr">Data</th>
+            <th class="tr">Index</th>
+            <th>Update Terakhir</th>
+            <th>Backup?</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--ink-3)">Memuat…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ TAB BACKUP ══ -->
+  <div id="tab-backup" class="tab-panel">
+    <div id="alert-backup-zone"></div>
+    <div class="sec-head" style="margin-top:0">
+      <h2>Backup Tersedia</h2>
+      <button class="btn btn-primary" id="btnBackup" onclick="doBackup()">
+        <i class="fa-solid fa-cloud-arrow-down"></i> Backup Sekarang
+      </button>
+    </div>
+    <div class="progress-wrap" id="backupProgress">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div style="font-size:.72rem;color:var(--ink-3);margin-top:6px" id="progressLabel">Membuat backup…</div>
+    </div>
+    <div id="backupList"><div class="empty-state"><i class="fa-solid fa-box-open"></i><p>Belum ada backup</p></div></div>
+
+    <div class="alert-info" style="margin-top:20px;border-radius:8px;padding:12px 16px;font-size:.79rem;line-height:1.6;background:rgba(59,130,246,.06);border-left:4px solid #3B82F6;color:#93c5fd">
+      <strong>Catatan:</strong> Tabel dengan lebih dari 50.000 baris hanya di-backup strukturnya (DDL), bukan datanya.
+      Tabel baca_meter_* tidak termasuk dalam data backup karena ukurannya yang sangat besar — re-import dari file Excel sumber jika diperlukan.
+    </div>
+  </div>
+
+  <!-- ══ TAB JADWAL ══ -->
+  <div id="tab-jadwal" class="tab-panel">
+    <div id="alert-jadwal-zone"></div>
+    <div class="sched-card">
+      <h3>Konfigurasi Backup Otomatis</h3>
+      <div class="toggle-row">
+        <label>Aktifkan Backup Otomatis</label>
+        <label class="toggle"><input type="checkbox" id="schedEnabled"><span class="slider"></span></label>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Interval Backup</label>
+          <select id="schedInterval">
+            <option value="6">Setiap 6 jam</option>
+            <option value="12">Setiap 12 jam</option>
+            <option value="24" selected>Setiap 24 jam (harian)</option>
+            <option value="48">Setiap 48 jam</option>
+            <option value="168">Setiap minggu</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Simpan Maksimal</label>
+          <select id="schedKeep">
+            <option value="3">3 file backup</option>
+            <option value="5">5 file backup</option>
+            <option value="7" selected>7 file backup</option>
+            <option value="14">14 file backup</option>
+            <option value="30">30 file backup</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSchedule()"><i class="fa-solid fa-floppy-disk"></i> Simpan Jadwal</button>
+    </div>
+
+    <div class="sched-card">
+      <h3>Status Jadwal</h3>
+      <table style="font-size:.82rem">
+        <tr><td style="padding:7px 0;color:var(--ink-3);width:160px">Status</td><td id="sched-status">—</td></tr>
+        <tr><td style="padding:7px 0;color:var(--ink-3)">Interval</td><td id="sched-interval">—</td></tr>
+        <tr><td style="padding:7px 0;color:var(--ink-3)">Backup Terakhir</td><td id="sched-last">—</td></tr>
+        <tr><td style="padding:7px 0;color:var(--ink-3)">Backup Berikutnya</td><td id="sched-next">—</td></tr>
+        <tr><td style="padding:7px 0;color:var(--ink-3)">Simpan Maks</td><td id="sched-keep">—</td></tr>
+      </table>
+    </div>
+
+    <div class="alert-info" style="border-radius:8px;padding:12px 16px;font-size:.79rem;line-height:1.6;background:rgba(59,130,246,.06);border-left:4px solid #3B82F6;color:#93c5fd">
+      <strong>Cara kerja:</strong> Timer backup berjalan di dalam proses Node.js COCKPIT. Backup akan berjalan otomatis selama server aktif.
+      Jika server restart, timer akan dimulai kembali dan backup berikutnya akan dihitung dari backup terakhir.
+    </div>
+  </div>
+
+  <!-- ══ TAB RESTORE ══ -->
+  <div id="tab-restore" class="tab-panel">
+    <div id="alert-restore-zone"></div>
+    <div class="alert-warn" style="border-radius:8px;padding:12px 16px;font-size:.8rem;line-height:1.6;margin-bottom:20px">
+      <strong>⚠ Peringatan:</strong> Restore akan mengeksekusi perintah SQL dari file yang diunggah langsung ke database.
+      Pastikan file backup valid sebelum melanjutkan. Proses ini tidak bisa dibatalkan.
+    </div>
+
+    <div class="sched-card">
+      <h3>Upload File SQL Backup</h3>
+      <input type="file" id="restoreFile" accept=".sql" style="display:none" onchange="onFileSelect(this)">
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('restoreFile').click()">
+        <i class="fa-solid fa-file-code"></i>
+        <p>Klik atau drag &amp; drop file .sql di sini</p>
+        <p class="sub">Hanya file backup COCKPIT (.sql)</p>
+      </div>
+      <div id="file-name"></div>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-danger" id="btnRestore" onclick="doRestore()" disabled>
+          <i class="fa-solid fa-rotate-left"></i> Restore Database
+        </button>
+        <button class="btn btn-ghost" onclick="clearFile()"><i class="fa-solid fa-xmark"></i> Clear</button>
+      </div>
+    </div>
+
+    <div id="restore-result" style="display:none" class="sched-card">
+      <h3>Hasil Restore</h3>
+      <div id="restore-result-body"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+/* ── TABS ── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ── HELPERS ── */
+function fmtBytes(b) {
+  if (b >= 1073741824) return (b/1073741824).toFixed(2)+' GB';
+  if (b >= 1048576) return (b/1048576).toFixed(1)+' MB';
+  if (b >= 1024) return (b/1024).toFixed(1)+' KB';
+  return b+' B';
+}
+function fmtNum(n) { return n == null ? '—' : Number(n).toLocaleString('id'); }
+function fmtDate(s) {
+  if (!s) return '—';
+  return new Date(s).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function showAlert(zone, type, msg) {
+  document.getElementById(zone).innerHTML = `<div class="alert alert-${type}" style="margin-bottom:16px">${msg}</div>`;
+  setTimeout(() => { const el = document.getElementById(zone); if (el) el.innerHTML = ''; }, 5000);
+}
+
+/* ── INFO ── */
+async function loadInfo() {
+  const res = await fetch('/api/admin/db/info');
+  if (!res.ok) { showAlert('alert-info-zone','err','Gagal memuat info database'); return; }
+  const d = await res.json();
+
+  document.getElementById('kpi-db').textContent = d.dbName || '—';
+  document.getElementById('kpi-host').textContent = 'MySQL · ' + (d.dbName || '');
+  document.getElementById('kpi-tables').textContent = d.tables.length;
+  document.getElementById('kpi-rows').textContent = fmtNum(d.totalRows);
+  document.getElementById('kpi-size').textContent = fmtBytes(d.totalSize);
+  document.getElementById('kpi-backups').textContent = d.backupCount;
+
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = d.tables.map(t => {
+    const dataBackup = t.rows <= 50000;
+    const sz = fmtBytes((t.dataLength || 0) + (t.indexLength || 0));
+    const upd = t.updateTime ? fmtDate(t.updateTime) : '—';
+    return `<tr>
+      <td><span class="mono" style="color:var(--blue)">${t.name}</span></td>
+      <td><span class="badge-small b-blue">${t.engine||'?'}</span></td>
+      <td class="tr mono">${fmtNum(t.rows)}</td>
+      <td class="tr mono">${fmtBytes(t.dataLength||0)}</td>
+      <td class="tr mono">${fmtBytes(t.indexLength||0)}</td>
+      <td class="mono" style="font-size:.68rem">${upd}</td>
+      <td><span class="badge-small ${dataBackup?'b-ok':'b-warn'}">${dataBackup?'DDL + Data':'DDL saja'}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Update schedule display
+  updateSchedDisplay(d.schedule);
+}
+
+/* ── BACKUP ── */
+async function loadBackups() {
+  const res = await fetch('/api/admin/db/backups');
+  const list = await res.json();
+  const container = document.getElementById('backupList');
+  if (!list.length) {
+    container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>Belum ada backup</p><p style="font-size:.72rem;opacity:.5;margin-top:4px">Klik "Backup Sekarang" untuk membuat backup pertama</p></div>';
+    return;
+  }
+  container.innerHTML = list.map(b => {
+    const isAuto = b.name.includes('_auto_');
+    return `<div class="backup-item ${isAuto?'auto':''}">
+      <div class="bi-icon"><i class="fa-solid fa-file-code"></i></div>
+      <div style="flex:1;min-width:0">
+        <div class="bi-name">${b.name}</div>
+        <div class="bi-meta">${fmtBytes(b.size)} · ${fmtDate(b.createdAt)} ${isAuto?'<span class="badge-small b-warn" style="margin-left:4px">AUTO</span>':''}</div>
+      </div>
+      <div class="bi-actions">
+        <a href="/api/admin/db/backup/${encodeURIComponent(b.name)}/download" class="btn btn-green btn-sm"><i class="fa-solid fa-download"></i> Unduh</a>
+        <button class="btn btn-danger btn-sm" onclick="deleteBackup('${b.name}')"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function doBackup() {
+  const btn = document.getElementById('btnBackup');
+  const prog = document.getElementById('backupProgress');
+  const fill = document.getElementById('progressFill');
+  const label = document.getElementById('progressLabel');
+  btn.disabled = true;
+  prog.style.display = 'block';
+  // Animate progress (fake, since we don't stream)
+  let pct = 0;
+  const iv = setInterval(() => { pct = Math.min(pct + Math.random()*8, 90); fill.style.width = pct+'%'; }, 400);
+
+  const res = await fetch('/api/admin/db/backup', { method: 'POST' });
+  clearInterval(iv);
+  fill.style.width = '100%';
+
+  if (res.ok) {
+    const d = await res.json();
+    label.textContent = `✓ Backup selesai: ${d.filename} (${fmtBytes(d.size)})`;
+    showAlert('alert-backup-zone','ok',`Backup berhasil: <strong>${d.filename}</strong> (${fmtBytes(d.size)})`);
+    await loadBackups();
+  } else {
+    const e = await res.json();
+    label.textContent = '✗ Backup gagal: ' + e.error;
+    showAlert('alert-backup-zone','err','Backup gagal: ' + e.error);
+  }
+
+  setTimeout(() => { prog.style.display='none'; fill.style.width='0%'; }, 3000);
+  btn.disabled = false;
+}
+
+async function deleteBackup(name) {
+  if (!confirm(`Hapus backup "${name}"?`)) return;
+  const res = await fetch(`/api/admin/db/backup/${encodeURIComponent(name)}/delete`, { method: 'POST' });
+  if (res.ok) { showAlert('alert-backup-zone','ok','Backup dihapus'); await loadBackups(); }
+  else showAlert('alert-backup-zone','err','Gagal menghapus backup');
+}
+
+/* ── SCHEDULE ── */
+function updateSchedDisplay(s) {
+  if (!s) return;
+  document.getElementById('schedEnabled').checked = s.enabled;
+  document.getElementById('schedInterval').value = String(s.intervalHours || 24);
+  document.getElementById('schedKeep').value = String(s.keepCount || 7);
+  document.getElementById('sched-status').innerHTML = s.enabled
+    ? '<span class="badge-small b-ok">AKTIF</span>'
+    : '<span class="badge-small" style="background:rgba(255,255,255,.06);color:var(--ink-3);border:1px solid var(--border-2)">NONAKTIF</span>';
+  document.getElementById('sched-interval').textContent = s.intervalHours ? `Setiap ${s.intervalHours} jam` : '—';
+  document.getElementById('sched-last').textContent = fmtDate(s.lastBackupAt);
+  document.getElementById('sched-next').textContent = fmtDate(s.nextBackupAt);
+  document.getElementById('sched-keep').textContent = s.keepCount ? `${s.keepCount} file` : '—';
+}
+
+async function saveSchedule() {
+  const enabled = document.getElementById('schedEnabled').checked;
+  const intervalHours = Number(document.getElementById('schedInterval').value);
+  const keepCount = Number(document.getElementById('schedKeep').value);
+  const res = await fetch('/api/admin/db/schedule', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ enabled, intervalHours, keepCount }),
+  });
+  if (res.ok) {
+    const d = await res.json();
+    updateSchedDisplay(d.schedule);
+    showAlert('alert-jadwal-zone','ok',enabled
+      ? `Backup otomatis diaktifkan — interval ${intervalHours} jam, simpan ${keepCount} file`
+      : 'Backup otomatis dinonaktifkan');
+  } else {
+    showAlert('alert-jadwal-zone','err','Gagal menyimpan jadwal');
+  }
+}
+
+/* ── RESTORE ── */
+let _restoreFile = null;
+
+function onFileSelect(input) {
+  _restoreFile = input.files[0];
+  if (_restoreFile) {
+    document.getElementById('file-name').textContent = _restoreFile.name + ' (' + fmtBytes(_restoreFile.size) + ')';
+    document.getElementById('file-name').style.display = 'block';
+    document.getElementById('btnRestore').disabled = false;
+  }
+}
+
+function clearFile() {
+  _restoreFile = null;
+  document.getElementById('restoreFile').value = '';
+  document.getElementById('file-name').style.display = 'none';
+  document.getElementById('file-name').textContent = '';
+  document.getElementById('btnRestore').disabled = true;
+  document.getElementById('restore-result').style.display = 'none';
+}
+
+async function doRestore() {
+  if (!_restoreFile) return;
+  if (!confirm('Restore akan mengeksekusi SQL ke database. Lanjutkan?')) return;
+
+  const btn = document.getElementById('btnRestore');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengeksekusi…';
+
+  const fd = new FormData();
+  fd.append('file', _restoreFile);
+  const res = await fetch('/api/admin/db/restore', { method: 'POST', body: fd });
+  const d = await res.json();
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fa-solid fa-rotate-left"></i> Restore Database';
+
+  const resultDiv = document.getElementById('restore-result');
+  const resultBody = document.getElementById('restore-result-body');
+  resultDiv.style.display = 'block';
+
+  if (d.ok) {
+    resultBody.innerHTML = `<div class="alert alert-ok"><strong>✓ Restore berhasil</strong> — ${fmtNum(d.executed)} statement dieksekusi.</div>`;
+    showAlert('alert-restore-zone','ok',`Restore berhasil: ${fmtNum(d.executed)} statement`);
+  } else {
+    const errList = (d.errors || []).map(e => `<li style="margin-top:5px">${e}</li>`).join('');
+    resultBody.innerHTML = `<div class="alert alert-warn"><strong>Restore selesai dengan peringatan</strong> — ${fmtNum(d.executed)} statement dieksekusi, ${d.errors.length} error:<ul style="margin-top:8px;padding-left:16px">${errList}</ul></div>`;
+  }
+}
+
+// Drag & drop
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.name.endsWith('.sql')) {
+    _restoreFile = f;
+    document.getElementById('file-name').textContent = f.name + ' (' + fmtBytes(f.size) + ')';
+    document.getElementById('file-name').style.display = 'block';
+    document.getElementById('btnRestore').disabled = false;
+  }
+});
+
+/* ── INIT ── */
+async function init() {
+  await loadInfo();
+  await loadBackups();
+}
+init();
+</script>
+</body>
+</html>

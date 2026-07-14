@@ -36,6 +36,11 @@ export const db = new Proxy({} as MySql2Database<typeof schema>, {
   },
 });
 
+export function getPool(): mysql.Pool {
+  ensureInit();
+  return _pool!;
+}
+
 // pool.end() untuk migrate.ts dan createAdmin.ts
 export const pool = {
   end: async () => {
