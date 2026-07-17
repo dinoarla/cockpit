@@ -207,9 +207,9 @@
           <h4>Ada yang bisa saya bantu?</h4>
           <p>Tanya data baca meter, statistik PLN, kependudukan, atau RUPTL.</p>
           <div class="cw-sugs">
-            <button class="cw-sug" onclick="cwSug(this)">Total kWh Jabar 2026</button>
-            <button class="cw-sug" onclick="cwSug(this)">UP3 pelanggan terbanyak</button>
-            <button class="cw-sug" onclick="cwSug(this)">Rata-rata kWh Maret 2026</button>
+            <button class="cw-sug">Total kWh Jabar 2026</button>
+            <button class="cw-sug">UP3 pelanggan terbanyak</button>
+            <button class="cw-sug">Rata-rata kWh Maret 2026</button>
           </div>
         </div>
       </div>
@@ -290,7 +290,7 @@
     const el = document.createElement('div');
     el.className = 'cw-msg ai';
     const sqlHtml = sql ? `
-      <div class="cw-sql-toggle" onclick="this.nextElementSibling.classList.toggle('show');this.firstElementChild.textContent=this.nextElementSibling.classList.contains('show')?'▲':'▼'">
+      <div class="cw-sql-toggle" data-sql-toggle>
         <span>▼</span> SQL (${rowCount} baris)
       </div>
       <div class="cw-sql-block">${esc(sql)}</div>` : '';
@@ -350,6 +350,15 @@
   ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } });
   send.addEventListener('click', sendMsg);
 
-  /* ── Suggestion (global fn, scoped) ── */
-  window.cwSug = function(btn) { ta.value = btn.textContent; sendMsg(); };
+  /* ── Event delegation (CSP-safe, no inline onclick) ── */
+  msgs.addEventListener('click', (e) => {
+    const sug = e.target.closest('.cw-sug');
+    if (sug) { ta.value = sug.textContent.trim(); sendMsg(); return; }
+    const toggle = e.target.closest('[data-sql-toggle]');
+    if (toggle) {
+      const block = toggle.nextElementSibling;
+      block.classList.toggle('show');
+      toggle.querySelector('span').textContent = block.classList.contains('show') ? '▲' : '▼';
+    }
+  });
 })();

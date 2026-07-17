@@ -72,7 +72,7 @@ export async function securityHeaders(c, next) {
     c.header("Referrer-Policy", "strict-origin-when-cross-origin");
     c.header("Content-Security-Policy", [
         "default-src 'self'",
-        "script-src 'self' https://cdn.jsdelivr.net",
+        "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com",
         "img-src 'self' data: https://*.basemaps.cartocdn.com",
