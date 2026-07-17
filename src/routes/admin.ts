@@ -10,7 +10,6 @@ import { hashPassword, validatePasswordStrength } from "../auth/password.js";
 import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
-import { fileURLToPath } from "url";
 
 export const adminRoutes = new Hono();
 adminRoutes.use("*", requireAuth, requireRole("admin"));

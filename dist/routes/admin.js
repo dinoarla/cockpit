@@ -226,16 +226,20 @@ adminRoutes.get("/domains-modules", async (c) => {
     return c.json(result);
 });
 /* ── DATABASE MANAGEMENT ── */
+// Use BACKUP_DIR env var if set (recommended for production), otherwise persist in home directory
+// so backups survive server restarts and re-deploys
 const BACKUP_DIR = process.env.BACKUP_DIR ?? path.join(os.homedir(), "cockpit_backups");
 const SCHEDULE_FILE = path.join(BACKUP_DIR, ".schedule.json");
 function ensureBackupDir() {
-    if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
+    if (!fs.existsSync(BACKUP_DIR))
+        fs.mkdirSync(BACKUP_DIR, { recursive: true });
 }
 function readSchedule() {
     try {
         if (fs.existsSync(SCHEDULE_FILE))
             return JSON.parse(fs.readFileSync(SCHEDULE_FILE, "utf8"));
-    } catch {}
+    }
+    catch { }
     return { enabled: false, intervalHours: 24, lastBackupAt: null, nextBackupAt: null, keepCount: 7 };
 }
 function writeSchedule(cfg) {
@@ -253,11 +257,16 @@ function listBackups() {
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 function escSqlVal(v) {
-    if (v === null || v === undefined) return "NULL";
-    if (typeof v === "number") return String(v);
-    if (typeof v === "boolean") return v ? "1" : "0";
-    if (v instanceof Date) return `'${v.toISOString().slice(0, 19).replace("T", " ")}'`;
-    if (Buffer.isBuffer(v)) return `0x${v.toString("hex")}`;
+    if (v === null || v === undefined)
+        return "NULL";
+    if (typeof v === "number")
+        return String(v);
+    if (typeof v === "boolean")
+        return v ? "1" : "0";
+    if (v instanceof Date)
+        return `'${v.toISOString().slice(0, 19).replace("T", " ")}'`;
+    if (Buffer.isBuffer(v))
+        return `0x${v.toString("hex")}`;
     return `'${String(v).replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\n/g, "\\n").replace(/\r/g, "\\r")}'`;
 }
 async function generateBackupSql(dbName) {
@@ -281,39 +290,48 @@ async function generateBackupSql(dbName) {
             lines.push(createRow["Create Table"] + ";\n");
             if (rowEst <= 50000) {
                 const [rows] = await conn.execute(`SELECT * FROM \`${tblName}\``);
-                if (rows.length > 0) {
-                    const cols = Object.keys(rows[0]).map(c => `\`${c}\``).join(", ");
+                const rowArr = rows;
+                if (rowArr.length > 0) {
+                    const cols = Object.keys(rowArr[0]).map(c => `\`${c}\``).join(", ");
                     const CHUNK = 500;
-                    for (let i = 0; i < rows.length; i += CHUNK) {
-                        const vals = rows.slice(i, i + CHUNK)
+                    for (let i = 0; i < rowArr.length; i += CHUNK) {
+                        const vals = rowArr.slice(i, i + CHUNK)
                             .map(r => "(" + Object.values(r).map(escSqlVal).join(", ") + ")")
                             .join(",\n");
                         lines.push(`INSERT INTO \`${tblName}\` (${cols}) VALUES\n${vals};\n`);
                     }
                 }
-            } else {
+            }
+            else {
                 lines.push(`-- Data skipped: ${rowEst} rows (>50k limit — re-import dari sumber)\n`);
             }
         }
         lines.push(`SET FOREIGN_KEY_CHECKS=1;`);
         lines.push(`-- Backup selesai: ${new Date().toISOString()}`);
         return lines.join("\n");
-    } finally { conn.release(); }
+    }
+    finally {
+        conn.release();
+    }
 }
 async function pruneOldBackups(keepCount) {
     const backups = listBackups();
     if (backups.length > keepCount) {
         for (const b of backups.slice(keepCount)) {
-            try { fs.unlinkSync(path.join(BACKUP_DIR, b.name)); } catch {}
+            try {
+                fs.unlinkSync(path.join(BACKUP_DIR, b.name));
+            }
+            catch { }
         }
     }
 }
+// ── DB INFO ──
 adminRoutes.get("/db/info", async (c) => {
     const conn = await getPool().getConnection();
     try {
         const dbName = process.env.DB_NAME ?? "";
         const [tableStatus] = await conn.execute("SHOW TABLE STATUS");
-        const tables = tableStatus.map(t => ({
+        const tables = tableStatus.map((t) => ({
             name: t.Name, engine: t.Engine, rows: t.Rows ?? 0,
             dataLength: t.Data_length ?? 0, indexLength: t.Index_length ?? 0,
             createTime: t.Create_time, updateTime: t.Update_time,
@@ -321,9 +339,14 @@ adminRoutes.get("/db/info", async (c) => {
         const totalRows = tables.reduce((s, t) => s + t.rows, 0);
         const totalSize = tables.reduce((s, t) => s + t.dataLength + t.indexLength, 0);
         return c.json({ dbName, tables, totalRows, totalSize, backupCount: listBackups().length, schedule: readSchedule() });
-    } finally { conn.release(); }
+    }
+    finally {
+        conn.release();
+    }
 });
+// ── BACKUP LIST ──
 adminRoutes.get("/db/backups", async (c) => c.json(listBackups()));
+// ── TRIGGER BACKUP ──
 adminRoutes.post("/db/backup", async (c) => {
     const dbName = process.env.DB_NAME ?? "cockpit";
     const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
@@ -335,19 +358,24 @@ adminRoutes.post("/db/backup", async (c) => {
         fs.writeFileSync(filepath, sqlContent, "utf8");
         const sched = readSchedule();
         sched.lastBackupAt = new Date().toISOString();
-        if (sched.enabled) sched.nextBackupAt = new Date(Date.now() + sched.intervalHours * 3_600_000).toISOString();
+        if (sched.enabled)
+            sched.nextBackupAt = new Date(Date.now() + sched.intervalHours * 3_600_000).toISOString();
         writeSchedule(sched);
         await pruneOldBackups(sched.keepCount ?? 7);
         return c.json({ ok: true, filename, size: fs.statSync(filepath).size });
-    } catch (err) {
+    }
+    catch (err) {
         return c.json({ error: err.message }, 500);
     }
 });
+// ── DOWNLOAD BACKUP ──
 adminRoutes.get("/db/backup/:name/download", async (c) => {
     const name = c.req.param("name");
-    if (!name || name.includes("/") || name.includes("..")) return c.json({ error: "Invalid" }, 400);
+    if (!name || name.includes("/") || name.includes(".."))
+        return c.json({ error: "Invalid" }, 400);
     const filepath = path.join(BACKUP_DIR, name);
-    if (!fs.existsSync(filepath)) return c.json({ error: "Not found" }, 404);
+    if (!fs.existsSync(filepath))
+        return c.json({ error: "Not found" }, 404);
     const content = fs.readFileSync(filepath);
     return new Response(content, {
         headers: {
@@ -357,37 +385,51 @@ adminRoutes.get("/db/backup/:name/download", async (c) => {
         },
     });
 });
+// ── DELETE BACKUP ──
 async function doDeleteBackup(c, name) {
-    if (!name || name.includes("/") || name.includes("..")) return c.json({ error: "Invalid" }, 400);
+    if (!name || name.includes("/") || name.includes(".."))
+        return c.json({ error: "Invalid" }, 400);
     const filepath = path.join(BACKUP_DIR, name);
-    if (!fs.existsSync(filepath)) return c.json({ error: "Not found" }, 404);
+    if (!fs.existsSync(filepath))
+        return c.json({ error: "Not found" }, 404);
     fs.unlinkSync(filepath);
     return c.json({ ok: true });
 }
 adminRoutes.delete("/db/backup/:name", (c) => doDeleteBackup(c, c.req.param("name")));
 adminRoutes.post("/db/backup/:name/delete", (c) => doDeleteBackup(c, c.req.param("name")));
+// ── RESTORE ──
 adminRoutes.post("/db/restore", async (c) => {
     const body = await c.req.formData();
     const file = body.get("file");
-    if (!file) return c.json({ error: "No file uploaded" }, 400);
+    if (!file)
+        return c.json({ error: "No file uploaded" }, 400);
     const text = await file.text();
     const conn = await getPool().getConnection();
     let executed = 0;
     const errors = [];
     const stmts = text
         .split(/;\s*\n/)
-        .map(s => s.trim())
-        .filter(s => s && !s.startsWith("--") && !s.startsWith("/*") && s.length > 3);
+        .map((s) => s.trim())
+        .filter((s) => s && !s.startsWith("--") && !s.startsWith("/*") && s.length > 3);
     try {
         for (const stmt of stmts) {
-            try { await conn.execute(stmt); executed++; } catch (err) {
+            try {
+                await conn.execute(stmt);
+                executed++;
+            }
+            catch (err) {
                 errors.push(err.message.slice(0, 120));
-                if (errors.length > 10) break;
+                if (errors.length > 10)
+                    break;
             }
         }
-    } finally { conn.release(); }
+    }
+    finally {
+        conn.release();
+    }
     return c.json({ ok: errors.length === 0, executed, errors });
 });
+// ── SCHEDULE ──
 adminRoutes.get("/db/schedule", async (c) => c.json(readSchedule()));
 adminRoutes.post("/db/schedule", async (c) => {
     const body = await c.req.json();
@@ -398,37 +440,53 @@ adminRoutes.post("/db/schedule", async (c) => {
     if (sched.enabled) {
         const base = sched.lastBackupAt ? new Date(sched.lastBackupAt).getTime() : Date.now();
         sched.nextBackupAt = new Date(base + sched.intervalHours * 3_600_000).toISOString();
-    } else {
+    }
+    else {
         sched.nextBackupAt = null;
     }
     writeSchedule(sched);
     resetScheduleTimer();
     return c.json({ ok: true, schedule: sched });
 });
+// ── AUTO-BACKUP TIMER ──
 let _schedTimer = null;
 async function runAutoBackup() {
     const sched = readSchedule();
-    if (!sched.enabled) return;
-    if (sched.nextBackupAt && new Date(sched.nextBackupAt).getTime() > Date.now()) return;
+    if (!sched.enabled)
+        return;
+    if (sched.nextBackupAt && new Date(sched.nextBackupAt).getTime() > Date.now())
+        return;
     const dbName = process.env.DB_NAME ?? "cockpit";
     const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
     const filename = `cockpit_${dbName}_auto_${ts}.sql`;
     ensureBackupDir();
     try {
-        const sqlContent = await generateBackupSql(dbName);
-        fs.writeFileSync(path.join(BACKUP_DIR, filename), sqlContent, "utf8");
+        const sql = await generateBackupSql(dbName);
+        fs.writeFileSync(path.join(BACKUP_DIR, filename), sql, "utf8");
         sched.lastBackupAt = new Date().toISOString();
         sched.nextBackupAt = new Date(Date.now() + sched.intervalHours * 3_600_000).toISOString();
         writeSchedule(sched);
         await pruneOldBackups(sched.keepCount ?? 7);
-        console.log(`[AutoBackup] ${filename} (${Math.round(sqlContent.length / 1024)} KB)`);
-    } catch (err) { console.error("[AutoBackup] Error:", err); }
+        console.log(`[AutoBackup] ${filename} (${Math.round(sql.length / 1024)} KB)`);
+    }
+    catch (err) {
+        console.error("[AutoBackup] Error:", err);
+    }
 }
 function resetScheduleTimer() {
-    if (_schedTimer) { clearInterval(_schedTimer); _schedTimer = null; }
+    if (_schedTimer) {
+        clearInterval(_schedTimer);
+        _schedTimer = null;
+    }
     const sched = readSchedule();
-    if (!sched.enabled) return;
-    _schedTimer = setInterval(runAutoBackup, 3_600_000);
+    if (!sched.enabled)
+        return;
+    _schedTimer = setInterval(runAutoBackup, 3_600_000); // cek tiap jam
 }
-setTimeout(() => { try { resetScheduleTimer(); runAutoBackup(); } catch {} }, 5000);
+// Jalankan 5 detik setelah server start
+setTimeout(() => { try {
+    resetScheduleTimer();
+    runAutoBackup();
+}
+catch { } }, 5000);
 //# sourceMappingURL=admin.js.map
