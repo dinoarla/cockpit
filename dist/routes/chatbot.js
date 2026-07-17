@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { streamSSE } from "hono/streaming";
 import Groq from "groq-sdk";
 import { db } from "../db/client.js";
 import { sql } from "drizzle-orm";
@@ -128,6 +129,15 @@ async function runSQL(query) {
     const rows = Array.isArray(result) && Array.isArray(result[0]) ? result[0] : result;
     return { rows: rows, rowCount: rows.length, sql: limited };
 }
+function simplifyError(raw) {
+    if (raw.includes("429") || raw.includes("rate_limit") || raw.includes("Rate limit")) {
+        return "Rate limit Groq tercapai. Tunggu sebentar lalu coba lagi.";
+    }
+    if (raw.includes("401") || raw.includes("403") || raw.includes("invalid_api_key") || raw.includes("Authentication")) {
+        return "GROQ_API_KEY tidak valid. Periksa konfigurasi di hosting.";
+    }
+    return `Kesalahan: ${raw.slice(0, 200)}`;
+}
 chatbotRoutes.post("/chat", async (c) => {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
@@ -144,71 +154,97 @@ chatbotRoutes.post("/chat", async (c) => {
     if (!message?.trim()) {
         return c.json({ error: "Pesan tidak boleh kosong" }, 400);
     }
-    try {
-        const groq = new Groq({ apiKey });
-        const messages = [
-            { role: "system", content: SYSTEM_PROMPT },
-            ...history.map((h) => ({
-                role: (h.role === "model" ? "assistant" : h.role),
-                content: h.text,
-            })),
-            { role: "user", content: message },
-        ];
-        const response = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
-            messages,
-            tools: [SQL_TOOL],
-            tool_choice: "auto",
-            max_tokens: 1024,
-        });
-        const choice = response.choices[0];
-        const toolCalls = choice.message.tool_calls;
-        if (toolCalls && toolCalls.length > 0) {
-            const tc = toolCalls[0];
-            let sqlResult;
-            let usedSql;
-            let rowCount;
-            try {
-                const args = JSON.parse(tc.function.arguments);
-                const { rows, rowCount: rc, sql: executedSql } = await runSQL(args.query);
-                usedSql = executedSql;
-                rowCount = rc;
-                sqlResult = JSON.stringify({ success: true, rows, rowCount: rc });
-            }
-            catch (err) {
-                sqlResult = JSON.stringify({ success: false, error: err instanceof Error ? err.message : String(err) });
-            }
-            // Kirim hasil SQL kembali ke model untuk jawaban akhir
-            const followUp = await groq.chat.completions.create({
+    const groq = new Groq({ apiKey });
+    const messages = [
+        { role: "system", content: SYSTEM_PROMPT },
+        ...history.map((h) => ({
+            role: (h.role === "model" ? "assistant" : h.role),
+            content: h.text,
+        })),
+        { role: "user", content: message },
+    ];
+    return streamSSE(c, async (stream) => {
+        const write = (data) => stream.writeSSE({ data: JSON.stringify(data) });
+        try {
+            // ── Fase 1: deteksi apakah perlu tool call ──
+            const firstStream = await groq.chat.completions.create({
                 model: "llama-3.3-70b-versatile",
-                messages: [
-                    ...messages,
-                    choice.message,
-                    {
-                        role: "tool",
-                        tool_call_id: tc.id,
-                        content: sqlResult,
-                    },
-                ],
+                messages,
+                tools: [SQL_TOOL],
+                tool_choice: "auto",
                 max_tokens: 1024,
+                stream: true,
             });
-            return c.json({
-                answer: followUp.choices[0].message.content ?? "",
-                sql: usedSql,
-                rowCount,
-            });
+            let toolCallId = "";
+            let toolCallName = "";
+            let toolCallArgs = "";
+            let isToolCall = false;
+            for await (const chunk of firstStream) {
+                const delta = chunk.choices[0]?.delta;
+                // Teks biasa → stream langsung ke client
+                if (delta?.content) {
+                    await write({ t: "chunk", v: delta.content });
+                }
+                // Akumulasi tool call (tidak di-stream dulu)
+                if (delta?.tool_calls?.[0]) {
+                    isToolCall = true;
+                    const tc = delta.tool_calls[0];
+                    if (tc.id)
+                        toolCallId = tc.id;
+                    if (tc.function?.name)
+                        toolCallName += tc.function.name;
+                    if (tc.function?.arguments)
+                        toolCallArgs += tc.function.arguments;
+                }
+            }
+            // ── Fase 2: jika ada SQL, jalankan dan stream jawaban akhir ──
+            if (isToolCall && toolCallName === "execute_sql") {
+                let sqlResult;
+                let usedSql;
+                let rowCount = 0;
+                try {
+                    const args = JSON.parse(toolCallArgs);
+                    const { rows, rowCount: rc, sql: executedSql } = await runSQL(args.query);
+                    usedSql = executedSql;
+                    rowCount = rc;
+                    sqlResult = JSON.stringify({ success: true, rows, rowCount: rc });
+                }
+                catch (err) {
+                    sqlResult = JSON.stringify({
+                        success: false,
+                        error: err instanceof Error ? err.message : String(err),
+                    });
+                }
+                const followUp = [
+                    ...messages,
+                    {
+                        role: "assistant",
+                        content: null,
+                        tool_calls: [{ id: toolCallId, type: "function", function: { name: toolCallName, arguments: toolCallArgs } }],
+                    },
+                    { role: "tool", tool_call_id: toolCallId, content: sqlResult },
+                ];
+                const secondStream = await groq.chat.completions.create({
+                    model: "llama-3.3-70b-versatile",
+                    messages: followUp,
+                    max_tokens: 1024,
+                    stream: true,
+                });
+                for await (const chunk of secondStream) {
+                    const text = chunk.choices[0]?.delta?.content;
+                    if (text)
+                        await write({ t: "chunk", v: text });
+                }
+                if (usedSql) {
+                    await write({ t: "sql", query: usedSql, rows: rowCount });
+                }
+            }
+            await write({ t: "done" });
         }
-        return c.json({ answer: choice.message.content ?? "" });
-    }
-    catch (err) {
-        const raw = err instanceof Error ? err.message : String(err);
-        if (raw.includes("429") || raw.includes("rate_limit") || raw.includes("Rate limit")) {
-            return c.json({ error: "Rate limit Groq tercapai. Tunggu sebentar lalu coba lagi." }, 429);
+        catch (err) {
+            const raw = err instanceof Error ? err.message : String(err);
+            await write({ t: "error", v: simplifyError(raw) });
         }
-        if (raw.includes("401") || raw.includes("403") || raw.includes("invalid_api_key") || raw.includes("Authentication")) {
-            return c.json({ error: "GROQ_API_KEY tidak valid. Periksa konfigurasi di hosting." }, 401);
-        }
-        return c.json({ error: `Kesalahan: ${raw.slice(0, 300)}` }, 500);
-    }
+    });
 });
 //# sourceMappingURL=chatbot.js.map

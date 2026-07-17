@@ -310,7 +310,7 @@
     scrollBottom();
   }
 
-  /* ── Send ── */
+  /* ── Send (streaming SSE) ── */
   async function sendMsg() {
     if (loading) return;
     const text = ta.value.trim();
@@ -318,7 +318,20 @@
     loading = true; send.disabled = true;
     ta.value = ''; ta.style.height = 'auto';
     addUser(text);
-    addThinking();
+
+    // Buat bubble AI kosong dengan dots dulu
+    hideEmpty();
+    const aiEl = document.createElement('div');
+    aiEl.className = 'cw-msg ai';
+    aiEl.innerHTML = `<div class="cw-av ai">✦</div><div class="cw-bubble"><div class="cw-thinking"><span></span><span></span><span></span></div></div>`;
+    msgs.appendChild(aiEl);
+    scrollBottom();
+    const bubble = aiEl.querySelector('.cw-bubble');
+
+    let fullText = '';
+    let gotFirstChunk = false;
+    let sqlQuery = null;
+    let sqlRows = 0;
 
     try {
       const res = await fetch('/api/chatbot/chat', {
@@ -326,23 +339,55 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text, history }),
       });
-      removeThinking();
-      if (!res.ok) {
+
+      if (!res.ok || !res.body) {
         const e = await res.json().catch(() => ({}));
-        addErr(e.error || 'Terjadi kesalahan server (' + res.status + ')');
+        bubble.innerHTML = `<div class="cw-err">⚠ ${esc(e.error || 'Server error ' + res.status)}</div>`;
       } else {
-        const d = await res.json();
-        if (d.error) { addErr(d.error); }
-        else {
-          addAI(d.answer, d.sql, d.rowCount);
-          history.push({ role: 'user', text });
-          history.push({ role: 'assistant', text: d.answer });
-          if (history.length > 20) history = history.slice(-20);
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buf = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buf += decoder.decode(value, { stream: true });
+          const lines = buf.split('\n');
+          buf = lines.pop() ?? '';
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            let ev;
+            try { ev = JSON.parse(line.slice(6)); } catch { continue; }
+
+            if (ev.t === 'chunk') {
+              if (!gotFirstChunk) { bubble.innerHTML = ''; gotFirstChunk = true; }
+              fullText += ev.v;
+              bubble.innerHTML = fmt(fullText);
+              scrollBottom();
+            } else if (ev.t === 'sql') {
+              sqlQuery = ev.query;
+              sqlRows = ev.rows;
+            } else if (ev.t === 'error') {
+              bubble.innerHTML = `<div class="cw-err">⚠ ${esc(ev.v)}</div>`;
+            } else if (ev.t === 'done') {
+              if (sqlQuery) {
+                bubble.innerHTML = fmt(fullText) +
+                  `<div class="cw-sql-toggle" data-sql-toggle><span>▼</span> SQL (${sqlRows} baris)</div>` +
+                  `<div class="cw-sql-block">${esc(sqlQuery)}</div>`;
+              }
+              if (fullText) {
+                history.push({ role: 'user', text });
+                history.push({ role: 'assistant', text: fullText });
+                if (history.length > 20) history = history.slice(-20);
+              }
+              if (!open) { unread++; badge.textContent = unread > 9 ? '9+' : unread; badge.classList.add('visible'); }
+            }
+          }
         }
       }
     } catch {
-      removeThinking();
-      addErr('Gagal terhubung ke server.');
+      bubble.innerHTML = `<div class="cw-err">⚠ Gagal terhubung ke server.</div>`;
     }
 
     loading = false; send.disabled = false; ta.focus();
