@@ -116,8 +116,30 @@ app.route("/api/simba", simbaRoutes);
 app.route("/api/baca-meter", bacaMeterRoutes);
 app.route("/api/chatbot", chatbotRoutes);
 
-app.use("/menu.html", requireAuth, serveStatic({ root: publicDir }));
-app.use("/admin/*", requireAuth, serveStatic({ root: publicDir }));
+// Helper: inject widget ke semua halaman yang sudah login
+function injectWidget(html: string): string {
+  return html.replace("</body>", '<script src="/assets/chatbot-widget.js"></script></body>');
+}
+
+app.get("/menu.html", requireAuth, async (c) => {
+  const content = await readFile(join(publicDir, "menu.html"), "utf-8");
+  return c.html(injectWidget(content));
+});
+
+app.use("/admin/*", requireAuth, async (c, next) => {
+  const reqPath = c.req.path.replace(/^\//, "");
+  const candidates = [
+    join(publicDir, reqPath),
+    join(publicDir, reqPath, "index.html"),
+  ];
+  for (const fp of candidates) {
+    try {
+      const content = await readFile(fp, "utf-8");
+      return c.html(injectWidget(content));
+    } catch { /* try next */ }
+  }
+  return next();
+});
 
 // ── TOKEN-BASED MODULE HANDLER ──
 // URL modul menggunakan token acak (url_token), bukan slug asli.
@@ -160,7 +182,7 @@ app.get("/modules/:domainSlug/:token/", requireAuth, async (c) => {
   const filePath = join(publicDir, "modules", domainSlug, mod.slug, "index.html");
   try {
     const content = await readFile(filePath, "utf-8");
-    return c.html(content);
+    return c.html(injectWidget(content));
   } catch {
     return c.redirect("/menu.html");
   }
