@@ -147,7 +147,7 @@ chatbotRoutes.post("/chat", async (c) => {
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash-lite",
       systemInstruction: SYSTEM_PROMPT,
       tools: [SQL_TOOL],
     });
