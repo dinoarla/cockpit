@@ -148,7 +148,7 @@ chatbotRoutes.post("/chat", async (c) => {
     const messages: Groq.Chat.Completions.ChatCompletionMessageParam[] = [
       { role: "system", content: SYSTEM_PROMPT },
       ...history.map((h) => ({
-        role: h.role as "user" | "assistant",
+        role: (h.role === "model" ? "assistant" : h.role) as "user" | "assistant",
         content: h.text,
       })),
       { role: "user", content: message },

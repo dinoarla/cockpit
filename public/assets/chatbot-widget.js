@@ -336,7 +336,7 @@
         else {
           addAI(d.answer, d.sql, d.rowCount);
           history.push({ role: 'user', text });
-          history.push({ role: 'model', text: d.answer });
+          history.push({ role: 'assistant', text: d.answer });
           if (history.length > 20) history = history.slice(-20);
         }
       }

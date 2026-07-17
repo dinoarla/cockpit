@@ -139,7 +139,7 @@ chatbotRoutes.post("/chat", async (c) => {
         const messages = [
             { role: "system", content: SYSTEM_PROMPT },
             ...history.map((h) => ({
-                role: h.role,
+                role: (h.role === "model" ? "assistant" : h.role),
                 content: h.text,
             })),
             { role: "user", content: message },
