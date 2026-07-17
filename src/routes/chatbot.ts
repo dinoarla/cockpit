@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { GoogleGenerativeAI, SchemaType, type FunctionDeclarationSchema } from "@google/generative-ai";
+import Groq from "groq-sdk";
 import { db } from "../db/client.js";
 import { sql } from "drizzle-orm";
 import { requireAuth } from "../middleware/auth.js";
@@ -90,23 +90,22 @@ kependudukan_bps_jabar(
 3. Jika data tidak ditemukan, sampaikan dengan jelas
 4. Untuk pertanyaan tren, gunakan ORDER BY bulan/tahun ASC`;
 
-const SQL_TOOL = {
-  functionDeclarations: [
-    {
-      name: "execute_sql",
-      description: "Jalankan SELECT query ke database MySQL COCKPIT untuk mengambil data",
-      parameters: {
-        type: SchemaType.OBJECT,
-        properties: {
-          query: {
-            type: SchemaType.STRING,
-            description: "SELECT SQL query yang akan dijalankan",
-          },
+const SQL_TOOL: Groq.Chat.Completions.ChatCompletionTool = {
+  type: "function",
+  function: {
+    name: "execute_sql",
+    description: "Jalankan SELECT query ke database MySQL COCKPIT untuk mengambil data",
+    parameters: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description: "SELECT SQL query yang akan dijalankan",
         },
-        required: ["query"],
-      } as FunctionDeclarationSchema,
+      },
+      required: ["query"],
     },
-  ],
+  },
 };
 
 const BLOCKED_KEYWORDS = /\b(drop|delete|update|insert|alter|truncate|create|replace|grant|revoke|exec|execute|xp_|sp_)\b/i;
@@ -119,7 +118,6 @@ async function runSQL(query: string): Promise<{ rows: unknown[]; rowCount: numbe
   if (BLOCKED_KEYWORDS.test(trimmed)) {
     throw new Error("Query mengandung keyword yang tidak diizinkan");
   }
-  // Tambahkan LIMIT jika belum ada
   const limited = /\bLIMIT\b/i.test(trimmed) ? trimmed : `${trimmed} LIMIT 100`;
   const result = await db.execute(sql.raw(limited));
   const rows = Array.isArray(result) && Array.isArray(result[0]) ? result[0] : result;
@@ -127,9 +125,9 @@ async function runSQL(query: string): Promise<{ rows: unknown[]; rowCount: numbe
 }
 
 chatbotRoutes.post("/chat", async (c) => {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    return c.json({ error: "GEMINI_API_KEY belum dikonfigurasi" }, 503);
+    return c.json({ error: "GROQ_API_KEY belum dikonfigurasi di server." }, 503);
   }
 
   let body: { message: string; history?: Array<{ role: string; text: string }> };
@@ -145,73 +143,75 @@ chatbotRoutes.post("/chat", async (c) => {
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash-lite",
-      systemInstruction: SYSTEM_PROMPT,
+    const groq = new Groq({ apiKey });
+
+    const messages: Groq.Chat.Completions.ChatCompletionMessageParam[] = [
+      { role: "system", content: SYSTEM_PROMPT },
+      ...history.map((h) => ({
+        role: h.role as "user" | "assistant",
+        content: h.text,
+      })),
+      { role: "user", content: message },
+    ];
+
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages,
       tools: [SQL_TOOL],
+      tool_choice: "auto",
+      max_tokens: 1024,
     });
 
-    const geminiHistory = history.map((h) => ({
-      role: h.role as "user" | "model",
-      parts: [{ text: h.text }],
-    }));
+    const choice = response.choices[0];
+    const toolCalls = choice.message.tool_calls;
 
-    const chat = model.startChat({ history: geminiHistory });
-    const result = await chat.sendMessage(message);
+    if (toolCalls && toolCalls.length > 0) {
+      const tc = toolCalls[0];
+      let sqlResult: unknown;
+      let usedSql: string | undefined;
+      let rowCount: number | undefined;
 
-    let usedSql: string | undefined;
-    let rowCount: number | undefined;
-
-    // Cek apakah Gemini ingin memanggil function
-    const candidate = result.response.candidates?.[0];
-    const parts = candidate?.content?.parts ?? [];
-    const fnCall = parts.find((p) => p.functionCall);
-
-    if (fnCall?.functionCall) {
-      const { name, args } = fnCall.functionCall;
-      if (name === "execute_sql") {
-        const fnArgs = args as { query: string };
-        let sqlResult: unknown;
-        try {
-          const { rows, rowCount: rc, sql: executedSql } = await runSQL(fnArgs.query);
-          usedSql = executedSql;
-          rowCount = rc;
-          sqlResult = { success: true, rows, rowCount: rc };
-        } catch (err: unknown) {
-          sqlResult = { success: false, error: err instanceof Error ? err.message : String(err) };
-        }
-
-        // Kirim hasil SQL kembali ke Gemini
-        const finalResult = await chat.sendMessage([
-          {
-            functionResponse: {
-              name: "execute_sql",
-              response: sqlResult as Record<string, unknown>,
-            },
-          },
-        ]);
-
-        return c.json({
-          answer: finalResult.response.text(),
-          sql: usedSql,
-          rowCount,
-        });
+      try {
+        const args = JSON.parse(tc.function.arguments) as { query: string };
+        const { rows, rowCount: rc, sql: executedSql } = await runSQL(args.query);
+        usedSql = executedSql;
+        rowCount = rc;
+        sqlResult = JSON.stringify({ success: true, rows, rowCount: rc });
+      } catch (err: unknown) {
+        sqlResult = JSON.stringify({ success: false, error: err instanceof Error ? err.message : String(err) });
       }
+
+      // Kirim hasil SQL kembali ke model untuk jawaban akhir
+      const followUp = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          ...messages,
+          choice.message as Groq.Chat.Completions.ChatCompletionMessageParam,
+          {
+            role: "tool",
+            tool_call_id: tc.id,
+            content: sqlResult as string,
+          },
+        ],
+        max_tokens: 1024,
+      });
+
+      return c.json({
+        answer: followUp.choices[0].message.content ?? "",
+        sql: usedSql,
+        rowCount,
+      });
     }
 
-    return c.json({ answer: result.response.text() });
+    return c.json({ answer: choice.message.content ?? "" });
   } catch (err: unknown) {
     const raw = err instanceof Error ? err.message : String(err);
-    if (raw.includes("429") || raw.includes("quota") || raw.includes("Quota") || raw.includes("RESOURCE_EXHAUSTED")) {
-      return c.json({ error: "Kuota Gemini API habis. Pastikan API key dari Google AI Studio (aistudio.google.com) dan coba lagi sebentar." }, 429);
+    if (raw.includes("429") || raw.includes("rate_limit") || raw.includes("Rate limit")) {
+      return c.json({ error: "Rate limit Groq tercapai. Tunggu sebentar lalu coba lagi." }, 429);
     }
-    if (raw.includes("API_KEY") || raw.includes("401") || raw.includes("403") || raw.includes("API_KEY_INVALID")) {
-      return c.json({ error: "API key Gemini tidak valid. Periksa GEMINI_API_KEY di hosting." }, 401);
+    if (raw.includes("401") || raw.includes("403") || raw.includes("invalid_api_key") || raw.includes("Authentication")) {
+      return c.json({ error: "GROQ_API_KEY tidak valid. Periksa konfigurasi di hosting." }, 401);
     }
-    if (raw.includes("404") || raw.includes("NOT_FOUND") || raw.includes("not found") || raw.includes("not support")) {
-      return c.json({ error: `Model tidak ditemukan atau tidak didukung. Detail: ${raw.slice(0, 300)}` }, 500);
-    }
-    return c.json({ error: `Kesalahan Gemini: ${raw.slice(0, 400)}` }, 500);
+    return c.json({ error: `Kesalahan: ${raw.slice(0, 300)}` }, 500);
   }
 });

@@ -199,7 +199,7 @@
         </div>
         <div class="cw-htitle">
           <strong>PILOT COCKPIT</strong>
-          <span>Gemini 2.0 Flash Lite · Co-Pilot Riset</span>
+          <span>Llama 3.3 70B · Co-Pilot Riset</span>
         </div>
         <button id="cw-close" title="Tutup">✕</button>
       </div>
