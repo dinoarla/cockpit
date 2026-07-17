@@ -11,171 +11,215 @@ chatbotRoutes.use("*", requireAuth);
 const SYSTEM_PROMPT = `Kamu adalah asisten riset untuk COCKPIT — portal data riset pribadi milik Dino.
 Jawab dalam Bahasa Indonesia yang ringkas dan informatif.
 
-=== KAPAN MENGGUNAKAN TOOL execute_sql ===
-GUNAKAN tool HANYA jika pertanyaan membutuhkan data angka dari database.
-JANGAN gunakan tool untuk: sapaan, pertanyaan umum, terima kasih, atau obrolan biasa.
-Contoh TIDAK perlu SQL: "halo", "terima kasih", "apa itu UP3?", "siapa kamu?"
-Contoh PERLU SQL: "berapa total kWh?", "UP3 mana paling banyak pelanggan?", "tren penjualan 2024?"
+=== DUA TOOL YANG TERSEDIA ===
 
-=== SKEMA DATABASE COCKPIT (MySQL) ===
+1. execute_sql — query SQL langsung ke database utama COCKPIT (MySQL).
+   Gunakan untuk: filter kustom, perhitungan khusus, data yang butuh agregasi fleksibel.
+
+2. call_api — panggil endpoint API internal COCKPIT.
+   Gunakan untuk: data SIMBA (database terpisah, TIDAK bisa via SQL), data RUPTL/PLN yang sudah diproses,
+   atau ketika endpoint sudah menyediakan agregasi yang dibutuhkan.
+
+KAPAN TIDAK PERLU TOOL: sapaan, pertanyaan umum, obrolan biasa → jawab langsung tanpa tool.
+
+=== SKEMA DATABASE UTAMA (untuk execute_sql) ===
 
 -- Data Baca Meter Paskabayar Jawa Barat 2026
--- bulan format: '202601' s/d '202607' (Jan-Jul 2026)
--- PENTING: total_pelanggan adalah jumlah pelanggan per periode per UP3, BUKAN akumulasi
--- Untuk ranking/terbanyak tanpa filter bulan → gunakan bulan terbaru: WHERE bulan = '202607'
--- UP3 Jawa Barat: Bandung, Bekasi Kota, Bekasi, Bogor, Cianjur, Cikokol,
---   Cimahi, Depok, Garut, Karawang, Majalaya, Purwakarta, Sukabumi,
---   Sumedang, Tasikmalaya, Cikarang, Banten, Cirebon
+-- bulan format: '202601' s/d '202607' | Default tanpa filter: WHERE bulan = '202607'
+-- PENTING: total_pelanggan = jumlah pelanggan di BULAN ITU, bukan kumulatif
+-- UP3 Jabar: Bandung, Bekasi Kota, Bekasi, Bogor, Cianjur, Cikokol, Cimahi,
+--   Depok, Garut, Karawang, Majalaya, Purwakarta, Sukabumi, Sumedang,
+--   Tasikmalaya, Cikarang, Banten, Cirebon
 
-baca_meter_summary(
-  bulan CHAR(6),          -- periode, mis '202603' = Maret 2026
-  up3_kode VARCHAR(10),   -- kode UP3
-  up3_nama VARCHAR(100),  -- nama UP3
-  total_pelanggan INT,    -- jumlah pelanggan di bulan itu (BUKAN kumulatif)
-  total_kwh DECIMAL,      -- total konsumsi kWh di bulan itu
-  avg_kwh DECIMAL,        -- rata-rata kWh per pelanggan
-  pct_normal DECIMAL,     -- persentase baca normal
-  baca_ulang INT,         -- jumlah baca ulang
-  inisialisasi INT,       -- jumlah inisialisasi
-  avg_jam DECIMAL         -- rata-rata jam baca
-)
+baca_meter_summary(bulan, up3_kode, up3_nama, total_pelanggan, total_kwh, avg_kwh, pct_normal, baca_ulang, inisialisasi, avg_jam)
+baca_meter_tarif(bulan, up3_kode, tarif, pelanggan, total_kwh)
+baca_meter_daya(bulan, up3_kode, daya_va, pelanggan, total_kwh)
+baca_meter_kode_pesan(bulan, up3_kode, kode_pesan, jumlah)
+baca_meter_jam(bulan, up3_kode, jam TINYINT, jumlah)
 
-baca_meter_tarif(
-  bulan CHAR(6), up3_kode VARCHAR(10),
-  tarif VARCHAR(20),      -- golongan tarif: R1, R2, R3, B1, B2, I1, I2, dst
-  pelanggan INT, total_kwh DECIMAL
-)
-
-baca_meter_daya(
-  bulan CHAR(6), up3_kode VARCHAR(10),
-  daya_va INT,            -- kapasitas daya: 450, 900, 1300, 2200, dst (VA)
-  pelanggan INT, total_kwh DECIMAL
-)
-
-baca_meter_kode_pesan(
-  bulan CHAR(6), up3_kode VARCHAR(10),
-  kode_pesan VARCHAR(10), -- kode status bacaan meter
-  jumlah INT
-)
-
-baca_meter_jam(
-  bulan CHAR(6), up3_kode VARCHAR(10),
-  jam TINYINT,            -- jam 0-23
-  jumlah INT
-)
-
--- Data Statistik Nasional PLN (2014-2025)
-pln_stat_national(
-  year INT,
-  installed_capacity_pln_mw DECIMAL, installed_capacity_total_mw DECIMAL,
-  peak_load_mw DECIMAL, prod_total_gwh DECIMAL,
-  cust_household BIGINT, cust_total BIGINT,
-  sold_household_gwh DECIMAL, sold_industry_gwh DECIMAL,
-  sold_total_gwh DECIMAL, tariff_avg_rp_kwh DECIMAL,
-  electrification_ratio_pct DECIMAL
-)
+-- PLN Statistik Nasional 2014-2025
+pln_stat_national(year, installed_capacity_pln_mw, installed_capacity_total_mw, peak_load_mw,
+  prod_total_gwh, cust_household, cust_total, sold_household_gwh, sold_industry_gwh,
+  sold_total_gwh, tariff_avg_rp_kwh, electrification_ratio_pct)
 
 -- OLAP Tagihan AMR
-olap_amr_tagihan(
-  thblrek CHAR(6),        -- periode YYYYMM
-  unitap VARCHAR(10), unitap_nama VARCHAR(50),
-  unitup VARCHAR(10), tarif VARCHAR(10), tarif_grup VARCHAR(20),
-  jml_pelanggan INT, kwh_total DECIMAL,
-  kwh_lwbp DECIMAL, kwh_wbp DECIMAL,
-  rp_ptl BIGINT, rp_ppj BIGINT, rp_total BIGINT
-)
+olap_amr_tagihan(thblrek CHAR(6), unitap, unitap_nama, unitup, tarif, tarif_grup,
+  jml_pelanggan, kwh_total, kwh_lwbp, kwh_wbp, rp_ptl, rp_ppj, rp_total)
 
 -- Kependudukan BPS Jawa Barat
-kependudukan_bps_jabar(
-  tahun INT, kabkota VARCHAR(100), indikator VARCHAR(200),
-  satuan VARCHAR(50), nilai DECIMAL
-)
+kependudukan_bps_jabar(tahun, kabkota, indikator, satuan, nilai)
 
--- User & akses COCKPIT
-users(
-  id INT, username VARCHAR(50), name VARCHAR(100),
-  role ENUM('admin','viewer'), is_active BOOLEAN,
-  created_at DATETIME
-)
-domains(id INT, name VARCHAR(100), slug VARCHAR(50), is_active BOOLEAN)
-domain_modules(id INT, domain_id INT, name VARCHAR(100), slug VARCHAR(50), is_active BOOLEAN)
+-- User & Akses COCKPIT
+users(id, username, name, role ENUM('admin','viewer'), is_active, created_at)
+domains(id, name, slug, is_active)
+domain_modules(id, domain_id, name, slug, is_active)
 
-=== ATURAN SQL ===
-1. Hanya SELECT. Dilarang: DROP, DELETE, UPDATE, INSERT, ALTER, TRUNCATE.
-2. Selalu tambahkan LIMIT (maks 100 baris).
-3. Tanpa filter bulan yang diminta → default bulan terbaru: WHERE bulan = '202607'
-4. JANGAN SUM(total_pelanggan) lintas bulan — hasilnya tidak bermakna (double counting).
-   Untuk total Jabar, gunakan: WHERE bulan = '202607' lalu SUM dalam satu bulan.
-5. Untuk tren, gunakan GROUP BY bulan ORDER BY bulan ASC.
-6. Format angka besar dengan titik ribuan di jawaban akhir (mis: 836.332).
-7. ANTI-HALUSINASI (PALING PENTING):
-   - Hanya gunakan tabel yang ada di schema di atas. JANGAN query tabel yang tidak tercantum.
-   - Jika pertanyaan butuh data yang tidak ada di schema, jawab dengan jelas: "Data tersebut tidak tersedia di database COCKPIT."
-   - JANGAN mengarang angka atau hasil. Jika SQL mengembalikan 0 baris, katakan data tidak ditemukan.
-   - JANGAN asumsikan nama kolom — gunakan hanya kolom yang tercantum di schema.`;
+=== ENDPOINT API INTERNAL (untuk call_api) ===
+
+SIMBA — monitoring BBM pembangkit Kalimantan Barat (database TERPISAH, wajib pakai call_api):
+  /api/simba/plants                        → daftar pembangkit (sera, stn, wie, pw, sdr, bugak, pltg, mpp)
+  /api/simba/monitoring/{plant}?bbm=HSD    → monitoring harian BBM per pembangkit
+  /api/simba/rekap                         → rekap stok & pemakaian semua pembangkit
+  /api/simba/sfc-summary                   → SFC (Specific Fuel Consumption) summary
+  /api/simba/monthly-rekap                 → rekap bulanan BBM
+  /api/simba/tanks                         → data tangki BBM
+
+RUPTL — Rencana Umum Penyediaan Tenaga Listrik:
+  /api/ruptl/summary                       → ringkasan nasional RUPTL
+  /api/ruptl/provinsi                      → daftar provinsi & beban puncak 2024
+  /api/ruptl/provinsi/{kode}/penjualan     → historis penjualan per provinsi (mis: JABAR, KALTIM)
+  /api/ruptl/provinsi/{kode}/proyeksi      → proyeksi kebutuhan listrik per provinsi
+  /api/ruptl/rencana-pembangkit            → rencana pembangkit nasional
+
+Baca Meter — agregat siap pakai:
+  /api/baca-meter/summary                  → total Jabar per bulan (semua bulan)
+  /api/baca-meter/by-up3                   → per UP3 semua bulan
+  /api/baca-meter/tarif-jabar?bulan=202607 → distribusi tarif se-Jabar
+  /api/baca-meter/bulan-list               → daftar bulan tersedia
+
+OLAP Tagihan:
+  /api/olap-tagihan/summary                → ringkasan per periode
+  /api/olap-tagihan/by-unitap              → per unit AP per periode
+  /api/olap-tagihan/by-tarif               → per grup tarif per periode
+
+PLN:
+  /api/pln-stat/national                   → statistik nasional 2014-2025
+  /api/pln-sr/all                          → data sambungan rumah
+
+=== ATURAN PENTING ===
+1. execute_sql: hanya SELECT, LIMIT maks 100, default bulan '202607'.
+   JANGAN SUM(total_pelanggan) lintas bulan (double counting).
+   JANGAN query tabel yang tidak ada di schema di atas.
+2. call_api: hanya endpoint dari daftar di atas. Sertakan query_params jika diperlukan.
+3. ANTI-HALUSINASI: jika data tidak tersedia (tabel tidak ada, endpoint tidak ada),
+   jawab "Data tersebut tidak tersedia di COCKPIT." — jangan mengarang.
+4. Format angka besar dengan titik ribuan (mis: 836.332 pelanggan).`;
+
+// ── Tool definitions ──
 
 const SQL_TOOL: Groq.Chat.Completions.ChatCompletionTool = {
   type: "function",
   function: {
     name: "execute_sql",
-    description: "Jalankan SELECT query ke database MySQL COCKPIT untuk mengambil data",
+    description: "Jalankan SELECT query ke database utama MySQL COCKPIT",
     parameters: {
       type: "object",
       properties: {
-        query: {
-          type: "string",
-          description: "SELECT SQL query yang akan dijalankan",
-        },
+        query: { type: "string", description: "SELECT SQL query" },
       },
       required: ["query"],
     },
   },
 };
 
+const CALL_API_TOOL: Groq.Chat.Completions.ChatCompletionTool = {
+  type: "function",
+  function: {
+    name: "call_api",
+    description: "Panggil endpoint API internal COCKPIT (wajib untuk data SIMBA, RUPTL, atau data terproses dari modul)",
+    parameters: {
+      type: "object",
+      properties: {
+        endpoint: {
+          type: "string",
+          description: "Path endpoint API, mis: /api/simba/rekap atau /api/ruptl/provinsi/JABAR/penjualan",
+        },
+        query_params: {
+          type: "object",
+          description: "Query parameters opsional, mis: {\"bulan\": \"202607\", \"bbm\": \"HSD\"}",
+          additionalProperties: { type: "string" },
+        },
+      },
+      required: ["endpoint"],
+    },
+  },
+};
+
+// ── SQL runner ──
+
 const BLOCKED_KEYWORDS = /\b(drop|delete|update|insert|alter|truncate|create|replace|grant|revoke|exec|execute|xp_|sp_)\b/i;
 
 async function runSQL(query: string): Promise<{ rows: unknown[]; rowCount: number; sql: string }> {
   const trimmed = query.trim();
-  if (!trimmed.toUpperCase().startsWith("SELECT")) {
-    throw new Error("Hanya SELECT query yang diizinkan");
-  }
-  if (BLOCKED_KEYWORDS.test(trimmed)) {
-    throw new Error("Query mengandung keyword yang tidak diizinkan");
-  }
+  if (!trimmed.toUpperCase().startsWith("SELECT")) throw new Error("Hanya SELECT query yang diizinkan");
+  if (BLOCKED_KEYWORDS.test(trimmed)) throw new Error("Query mengandung keyword yang tidak diizinkan");
   const limited = /\bLIMIT\b/i.test(trimmed) ? trimmed : `${trimmed} LIMIT 100`;
   const result = await db.execute(sql.raw(limited));
   const rows = Array.isArray(result) && Array.isArray(result[0]) ? result[0] : result;
   return { rows: rows as unknown[], rowCount: (rows as unknown[]).length, sql: limited };
 }
 
+// ── Internal API caller ──
+
+const ALLOWED_PREFIXES = [
+  "/api/baca-meter/",
+  "/api/pln-stat/",
+  "/api/olap-tagihan/",
+  "/api/ruptl/",
+  "/api/simba/",
+  "/api/pln-sr/",
+  "/api/pln-ar/",
+  "/api/pln-scholar/",
+  "/api/domains",
+];
+
+async function callInternalAPI(
+  endpoint: string,
+  queryParams: Record<string, string>,
+  cookie: string
+): Promise<unknown> {
+  if (!ALLOWED_PREFIXES.some((p) => endpoint.startsWith(p))) {
+    throw new Error(`Endpoint tidak diizinkan: ${endpoint}`);
+  }
+
+  const port = process.env.PORT ?? "3000";
+  const url = new URL(`http://127.0.0.1:${port}${endpoint}`);
+  Object.entries(queryParams).forEach(([k, v]) => url.searchParams.set(k, v));
+
+  const res = await fetch(url.toString(), {
+    headers: { Cookie: cookie },
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`API ${endpoint} error ${res.status}: ${text.slice(0, 150)}`);
+  }
+
+  const data = await res.json() as unknown;
+  const json = JSON.stringify(data);
+
+  // Potong response besar agar tidak overflow konteks model
+  if (json.length > 8000) {
+    return {
+      _note: `Response dipotong (asli ${json.length} chars). Gunakan execute_sql untuk query lebih spesifik.`,
+      data: JSON.parse(json.slice(0, 7800) + '"]}') as unknown,
+    };
+  }
+  return data;
+}
+
+// ── Error simplifier ──
+
 function simplifyError(raw: string): string {
-  if (raw.includes("429") || raw.includes("rate_limit") || raw.includes("Rate limit")) {
-    return "Rate limit Groq tercapai. Tunggu sebentar lalu coba lagi.";
-  }
-  if (raw.includes("401") || raw.includes("403") || raw.includes("invalid_api_key") || raw.includes("Authentication")) {
-    return "GROQ_API_KEY tidak valid. Periksa konfigurasi di hosting.";
-  }
+  if (raw.includes("429") || raw.includes("rate_limit")) return "Rate limit Groq tercapai. Tunggu sebentar lalu coba lagi.";
+  if (raw.includes("401") || raw.includes("invalid_api_key")) return "GROQ_API_KEY tidak valid.";
   return `Kesalahan: ${raw.slice(0, 200)}`;
 }
 
+// ── Route handler ──
+
 chatbotRoutes.post("/chat", async (c) => {
   const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) {
-    return c.json({ error: "GROQ_API_KEY belum dikonfigurasi di server." }, 503);
-  }
+  if (!apiKey) return c.json({ error: "GROQ_API_KEY belum dikonfigurasi di server." }, 503);
 
   let body: { message: string; history?: Array<{ role: string; text: string }> };
-  try {
-    body = await c.req.json();
-  } catch {
-    return c.json({ error: "Body JSON tidak valid" }, 400);
-  }
+  try { body = await c.req.json(); } catch { return c.json({ error: "Body JSON tidak valid" }, 400); }
 
   const { message, history = [] } = body;
-  if (!message?.trim()) {
-    return c.json({ error: "Pesan tidak boleh kosong" }, 400);
-  }
+  if (!message?.trim()) return c.json({ error: "Pesan tidak boleh kosong" }, 400);
 
+  const cookie = c.req.header("Cookie") ?? "";
   const groq = new Groq({ apiKey });
 
   const messages: Groq.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -191,11 +235,11 @@ chatbotRoutes.post("/chat", async (c) => {
     const write = (data: object) => stream.writeSSE({ data: JSON.stringify(data) });
 
     try {
-      // ── Fase 1: deteksi apakah perlu tool call ──
+      // ── Fase 1: kirim ke model, deteksi tool call ──
       const firstStream = await groq.chat.completions.create({
         model: "llama-3.3-70b-versatile",
         messages,
-        tools: [SQL_TOOL],
+        tools: [SQL_TOOL, CALL_API_TOOL],
         tool_choice: "auto",
         max_tokens: 1024,
         stream: true,
@@ -208,11 +252,7 @@ chatbotRoutes.post("/chat", async (c) => {
 
       for await (const chunk of firstStream) {
         const delta = chunk.choices[0]?.delta;
-        // Teks biasa → stream langsung ke client
-        if (delta?.content) {
-          await write({ t: "chunk", v: delta.content });
-        }
-        // Akumulasi tool call (tidak di-stream dulu)
+        if (delta?.content) await write({ t: "chunk", v: delta.content });
         if (delta?.tool_calls?.[0]) {
           isToolCall = true;
           const tc = delta.tool_calls[0];
@@ -222,23 +262,34 @@ chatbotRoutes.post("/chat", async (c) => {
         }
       }
 
-      // ── Fase 2: jika ada SQL, jalankan dan stream jawaban akhir ──
-      if (isToolCall && toolCallName === "execute_sql") {
-        let sqlResult: string;
-        let usedSql: string | undefined;
-        let rowCount = 0;
+      // ── Fase 2: eksekusi tool, stream jawaban akhir ──
+      if (isToolCall) {
+        let toolResult: string;
+        let metaSql: string | undefined;
+        let metaRows = 0;
+        let metaApi: string | undefined;
 
-        try {
-          const args = JSON.parse(toolCallArgs) as { query: string };
-          const { rows, rowCount: rc, sql: executedSql } = await runSQL(args.query);
-          usedSql = executedSql;
-          rowCount = rc;
-          sqlResult = JSON.stringify({ success: true, rows, rowCount: rc });
-        } catch (err) {
-          sqlResult = JSON.stringify({
-            success: false,
-            error: err instanceof Error ? err.message : String(err),
-          });
+        if (toolCallName === "execute_sql") {
+          try {
+            const args = JSON.parse(toolCallArgs) as { query: string };
+            const { rows, rowCount, sql: executedSql } = await runSQL(args.query);
+            metaSql = executedSql;
+            metaRows = rowCount;
+            toolResult = JSON.stringify({ success: true, rows, rowCount });
+          } catch (err) {
+            toolResult = JSON.stringify({ success: false, error: err instanceof Error ? err.message : String(err) });
+          }
+        } else if (toolCallName === "call_api") {
+          try {
+            const args = JSON.parse(toolCallArgs) as { endpoint: string; query_params?: Record<string, string> };
+            const data = await callInternalAPI(args.endpoint, args.query_params ?? {}, cookie);
+            metaApi = args.endpoint;
+            toolResult = JSON.stringify({ success: true, data });
+          } catch (err) {
+            toolResult = JSON.stringify({ success: false, error: err instanceof Error ? err.message : String(err) });
+          }
+        } else {
+          toolResult = JSON.stringify({ success: false, error: `Tool '${toolCallName}' tidak dikenal` });
         }
 
         const followUp: Groq.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -248,7 +299,7 @@ chatbotRoutes.post("/chat", async (c) => {
             content: null,
             tool_calls: [{ id: toolCallId, type: "function" as const, function: { name: toolCallName, arguments: toolCallArgs } }],
           },
-          { role: "tool" as const, tool_call_id: toolCallId, content: sqlResult },
+          { role: "tool" as const, tool_call_id: toolCallId, content: toolResult },
         ];
 
         const secondStream = await groq.chat.completions.create({
@@ -263,9 +314,8 @@ chatbotRoutes.post("/chat", async (c) => {
           if (text) await write({ t: "chunk", v: text });
         }
 
-        if (usedSql) {
-          await write({ t: "sql", query: usedSql, rows: rowCount });
-        }
+        if (metaSql) await write({ t: "sql", query: metaSql, rows: metaRows });
+        if (metaApi) await write({ t: "api", endpoint: metaApi });
       }
 
       await write({ t: "done" });

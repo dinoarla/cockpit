@@ -368,13 +368,18 @@
             } else if (ev.t === 'sql') {
               sqlQuery = ev.query;
               sqlRows = ev.rows;
+            } else if (ev.t === 'api') {
+              sqlQuery = ev.endpoint;
+              sqlRows = null;
             } else if (ev.t === 'error') {
               bubble.innerHTML = `<div class="cw-err">⚠ ${esc(ev.v)}</div>`;
             } else if (ev.t === 'done') {
               if (sqlQuery) {
+                const label = sqlRows !== null ? `SQL (${sqlRows} baris)` : `API: ${esc(sqlQuery)}`;
+                const detail = sqlRows !== null ? esc(sqlQuery) : esc(sqlQuery);
                 bubble.innerHTML = fmt(fullText) +
-                  `<div class="cw-sql-toggle" data-sql-toggle><span>▼</span> SQL (${sqlRows} baris)</div>` +
-                  `<div class="cw-sql-block">${esc(sqlQuery)}</div>`;
+                  `<div class="cw-sql-toggle" data-sql-toggle><span>▼</span> ${label}</div>` +
+                  `<div class="cw-sql-block">${detail}</div>`;
               }
               if (fullText) {
                 history.push({ role: 'user', text });
