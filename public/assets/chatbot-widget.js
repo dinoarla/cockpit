@@ -5,7 +5,7 @@
   /* ── CSS ── */
   const css = `
   #cw-fab {
-    position: fixed; bottom: 24px; right: 24px; z-index: 9998;
+    position: fixed; bottom: 24px; left: 24px; z-index: 9998;
     width: 52px; height: 52px; border-radius: 50%;
     background: #FF4D00; border: 2.5px solid #111118;
     box-shadow: 3px 3px 0 #111118;
@@ -26,13 +26,13 @@
   #cw-badge.visible { display: flex; }
 
   #cw-panel {
-    position: fixed; bottom: 88px; right: 24px; z-index: 9999;
+    position: fixed; bottom: 88px; left: 24px; z-index: 9999;
     width: 380px; height: 560px; max-height: calc(100vh - 120px);
     background: #FFFBF0; border: 2.5px solid #111118;
     border-radius: 16px; box-shadow: 4px 4px 0 #111118;
     display: flex; flex-direction: column; overflow: hidden;
     transform: scale(0.92) translateY(12px); opacity: 0;
-    transform-origin: bottom right;
+    transform-origin: bottom left;
     transition: transform .2s cubic-bezier(.34,1.56,.64,1), opacity .15s;
     pointer-events: none;
     font-family: 'DM Sans', sans-serif;
@@ -57,7 +57,7 @@
     display: block; font-size: .85rem; font-weight: 800; color: #E6EDF3;
   }
   .cw-htitle span {
-    font-size: .65rem; color: rgba(230,237,243,.4);
+    font-size: .65rem; color: #4ADE80;
     font-family: 'DM Mono', monospace;
   }
   #cw-close {
@@ -183,7 +183,7 @@
   const root = document.createElement('div');
   root.id = 'cw-root';
   root.innerHTML = `
-    <button id="cw-fab" title="PILOT COCKPIT — Tanya data riset">
+    <button id="cw-fab" title="Jelajahi Cockpit — Tanya data riset">
       <div id="cw-badge"></div>
       <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
         <path d="M21 16v-2l-8-5V3.5C13 2.67 12.33 2 11.5 2S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
@@ -198,7 +198,7 @@
           </svg>
         </div>
         <div class="cw-htitle">
-          <strong>PILOT COCKPIT</strong>
+          <strong>Jelajahi Cockpit</strong>
           <span>Llama 3.3 70B · Co-Pilot Riset</span>
         </div>
         <button id="cw-close" title="Tutup">✕</button>
