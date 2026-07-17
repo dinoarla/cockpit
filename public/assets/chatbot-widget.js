@@ -183,28 +183,31 @@
   const root = document.createElement('div');
   root.id = 'cw-root';
   root.innerHTML = `
-    <button id="cw-fab" title="Asisten AI COCKPIT">
+    <button id="cw-fab" title="PILOT COCKPIT — Tanya data riset">
       <div id="cw-badge"></div>
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/>
-        <circle cx="9" cy="14" r="1" fill="#fff" stroke="none"/><circle cx="15" cy="14" r="1" fill="#fff" stroke="none"/>
+      <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 16v-2l-8-5V3.5C13 2.67 12.33 2 11.5 2S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
       </svg>
     </button>
 
     <div id="cw-panel">
       <div id="cw-header">
-        <div class="cw-hmark">✦</div>
+        <div class="cw-hmark">
+          <svg viewBox="0 0 24 24" fill="white" width="14" height="14">
+            <path d="M21 16v-2l-8-5V3.5C13 2.67 12.33 2 11.5 2S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+          </svg>
+        </div>
         <div class="cw-htitle">
-          <strong>Asisten COCKPIT</strong>
-          <span>Gemini 2.0 Flash · Data Riset</span>
+          <strong>PILOT COCKPIT</strong>
+          <span>Gemini 2.0 Flash · Co-Pilot Riset</span>
         </div>
         <button id="cw-close" title="Tutup">✕</button>
       </div>
 
       <div id="cw-msgs">
         <div class="cw-empty" id="cw-empty">
-          <div class="cw-empty-icon">✦</div>
-          <h4>Ada yang bisa saya bantu?</h4>
+          <div class="cw-empty-icon">✈</div>
+          <h4>Siap terbang, Pilot!</h4>
           <p>Tanya data baca meter, statistik PLN, kependudukan, atau RUPTL.</p>
           <div class="cw-sugs">
             <button class="cw-sug">Total kWh Jabar 2026</button>
