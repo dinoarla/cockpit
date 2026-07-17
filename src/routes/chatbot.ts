@@ -91,6 +91,15 @@ kependudukan_bps_jabar(
   satuan VARCHAR(50), nilai DECIMAL
 )
 
+-- User & akses COCKPIT
+users(
+  id INT, username VARCHAR(50), name VARCHAR(100),
+  role ENUM('admin','viewer'), is_active BOOLEAN,
+  created_at DATETIME
+)
+domains(id INT, name VARCHAR(100), slug VARCHAR(50), is_active BOOLEAN)
+domain_modules(id INT, domain_id INT, name VARCHAR(100), slug VARCHAR(50), is_active BOOLEAN)
+
 === ATURAN SQL ===
 1. Hanya SELECT. Dilarang: DROP, DELETE, UPDATE, INSERT, ALTER, TRUNCATE.
 2. Selalu tambahkan LIMIT (maks 100 baris).
@@ -99,7 +108,11 @@ kependudukan_bps_jabar(
    Untuk total Jabar, gunakan: WHERE bulan = '202607' lalu SUM dalam satu bulan.
 5. Untuk tren, gunakan GROUP BY bulan ORDER BY bulan ASC.
 6. Format angka besar dengan titik ribuan di jawaban akhir (mis: 836.332).
-7. Jika data tidak ditemukan, sampaikan dengan jelas — jangan mengarang angka.`;
+7. ANTI-HALUSINASI (PALING PENTING):
+   - Hanya gunakan tabel yang ada di schema di atas. JANGAN query tabel yang tidak tercantum.
+   - Jika pertanyaan butuh data yang tidak ada di schema, jawab dengan jelas: "Data tersebut tidak tersedia di database COCKPIT."
+   - JANGAN mengarang angka atau hasil. Jika SQL mengembalikan 0 baris, katakan data tidak ditemukan.
+   - JANGAN asumsikan nama kolom — gunakan hanya kolom yang tercantum di schema.`;
 
 const SQL_TOOL: Groq.Chat.Completions.ChatCompletionTool = {
   type: "function",
