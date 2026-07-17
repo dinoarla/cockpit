@@ -138,9 +138,8 @@ chatbotRoutes.post("/chat", async (c) => {
     }
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
-        // Coba gemini-2.0-flash, fallback ke gemini-1.5-flash jika quota habis
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash",
+            model: "gemini-1.5-flash",
             systemInstruction: SYSTEM_PROMPT,
             tools: [SQL_TOOL],
         });
