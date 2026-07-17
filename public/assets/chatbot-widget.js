@@ -5,7 +5,7 @@
   /* ── CSS ── */
   const css = `
   #cw-fab {
-    position: fixed; bottom: 24px; left: 24px; z-index: 9998;
+    position: fixed; bottom: 64px; right: 24px; z-index: 9998;
     width: 52px; height: 52px; border-radius: 50%;
     background: #FF4D00; border: 2.5px solid #111118;
     box-shadow: 3px 3px 0 #111118;
@@ -26,13 +26,13 @@
   #cw-badge.visible { display: flex; }
 
   #cw-panel {
-    position: fixed; bottom: 88px; left: 24px; z-index: 9999;
-    width: 380px; height: 560px; max-height: calc(100vh - 120px);
+    position: fixed; bottom: 128px; right: 24px; z-index: 9999;
+    width: 380px; height: 560px; max-height: calc(100vh - 160px);
     background: #FFFBF0; border: 2.5px solid #111118;
     border-radius: 16px; box-shadow: 4px 4px 0 #111118;
     display: flex; flex-direction: column; overflow: hidden;
     transform: scale(0.92) translateY(12px); opacity: 0;
-    transform-origin: bottom left;
+    transform-origin: bottom right;
     transition: transform .2s cubic-bezier(.34,1.56,.64,1), opacity .15s;
     pointer-events: none;
     font-family: 'DM Sans', sans-serif;
