@@ -146,6 +146,7 @@ chatbotRoutes.post("/chat", async (c) => {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
+    // Coba gemini-2.0-flash, fallback ke gemini-1.5-flash jika quota habis
     const model = genAI.getGenerativeModel({
       model: "gemini-2.0-flash",
       systemInstruction: SYSTEM_PROMPT,
@@ -202,7 +203,14 @@ chatbotRoutes.post("/chat", async (c) => {
 
     return c.json({ answer: result.response.text() });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return c.json({ error: msg }, 500);
+    const raw = err instanceof Error ? err.message : String(err);
+    // Sederhanakan pesan error quota/rate-limit agar tidak tampil JSON panjang
+    if (raw.includes("429") || raw.includes("quota") || raw.includes("Quota")) {
+      return c.json({ error: "Kuota Gemini API habis. Pastikan API key dari Google AI Studio (aistudio.google.com) dan coba lagi sebentar." }, 429);
+    }
+    if (raw.includes("API_KEY") || raw.includes("401") || raw.includes("403")) {
+      return c.json({ error: "API key Gemini tidak valid. Periksa GEMINI_API_KEY di hosting." }, 401);
+    }
+    return c.json({ error: "Terjadi kesalahan saat menghubungi Gemini. Coba lagi." }, 500);
   }
 });
