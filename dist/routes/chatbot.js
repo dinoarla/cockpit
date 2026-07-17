@@ -189,14 +189,16 @@ chatbotRoutes.post("/chat", async (c) => {
     }
     catch (err) {
         const raw = err instanceof Error ? err.message : String(err);
-        // Sederhanakan pesan error quota/rate-limit agar tidak tampil JSON panjang
-        if (raw.includes("429") || raw.includes("quota") || raw.includes("Quota")) {
+        if (raw.includes("429") || raw.includes("quota") || raw.includes("Quota") || raw.includes("RESOURCE_EXHAUSTED")) {
             return c.json({ error: "Kuota Gemini API habis. Pastikan API key dari Google AI Studio (aistudio.google.com) dan coba lagi sebentar." }, 429);
         }
-        if (raw.includes("API_KEY") || raw.includes("401") || raw.includes("403")) {
+        if (raw.includes("API_KEY") || raw.includes("401") || raw.includes("403") || raw.includes("API_KEY_INVALID")) {
             return c.json({ error: "API key Gemini tidak valid. Periksa GEMINI_API_KEY di hosting." }, 401);
         }
-        return c.json({ error: "Terjadi kesalahan saat menghubungi Gemini. Coba lagi." }, 500);
+        if (raw.includes("404") || raw.includes("NOT_FOUND") || raw.includes("not found") || raw.includes("not support")) {
+            return c.json({ error: `Model tidak ditemukan atau tidak didukung. Detail: ${raw.slice(0, 300)}` }, 500);
+        }
+        return c.json({ error: `Kesalahan Gemini: ${raw.slice(0, 400)}` }, 500);
     }
 });
 //# sourceMappingURL=chatbot.js.map
