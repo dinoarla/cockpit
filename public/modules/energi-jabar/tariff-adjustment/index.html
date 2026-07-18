@@ -408,5 +408,6 @@ async function loadData() {
 // Auth check + load
 fetch('/api/auth/me').then(r => { if (!r.ok) window.location.href='/'; }).then(() => loadData());
 </script>
+<script src="/assets/cockpit-loader.js"></script>
 </body>
 </html>
