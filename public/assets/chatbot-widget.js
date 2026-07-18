@@ -130,14 +130,11 @@
   }
   .cw-sql-block.show { display: block; }
 
-  .cw-thinking { display: flex; gap: 4px; align-items: center; padding: 2px 0; }
-  .cw-thinking span {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: #999; animation: cw-bounce .8s infinite;
+  @keyframes cw-blink { 0%,100%{opacity:.35} 50%{opacity:1} }
+  .cw-loading-text {
+    font-size: .78rem; color: #888; font-style: italic;
+    animation: cw-blink 1.4s ease-in-out infinite;
   }
-  .cw-thinking span:nth-child(2) { animation-delay: .15s; }
-  .cw-thinking span:nth-child(3) { animation-delay: .3s; }
-  @keyframes cw-bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
 
   .cw-err {
     background: #FFF0EE; border: 1.5px solid #E74C3C;
@@ -319,14 +316,37 @@
     ta.value = ''; ta.style.height = 'auto';
     addUser(text);
 
-    // Buat bubble AI kosong dengan dots dulu
+    // Buat bubble AI dengan teks loading rotasi
     hideEmpty();
     const aiEl = document.createElement('div');
     aiEl.className = 'cw-msg ai';
-    aiEl.innerHTML = `<div class="cw-av ai">✦</div><div class="cw-bubble"><div class="cw-thinking"><span></span><span></span><span></span></div></div>`;
+    aiEl.innerHTML = `<div class="cw-av ai">✦</div><div class="cw-bubble"><span class="cw-loading-text"></span></div>`;
     msgs.appendChild(aiEl);
     scrollBottom();
     const bubble = aiEl.querySelector('.cw-bubble');
+    const loadingEl = bubble.querySelector('.cw-loading-text');
+
+    const loadingMsgs = [
+      'Menganalisis pertanyaan…',
+      'Menjelajahi data…',
+      'Menyusun query…',
+      'Menggali informasi…',
+      'Menelusuri database…',
+      'Memproses konteks…',
+      'Merangkai jawaban…',
+      'Memverifikasi data…',
+      'Membaca skema…',
+      'Mengolah hasil…',
+      'Berpikir keras…',
+      'Menghitung…',
+      'Menelaah tabel…',
+    ];
+    let loadIdx = 0;
+    loadingEl.textContent = loadingMsgs[0];
+    const loadTimer = setInterval(() => {
+      loadIdx = (loadIdx + 1) % loadingMsgs.length;
+      if (loadingEl.isConnected) loadingEl.textContent = loadingMsgs[loadIdx];
+    }, 1600);
 
     let fullText = '';
     let gotFirstChunk = false;
@@ -361,7 +381,7 @@
             try { ev = JSON.parse(line.slice(6)); } catch { continue; }
 
             if (ev.t === 'chunk') {
-              if (!gotFirstChunk) { bubble.innerHTML = ''; gotFirstChunk = true; }
+              if (!gotFirstChunk) { clearInterval(loadTimer); bubble.innerHTML = ''; gotFirstChunk = true; }
               fullText += ev.v;
               bubble.innerHTML = fmt(fullText);
               scrollBottom();
@@ -372,6 +392,7 @@
               sqlQuery = ev.endpoint;
               sqlRows = null;
             } else if (ev.t === 'error') {
+              clearInterval(loadTimer);
               bubble.innerHTML = `<div class="cw-err">⚠ ${esc(ev.v)}</div>`;
             } else if (ev.t === 'done') {
               if (sqlQuery) {
@@ -392,6 +413,7 @@
         }
       }
     } catch {
+      clearInterval(loadTimer);
       bubble.innerHTML = `<div class="cw-err">⚠ Gagal terhubung ke server.</div>`;
     }
 
