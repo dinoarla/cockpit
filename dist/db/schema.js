@@ -470,4 +470,46 @@ export const datasetSources = mysqlTable("dataset_sources", {
     catatanMetodologi: text("catatan_metodologi"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+// ============================================================
+// PENGGANTIAN kWh METER (Energi Jawa Barat)
+// ============================================================
+export const gantiMeterHarian = mysqlTable("ganti_meter_harian", {
+    id: int("id").autoincrement().primaryKey(),
+    tgl: date("tgl").notNull(),
+    unitap: varchar("unitap", { length: 10 }).notNull(),
+    jumlah: int("jumlah").notNull().default(0),
+    jumlahPrabayar: int("jumlah_prabayar").notNull().default(0),
+    jumlahPascabayar: int("jumlah_pascabayar").notNull().default(0),
+}, (t) => ({
+    ukGmh: uniqueIndex("uk_gmh").on(t.tgl, t.unitap),
+    idxTgl: index("idx_gmh_tgl").on(t.tgl),
+}));
+export const gantiMeterAlasan = mysqlTable("ganti_meter_alasan", {
+    id: int("id").autoincrement().primaryKey(),
+    bulan: char("bulan", { length: 6 }).notNull(),
+    unitap: varchar("unitap", { length: 10 }).notNull(),
+    alasan: varchar("alasan", { length: 200 }).notNull(),
+    alasanGrup: varchar("alasan_grup", { length: 50 }).notNull().default("Lainnya"),
+    jumlah: int("jumlah").notNull().default(0),
+}, (t) => ({
+    idxBulan: index("idx_gma_bulan").on(t.bulan),
+    idxGrup: index("idx_gma_grup").on(t.alasanGrup),
+}));
+export const gantiMeterMerk = mysqlTable("ganti_meter_merk", {
+    id: int("id").autoincrement().primaryKey(),
+    bulan: char("bulan", { length: 6 }).notNull(),
+    merkLama: varchar("merk_lama", { length: 50 }).notNull().default(""),
+    merkBaru: varchar("merk_baru", { length: 50 }).notNull().default(""),
+    jumlah: int("jumlah").notNull().default(0),
+}, (t) => ({
+    idxBulan: index("idx_gmm_bulan").on(t.bulan),
+}));
+export const gantiMeterUmur = mysqlTable("ganti_meter_umur", {
+    id: int("id").autoincrement().primaryKey(),
+    bulan: char("bulan", { length: 6 }).notNull(),
+    thbuatLama: varchar("thbuat_lama", { length: 4 }).notNull(),
+    jumlah: int("jumlah").notNull().default(0),
+}, (t) => ({
+    idxBulan: index("idx_gmu_bulan").on(t.bulan),
+}));
 //# sourceMappingURL=schema.js.map

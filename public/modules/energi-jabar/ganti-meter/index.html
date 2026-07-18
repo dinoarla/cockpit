@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penggantian kWh Meter Jabar | Cockpit</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0D1117; --orange:#FF4D00; --yellow:#FFD600;
+  --blue:#FF4D00; --blue-dk:#C2410C; --blue-lt:rgba(255,77,0,.08);
+  --bg:#FFFBF0; --card:#FFFFFF; --border:#E2E8F0;
+  --text:#111118; --muted:#64748B; --dim:#94A3B8;
+  --green:#16A34A; --red:#DC2626; --amber:#D97706;
+  --shadow:0 1px 3px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.07);
+  --font-d:'Space Grotesk',sans-serif;
+  --font-b:'Inter',sans-serif;
+  --font-m:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-b),'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--blue);text-decoration:none}
+
+.module-header{background:var(--navy);color:#E6EDF3;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(230,237,243,.45);font-size:12px;font-weight:600;letter-spacing:.02em;transition:color .15s;text-decoration:none}
+.back-link:hover{color:#E6EDF3}
+.breadcrumb{padding:6px 24px 0;font-family:var(--font-m);font-size:11px;color:rgba(255,77,0,.7);letter-spacing:.12em;text-transform:uppercase}
+.header-body{padding:16px 24px 20px}
+.header-title{font-family:var(--font-d);font-size:22px;font-weight:700;color:#fff;margin-bottom:5px;display:flex;align-items:center;gap:10px}
+.header-title .badge{font-size:10px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:3px 9px;border-radius:12px;letter-spacing:.04em}
+.header-desc{font-size:13px;color:rgba(230,237,243,.5);max-width:720px;line-height:1.55;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px}
+.meta-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,.85)}
+
+.tabs-bar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 18px;font-size:13px;font-weight:500;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 56px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.section-title{font-size:15px;font-weight:700;color:var(--blue-dk);margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.section-title:first-child{margin-top:0}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:4px}
+.kpi-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.kpi-value{font-size:22px;font-weight:700;color:var(--blue-dk);line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi-unit{font-size:12px;color:var(--muted);margin-top:2px}
+.kpi-note{font-size:10px;color:var(--dim);margin-top:2px}
+
+.chart-grid{display:grid;gap:16px;margin-bottom:24px}
+.chart-grid.cols-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:768px){.chart-grid.cols-2{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.chart-card h4{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--blue-dk)}
+.chart-card p.src{font-size:10px;color:var(--dim);margin-top:8px}
+.chart-wrap{position:relative;height:280px}
+.chart-wrap.lg{height:340px}
+.chart-wrap.xl{height:400px}
+.chart-wrap.sm{height:200px}
+.no-data{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--dim);font-size:12px;gap:6px}
+.no-data strong{color:var(--amber);font-size:13px}
+
+.ctrl-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.ctrl-row label{font-size:12px;font-weight:600;color:var(--muted)}
+.ctrl-row select{border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;background:#fff;color:var(--text);cursor:pointer}
+.ctrl-row select:focus{outline:none;border-color:var(--blue)}
+
+.table-scroll{overflow-x:auto;margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:#0D1117;color:#E6EDF3;font-size:11px;font-weight:600;text-align:left;padding:9px 12px;white-space:nowrap}
+td{border-bottom:1px solid var(--border);padding:8px 12px}
+tr:hover td{background:rgba(255,77,0,.025)}
+tr:last-child td{border-bottom:none}
+.td-num{text-align:right;font-variant-numeric:tabular-nums}
+.td-bold{font-weight:700}
+.td-center{text-align:center}
+
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px}
+.info-card h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--blue-dk)}
+.info-card ul{font-size:12.5px;color:var(--muted);padding-left:16px;line-height:1.9}
+.info-card p{font-size:12.5px;color:var(--muted);line-height:1.7}
+.info-card code{background:#F1F5F9;padding:2px 6px;border-radius:4px;font-size:11px}
+
+.import-alert{background:#FEF9C3;border:1px solid #FDE047;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:12.5px;color:#713F12}
+.import-alert strong{display:block;margin-bottom:4px;color:var(--blue-dk)}
+.import-alert code{background:rgba(0,0,0,.07);padding:2px 6px;border-radius:4px;font-size:11px}
+
+.badge-program{display:inline-block;background:#DBEAFE;color:#1E40AF;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.badge-rusak{display:inline-block;background:#FEE2E2;color:#991B1B;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.badge-token{display:inline-block;background:#FEF3C7;color:#92400E;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.badge-teknis{display:inline-block;background:#F3E8FF;color:#6B21A8;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.badge-lainnya{display:inline-block;background:#F1F5F9;color:#475569;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+
+@media(max-width:600px){
+  .header-title{font-size:18px}.header-body{padding:12px 14px 16px}
+  .back-link,.breadcrumb{padding-left:14px}
+  .page-body{padding:16px 12px 36px}
+}
+</style>
+</head>
+<body>
+
+<header class="module-header">
+  <a href="/menu.html" class="back-link">&#8592; Kembali ke Menu</a>
+  <div class="breadcrumb">DISTRIBUSI TENAGA LISTRIK &middot; PENGGANTIAN kWh METER</div>
+  <div class="header-body">
+    <div class="header-title">
+      Penggantian kWh Meter
+      <span class="badge">Jawa Barat 2024&ndash;2026</span>
+    </div>
+    <div class="header-desc">
+      Data penggantian meter listrik PLN Distribusi Jawa Barat 2024&ndash;2026 &mdash; mencakup 17 UP3, menyajikan volume penggantian harian, alasan penggantian, merk meter, dan sebaran umur meter lama yang diganti.
+    </div>
+    <div class="meta-row">
+      <div class="meta-badge" id="meta-bulan">Memuat&hellip;</div>
+      <div class="meta-badge">17 UP3 &middot; Jawa Barat</div>
+      <div class="meta-badge">Prabayar &amp; Pascabayar</div>
+      <div class="meta-badge">PLN Distribusi Jabar</div>
+    </div>
+  </div>
+</header>
+
+<div class="tabs-bar">
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="overview"  role="tab">&#128202; Overview</button>
+    <button class="tab-btn"        data-tab="tren"      role="tab">&#128200; Tren Bulanan</button>
+    <button class="tab-btn"        data-tab="unitap"    role="tab">&#127970; Per UP3</button>
+    <button class="tab-btn"        data-tab="alasan"    role="tab">&#128203; Alasan</button>
+    <button class="tab-btn"        data-tab="umur"      role="tab">&#128336; Umur Meter</button>
+    <button class="tab-btn"        data-tab="merk"      role="tab">&#127991; Merk Meter</button>
+    <button class="tab-btn"        data-tab="tentang"   role="tab">&#8505;&#65039; Tentang</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <!-- ════ TAB 0: OVERVIEW ════ -->
+  <div id="tab-overview" class="tab-panel active">
+
+    <div id="overview-import-alert" class="import-alert" style="display:none">
+      <strong>Data belum diimpor</strong>
+      Jalankan: <code>python3 drizzle/import_ganti_meter.py</code>
+      lalu jalankan <code>drizzle/register_ganti_meter.sql</code> di phpMyAdmin.
+    </div>
+
+    <div class="section-title">&#128273; Ringkasan YTD 2026</div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total YTD 2026</div>
+        <div class="kpi-value" id="kpi-ytd">&#8212;</div>
+        <div class="kpi-unit">unit meter diganti</div>
+        <div class="kpi-note" id="kpi-ytd-note">memuat&hellip;</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Rata-rata / Bulan</div>
+        <div class="kpi-value" id="kpi-avg">&#8212;</div>
+        <div class="kpi-unit">unit / bulan (2026)</div>
+        <div class="kpi-note" id="kpi-avg-note">memuat&hellip;</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">UP3 Terbanyak</div>
+        <div class="kpi-value" id="kpi-top-up3">&#8212;</div>
+        <div class="kpi-unit" id="kpi-top-up3-unit">unit · bulan terbaru</div>
+        <div class="kpi-note" id="kpi-top-up3-note">memuat&hellip;</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Alasan Terbanyak</div>
+        <div class="kpi-value" id="kpi-top-alasan" style="font-size:14px;line-height:1.3">&#8212;</div>
+        <div class="kpi-unit" id="kpi-top-alasan-unit">unit sepanjang 2026</div>
+        <div class="kpi-note" id="kpi-top-alasan-note">memuat&hellip;</div>
+      </div>
+    </div>
+
+    <div class="section-title">&#128202; Distribusi Prabayar vs Pascabayar &mdash; YTD 2026</div>
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Komposisi Prabayar vs Pascabayar</h4>
+        <div class="chart-wrap">
+          <div class="no-data" id="nd-pra-pie"><strong>Memuat data&hellip;</strong></div>
+          <canvas id="praPieChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: ganti_meter_harian &middot; YTD 2026</p>
+      </div>
+      <div class="chart-card">
+        <h4>Tren Bulanan Prabayar vs Pascabayar (2026)</h4>
+        <div class="chart-wrap">
+          <div class="no-data" id="nd-pra-bar"><strong>Memuat data&hellip;</strong></div>
+          <canvas id="praBarChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: ganti_meter_harian &middot; 2026</p>
+      </div>
+    </div>
+
+    <div class="section-title">&#128297; Total Penggantian per Tahun</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Tahun</th>
+            <th class="td-num">Total Penggantian</th>
+            <th class="td-num">Prabayar</th>
+            <th class="td-num">Pascabayar</th>
+            <th class="td-num">% Prabayar</th>
+          </tr>
+        </thead>
+        <tbody id="yearly-table-body">
+          <tr><td colspan="5" style="text-align:center;color:var(--dim);padding:20px">Memuat&hellip;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /overview -->
+
+
+  <!-- ════ TAB 1: TREN BULANAN ════ -->
+  <div id="tab-tren" class="tab-panel">
+
+    <div class="section-title">&#128200; Tren Penggantian Meter per Bulan</div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h4>Total Penggantian per Bulan &mdash; 2024 s.d. 2026</h4>
+        <div class="chart-wrap xl">
+          <div class="no-data" id="nd-tren-total"><strong>Memuat data&hellip;</strong></div>
+          <canvas id="trenTotalChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: ganti_meter_harian &middot; agregat 17 UP3</p>
+      </div>
+    </div>
+
+    <div class="section-title">&#128203; Tabel Ringkasan Bulanan</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Bulan</th>
+            <th class="td-num">Total</th>
+            <th class="td-num">Prabayar</th>
+            <th class="td-num">Pascabayar</th>
+            <th class="td-num">% Prabayar</th>
+          </tr>
+        </thead>
+        <tbody id="tren-table-body">
+          <tr><td colspan="5" style="text-align:center;color:var(--dim);padding:20px">Memuat&hellip;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /tren -->
+
+
+  <!-- ════ TAB 2: PER UP3 ════ -->
+  <div id="tab-unitap" class="tab-panel">
+
+    <div class="ctrl-row">
+      <label>Bulan:</label>
+      <select id="unitapBulanSel"></select>
+    </div>
+
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Total Penggantian per UP3</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-up3-bar"><strong>Pilih bulan</strong></div>
+          <canvas id="up3BarChart" style="display:none"></canvas>
+        </div>
+        <p class="src" id="src-up3-bar">Sumber: ganti_meter_harian</p>
+      </div>
+      <div class="chart-card">
+        <h4>% Prabayar per UP3</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-up3-pra"><strong>Pilih bulan</strong></div>
+          <canvas id="up3PraChart" style="display:none"></canvas>
+        </div>
+        <p class="src" id="src-up3-pra">Sumber: ganti_meter_harian</p>
+      </div>
+    </div>
+
+    <div class="section-title">&#128203; Tabel per UP3</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>UP3</th>
+            <th class="td-num">Total</th>
+            <th class="td-num">Prabayar</th>
+            <th class="td-num">Pascabayar</th>
+            <th class="td-num">% Prabayar</th>
+          </tr>
+        </thead>
+        <tbody id="up3-table-body">
+          <tr><td colspan="6" style="text-align:center;color:var(--dim);padding:20px">Pilih bulan untuk memuat data</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /unitap -->
+
+
+  <!-- ════ TAB 3: ALASAN ════ -->
+  <div id="tab-alasan" class="tab-panel">
+
+    <div class="ctrl-row">
+      <label>Bulan:</label>
+      <select id="alasanBulanSel">
+        <option value="">Semua Bulan</option>
+      </select>
+    </div>
+
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Distribusi Alasan Penggantian (per Grup)</h4>
+        <div class="chart-wrap">
+          <div class="no-data" id="nd-alasan-pie"><strong>Memuat data&hellip;</strong></div>
+          <canvas id="alasanPieChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: ganti_meter_alasan</p>
+      </div>
+      <div class="chart-card">
+        <h4>Volume per Grup Alasan</h4>
+        <div class="chart-wrap">
+          <div class="no-data" id="nd-alasan-bar"><strong>Memuat data&hellip;</strong></div>
+          <canvas id="alasanBarChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: ganti_meter_alasan</p>
+      </div>
+    </div>
+
+    <div class="section-title">&#128203; Detail Alasan Penggantian</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Alasan</th>
+            <th>Grup</th>
+            <th class="td-num">Jumlah</th>
+            <th class="td-num">%</th>
+          </tr>
+        </thead>
+        <tbody id="alasan-table-body">
+          <tr><td colspan="5" style="text-align:center;color:var(--dim);padding:20px">Memuat&hellip;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /alasan -->
+
+
+  <!-- ════ TAB 4: UMUR METER ════ -->
+  <div id="tab-umur" class="tab-panel">
+
+    <div class="ctrl-row">
+      <label>Bulan:</label>
+      <select id="umurBulanSel">
+        <option value="">Semua Bulan</option>
+      </select>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h4>Distribusi Umur Meter Lama yang Diganti (per Dekade Pembuatan)</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-umur-bar"><strong>Memuat data&hellip;</strong></div>
+          <canvas id="umurBarChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: ganti_meter_umur &middot; berdasarkan tahun buat meter lama</p>
+      </div>
+    </div>
+
+    <div class="section-title">&#128203; Tabel Distribusi per Dekade</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Dekade Pembuatan</th>
+            <th class="td-num">Jumlah Unit Diganti</th>
+            <th class="td-num">%</th>
+          </tr>
+        </thead>
+        <tbody id="umur-table-body">
+          <tr><td colspan="3" style="text-align:center;color:var(--dim);padding:20px">Memuat&hellip;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /umur -->
+
+
+  <!-- ════ TAB 5: MERK METER ════ -->
+  <div id="tab-merk" class="tab-panel">
+
+    <div class="ctrl-row">
+      <label>Bulan:</label>
+      <select id="merkBulanSel">
+        <option value="">Semua Bulan</option>
+      </select>
+    </div>
+
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Top 10 Merk Meter Baru</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-merk-baru"><strong>Memuat data&hellip;</strong></div>
+          <canvas id="merkBaruChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: ganti_meter_merk</p>
+      </div>
+      <div class="chart-card">
+        <h4>Top 10 Merk Meter Lama (yang diganti)</h4>
+        <div class="chart-wrap lg">
+          <div class="no-data" id="nd-merk-lama"><strong>Memuat data&hellip;</strong></div>
+          <canvas id="merkLamaChart" style="display:none"></canvas>
+        </div>
+        <p class="src">Sumber: ganti_meter_merk</p>
+      </div>
+    </div>
+
+    <div class="section-title">&#128203; Kombinasi Merk Lama &#8594; Baru (Top 20)</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Merk Lama</th>
+            <th>Merk Baru</th>
+            <th class="td-num">Jumlah</th>
+            <th class="td-num">%</th>
+          </tr>
+        </thead>
+        <tbody id="merk-table-body">
+          <tr><td colspan="5" style="text-align:center;color:var(--dim);padding:20px">Memuat&hellip;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /merk -->
+
+
+  <!-- ════ TAB 6: TENTANG ════ -->
+  <div id="tab-tentang" class="tab-panel">
+
+    <div class="section-title">&#128203; Tentang Modul Ini</div>
+
+    <div class="info-card">
+      <h4>Sumber Data</h4>
+      <p>Data berasal dari sistem pencatatan penggantian kWh meter PLN Distribusi Jawa Barat. File mentah berformat XLS, satu file per hari per wilayah (rekap harian). Setiap baris merepresentasikan satu transaksi penggantian meter.</p>
+    </div>
+
+    <div class="info-card">
+      <h4>Kolom Kunci yang Digunakan</h4>
+      <ul>
+        <li><strong>UNITAP</strong> (col2) &mdash; Kode UP3, mis. 53BDG = Bandung</li>
+        <li><strong>JENIS_MK</strong> (col17) &mdash; J/HJ/JM = Pascabayar; JK/HJK = Prabayar</li>
+        <li><strong>ALASAN_GANTI_METER</strong> (col31) &mdash; Alasan teknis penggantian</li>
+        <li><strong>MERK_METER_BARU</strong> (col35) &mdash; Merk meter pengganti</li>
+        <li><strong>THBUAT_METER_BARU</strong> (col38) &mdash; Tahun produksi meter baru</li>
+        <li><strong>MERK_METER_LAMA</strong> (col40) &mdash; Merk meter yang diganti</li>
+        <li><strong>THBUAT_METER_LAMA</strong> (col43) &mdash; Tahun produksi meter lama (sejak 1950-an)</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h4>Grup Alasan Penggantian</h4>
+      <ul>
+        <li><span class="badge-program">Program</span> &mdash; Program Migrasi AMI, Pemeliharaan Meter, Upgrade KRN</li>
+        <li><span class="badge-rusak">Rusak Display</span> &mdash; LCD blank, error, Periksa, Inscek</li>
+        <li><span class="badge-rusak">Rusak Fisik</span> &mdash; Cover pecah, terbakar, bencana alam, serangga</li>
+        <li><span class="badge-token">Gangguan Token</span> &mdash; KCT tidak masuk, kredit reset/nol/tidak berkurang</li>
+        <li><span class="badge-teknis">Gangguan Teknis</span> &mdash; Firmware, relay, keypad, port komunikasi</li>
+        <li><span class="badge-lainnya">Lainnya</span> &mdash; Alasan di luar kategori di atas</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h4>Cara Mengimpor Data</h4>
+      <ul>
+        <li>Pastikan folder <code>~/Downloads/Ganti Meter/</code> berisi subfolder tahun 2024, 2025, 2026</li>
+        <li>Jalankan: <code>python3 drizzle/import_ganti_meter.py</code></li>
+        <li>Jalankan <code>drizzle/register_ganti_meter.sql</code> di phpMyAdmin untuk mendaftarkan modul</li>
+        <li>Restart Cockpit: <code>node dist/index.js</code></li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h4>Catatan Metodologi</h4>
+      <ul>
+        <li>Data mencakup penggantian prabayar (JK, HJK) dan pascabayar (J, HJ, JM)</li>
+        <li>Tanggal rekap diambil dari nama file; file multi-hari (mis. 01_03Mar) dihitung pada hari pertama</li>
+        <li>Tahun buat meter lama difilter 1950&ndash;2025 untuk analisis umur</li>
+        <li>UP3 yang tidak dikenal (bukan 17 UP3 Jabar) dilewati</li>
+        <li>Tahun 2024 dimulai bulan Maret (data sebelumnya tidak tersedia)</li>
+      </ul>
+    </div>
+
+  </div><!-- /tentang -->
+
+</div><!-- /page-body -->
+
+<script>
+/* ── TAB SWITCHING ── */
+document.querySelectorAll('.tab-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    onTabActivate(btn.dataset.tab);
+  });
+});
+
+/* ── CHART REGISTRY ── */
+var _ch = {};
+function reg(id, cfg) {
+  if (_ch[id]) { _ch[id].destroy(); delete _ch[id]; }
+  var ctx = document.getElementById(id);
+  if (ctx) _ch[id] = new Chart(ctx, cfg);
+}
+
+/* ── HELPERS ── */
+function showCanvas(cvId, ndId) {
+  var nd = document.getElementById(ndId), cv = document.getElementById(cvId);
+  if (nd) nd.style.display = 'none';
+  if (cv) cv.style.display = 'block';
+}
+function showND(id, msg) {
+  var el = document.getElementById(id);
+  if (el) { el.style.display = 'flex'; el.innerHTML = '<strong>' + msg + '</strong>'; }
+}
+function fmt(n) { return (n == null) ? '—' : Number(n).toLocaleString('id'); }
+function pct(a, b) { return b ? (a / b * 100).toFixed(1) + '%' : '—'; }
+
+var BULAN_NAMES = {
+  '01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'Mei','06':'Jun',
+  '07':'Jul','08':'Agt','09':'Sep','10':'Okt','11':'Nov','12':'Des'
+};
+function bl(b) {
+  if (!b || b.length !== 6) return b;
+  return BULAN_NAMES[b.slice(4,6)] + ' ' + b.slice(2,4);
+}
+
+var UNITAP_NAMA = {
+  '53BDG':'UP3 Bandung','53BGR':'UP3 Bogor','53BKS':'UP3 Bekasi Kota',
+  '53CJR':'UP3 Cianjur','53CKG':'UP3 Cikokol','53CMI':'UP3 Cimahi',
+  '53CRB':'UP3 Cirebon','53DPK':'UP3 Depok','53GPI':'UP3 Cikarang',
+  '53GRT':'UP3 Garut','53IDM':'UP3 Banten','53KRW':'UP3 Karawang',
+  '53MJA':'UP3 Majalaya','53PWK':'UP3 Purwakarta','53SKI':'UP3 Sukabumi',
+  '53SMD':'UP3 Sumedang','53TSK':'UP3 Tasikmalaya'
+};
+function unitapNama(k) { return UNITAP_NAMA[k] || k; }
+
+var UP3_COLORS = [
+  '#1D4ED8','#7C3AED','#DB2777','#D97706','#16A34A',
+  '#0891B2','#BE185D','#5B21B6','#1E40AF','#065F46',
+  '#92400E','#1F2937','#6D28D9','#B45309','#0F766E',
+  '#991B1B','#374151'
+];
+var GRUP_COLORS = {
+  'Program':        '#1D4ED8',
+  'Rusak Display':  '#D97706',
+  'Rusak Fisik':    '#DC2626',
+  'Gangguan Token': '#F59E0B',
+  'Gangguan Teknis':'#7C3AED',
+  'Lainnya':        '#94A3B8'
+};
+var DEKADE_COLORS = [
+  '#475569','#64748B','#6D28D9','#1D4ED8','#0891B2',
+  '#16A34A','#D97706','#DC2626','#DB2777','#FF4D00'
+];
+
+/* ── STATE ── */
+var _summary = null;    // [{bulan, jumlah, jumlah_prabayar, jumlah_pascabayar}]
+var _byUnitap = null;   // [{bulan, unitap, jumlah, ...}]
+var _bulanList = [];
+
+/* ── INIT ── */
+async function init() {
+  try {
+    var res1 = await fetch('/api/ganti-meter/summary');
+    var res2 = await fetch('/api/ganti-meter/by-unitap');
+    if (!res1.ok || !res2.ok) throw new Error('not_imported');
+    _summary  = await res1.json();
+    _byUnitap = await res2.json();
+    if (!_summary || !_summary.length) throw new Error('no_data');
+
+    _bulanList = _summary.map(function(d) { return d.bulan; }).sort();
+
+    // Update meta badge
+    var mb = document.getElementById('meta-bulan');
+    if (mb) {
+      var years = [...new Set(_bulanList.map(function(b){return b.slice(0,4);}) )].sort();
+      mb.textContent = years.join(', ') + ' · ' + _bulanList.length + ' Bulan';
+    }
+
+    // Populate bulan selects
+    ['unitapBulanSel'].forEach(function(sid) {
+      var sel = document.getElementById(sid);
+      if (!sel) return;
+      sel.innerHTML = _bulanList.map(function(b) {
+        return '<option value="' + b + '">' + bl(b) + '</option>';
+      }).join('');
+      sel.value = _bulanList[_bulanList.length - 1];
+    });
+
+    ['alasanBulanSel','umurBulanSel','merkBulanSel'].forEach(function(sid) {
+      var sel = document.getElementById(sid);
+      if (!sel) return;
+      var existingFirst = sel.innerHTML; // preserve "Semua Bulan"
+      sel.innerHTML = existingFirst + _bulanList.map(function(b) {
+        return '<option value="' + b + '">' + bl(b) + '</option>';
+      }).join('');
+      sel.value = '';
+    });
+
+    renderOverview();
+    renderTren();
+
+  } catch(e) {
+    document.getElementById('overview-import-alert').style.display = '';
+    ['nd-pra-pie','nd-pra-bar','nd-tren-total','nd-up3-bar','nd-up3-pra',
+     'nd-alasan-pie','nd-alasan-bar','nd-umur-bar','nd-merk-baru','nd-merk-lama'
+    ].forEach(function(id){ showND(id, 'Import data terlebih dahulu'); });
+  }
+}
+
+function onTabActivate(tab) {
+  if (tab === 'unitap' && _bulanList.length) loadUnitap();
+  if (tab === 'alasan') loadAlasan();
+  if (tab === 'umur')   loadUmur();
+  if (tab === 'merk')   loadMerk();
+}
+
+/* ── OVERVIEW ── */
+function renderOverview() {
+  // YTD 2026
+  var ytd2026 = _summary.filter(function(d){ return d.bulan.startsWith('2026'); });
+  var ytdTotal = ytd2026.reduce(function(s,d){ return s + Number(d.jumlah); }, 0);
+  var ytdPra   = ytd2026.reduce(function(s,d){ return s + Number(d.jumlah_prabayar); }, 0);
+  var ytdPas   = ytd2026.reduce(function(s,d){ return s + Number(d.jumlah_pascabayar); }, 0);
+  var ytdAvg   = ytd2026.length ? Math.round(ytdTotal / ytd2026.length) : 0;
+
+  document.getElementById('kpi-ytd').textContent = fmt(ytdTotal);
+  document.getElementById('kpi-ytd-note').textContent = ytd2026.length + ' bulan YTD 2026';
+  document.getElementById('kpi-avg').textContent = fmt(ytdAvg);
+  document.getElementById('kpi-avg-note').textContent = ytd2026.length + ' bulan tersedia';
+
+  // Top UP3 bulan terbaru 2026
+  var latest2026 = ytd2026.length ? ytd2026[ytd2026.length - 1].bulan : null;
+  if (latest2026) {
+    var up3latest = _byUnitap.filter(function(d){ return d.bulan === latest2026; })
+      .sort(function(a,b){ return Number(b.jumlah) - Number(a.jumlah); });
+    if (up3latest.length) {
+      var top = up3latest[0];
+      document.getElementById('kpi-top-up3').textContent = unitapNama(top.unitap).replace('UP3 ','');
+      document.getElementById('kpi-top-up3-unit').textContent = fmt(top.jumlah) + ' unit';
+      document.getElementById('kpi-top-up3-note').textContent = bl(latest2026);
+    }
+  }
+
+  // Prabayar vs Pascabayar donut
+  showCanvas('praPieChart', 'nd-pra-pie');
+  reg('praPieChart', {
+    type: 'doughnut',
+    data: {
+      labels: ['Prabayar', 'Pascabayar'],
+      datasets: [{ data: [ytdPra, ytdPas], backgroundColor: ['#1D4ED8','#D97706'], borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '55%',
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: { callbacks: { label: function(ctx) { return ctx.label + ': ' + fmt(ctx.parsed) + ' (' + pct(ctx.parsed, ytdTotal) + ')'; } } }
+      }
+    }
+  });
+
+  // Prabayar vs Pascabayar bar per bulan
+  showCanvas('praBarChart', 'nd-pra-bar');
+  reg('praBarChart', {
+    type: 'bar',
+    data: {
+      labels: ytd2026.map(function(d){ return bl(d.bulan); }),
+      datasets: [
+        { label: 'Prabayar',   data: ytd2026.map(function(d){ return Number(d.jumlah_prabayar); }),   backgroundColor: '#1D4ED8', borderRadius: 4 },
+        { label: 'Pascabayar', data: ytd2026.map(function(d){ return Number(d.jumlah_pascabayar); }), backgroundColor: '#D97706', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } },
+      scales: {
+        x: { stacked: false, grid: { display: false } },
+        y: { ticks: { callback: function(v){ return fmt(v); } }, grid: { color: '#E5E7EB' } }
+      }
+    }
+  });
+
+  // Yearly table
+  var years = [...new Set(_summary.map(function(d){ return d.bulan.slice(0,4); }))].sort();
+  var tbody = document.getElementById('yearly-table-body');
+  tbody.innerHTML = years.map(function(y) {
+    var rows = _summary.filter(function(d){ return d.bulan.startsWith(y); });
+    var tot  = rows.reduce(function(s,d){ return s + Number(d.jumlah); }, 0);
+    var pra  = rows.reduce(function(s,d){ return s + Number(d.jumlah_prabayar); }, 0);
+    var pas  = rows.reduce(function(s,d){ return s + Number(d.jumlah_pascabayar); }, 0);
+    return '<tr><td class="td-bold">' + y + '</td><td class="td-num">' + fmt(tot) + '</td>' +
+      '<td class="td-num">' + fmt(pra) + '</td><td class="td-num">' + fmt(pas) + '</td>' +
+      '<td class="td-num">' + pct(pra, tot) + '</td></tr>';
+  }).join('');
+}
+
+/* ── TREN ── */
+function renderTren() {
+  var labels   = _summary.map(function(d){ return bl(d.bulan); });
+  var totals   = _summary.map(function(d){ return Number(d.jumlah); });
+  var praData  = _summary.map(function(d){ return Number(d.jumlah_prabayar); });
+  var pasData  = _summary.map(function(d){ return Number(d.jumlah_pascabayar); });
+
+  showCanvas('trenTotalChart', 'nd-tren-total');
+  reg('trenTotalChart', {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Prabayar',   data: praData,  backgroundColor: '#1D4ED8', borderRadius: 3 },
+        { label: 'Pascabayar', data: pasData,  backgroundColor: '#D97706', borderRadius: 3 },
+        { type: 'line', label: 'Total', data: totals, borderColor: '#FF4D00',
+          backgroundColor: 'rgba(255,77,0,.07)', tension: 0.3, pointRadius: 3,
+          yAxisID: 'y', fill: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
+        y: { stacked: true, ticks: { callback: function(v){ return fmt(v); } }, grid: { color: '#E5E7EB' } }
+      }
+    }
+  });
+
+  // Table
+  var grandTotal = _summary.reduce(function(s,d){ return s + Number(d.jumlah); }, 0);
+  var tbody = document.getElementById('tren-table-body');
+  tbody.innerHTML = _summary.map(function(d) {
+    var tot = Number(d.jumlah), pra = Number(d.jumlah_prabayar);
+    return '<tr>' +
+      '<td class="td-bold">' + bl(d.bulan) + '</td>' +
+      '<td class="td-num">' + fmt(tot) + '</td>' +
+      '<td class="td-num">' + fmt(pra) + '</td>' +
+      '<td class="td-num">' + fmt(Number(d.jumlah_pascabayar)) + '</td>' +
+      '<td class="td-num">' + pct(pra, tot) + '</td>' +
+      '</tr>';
+  }).join('') +
+  '<tr style="font-weight:700;border-top:2px solid var(--border);background:var(--bg)">' +
+  '<td>Total</td><td class="td-num">' + fmt(grandTotal) + '</td>' +
+  '<td class="td-num">' + fmt(_summary.reduce(function(s,d){return s+Number(d.jumlah_prabayar);},0)) + '</td>' +
+  '<td class="td-num">' + fmt(_summary.reduce(function(s,d){return s+Number(d.jumlah_pascabayar);},0)) + '</td>' +
+  '<td class="td-num">—</td></tr>';
+}
+
+/* ── PER UP3 ── */
+function loadUnitap() {
+  var bulan = document.getElementById('unitapBulanSel').value;
+  if (!bulan || !_byUnitap) return;
+  var data = _byUnitap.filter(function(d){ return d.bulan === bulan; })
+    .sort(function(a,b){ return Number(b.jumlah) - Number(a.jumlah); });
+
+  if (!data.length) {
+    showND('nd-up3-bar', 'Tidak ada data untuk bulan ini');
+    showND('nd-up3-pra', 'Tidak ada data');
+    return;
+  }
+
+  var labels  = data.map(function(d){ return unitapNama(d.unitap); });
+  var jumlah  = data.map(function(d){ return Number(d.jumlah); });
+  var praData = data.map(function(d){ return d.jumlah ? (Number(d.jumlah_prabayar)/Number(d.jumlah)*100) : 0; });
+
+  document.getElementById('src-up3-bar').textContent = 'Sumber: ganti_meter_harian · ' + bl(bulan);
+  document.getElementById('src-up3-pra').textContent = 'Sumber: ganti_meter_harian · ' + bl(bulan);
+
+  showCanvas('up3BarChart', 'nd-up3-bar');
+  reg('up3BarChart', {
+    type: 'bar',
+    data: { labels: labels, datasets: [{ label: 'Total', data: jumlah, backgroundColor: UP3_COLORS, borderRadius: 4 }] },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { callback: function(v){ return fmt(v); } }, grid: { color: '#E5E7EB' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+
+  showCanvas('up3PraChart', 'nd-up3-pra');
+  reg('up3PraChart', {
+    type: 'bar',
+    data: { labels: labels, datasets: [{
+      label: '% Prabayar', data: praData,
+      backgroundColor: praData.map(function(v){ return v >= 60 ? '#1D4ED8' : v >= 30 ? '#D97706' : '#DC2626'; }),
+      borderRadius: 4
+    }] },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { min: 0, max: 100, ticks: { callback: function(v){ return v + '%'; } }, grid: { color: '#E5E7EB' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+
+  var total = jumlah.reduce(function(s,v){ return s+v; }, 0);
+  var tbody = document.getElementById('up3-table-body');
+  tbody.innerHTML = data.map(function(d, i) {
+    var tot = Number(d.jumlah), pra = Number(d.jumlah_prabayar), pas = Number(d.jumlah_pascabayar);
+    return '<tr>' +
+      '<td>' + (i+1) + '</td>' +
+      '<td class="td-bold">' + unitapNama(d.unitap) + ' <span style="font-size:10px;color:var(--dim)">(' + d.unitap + ')</span></td>' +
+      '<td class="td-num">' + fmt(tot) + '</td>' +
+      '<td class="td-num">' + fmt(pra) + '</td>' +
+      '<td class="td-num">' + fmt(pas) + '</td>' +
+      '<td class="td-num">' + pct(pra, tot) + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+/* ── ALASAN ── */
+async function loadAlasan() {
+  var bulan = document.getElementById('alasanBulanSel').value;
+  try {
+    var url = bulan ? '/api/ganti-meter/alasan?bulan=' + bulan : '/api/ganti-meter/alasan';
+    var res = await fetch(url);
+    if (!res.ok) throw new Error();
+    var data = await res.json();
+    if (!data || !data.length) throw new Error('no_data');
+
+    // Aggregate by grup
+    var grupMap = {};
+    data.forEach(function(d) {
+      var g = d.alasan_grup;
+      grupMap[g] = (grupMap[g] || 0) + Number(d.jumlah);
+    });
+    var grups   = Object.keys(grupMap).sort(function(a,b){ return grupMap[b]-grupMap[a]; });
+    var totalGrup = grups.reduce(function(s,g){ return s + grupMap[g]; }, 0);
+
+    // Top alasan for KPI
+    var topAlasan = data.slice().sort(function(a,b){ return Number(b.jumlah)-Number(a.jumlah); })[0];
+    if (topAlasan) {
+      var el = document.getElementById('kpi-top-alasan');
+      if (el) { el.textContent = topAlasan.alasan_grup; el.style.fontSize = '16px'; }
+      var elU = document.getElementById('kpi-top-alasan-unit');
+      if (elU) elU.textContent = fmt(grupMap[topAlasan.alasan_grup]) + ' unit';
+      var elN = document.getElementById('kpi-top-alasan-note');
+      if (elN) elN.textContent = topAlasan.alasan;
+    }
+
+    var bgColors = grups.map(function(g){ return GRUP_COLORS[g] || '#94A3B8'; });
+
+    showCanvas('alasanPieChart', 'nd-alasan-pie');
+    reg('alasanPieChart', {
+      type: 'doughnut',
+      data: {
+        labels: grups,
+        datasets: [{ data: grups.map(function(g){ return grupMap[g]; }), backgroundColor: bgColors, borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '50%',
+        plugins: {
+          legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 12 } },
+          tooltip: { callbacks: { label: function(ctx) { return ctx.label + ': ' + fmt(ctx.parsed) + ' (' + pct(ctx.parsed, totalGrup) + ')'; } } }
+        }
+      }
+    });
+
+    showCanvas('alasanBarChart', 'nd-alasan-bar');
+    reg('alasanBarChart', {
+      type: 'bar',
+      data: {
+        labels: grups,
+        datasets: [{ label: 'Jumlah', data: grups.map(function(g){ return grupMap[g]; }), backgroundColor: bgColors, borderRadius: 5 }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { callback: function(v){ return fmt(v); } }, grid: { color: '#E5E7EB' } },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+
+    // Table sorted by jumlah desc
+    var sorted = data.slice().sort(function(a,b){ return Number(b.jumlah)-Number(a.jumlah); });
+    var totalAll = sorted.reduce(function(s,d){ return s + Number(d.jumlah); }, 0);
+    var tbody = document.getElementById('alasan-table-body');
+    tbody.innerHTML = sorted.map(function(d, i) {
+      var g = d.alasan_grup;
+      var cls = g === 'Program' ? 'badge-program' : g.startsWith('Rusak') ? 'badge-rusak' :
+                g.startsWith('Gangguan Token') ? 'badge-token' : g.startsWith('Gangguan') ? 'badge-teknis' : 'badge-lainnya';
+      return '<tr>' +
+        '<td>' + (i+1) + '</td>' +
+        '<td>' + d.alasan + '</td>' +
+        '<td><span class="' + cls + '">' + g + '</span></td>' +
+        '<td class="td-num">' + fmt(d.jumlah) + '</td>' +
+        '<td class="td-num">' + pct(Number(d.jumlah), totalAll) + '</td>' +
+        '</tr>';
+    }).join('');
+
+  } catch(e) {
+    showND('nd-alasan-pie', 'Gagal memuat data');
+    showND('nd-alasan-bar', 'Gagal memuat data');
+  }
+}
+
+/* ── UMUR ── */
+async function loadUmur() {
+  var bulan = document.getElementById('umurBulanSel').value;
+  try {
+    var url = bulan ? '/api/ganti-meter/umur?bulan=' + bulan : '/api/ganti-meter/umur';
+    var res = await fetch(url);
+    if (!res.ok) throw new Error();
+    var data = await res.json();
+    if (!data || !data.length) throw new Error('no_data');
+
+    var labels = data.map(function(d){ return d.dekade; });
+    var vals   = data.map(function(d){ return Number(d.jumlah); });
+    var total  = vals.reduce(function(s,v){ return s+v; }, 0);
+    var bgColors = labels.map(function(l, i){ return DEKADE_COLORS[i % DEKADE_COLORS.length]; });
+
+    showCanvas('umurBarChart', 'nd-umur-bar');
+    reg('umurBarChart', {
+      type: 'bar',
+      data: { labels: labels, datasets: [{ label: 'Jumlah Meter', data: vals, backgroundColor: bgColors, borderRadius: 5 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+          y: { ticks: { callback: function(v){ return fmt(v); } }, grid: { color: '#E5E7EB' } }
+        }
+      }
+    });
+
+    var tbody = document.getElementById('umur-table-body');
+    tbody.innerHTML = data.map(function(d) {
+      return '<tr>' +
+        '<td class="td-bold">' + d.dekade + '</td>' +
+        '<td class="td-num">' + fmt(d.jumlah) + '</td>' +
+        '<td class="td-num">' + pct(Number(d.jumlah), total) + '</td>' +
+        '</tr>';
+    }).join('') +
+    '<tr style="font-weight:700;border-top:2px solid var(--border);background:var(--bg)">' +
+    '<td>Total</td><td class="td-num">' + fmt(total) + '</td><td class="td-num">100%</td></tr>';
+
+  } catch(e) {
+    showND('nd-umur-bar', 'Gagal memuat data');
+  }
+}
+
+/* ── MERK ── */
+async function loadMerk() {
+  var bulan = document.getElementById('merkBulanSel').value;
+  try {
+    var url = bulan ? '/api/ganti-meter/merk?bulan=' + bulan : '/api/ganti-meter/merk';
+    var res = await fetch(url);
+    if (!res.ok) throw new Error();
+    var data = await res.json();
+    if (!data || !data.length) throw new Error('no_data');
+
+    // Aggregate by merk_baru and merk_lama
+    var baruMap = {}, lamaMap = {};
+    data.forEach(function(d) {
+      var cnt = Number(d.jumlah);
+      var mb  = d.merk_baru || '(Tidak diketahui)';
+      var ml  = d.merk_lama || '(Tidak diketahui)';
+      baruMap[mb] = (baruMap[mb] || 0) + cnt;
+      lamaMap[ml] = (lamaMap[ml] || 0) + cnt;
+    });
+
+    var top10baru = Object.entries(baruMap).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+    var top10lama = Object.entries(lamaMap).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+
+    showCanvas('merkBaruChart', 'nd-merk-baru');
+    reg('merkBaruChart', {
+      type: 'bar',
+      data: {
+        labels: top10baru.map(function(e){ return e[0]; }),
+        datasets: [{ label: 'Jumlah', data: top10baru.map(function(e){ return e[1]; }),
+          backgroundColor: '#1D4ED8', borderRadius: 4 }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { callback: function(v){ return fmt(v); } }, grid: { color: '#E5E7EB' } },
+          y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+      }
+    });
+
+    showCanvas('merkLamaChart', 'nd-merk-lama');
+    reg('merkLamaChart', {
+      type: 'bar',
+      data: {
+        labels: top10lama.map(function(e){ return e[0]; }),
+        datasets: [{ label: 'Jumlah', data: top10lama.map(function(e){ return e[1]; }),
+          backgroundColor: '#D97706', borderRadius: 4 }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { callback: function(v){ return fmt(v); } }, grid: { color: '#E5E7EB' } },
+          y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+      }
+    });
+
+    var totalAll = data.reduce(function(s,d){ return s + Number(d.jumlah); }, 0);
+    var top20 = data.slice(0, 20);
+    var tbody = document.getElementById('merk-table-body');
+    tbody.innerHTML = top20.map(function(d, i) {
+      return '<tr>' +
+        '<td>' + (i+1) + '</td>' +
+        '<td>' + (d.merk_lama || '<em style="color:var(--dim)">—</em>') + '</td>' +
+        '<td class="td-bold" style="color:#1D4ED8">' + (d.merk_baru || '<em style="color:var(--dim)">—</em>') + '</td>' +
+        '<td class="td-num">' + fmt(d.jumlah) + '</td>' +
+        '<td class="td-num">' + pct(Number(d.jumlah), totalAll) + '</td>' +
+        '</tr>';
+    }).join('');
+
+  } catch(e) {
+    showND('nd-merk-baru', 'Gagal memuat data');
+    showND('nd-merk-lama', 'Gagal memuat data');
+  }
+}
+
+/* ── SELECT EVENT LISTENERS ── */
+document.getElementById('unitapBulanSel').addEventListener('change', loadUnitap);
+document.getElementById('alasanBulanSel').addEventListener('change', loadAlasan);
+document.getElementById('umurBulanSel').addEventListener('change', loadUmur);
+document.getElementById('merkBulanSel').addEventListener('change', loadMerk);
+
+/* ── BOOT ── */
+init();
+</script>
+</body>
+</html>
