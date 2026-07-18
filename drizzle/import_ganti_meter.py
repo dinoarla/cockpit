@@ -8,6 +8,13 @@ Tabel yang dihasilkan:
   ganti_meter_merk     — per (bulan CHAR(6), merk_lama, merk_baru, jumlah)
   ganti_meter_umur     — per (bulan CHAR(6), thbuat_lama VARCHAR(4), jumlah)
 
+Usage:
+  # Export SQL file (import via phpMyAdmin):
+  python3 drizzle/import_ganti_meter.py --to-sql ganti_meter_data.sql
+
+  # Direct DB insert (jika ada remote MySQL):
+  python3 drizzle/import_ganti_meter.py
+
 Requirements:
   pip install xlrd pymysql python-dotenv
 """
@@ -16,13 +23,11 @@ import os
 import re
 import sys
 import warnings
-from collections import defaultdict
 from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
 import xlrd
-import pymysql
 from dotenv import load_dotenv
 
 # ── Load .env ──────────────────────────────────────────────────────────────────
@@ -77,7 +82,6 @@ FOLDER_MONTHS = {
     },
 }
 
-# Month name → int (for filename date extraction)
 MONTH_NAMES = {
     "jan": 1, "feb": 2, "mar": 3, "maret": 3, "apr": 4, "april": 4,
     "mei": 5, "jun": 6, "jul": 7, "ags": 8, "agst": 8, "sep": 9, "sept": 9,
@@ -129,7 +133,7 @@ ALASAN_GRUP = {
 DDL = """
 CREATE TABLE IF NOT EXISTS `ganti_meter_harian` (
   `id`               INT AUTO_INCREMENT PRIMARY KEY,
-  `tgl`              DATE         NOT NULL COMMENT 'Tanggal rekap harian',
+  `tgl`              DATE         NOT NULL,
   `unitap`           VARCHAR(10)  NOT NULL,
   `jumlah`           INT          NOT NULL DEFAULT 0,
   `jumlah_prabayar`  INT          NOT NULL DEFAULT 0,
@@ -139,7 +143,7 @@ CREATE TABLE IF NOT EXISTS `ganti_meter_harian` (
 
 CREATE TABLE IF NOT EXISTS `ganti_meter_alasan` (
   `id`          INT AUTO_INCREMENT PRIMARY KEY,
-  `bulan`       CHAR(6)      NOT NULL COMMENT 'YYYYMM',
+  `bulan`       CHAR(6)      NOT NULL,
   `unitap`      VARCHAR(10)  NOT NULL,
   `alasan`      VARCHAR(200) NOT NULL,
   `alasan_grup` VARCHAR(50)  NOT NULL DEFAULT 'Lainnya',
@@ -167,21 +171,13 @@ CREATE TABLE IF NOT EXISTS `ganti_meter_umur` (
 
 
 def get_day_from_filename(fname: str, fallback_year: int, fallback_month: int) -> int:
-    """
-    Extract day number from filename. Returns 1 if can't parse.
-    Handles: 01Jan2026.xls, 14Maret2024.xls, 01 Okt 2025.xls, 01_03Maret2024.xls
-    For range files (01_03...) returns the first day.
-    """
     name = os.path.splitext(fname)[0].strip()
-    # Range pattern: take first day
     m = re.match(r"^(\d{1,2})(?:_\d{1,2})?\s*[A-Za-z]+\s*\d{4}$", name)
     if m:
         return int(m.group(1))
-    # No-year pattern: e.g. 01Ags.xls, 10_11Ags.xls
     m = re.match(r"^(\d{1,2})(?:_\d{1,2})?\s*[A-Za-z]+$", name)
     if m:
         return int(m.group(1))
-    # Fallback
     return 1
 
 
@@ -190,20 +186,19 @@ def get_alasan_grup(alasan: str) -> str:
 
 
 def clean_str(val) -> str:
-    """Convert xlrd cell value to clean string."""
     s = str(val).strip()
-    # Remove trailing .0 for numeric strings
     if re.match(r"^\d+\.0$", s):
         s = s[:-2]
     return s
 
 
+def esc(s: str) -> str:
+    """Escape string for SQL INSERT."""
+    return s.replace("\\", "\\\\").replace("'", "\\'")
+
+
 def process_file(filepath: str, year: int, month: int,
                  harian: dict, alasan: dict, merk: dict, umur: dict) -> int:
-    """
-    Process one XLS file. Updates aggregation dicts in-place.
-    Returns number of rows processed.
-    """
     fname = os.path.basename(filepath)
     day = get_day_from_filename(fname, year, month)
     tgl = f"{year:04d}-{month:02d}-{day:02d}"
@@ -222,40 +217,31 @@ def process_file(filepath: str, year: int, month: int,
             jenis_mk = clean_str(ws.cell_value(r, 17))
             alasan_val = clean_str(ws.cell_value(r, 31))
             merk_baru = clean_str(ws.cell_value(r, 35)).upper()[:50]
-            thbuat_baru = clean_str(ws.cell_value(r, 38))
             merk_lama = clean_str(ws.cell_value(r, 40)).upper()[:50]
             thbuat_lama = clean_str(ws.cell_value(r, 43))
-
-            # Skip rows where thbuat_lama is invalid float/nan
-            if not unitap:
-                continue
 
             is_prabayar = jenis_mk in ("JK", "HJK")
             is_pascabayar = jenis_mk in ("J", "HJ", "JM")
 
-            # ── ganti_meter_harian ──
             key_h = (tgl, unitap)
             if key_h not in harian:
-                harian[key_h] = [0, 0, 0]  # [jumlah, prabayar, pascabayar]
+                harian[key_h] = [0, 0, 0]
             harian[key_h][0] += 1
             if is_prabayar:
                 harian[key_h][1] += 1
             if is_pascabayar:
                 harian[key_h][2] += 1
 
-            # ── ganti_meter_alasan ──
             if alasan_val:
                 grup = get_alasan_grup(alasan_val)
                 key_a = (bulan, unitap, alasan_val)
-                alasan[key_a] = alasan.get(key_a, [grup, 0])
+                if key_a not in alasan:
+                    alasan[key_a] = [grup, 0]
                 alasan[key_a][1] += 1
 
-            # ── ganti_meter_merk ──
             key_m = (bulan, merk_lama, merk_baru)
             merk[key_m] = merk.get(key_m, 0) + 1
 
-            # ── ganti_meter_umur ──
-            # Validate year string: must be 4 digits, 1950-2025
             if re.match(r"^\d{4}$", thbuat_lama):
                 yr = int(thbuat_lama)
                 if 1950 <= yr <= 2025:
@@ -269,87 +255,164 @@ def process_file(filepath: str, year: int, month: int,
     return count
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# SQL-file writer helpers
+# ─────────────────────────────────────────────────────────────────────────────
+
+def write_harian_sql(f, harian: dict):
+    if not harian:
+        return
+    rows = [(tgl, ut, v[0], v[1], v[2]) for (tgl, ut), v in harian.items()]
+    vals = ",\n  ".join(
+        f"('{tgl}', '{ut}', {j}, {p}, {ps})" for tgl, ut, j, p, ps in rows
+    )
+    f.write(
+        f"INSERT INTO `ganti_meter_harian` (tgl, unitap, jumlah, jumlah_prabayar, jumlah_pascabayar)\nVALUES\n  {vals}\n"
+        "ON DUPLICATE KEY UPDATE jumlah=VALUES(jumlah), jumlah_prabayar=VALUES(jumlah_prabayar), jumlah_pascabayar=VALUES(jumlah_pascabayar);\n\n"
+    )
+    print(f"  → harian: {len(rows)} rows")
+
+
+def write_alasan_sql(f, alasan: dict):
+    if not alasan:
+        return
+    rows = [(bulan, ut, al, v[0], v[1]) for (bulan, ut, al), v in alasan.items()]
+    vals = ",\n  ".join(
+        f"('{b}', '{ut}', '{esc(al)}', '{esc(g)}', {j})" for b, ut, al, g, j in rows
+    )
+    f.write(
+        f"INSERT INTO `ganti_meter_alasan` (bulan, unitap, alasan, alasan_grup, jumlah)\nVALUES\n  {vals}\n"
+        "ON DUPLICATE KEY UPDATE alasan_grup=VALUES(alasan_grup), jumlah=VALUES(jumlah);\n\n"
+    )
+    print(f"  → alasan: {len(rows)} rows")
+
+
+def write_merk_sql(f, merk: dict):
+    if not merk:
+        return
+    rows = [(bulan, ml, mb, cnt) for (bulan, ml, mb), cnt in merk.items()]
+    vals = ",\n  ".join(
+        f"('{b}', '{esc(ml)}', '{esc(mb)}', {cnt})" for b, ml, mb, cnt in rows
+    )
+    f.write(
+        f"INSERT INTO `ganti_meter_merk` (bulan, merk_lama, merk_baru, jumlah)\nVALUES\n  {vals}\n"
+        "ON DUPLICATE KEY UPDATE jumlah=VALUES(jumlah);\n\n"
+    )
+    print(f"  → merk: {len(rows)} rows")
+
+
+def write_umur_sql(f, umur: dict):
+    if not umur:
+        return
+    rows = [(bulan, th, cnt) for (bulan, th), cnt in umur.items()]
+    vals = ",\n  ".join(f"('{b}', '{th}', {cnt})" for b, th, cnt in rows)
+    f.write(
+        f"INSERT INTO `ganti_meter_umur` (bulan, thbuat_lama, jumlah)\nVALUES\n  {vals}\n"
+        "ON DUPLICATE KEY UPDATE jumlah=VALUES(jumlah);\n\n"
+    )
+    print(f"  → umur: {len(rows)} rows")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DB writer helpers
+# ─────────────────────────────────────────────────────────────────────────────
+
 def upsert_harian(cursor, harian: dict):
-    sql = """
-        INSERT INTO ganti_meter_harian (tgl, unitap, jumlah, jumlah_prabayar, jumlah_pascabayar)
-        VALUES (%s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE
-          jumlah = VALUES(jumlah),
-          jumlah_prabayar = VALUES(jumlah_prabayar),
-          jumlah_pascabayar = VALUES(jumlah_pascabayar)
-    """
     rows = [(tgl, ut, v[0], v[1], v[2]) for (tgl, ut), v in harian.items()]
     if rows:
-        cursor.executemany(sql, rows)
+        cursor.executemany(
+            "INSERT INTO ganti_meter_harian (tgl,unitap,jumlah,jumlah_prabayar,jumlah_pascabayar) "
+            "VALUES (%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE "
+            "jumlah=VALUES(jumlah),jumlah_prabayar=VALUES(jumlah_prabayar),jumlah_pascabayar=VALUES(jumlah_pascabayar)",
+            rows,
+        )
     print(f"  → harian: {len(rows)} rows upserted")
 
 
 def upsert_alasan(cursor, alasan: dict):
-    sql = """
-        INSERT INTO ganti_meter_alasan (bulan, unitap, alasan, alasan_grup, jumlah)
-        VALUES (%s, %s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE
-          alasan_grup = VALUES(alasan_grup),
-          jumlah = VALUES(jumlah)
-    """
     rows = [(bulan, ut, al, v[0], v[1]) for (bulan, ut, al), v in alasan.items()]
     if rows:
-        cursor.executemany(sql, rows)
+        cursor.executemany(
+            "INSERT INTO ganti_meter_alasan (bulan,unitap,alasan,alasan_grup,jumlah) "
+            "VALUES (%s,%s,%s,%s,%s) ON DUPLICATE KEY UPDATE alasan_grup=VALUES(alasan_grup),jumlah=VALUES(jumlah)",
+            rows,
+        )
     print(f"  → alasan: {len(rows)} rows upserted")
 
 
 def upsert_merk(cursor, merk: dict):
-    sql = """
-        INSERT INTO ganti_meter_merk (bulan, merk_lama, merk_baru, jumlah)
-        VALUES (%s, %s, %s, %s)
-        ON DUPLICATE KEY UPDATE jumlah = VALUES(jumlah)
-    """
     rows = [(bulan, ml, mb, cnt) for (bulan, ml, mb), cnt in merk.items()]
     if rows:
-        cursor.executemany(sql, rows)
+        cursor.executemany(
+            "INSERT INTO ganti_meter_merk (bulan,merk_lama,merk_baru,jumlah) "
+            "VALUES (%s,%s,%s,%s) ON DUPLICATE KEY UPDATE jumlah=VALUES(jumlah)",
+            rows,
+        )
     print(f"  → merk: {len(rows)} rows upserted")
 
 
 def upsert_umur(cursor, umur: dict):
-    sql = """
-        INSERT INTO ganti_meter_umur (bulan, thbuat_lama, jumlah)
-        VALUES (%s, %s, %s)
-        ON DUPLICATE KEY UPDATE jumlah = VALUES(jumlah)
-    """
     rows = [(bulan, th, cnt) for (bulan, th), cnt in umur.items()]
     if rows:
-        cursor.executemany(sql, rows)
+        cursor.executemany(
+            "INSERT INTO ganti_meter_umur (bulan,thbuat_lama,jumlah) "
+            "VALUES (%s,%s,%s) ON DUPLICATE KEY UPDATE jumlah=VALUES(jumlah)",
+            rows,
+        )
     print(f"  → umur: {len(rows)} rows upserted")
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Main
+# ─────────────────────────────────────────────────────────────────────────────
+
 def main():
+    to_sql_file = None
+    if "--to-sql" in sys.argv:
+        idx = sys.argv.index("--to-sql")
+        to_sql_file = sys.argv[idx + 1] if idx + 1 < len(sys.argv) else "ganti_meter_data.sql"
+
     print("=" * 60)
     print("import_ganti_meter.py — Cockpit Ganti Meter Importer")
     print("=" * 60)
-    print(f"DB: {DB_USER}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
-    print(f"Data root: {DATA_ROOT}")
-    print()
 
-    # Connect
-    conn = pymysql.connect(
-        host=DB_HOST, port=DB_PORT, user=DB_USER,
-        password=DB_PASS, database=DB_NAME,
-        charset="utf8mb4", autocommit=False,
-    )
-    cur = conn.cursor()
+    if to_sql_file:
+        print(f"Mode: export SQL → {to_sql_file}")
+    else:
+        print(f"Mode: direct DB insert")
+        print(f"DB: {DB_USER}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
 
-    # Create tables
-    print("Creating tables (IF NOT EXISTS)…")
-    for stmt in DDL.strip().split(";\n\n"):
-        stmt = stmt.strip()
-        if stmt:
-            cur.execute(stmt)
-    conn.commit()
-    print("Tables ready.\n")
+    print(f"Data root: {DATA_ROOT}\n")
+
+    # ── Setup output ──
+    if to_sql_file:
+        sql_out = open(to_sql_file, "w", encoding="utf-8")
+        sql_out.write("-- Ganti Meter import — generated by import_ganti_meter.py\n")
+        sql_out.write("SET NAMES utf8mb4;\n\n")
+        for stmt in DDL.strip().split(";\n\n"):
+            s = stmt.strip()
+            if s:
+                sql_out.write(s + ";\n\n")
+        conn = cur = None
+    else:
+        import pymysql
+        conn = pymysql.connect(
+            host=DB_HOST, port=DB_PORT, user=DB_USER,
+            password=DB_PASS, database=DB_NAME,
+            charset="utf8mb4", autocommit=False,
+        )
+        cur = conn.cursor()
+        print("Creating tables (IF NOT EXISTS)…")
+        for stmt in DDL.strip().split(";\n\n"):
+            s = stmt.strip()
+            if s:
+                cur.execute(s)
+        conn.commit()
+        print("Tables ready.\n")
+        sql_out = None
 
     grand_total = 0
 
-    # Process year by year
     for year_str, months in FOLDER_MONTHS.items():
         year_dir = DATA_ROOT / year_str
         if not year_dir.exists():
@@ -372,12 +435,10 @@ def main():
             bulan_str = f"{year:04d}{month:02d}"
             print(f"  {folder_name} → {bulan_str}: {len(xls_files)} files")
 
-            # Per-month aggregation dicts
             harian: dict = {}
             alasan: dict = {}
             merk: dict = {}
             umur: dict = {}
-
             month_rows = 0
             errors = 0
 
@@ -391,22 +452,34 @@ def main():
 
             print(f"    Rows processed: {month_rows:,}  Errors: {errors}")
 
-            # Upsert to DB
-            upsert_harian(cur, harian)
-            upsert_alasan(cur, alasan)
-            upsert_merk(cur, merk)
-            upsert_umur(cur, umur)
-            conn.commit()
+            if sql_out:
+                write_harian_sql(sql_out, harian)
+                write_alasan_sql(sql_out, alasan)
+                write_merk_sql(sql_out, merk)
+                write_umur_sql(sql_out, umur)
+            else:
+                upsert_harian(cur, harian)
+                upsert_alasan(cur, alasan)
+                upsert_merk(cur, merk)
+                upsert_umur(cur, umur)
+                conn.commit()
 
             grand_total += month_rows
 
     print()
     print("=" * 60)
     print(f"DONE. Total rows processed: {grand_total:,}")
-    print("=" * 60)
 
-    cur.close()
-    conn.close()
+    if sql_out:
+        sql_out.close()
+        size_mb = os.path.getsize(to_sql_file) / 1_048_576
+        print(f"SQL file: {to_sql_file} ({size_mb:.1f} MB)")
+        print("Import via phpMyAdmin: Database → Import → pilih file ini")
+    else:
+        cur.close()
+        conn.close()
+
+    print("=" * 60)
 
 
 if __name__ == "__main__":
