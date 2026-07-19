@@ -1902,10 +1902,10 @@ function initFullGraph(domainList) {
     if (nodeMap[a]&&nodeMap[b]) links.push({source:a,target:b,cross:true});
   }
 
-  // Node size by degree
+  // Node size by degree — hub nodes visually much larger
   const deg = {};
   for (const l of links) { deg[l.source]=(deg[l.source]||0)+1; deg[l.target]=(deg[l.target]||0)+1; }
-  const nr = d => d.status==='aktif' ? Math.max(7,Math.min(16,7+(deg[d.id]||0)*1.4)) : 5;
+  const nr = d => d.status==='aktif' ? Math.max(5, Math.min(28, 4 + (deg[d.id]||0) * 1.9)) : 4;
 
   const activeTopics = new Set(nodes.map(n=>n.gk));
   let selectedNode = null;
