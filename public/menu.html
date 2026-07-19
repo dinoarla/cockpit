@@ -847,7 +847,7 @@
 
 <aside class="kg-sidebar" id="kgSidebar">
   <div class="kg-hd">
-    <i class="fa-solid fa-atom"></i>
+    <i class="fa-solid fa-diagram-project"></i>
     <span class="kg-hd-text">Cockpit Synaps</span>
     <span class="kg-cnt" id="kg-node-count"></span>
     <button class="kg-expand-btn" id="kgExpandBtn" title="Buka full graph"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
@@ -1848,18 +1848,18 @@ function initFullGraph(domainList) {
   bMerge.append('feMergeNode').attr('in','blur');
   bMerge.append('feMergeNode').attr('in','SourceGraphic');
 
-  const g = svg.append('g');
-
-  // Star field background
+  // Star field — fixed layer on SVG (not inside zoomable g, so getBBox excludes it)
   const rng = (n) => Math.random() * n;
-  const starG = g.append('g').attr('pointer-events','none');
+  const starG = svg.append('g').attr('pointer-events','none');
   for (let i = 0; i < 120; i++) {
     starG.append('circle')
-      .attr('cx', rng(W * 3 - W)).attr('cy', rng(H * 3 - H))
+      .attr('cx', rng(W)).attr('cy', rng(H))
       .attr('r', Math.random() < .15 ? .9 : .45)
-      .attr('fill', 'rgba(200,215,255,' + (.05 + Math.random() * .18).toFixed(2) + ')')
+      .attr('fill', 'rgba(200,215,255,' + (.06 + Math.random() * .2).toFixed(2) + ')')
       .attr('pointer-events','none');
   }
+
+  const g = svg.append('g');
 
   // Zoom
   const zoom = d3.zoom().scaleExtent([.08,8]).on('zoom', e => {
@@ -1870,10 +1870,17 @@ function initFullGraph(domainList) {
   });
   svg.call(zoom);
 
-  // Links — thin solid, no dashes
+  // Seed initial node positions from cluster centres so sim starts spread out
+  for (const n of nodes) {
+    const cp = CP[n.gk] || {x:.5,y:.5};
+    n.x = cp.x * W + (Math.random()-.5)*40;
+    n.y = cp.y * H + (Math.random()-.5)*40;
+  }
+
+  // Links — solid visible lines
   const linkSel = g.append('g').selectAll('line').data(links).join('line')
-    .attr('stroke', 'rgba(180,200,255,.07)')
-    .attr('stroke-width', .8);
+    .attr('stroke', 'rgba(180,200,255,.22)')
+    .attr('stroke-width', 1);
 
   // Glow halos — outer blurred rings behind nodes
   const haloSel = g.append('g').selectAll('circle').data(nodes.filter(n=>n.status==='aktif')).join('circle')
@@ -1899,7 +1906,7 @@ function initFullGraph(domainList) {
   // Highlight helpers
   function resetVis() {
     const k=d3.zoomTransform(svgEl).k;
-    linkSel.attr('stroke','rgba(180,200,255,.07)').attr('stroke-width',.8).attr('opacity',1);
+    linkSel.attr('stroke','rgba(180,200,255,.22)').attr('stroke-width',1).attr('opacity',1);
     nodeSel.attr('opacity',d=>activeTopics.has(d.gk)?(d.status==='aktif'?(d.accessible?1:.45):.18):0);
     haloSel.attr('opacity',d=>activeTopics.has(d.gk)?.07:0);
     labelSel.attr('opacity',d=>activeTopics.has(d.gk)?Math.max(0,Math.min(1,(k-.4)/.5)):0);
@@ -1990,7 +1997,8 @@ function initFullGraph(domainList) {
         d3.zoomIdentity.translate((W-bb.width*sc)/2-bb.x*sc,(H-bb.height*sc)/2-bb.y*sc).scale(sc));
     } catch(e) {}
   }
-  setTimeout(fitView, 2000);
+  sim.on('end', fitView);
+  setTimeout(fitView, 1800);
 
   document.getElementById('gm-fit').addEventListener('click', fitView);
   document.getElementById('gm-zin').addEventListener('click', ()=>svg.transition().call(zoom.scaleBy,1.5));
@@ -2074,7 +2082,7 @@ adminHeader.addEventListener('click', () => {
 <!-- Full-screen Knowledge Graph Modal -->
 <div class="graph-modal" id="graphModal">
   <div class="gm-bar">
-    <div class="gm-title"><i class="fa-solid fa-atom"></i>Cockpit Synaps</div>
+    <div class="gm-title"><i class="fa-solid fa-diagram-project"></i>Cockpit Synaps</div>
     <div class="gm-srch-wrap">
       <i class="fa-solid fa-magnifying-glass"></i>
       <input id="gm-search-inp" type="text" placeholder="Cari modul…" autocomplete="off">
