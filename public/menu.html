@@ -1673,9 +1673,9 @@ function initKnowledgeGraph(domainList) {
   const g = svg.append('g');
   svg.call(d3.zoom().scaleExtent([.3, 4]).on('zoom', e => g.attr('transform', e.transform)));
 
-  // Links — uniform neutral
+  // Links — Obsidian purple
   const link = g.append('g').selectAll('line').data(links).join('line')
-    .attr('stroke', 'rgba(200,215,255,.28)')
+    .attr('stroke', 'rgba(139,92,246,.42)')
     .attr('stroke-width', 1);
 
   // Glow halos (outer) — large blurred circles
@@ -1706,7 +1706,7 @@ function initKnowledgeGraph(domainList) {
       link
         .attr('stroke', l =>
           (l.source.id === d.id || l.target.id === d.id)
-            ? d.color + 'CC' : 'rgba(180,200,255,.03)')
+            ? 'rgba(167,139,250,.9)' : 'rgba(139,92,246,.05)')
         .attr('stroke-width', l =>
           (l.source.id === d.id || l.target.id === d.id) ? 1.5 : .4);
       node.attr('opacity', n => {
@@ -1734,7 +1734,7 @@ function initKnowledgeGraph(domainList) {
     })
     .on('mouseout', function() {
       tt.style('display', 'none');
-      link.attr('stroke', 'rgba(200,215,255,.28)').attr('stroke-width', 1);
+      link.attr('stroke', 'rgba(139,92,246,.42)').attr('stroke-width', 1);
       node.attr('opacity', n => n.status === 'aktif' ? (n.accessible ? 1 : .5) : .2);
       halo.attr('opacity', .08);
     })
@@ -1930,7 +1930,7 @@ function initFullGraph(domainList) {
     g.attr('transform', e.transform);
     const k = e.transform.k;
     document.getElementById('gm-zoom-val').textContent = Math.round(k*100)+'%';
-    labelSel.attr('opacity', d => activeTopics.has(d.gk) ? Math.max(0,Math.min(1,(k-.4)/.5)) : 0);
+    labelSel.attr('opacity', d => activeTopics.has(d.gk) ? Math.max(0,Math.min(1,(k-.18)/.35)) : 0);
   });
   svg.call(zoom);
 
@@ -1941,9 +1941,9 @@ function initFullGraph(domainList) {
     n.y = cp.y * H + (Math.random()-.5)*40;
   }
 
-  // Links — uniform neutral
+  // Links — Obsidian purple
   const linkSel = g.append('g').selectAll('line').data(links).join('line')
-    .attr('stroke', 'rgba(200,215,255,.25)')
+    .attr('stroke', 'rgba(139,92,246,.38)')
     .attr('stroke-width', 1);
 
   // Glow halos — outer blurred rings behind nodes
@@ -1964,19 +1964,19 @@ function initFullGraph(domainList) {
   const labelSel = g.append('g').selectAll('text').data(nodes).join('text')
     .text(d=>d.name.length>15?d.name.slice(0,14)+'…':d.name)
     .attr('font-family','DM Sans,sans-serif').attr('font-size',11)
-    .attr('fill','rgba(200,215,255,.7)').attr('text-anchor','middle')
+    .attr('fill','rgba(230,237,243,.82)').attr('text-anchor','middle')
     .attr('dy', d=>nr(d)+14).attr('pointer-events','none').attr('opacity',0);
 
   // Highlight helpers
   function resetVis() {
     const k=d3.zoomTransform(svgEl).k;
-    linkSel.attr('stroke','rgba(200,215,255,.25)').attr('stroke-width',1).attr('opacity',1);
+    linkSel.attr('stroke','rgba(139,92,246,.38)').attr('stroke-width',1).attr('opacity',1);
     nodeSel.attr('opacity',d=>activeTopics.has(d.gk)?(d.status==='aktif'?(d.accessible?1:.45):.18):0);
     haloSel.attr('opacity',d=>activeTopics.has(d.gk)?.07:0);
-    labelSel.attr('opacity',d=>activeTopics.has(d.gk)?Math.max(0,Math.min(1,(k-.4)/.5)):0);
+    labelSel.attr('opacity',d=>activeTopics.has(d.gk)?Math.max(0,Math.min(1,(k-.18)/.35)):0);
   }
   function highlightNode(d) {
-    linkSel.attr('stroke',l=>(l.source.id===d.id||l.target.id===d.id)?d.color+'BB':'rgba(180,200,255,.02)')
+    linkSel.attr('stroke',l=>(l.source.id===d.id||l.target.id===d.id)?'rgba(167,139,250,.9)':'rgba(139,92,246,.06)')
       .attr('stroke-width',l=>(l.source.id===d.id||l.target.id===d.id)?2:.5);
     nodeSel.attr('opacity',n=>{
       if(n.id===d.id) return 1;
@@ -2082,7 +2082,7 @@ function initFullGraph(domainList) {
         .style('pointer-events',d=>activeTopics.has(d.gk)?null:'none');
       haloSel.attr('opacity',d=>activeTopics.has(d.gk)?.07:0);
       const k=d3.zoomTransform(svgEl).k;
-      labelSel.attr('opacity',d=>activeTopics.has(d.gk)?Math.max(0,Math.min(1,(k-.4)/.5)):0);
+      labelSel.attr('opacity',d=>activeTopics.has(d.gk)?Math.max(0,Math.min(1,(k-.18)/.35)):0);
       linkSel.attr('opacity',d=>(activeTopics.has(d.source.gk)&&activeTopics.has(d.target.gk))?1:0);
       if(selectedNode&&!activeTopics.has(selectedNode.gk)) hideInfo();
     });
