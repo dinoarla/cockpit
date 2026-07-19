@@ -1645,6 +1645,16 @@ function initKnowledgeGraph(domainList) {
     if (nodeMap[a] && nodeMap[b]) links.push({ source: a, target: b, cross: true });
   }
 
+  // Degree-based node radius for sidebar
+  const deg = {};
+  for (const l of links) {
+    deg[l.source] = (deg[l.source] || 0) + 1;
+    deg[l.target] = (deg[l.target] || 0) + 1;
+  }
+  const nr = d => d.status === 'aktif'
+    ? Math.max(3, Math.min(7, 2.5 + (deg[d.id] || 0) * 0.22))
+    : 1.8;
+
   const cntEl = document.getElementById('kg-node-count');
   if (cntEl) cntEl.textContent = nodes.length + ' modul';
 
@@ -1673,21 +1683,21 @@ function initKnowledgeGraph(domainList) {
   const g = svg.append('g');
   svg.call(d3.zoom().scaleExtent([.3, 4]).on('zoom', e => g.attr('transform', e.transform)));
 
-  // Links — Obsidian purple
+  // Links — gray transparent
   const link = g.append('g').selectAll('line').data(links).join('line')
-    .attr('stroke', 'rgba(139,92,246,.42)')
-    .attr('stroke-width', 1);
+    .attr('stroke', 'rgba(180,190,210,.22)')
+    .attr('stroke-width', .9);
 
-  // Glow halos (outer) — large blurred circles
+  // Glow halos — size by degree
   const halo = g.append('g').selectAll('circle').data(nodes.filter(n=>n.status==='aktif')).join('circle')
-    .attr('r', d => d.accessible ? 9 : 6)
+    .attr('r', d => nr(d) * 2.4)
     .attr('fill', d => d.color)
     .attr('opacity', .08)
     .attr('pointer-events','none');
 
-  // Node cores (inner)
+  // Node cores — size by degree
   const node = g.append('g').selectAll('circle').data(nodes).join('circle')
-    .attr('r', d => d.status === 'aktif' ? (d.accessible ? 4 : 3) : 2)
+    .attr('r', nr)
     .attr('fill', d => d.status === 'aktif' ? d.color : '#1e2330')
     .attr('opacity', d => d.status === 'aktif' ? (d.accessible ? 1 : .5) : .2)
     .attr('filter', d => d.status === 'aktif' ? 'url(#kg-bloom)' : null)
@@ -1706,7 +1716,7 @@ function initKnowledgeGraph(domainList) {
       link
         .attr('stroke', l =>
           (l.source.id === d.id || l.target.id === d.id)
-            ? 'rgba(167,139,250,.9)' : 'rgba(139,92,246,.05)')
+            ? 'rgba(220,230,255,.85)' : 'rgba(180,190,210,.04)')
         .attr('stroke-width', l =>
           (l.source.id === d.id || l.target.id === d.id) ? 1.5 : .4);
       node.attr('opacity', n => {
@@ -1734,7 +1744,7 @@ function initKnowledgeGraph(domainList) {
     })
     .on('mouseout', function() {
       tt.style('display', 'none');
-      link.attr('stroke', 'rgba(139,92,246,.42)').attr('stroke-width', 1);
+      link.attr('stroke', 'rgba(180,190,210,.22)').attr('stroke-width', .9);
       node.attr('opacity', n => n.status === 'aktif' ? (n.accessible ? 1 : .5) : .2);
       halo.attr('opacity', .08);
     })
@@ -1941,10 +1951,10 @@ function initFullGraph(domainList) {
     n.y = cp.y * H + (Math.random()-.5)*40;
   }
 
-  // Links — Obsidian purple
+  // Links — gray transparent
   const linkSel = g.append('g').selectAll('line').data(links).join('line')
-    .attr('stroke', 'rgba(139,92,246,.38)')
-    .attr('stroke-width', 1);
+    .attr('stroke', 'rgba(180,190,210,.2)')
+    .attr('stroke-width', .9);
 
   // Glow halos — outer blurred rings behind nodes
   const haloSel = g.append('g').selectAll('circle').data(nodes.filter(n=>n.status==='aktif')).join('circle')
@@ -1970,13 +1980,13 @@ function initFullGraph(domainList) {
   // Highlight helpers
   function resetVis() {
     const k=d3.zoomTransform(svgEl).k;
-    linkSel.attr('stroke','rgba(139,92,246,.38)').attr('stroke-width',1).attr('opacity',1);
+    linkSel.attr('stroke','rgba(180,190,210,.2)').attr('stroke-width',.9).attr('opacity',1);
     nodeSel.attr('opacity',d=>activeTopics.has(d.gk)?(d.status==='aktif'?(d.accessible?1:.45):.18):0);
     haloSel.attr('opacity',d=>activeTopics.has(d.gk)?.07:0);
     labelSel.attr('opacity',d=>activeTopics.has(d.gk)?Math.max(0,Math.min(1,(k-.18)/.35)):0);
   }
   function highlightNode(d) {
-    linkSel.attr('stroke',l=>(l.source.id===d.id||l.target.id===d.id)?'rgba(167,139,250,.9)':'rgba(139,92,246,.06)')
+    linkSel.attr('stroke',l=>(l.source.id===d.id||l.target.id===d.id)?'rgba(220,230,255,.85)':'rgba(180,190,210,.04)')
       .attr('stroke-width',l=>(l.source.id===d.id||l.target.id===d.id)?2:.5);
     nodeSel.attr('opacity',n=>{
       if(n.id===d.id) return 1;
