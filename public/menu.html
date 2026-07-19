@@ -1627,10 +1627,10 @@ function initKnowledgeGraph(domainList) {
   const g = svg.append('g');
   svg.call(d3.zoom().scaleExtent([.3, 4]).on('zoom', e => g.attr('transform', e.transform)));
 
-  // Links — thin solid, no dashes
+  // Links — solid visible lines
   const link = g.append('g').selectAll('line').data(links).join('line')
-    .attr('stroke', 'rgba(180,200,255,.09)')
-    .attr('stroke-width', .7);
+    .attr('stroke', 'rgba(180,200,255,.32)')
+    .attr('stroke-width', 1.1);
 
   // Glow halos (outer) — large blurred circles
   const halo = g.append('g').selectAll('circle').data(nodes.filter(n=>n.status==='aktif')).join('circle')
@@ -1688,7 +1688,7 @@ function initKnowledgeGraph(domainList) {
     })
     .on('mouseout', function() {
       tt.style('display', 'none');
-      link.attr('stroke', 'rgba(180,200,255,.09)').attr('stroke-width', .7);
+      link.attr('stroke', 'rgba(180,200,255,.32)').attr('stroke-width', 1.1);
       node.attr('opacity', n => n.status === 'aktif' ? (n.accessible ? 1 : .5) : .2);
       halo.attr('opacity', .08);
     })
