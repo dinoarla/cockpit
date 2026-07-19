@@ -1536,6 +1536,38 @@ function initKnowledgeGraph(domainList) {
     // ── Distribusi internal ──────────────────────────────
     ['olap-tagihan',       'pelanggan'],
     ['pencurian',          'losses-integritas'],
+    // ── Distribusi → Open Data ────────────────────────────
+    ['baca-meter',         'kependudukan-bps'],
+    ['olap-tagihan',       'data-kemiskinan'],
+    ['ganti-meter',        'peta-admin'],
+    ['ganti-meter',        'kependudukan-bps'],
+    ['infrastruktur-distribusi', 'gis-jabar'],
+    ['infrastruktur-distribusi', 'indeks-bencana'],
+    ['keandalan-layanan',  'indeks-bencana'],
+    ['ekuitas-akses',      'data-kemiskinan'],
+    ['ekuitas-akses',      'kependudukan-bps'],
+    // ── PLN/Pembangkitan → Open Data ─────────────────────
+    ['pln-stat',           'kependudukan-bps'],
+    ['pln-stat',           'rkpd-jabar'],
+    ['mdp',                'rkpd-jabar'],
+    ['mdp',                'iklim-cuaca'],
+    ['ruptl',              'iklim-cuaca'],
+    ['ruptl',              'apbd-jabar'],
+    // ── Open Data: Tata Ruang ↔ Sosial ───────────────────
+    ['rkpd-jabar',         'apbd-jabar'],
+    ['rkpd-jabar',         'kependudukan-bps'],
+    ['rkpd-jabar',         'data-kemiskinan'],
+    ['apbd-jabar',         'data-kemiskinan'],
+    // ── Open Data: Lingkungan → Geospasial & Sosial ───────
+    ['iklim-cuaca',        'indeks-bencana'],
+    ['indeks-bencana',     'gis-jabar'],
+    ['indeks-bencana',     'peta-admin'],
+    ['iklim-cuaca',        'data-kemiskinan'],
+    // ── Open Data: Geospasial ↔ Sosial ───────────────────
+    ['gis-jabar',          'peta-admin'],
+    ['peta-admin',         'kependudukan-bps'],
+    ['peta-admin',         'data-kemiskinan'],
+    ['kependudukan-bps',   'data-kemiskinan'],
   ];
 
   const nodeMap = {}, nodes = [], links = [];
@@ -1730,6 +1762,25 @@ function initFullGraph(domainList) {
     ['pln-stat','infrastruktur-distribusi'],['tariff-adjustment','olap-tagihan'],
     // Distribusi internal
     ['olap-tagihan','pelanggan'],['pencurian','losses-integritas'],
+    // Distribusi → Open Data
+    ['baca-meter','kependudukan-bps'],['olap-tagihan','data-kemiskinan'],
+    ['ganti-meter','peta-admin'],['ganti-meter','kependudukan-bps'],
+    ['infrastruktur-distribusi','gis-jabar'],['infrastruktur-distribusi','indeks-bencana'],
+    ['keandalan-layanan','indeks-bencana'],
+    ['ekuitas-akses','data-kemiskinan'],['ekuitas-akses','kependudukan-bps'],
+    // PLN/Pembangkitan → Open Data
+    ['pln-stat','kependudukan-bps'],['pln-stat','rkpd-jabar'],
+    ['mdp','rkpd-jabar'],['mdp','iklim-cuaca'],
+    ['ruptl','iklim-cuaca'],['ruptl','apbd-jabar'],
+    // Open Data: Tata Ruang ↔ Sosial
+    ['rkpd-jabar','apbd-jabar'],['rkpd-jabar','kependudukan-bps'],
+    ['rkpd-jabar','data-kemiskinan'],['apbd-jabar','data-kemiskinan'],
+    // Open Data: Lingkungan → Geospasial & Sosial
+    ['iklim-cuaca','indeks-bencana'],['indeks-bencana','gis-jabar'],
+    ['indeks-bencana','peta-admin'],['iklim-cuaca','data-kemiskinan'],
+    // Open Data: Geospasial ↔ Sosial
+    ['gis-jabar','peta-admin'],['peta-admin','kependudukan-bps'],
+    ['peta-admin','data-kemiskinan'],['kependudukan-bps','data-kemiskinan'],
   ];
 
   // Build graph data
