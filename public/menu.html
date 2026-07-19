@@ -1543,10 +1543,40 @@ function initKnowledgeGraph(domainList) {
     ['sistem-transmisi',   'keandalan-transmisi'],
     // ── PLN → Distribusi ─────────────────────────────────
     ['pln-stat',           'infrastruktur-distribusi'],
+    ['pln-stat',           'pelanggan'],
+    ['pln-stat',           'olap-tagihan'],
     ['tariff-adjustment',  'olap-tagihan'],
-    // ── Distribusi internal ──────────────────────────────
+    ['tariff-adjustment',  'pelanggan'],
+    ['tariff-adjustment',  'ekuitas-akses'],
+    // ── Distribusi internal — pelanggan hub ──────────────
     ['olap-tagihan',       'pelanggan'],
+    ['pelanggan',          'baca-meter'],
+    ['pelanggan',          'ganti-meter'],
+    ['pelanggan',          'pencurian'],
+    ['pelanggan',          'infrastruktur-distribusi'],
+    ['pelanggan',          'keandalan-layanan'],
+    ['pelanggan',          'losses-integritas'],
+    ['pelanggan',          'ekuitas-akses'],
+    // ── Distribusi internal — meter & losses ─────────────
+    ['baca-meter',         'olap-tagihan'],
+    ['baca-meter',         'ganti-meter'],
+    ['baca-meter',         'losses-integritas'],
+    ['baca-meter',         'pencurian'],
+    ['ganti-meter',        'losses-integritas'],
     ['pencurian',          'losses-integritas'],
+    // ── Distribusi internal — infrastruktur hub ──────────
+    ['infrastruktur-distribusi', 'keandalan-layanan'],
+    ['infrastruktur-distribusi', 'losses-integritas'],
+    ['infrastruktur-distribusi', 'ekuitas-akses'],
+    ['keandalan-layanan',  'ekuitas-akses'],
+    // ── Pembangkitan internal ────────────────────────────
+    ['ekonomi-transisi',   'mdp'],
+    ['ekonomi-transisi',   'ruptl'],
+    ['ekonomi-transisi',   'atlas-pembangkit'],
+    // ── Transmisi → Distribusi (tambahan) ────────────────
+    ['simba',              'keandalan-transmisi'],
+    ['egla-pkdn',          'losses-integritas'],
+    ['sistem-transmisi',   'keandalan-layanan'],
     // ── Distribusi → Open Data ────────────────────────────
     ['baca-meter',         'kependudukan-bps'],
     ['olap-tagihan',       'data-kemiskinan'],
@@ -1557,6 +1587,9 @@ function initKnowledgeGraph(domainList) {
     ['keandalan-layanan',  'indeks-bencana'],
     ['ekuitas-akses',      'data-kemiskinan'],
     ['ekuitas-akses',      'kependudukan-bps'],
+    ['pelanggan',          'kependudukan-bps'],
+    ['pelanggan',          'data-kemiskinan'],
+    ['losses-integritas',  'gis-jabar'],
     // ── PLN/Pembangkitan → Open Data ─────────────────────
     ['pln-stat',           'kependudukan-bps'],
     ['pln-stat',           'rkpd-jabar'],
@@ -1569,6 +1602,7 @@ function initKnowledgeGraph(domainList) {
     ['rkpd-jabar',         'kependudukan-bps'],
     ['rkpd-jabar',         'data-kemiskinan'],
     ['apbd-jabar',         'data-kemiskinan'],
+    ['apbd-jabar',         'ekuitas-akses'],
     // ── Open Data: Lingkungan → Geospasial & Sosial ───────
     ['iklim-cuaca',        'indeks-bencana'],
     ['indeks-bencana',     'gis-jabar'],
@@ -1579,6 +1613,7 @@ function initKnowledgeGraph(domainList) {
     ['peta-admin',         'kependudukan-bps'],
     ['peta-admin',         'data-kemiskinan'],
     ['kependudukan-bps',   'data-kemiskinan'],
+    ['data-kemiskinan',    'tariff-adjustment'],
   ];
 
   const nodeMap = {}, nodes = [], links = [];
@@ -1794,28 +1829,46 @@ function initFullGraph(domainList) {
     ['egla-pkdn','keandalan-transmisi'],['proteksi-transmisi','keandalan-transmisi'],
     ['sistem-transmisi','keandalan-transmisi'],
     // PLN → Distribusi
-    ['pln-stat','infrastruktur-distribusi'],['tariff-adjustment','olap-tagihan'],
-    // Distribusi internal
-    ['olap-tagihan','pelanggan'],['pencurian','losses-integritas'],
+    ['pln-stat','infrastruktur-distribusi'],['pln-stat','pelanggan'],['pln-stat','olap-tagihan'],
+    ['tariff-adjustment','olap-tagihan'],['tariff-adjustment','pelanggan'],['tariff-adjustment','ekuitas-akses'],
+    // Distribusi internal — pelanggan hub
+    ['olap-tagihan','pelanggan'],
+    ['pelanggan','baca-meter'],['pelanggan','ganti-meter'],['pelanggan','pencurian'],
+    ['pelanggan','infrastruktur-distribusi'],['pelanggan','keandalan-layanan'],
+    ['pelanggan','losses-integritas'],['pelanggan','ekuitas-akses'],
+    // Distribusi internal — meter & losses
+    ['baca-meter','olap-tagihan'],['baca-meter','ganti-meter'],
+    ['baca-meter','losses-integritas'],['baca-meter','pencurian'],
+    ['ganti-meter','losses-integritas'],['pencurian','losses-integritas'],
+    // Distribusi internal — infrastruktur hub
+    ['infrastruktur-distribusi','keandalan-layanan'],['infrastruktur-distribusi','losses-integritas'],
+    ['infrastruktur-distribusi','ekuitas-akses'],['keandalan-layanan','ekuitas-akses'],
+    // Pembangkitan internal
+    ['ekonomi-transisi','mdp'],['ekonomi-transisi','ruptl'],['ekonomi-transisi','atlas-pembangkit'],
+    // Transmisi → Distribusi (tambahan)
+    ['simba','keandalan-transmisi'],['egla-pkdn','losses-integritas'],['sistem-transmisi','keandalan-layanan'],
     // Distribusi → Open Data
     ['baca-meter','kependudukan-bps'],['olap-tagihan','data-kemiskinan'],
     ['ganti-meter','peta-admin'],['ganti-meter','kependudukan-bps'],
     ['infrastruktur-distribusi','gis-jabar'],['infrastruktur-distribusi','indeks-bencana'],
     ['keandalan-layanan','indeks-bencana'],
     ['ekuitas-akses','data-kemiskinan'],['ekuitas-akses','kependudukan-bps'],
+    ['pelanggan','kependudukan-bps'],['pelanggan','data-kemiskinan'],
+    ['losses-integritas','gis-jabar'],
     // PLN/Pembangkitan → Open Data
     ['pln-stat','kependudukan-bps'],['pln-stat','rkpd-jabar'],
     ['mdp','rkpd-jabar'],['mdp','iklim-cuaca'],
     ['ruptl','iklim-cuaca'],['ruptl','apbd-jabar'],
     // Open Data: Tata Ruang ↔ Sosial
     ['rkpd-jabar','apbd-jabar'],['rkpd-jabar','kependudukan-bps'],
-    ['rkpd-jabar','data-kemiskinan'],['apbd-jabar','data-kemiskinan'],
+    ['rkpd-jabar','data-kemiskinan'],['apbd-jabar','data-kemiskinan'],['apbd-jabar','ekuitas-akses'],
     // Open Data: Lingkungan → Geospasial & Sosial
     ['iklim-cuaca','indeks-bencana'],['indeks-bencana','gis-jabar'],
     ['indeks-bencana','peta-admin'],['iklim-cuaca','data-kemiskinan'],
     // Open Data: Geospasial ↔ Sosial
     ['gis-jabar','peta-admin'],['peta-admin','kependudukan-bps'],
     ['peta-admin','data-kemiskinan'],['kependudukan-bps','data-kemiskinan'],
+    ['data-kemiskinan','tariff-adjustment'],
   ];
 
   // Build graph data
