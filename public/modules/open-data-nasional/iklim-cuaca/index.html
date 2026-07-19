@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Iklim dan Cuaca — Jawa Barat | Cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0F172A; --card:#1E293B; --border:#334155; --text:#F1F5F9; --dim:#64748B; --muted:#94A3B8;
+  --amber:#F59E0B; --green:#22C55E; --red:#EF4444; --teal:#14B8A6; --purple:#A78BFA; --orange:#FB923C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+
+.module-header{background:linear-gradient(135deg,#0C4A6E 0%,#0369A1 55%,#0EA5E9 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase;transition:color .15s}
+.back-link:hover{color:#fff}
+.back-link svg{width:13px;height:13px;flex-shrink:0}
+.breadcrumb{padding:5px 24px 0;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.03em}
+.breadcrumb span{color:rgba(255,255,255,.3);margin:0 4px}
+.header-body{padding:14px 24px 22px}
+.header-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:5px}
+.header-desc{font-size:13px;color:rgba(255,255,255,.8);max-width:740px;line-height:1.6;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;letter-spacing:.02em}
+
+.tabs-bar{position:sticky;top:0;z-index:100;background:#1E293B;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 20px;font-size:13px;font-weight:500;font-family:'Space Grotesk',sans-serif;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:#38BDF8;border-bottom-color:#38BDF8;font-weight:600}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 56px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#7DD3FC;margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.sec-title:first-child{margin-top:0}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#7DD3FC;line-height:1.05}
+.kpi-unit{font-size:11.5px;font-weight:400;color:var(--muted)}
+.kpi-delta{font-size:11px;font-weight:600;margin-top:1px}
+.kpi-delta.up{color:var(--green)}.kpi-delta.dn{color:var(--red)}.kpi-delta.neu{color:var(--amber)}
+
+.chart-grid{display:grid;gap:16px;margin-bottom:24px}
+.chart-grid.cols-2{grid-template-columns:2fr 1fr}
+@media(max-width:800px){.chart-grid.cols-2{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.chart-card h4{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px}
+.chart-card .src{font-size:10px;color:var(--dim);margin-top:8px}
+.chart-wrap{position:relative;height:260px}
+.chart-wrap.md{height:320px}
+.chart-wrap.xl{height:380px}
+
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#0F172A;border-bottom:1px solid var(--border);font-weight:500}
+th.r{text-align:right}
+td{padding:9px 12px;border-bottom:1px solid #1E293B;vertical-align:middle;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#263348}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.tr{text-align:right}
+
+.note{background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.25);border-left:3px solid #38BDF8;border-radius:8px;padding:12px 16px;font-size:12px;color:#BAE6FD;line-height:1.65;margin-bottom:20px}
+.note strong{font-weight:600}
+
+.station-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:900px){.station-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.station-grid{grid-template-columns:1fr 1fr}}
+.station-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.station-name{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px}
+.station-temp{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:#7DD3FC}
+.station-detail{font-size:11px;color:var(--muted);margin-top:3px}
+</style>
+</head>
+<body>
+
+<div class="module-header">
+  <a href="/menu.html" class="back-link">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+    Kembali ke Menu
+  </a>
+  <div class="breadcrumb">Open Data Nasional <span>›</span> Lingkungan &amp; Iklim <span>›</span> Iklim &amp; Cuaca</div>
+  <div class="header-body">
+    <div class="header-title">Data Iklim dan Cuaca — Jawa Barat</div>
+    <div class="header-desc">Normal klimatologis curah hujan bulanan dan suhu rata-rata dari 5 stasiun BMKG di Jawa Barat: Bandung, Bogor, Citeko (Puncak), Cirebon, dan Tasikmalaya. Data mencerminkan rata-rata iklim jangka panjang.</div>
+    <div class="meta-row">
+      <span class="badge">BMKG — 5 Stasiun Jabar</span>
+      <span class="badge">Normal Klimatologis</span>
+      <span class="badge">Curah Hujan &amp; Suhu</span>
+      <span class="badge">Jan–Des (Bulanan)</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="hujan">Curah Hujan</button>
+    <button class="tab-btn" data-tab="suhu">Suhu &amp; Kelembaban</button>
+    <button class="tab-btn" data-tab="musim">Musim</button>
+    <button class="tab-btn" data-tab="tentang">Tentang</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <!-- TAB CURAH HUJAN -->
+  <div id="tab-hujan" class="tab-panel active">
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="chart-card">
+      <h4>Tren Curah Hujan Bulanan per Stasiun <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">mm/bulan</span></h4>
+      <div class="chart-wrap xl"><canvas id="chartHujanBulanan"></canvas></div>
+      <p class="src">Sumber: BMKG — Normal klimatologis stasiun Bandung, Bogor, Citeko, Cirebon, Tasikmalaya</p>
+    </div>
+
+    <div class="chart-card">
+      <h4>Total Curah Hujan Tahunan per Stasiun <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">mm/tahun</span></h4>
+      <div class="chart-wrap md"><canvas id="chartHujanTahunan"></canvas></div>
+      <p class="src">Jumlah curah hujan rata-rata tahunan (sum 12 bulan). Sumber: BMKG</p>
+    </div>
+  </div>
+
+  <!-- TAB SUHU -->
+  <div id="tab-suhu" class="tab-panel">
+    <div class="sec-title">Karakteristik Suhu per Stasiun</div>
+    <div class="station-grid" id="stationGrid"></div>
+
+    <div class="chart-card">
+      <h4>Perbandingan Suhu Rata-rata Tahunan per Stasiun <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">°C</span></h4>
+      <div class="chart-wrap md"><canvas id="chartSuhu"></canvas></div>
+      <p class="src">Sumber: BMKG — rata-rata suhu udara tahunan normal klimatologis</p>
+    </div>
+
+    <div class="note">
+      <strong>Pengaruh Ketinggian:</strong> Suhu udara menurun rata-rata 0,6°C setiap kenaikan 100 meter ketinggian (lapse rate). Stasiun Citeko (Puncak, ~1.100 mdpl) memiliki suhu terendah (20,8°C), sementara Cirebon di dataran rendah pantai utara mencatat suhu tertinggi (27,9°C).
+    </div>
+  </div>
+
+  <!-- TAB MUSIM -->
+  <div id="tab-musim" class="tab-panel">
+    <div class="sec-title">Pola Musiman Jawa Barat</div>
+    <div class="note">
+      <strong>Musim di Jawa Barat:</strong> Jawa Barat memiliki iklim tropis dengan dua musim utama — Musim Hujan (Oktober–Maret) dipengaruhi Angin Muson Barat yang membawa uap air dari Samudra Hindia, dan Musim Kemarau (April–September) dipengaruhi Angin Muson Timur yang kering. Wilayah selatan (Citeko, Bogor) cenderung lebih basah sepanjang tahun.
+    </div>
+
+    <div class="chart-card">
+      <h4>Profil Musiman — Rata-rata Curah Hujan Semua Stasiun <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">mm/bulan</span></h4>
+      <div class="chart-wrap md"><canvas id="chartMusim"></canvas></div>
+      <p class="src">Rata-rata seluruh stasiun BMKG Jawa Barat. Area biru = Musim Hujan, Abu = Transisi/Kemarau</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Stasiun</th>
+            <th class="r">Ketinggian</th>
+            <th class="r">Suhu (°C)</th>
+            <th class="r">CH Tahunan (mm)</th>
+            <th class="r">Bulan Terkering</th>
+            <th class="r">Bulan Terbasah</th>
+            <th>Karakteristik</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyMusim"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB TENTANG -->
+  <div id="tab-tentang" class="tab-panel">
+    <div class="sec-title">Tentang Dataset</div>
+    <div class="note">
+      <strong>Sumber Data:</strong> BMKG (Badan Meteorologi, Klimatologi, dan Geofisika) — data normal klimatologis stasiun pengamatan di Jawa Barat. Normal klimatologis merupakan rata-rata data cuaca selama 30 tahun (umumnya periode 1991–2020 atau 1981–2010).
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Stasiun</th>
+            <th>Lokasi</th>
+            <th class="r">Koordinat (approx.)</th>
+            <th class="r">Ketinggian (mdpl)</th>
+            <th>Tipe Stasiun</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Stasiun Geofisika Bandung</td><td>Kota Bandung</td><td class="tr mono">6,89°S 107,63°E</td><td class="tr mono">791</td><td>Geofisika</td></tr>
+          <tr><td>Stasiun Klimatologi Bogor</td><td>Kota Bogor</td><td class="tr mono">6,55°S 106,75°E</td><td class="tr mono">260</td><td>Klimatologi</td></tr>
+          <tr><td>Stasiun Klimatologi Citeko</td><td>Puncak, Kab. Bogor</td><td class="tr mono">6,71°S 106,93°E</td><td class="tr mono">1.100</td><td>Klimatologi</td></tr>
+          <tr><td>Stasiun Meteorologi Cirebon</td><td>Kota Cirebon</td><td class="tr mono">6,76°S 108,54°E</td><td class="tr mono">5</td><td>Meteorologi</td></tr>
+          <tr><td>Stasiun Meteorologi Tasikmalaya</td><td>Kab. Tasikmalaya</td><td class="tr mono">7,35°S 108,25°E</td><td class="tr mono">351</td><td>Meteorologi</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:12px">Akses data real-time BMKG: <span style="color:#38BDF8;font-family:'JetBrains Mono',monospace">https://www.bmkg.go.id</span> | Open data iklim: <span style="color:#38BDF8;font-family:'JetBrains Mono',monospace">https://opendata.bmkg.go.id</span></p>
+  </div>
+
+</div><!-- /page-body -->
+
+<script>
+/* ═══════════════════ DATA ═══════════════════ */
+const BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+const STASIUN = [
+  { nama: 'Bandung',     suhu: 23.2, elev: 791,   hujan: [270,230,210,195,140,85,55,45,90,175,260,290] },
+  { nama: 'Bogor',       suhu: 26.1, elev: 260,   hujan: [410,380,370,340,270,160,110,100,170,290,390,420] },
+  { nama: 'Citeko',      suhu: 20.8, elev: 1100,  hujan: [490,450,430,400,320,200,140,130,210,340,460,510] },
+  { nama: 'Cirebon',     suhu: 27.9, elev: 5,     hujan: [195,170,150,120,75,40,20,15,50,115,175,210] },
+  { nama: 'Tasikmalaya', suhu: 25.4, elev: 351,   hujan: [310,280,265,240,185,110,70,60,120,215,295,330] },
+];
+
+const PALETTE = ['#38BDF8','#34D399','#FBBF24','#F87171','#A78BFA'];
+
+function fmt(v, dec=0) { return v.toLocaleString('id-ID', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+
+let charts = {};
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+const baseOptions = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { labels: { color: '#94A3B8', font: { size: 11 }, boxWidth: 14 } } },
+  scales: {
+    x: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8' } },
+    y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8' } }
+  }
+};
+
+/* ═══════ TAB CURAH HUJAN ═══════ */
+function initHujan() {
+  // KPI
+  const totalHujan = STASIUN.map(s => s.hujan.reduce((a,b) => a+b, 0));
+  const maxStasiun = STASIUN[totalHujan.indexOf(Math.max(...totalHujan))];
+  const minBulanAvg = BULAN.map((_, i) => STASIUN.reduce((a,s) => a+s.hujan[i], 0) / STASIUN.length);
+  const keringIdx = minBulanAvg.indexOf(Math.min(...minBulanAvg));
+
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-label">CH Tertinggi (Citeko)</div>
+      <div class="kpi-value">${fmt(totalHujan[2])}</div>
+      <div class="kpi-unit">mm/tahun</div>
+      <div class="kpi-delta up">Puncak, 1.100 mdpl</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Suhu Terpanas (Cirebon)</div>
+      <div class="kpi-value">27,9<span style="font-size:16px">°C</span></div>
+      <div class="kpi-unit">rata-rata tahunan</div>
+      <div class="kpi-delta dn">Pantai utara, 5 mdpl</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Bulan Terkering</div>
+      <div class="kpi-value" style="font-size:20px">${BULAN[keringIdx]}</div>
+      <div class="kpi-unit">rata-rata ${fmt(minBulanAvg[keringIdx],0)} mm semua stasiun</div>
+      <div class="kpi-delta neu">Puncak musim kemarau</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Stasiun Terdingin</div>
+      <div class="kpi-value" style="font-size:20px">Citeko</div>
+      <div class="kpi-unit">20,8°C rata-rata tahunan</div>
+      <div class="kpi-delta up">1.100 m di atas laut</div>
+    </div>
+  `;
+
+  // Line chart bulanan
+  destroyChart('chartHujanBulanan');
+  charts['chartHujanBulanan'] = new Chart(document.getElementById('chartHujanBulanan'), {
+    type: 'line',
+    data: {
+      labels: BULAN,
+      datasets: STASIUN.map((s, i) => ({
+        label: s.nama,
+        data: s.hujan,
+        borderColor: PALETTE[i],
+        backgroundColor: 'transparent',
+        tension: 0.3,
+        pointRadius: 4,
+        borderWidth: 2
+      }))
+    },
+    options: { ...baseOptions, interaction: { intersect: false, mode: 'index' },
+      plugins: { ...baseOptions.plugins, tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.raw) + ' mm' } } },
+      scales: { ...baseOptions.scales, y: { ...baseOptions.scales.y, ticks: { ...baseOptions.scales.y.ticks, callback: v => v + ' mm' } } }
+    }
+  });
+
+  // Bar tahunan
+  destroyChart('chartHujanTahunan');
+  charts['chartHujanTahunan'] = new Chart(document.getElementById('chartHujanTahunan'), {
+    type: 'bar',
+    data: {
+      labels: STASIUN.map(s => s.nama),
+      datasets: [{
+        label: 'Total Curah Hujan Tahunan',
+        data: totalHujan,
+        backgroundColor: PALETTE,
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: { ...baseOptions,
+      plugins: { ...baseOptions.plugins, legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + fmt(ctx.raw) + ' mm/tahun' } } },
+      scales: { ...baseOptions.scales, y: { ...baseOptions.scales.y, ticks: { ...baseOptions.scales.y.ticks, callback: v => v + ' mm' } } }
+    }
+  });
+}
+
+/* ═══════ TAB SUHU ═══════ */
+function initSuhu() {
+  document.getElementById('stationGrid').innerHTML = STASIUN.map((s, i) => `
+    <div class="station-card">
+      <div class="station-name">${s.nama}</div>
+      <div class="station-temp">${s.suhu.toFixed(1)}°C</div>
+      <div class="station-detail">${fmt(s.elev)} mdpl</div>
+      <div class="station-detail" style="color:#7DD3FC">CH: ${fmt(s.hujan.reduce((a,b)=>a+b,0))} mm/thn</div>
+    </div>
+  `).join('');
+
+  destroyChart('chartSuhu');
+  charts['chartSuhu'] = new Chart(document.getElementById('chartSuhu'), {
+    type: 'bar',
+    data: {
+      labels: STASIUN.map(s => s.nama),
+      datasets: [{
+        label: 'Suhu Rata-rata (°C)',
+        data: STASIUN.map(s => s.suhu),
+        backgroundColor: PALETTE,
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: { ...baseOptions,
+      plugins: { ...baseOptions.plugins, legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.raw.toFixed(1) + '°C' } } },
+      scales: { ...baseOptions.scales, y: { ...baseOptions.scales.y, min: 18, max: 30, ticks: { ...baseOptions.scales.y.ticks, callback: v => v + '°C' } } }
+    }
+  });
+}
+
+/* ═══════ TAB MUSIM ═══════ */
+function initMusim() {
+  const avgBulan = BULAN.map((_, i) => +(STASIUN.reduce((a,s) => a+s.hujan[i], 0) / STASIUN.length).toFixed(1));
+
+  destroyChart('chartMusim');
+  charts['chartMusim'] = new Chart(document.getElementById('chartMusim'), {
+    type: 'bar',
+    data: {
+      labels: BULAN,
+      datasets: [{
+        label: 'Rata-rata Curah Hujan',
+        data: avgBulan,
+        backgroundColor: avgBulan.map((_, i) => (i >= 9 || i <= 2) ? 'rgba(56,189,248,.7)' : 'rgba(148,163,184,.4)'),
+        borderColor: avgBulan.map((_, i) => (i >= 9 || i <= 2) ? '#38BDF8' : '#64748B'),
+        borderWidth: 1, borderRadius: 4
+      }]
+    },
+    options: { ...baseOptions,
+      plugins: { ...baseOptions.plugins, legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' Rata-rata: ' + fmt(ctx.raw,1) + ' mm' } } },
+      scales: { ...baseOptions.scales, y: { ...baseOptions.scales.y, ticks: { ...baseOptions.scales.y.ticks, callback: v => v + ' mm' } } }
+    }
+  });
+
+  const chars = [
+    { stasiun: 'Bandung', elev: 791, kering: 'Agu (45mm)', basah: 'Des (290mm)', karakter: 'Dataran tinggi, iklim sejuk' },
+    { stasiun: 'Bogor', elev: 260, kering: 'Agu (100mm)', basah: 'Des (420mm)', karakter: 'Kota Hujan, selalu lembab' },
+    { stasiun: 'Citeko', elev: 1100, kering: 'Agu (130mm)', basah: 'Des (510mm)', karakter: 'Pegunungan Puncak, sangat basah' },
+    { stasiun: 'Cirebon', elev: 5, kering: 'Agu (15mm)', basah: 'Des (210mm)', karakter: 'Pantai utara, iklim kering' },
+    { stasiun: 'Tasikmalaya', elev: 351, kering: 'Agu (60mm)', basah: 'Des (330mm)', karakter: 'Dataran menengah, sedang' },
+  ];
+
+  document.getElementById('tbodyMusim').innerHTML = chars.map(c => `
+    <tr>
+      <td><strong>${c.stasiun}</strong></td>
+      <td class="tr mono">${fmt(c.elev)} mdpl</td>
+      <td class="tr mono">${STASIUN.find(s=>s.nama===c.stasiun).suhu.toFixed(1)}°C</td>
+      <td class="tr mono">${fmt(STASIUN.find(s=>s.nama===c.stasiun).hujan.reduce((a,b)=>a+b,0))} mm</td>
+      <td class="tr">${c.kering}</td>
+      <td class="tr">${c.basah}</td>
+      <td style="color:var(--muted);font-size:11px">${c.karakter}</td>
+    </tr>
+  `).join('');
+}
+
+/* ═══════ TABS ═══════ */
+let tabReady = {};
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (!tabReady[tab]) {
+      if (tab === 'suhu') initSuhu();
+      if (tab === 'musim') initMusim();
+      tabReady[tab] = true;
+    }
+  });
+});
+
+(function () {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+  s.onload = () => { initHujan(); tabReady['hujan'] = true; };
+  document.head.appendChild(s);
+})();
+</script>
+<script src="/assets/cockpit-loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APBD Jawa Barat | Cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0F172A; --card:#1E293B; --border:#334155; --text:#F1F5F9; --dim:#64748B; --muted:#94A3B8;
+  --amber:#F59E0B; --blue-dk:#1E3A5F;
+  --green:#22C55E; --red:#EF4444; --teal:#14B8A6; --purple:#A78BFA; --orange:#FB923C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+
+.module-header{background:linear-gradient(135deg,#1E3A5F 0%,#1D4ED8 60%,#2563EB 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase;transition:color .15s}
+.back-link:hover{color:#fff}
+.back-link svg{width:13px;height:13px;flex-shrink:0}
+.breadcrumb{padding:5px 24px 0;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.03em}
+.breadcrumb span{color:rgba(255,255,255,.3);margin:0 4px}
+.header-body{padding:14px 24px 22px}
+.header-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:5px}
+.header-desc{font-size:13px;color:rgba(255,255,255,.8);max-width:740px;line-height:1.6;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;letter-spacing:.02em}
+
+.tabs-bar{position:sticky;top:0;z-index:100;background:#1E293B;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 20px;font-size:13px;font-weight:500;font-family:'Space Grotesk',sans-serif;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:#60A5FA;border-bottom-color:#60A5FA;font-weight:600}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 56px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#93C5FD;margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.sec-title:first-child{margin-top:0}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#93C5FD;line-height:1.05}
+.kpi-unit{font-size:11.5px;font-weight:400;color:var(--muted)}
+.kpi-delta{font-size:11px;font-weight:600;margin-top:1px}
+.kpi-delta.up{color:var(--green)}.kpi-delta.dn{color:var(--red)}.kpi-delta.neu{color:var(--amber)}
+
+.chart-grid{display:grid;gap:16px;margin-bottom:24px}
+.chart-grid.cols-2{grid-template-columns:2fr 1fr}
+@media(max-width:800px){.chart-grid.cols-2{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px}
+.chart-card h4{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.chart-card .src{font-size:10px;color:var(--dim);margin-top:8px}
+.chart-wrap{position:relative;height:260px}
+.chart-wrap.md{height:300px}
+.chart-wrap.xl{height:360px}
+.chart-wrap.hbar{height:400px}
+
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#0F172A;border-bottom:1px solid var(--border);font-weight:500}
+th.r{text-align:right}
+td{padding:9px 12px;border-bottom:1px solid #1E293B;vertical-align:middle;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#263348}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.tr{text-align:right}
+
+.note{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-left:3px solid var(--amber);border-radius:8px;padding:12px 16px;font-size:12px;color:#FDE68A;line-height:1.65;margin-bottom:20px}
+.note strong{font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="module-header">
+  <a href="/menu.html" class="back-link">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+    Kembali ke Menu
+  </a>
+  <div class="breadcrumb">Open Data Nasional <span>›</span> Tata Ruang &amp; Pemerintahan <span>›</span> APBD Jabar</div>
+  <div class="header-body">
+    <div class="header-title">APBD Jawa Barat</div>
+    <div class="header-desc">Anggaran Pendapatan dan Belanja Daerah Provinsi Jawa Barat 2019–2024 — struktur pendapatan (PAD, Transfer Pusat), komposisi belanja (Pegawai, Modal, Barang), dan tren fiskal tahunan berdasarkan data Kemenkeu RI / SIKD.</div>
+    <div class="meta-row">
+      <span class="badge">Kemenkeu RI / SIKD</span>
+      <span class="badge">2019–2024</span>
+      <span class="badge">Satuan: Triliun Rp</span>
+      <span class="badge">Realisasi APBD</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="ikhtisar">Ikhtisar</button>
+    <button class="tab-btn" data-tab="pendapatan">Pendapatan</button>
+    <button class="tab-btn" data-tab="belanja">Belanja</button>
+    <button class="tab-btn" data-tab="pembiayaan">Pembiayaan</button>
+    <button class="tab-btn" data-tab="tabel">Tabel Lengkap</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <!-- TAB IKHTISAR -->
+  <div id="tab-ikhtisar" class="tab-panel active">
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="note">
+      <strong>Catatan:</strong> Data merupakan realisasi APBD Provinsi Jawa Barat yang bersumber dari Sistem Informasi Keuangan Daerah (SIKD) Kemenkeu RI. Nilai dalam triliun rupiah.
+    </div>
+
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Tren Pendapatan vs Belanja 2019–2024 <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">triliun Rp</span></h4>
+        <div class="chart-wrap md"><canvas id="chartTren"></canvas></div>
+        <p class="src">Sumber: Kemenkeu RI / SIKD — realisasi APBD Provinsi Jawa Barat</p>
+      </div>
+      <div class="chart-card">
+        <h4>Komposisi Pendapatan 2024</h4>
+        <div class="chart-wrap md"><canvas id="chartDonutPendapatan"></canvas></div>
+        <p class="src">PAD, Transfer Pusat, dan Lain-lain pendapatan sah</p>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h4>Komposisi Belanja 2019–2024 <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">triliun Rp</span></h4>
+      <div class="chart-wrap md"><canvas id="chartBelanja"></canvas></div>
+      <p class="src">Sumber: Kemenkeu RI / SIKD</p>
+    </div>
+  </div>
+
+  <!-- TAB PENDAPATAN -->
+  <div id="tab-pendapatan" class="tab-panel">
+    <div class="sec-title">Struktur Pendapatan Daerah</div>
+    <div class="chart-card" style="margin-bottom:16px">
+      <h4>Tren Komponen Pendapatan 2019–2024 <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">triliun Rp</span></h4>
+      <div class="chart-wrap xl"><canvas id="chartPendapatanDetail"></canvas></div>
+      <p class="src">Sumber: Kemenkeu RI / SIKD — PAD = Pajak Daerah + Retribusi + Hasil Kekayaan + Lain-lain PAD</p>
+    </div>
+    <div class="tbl-wrap">
+      <table id="tabelPendapatan">
+        <thead>
+          <tr>
+            <th>Komponen</th>
+            <th class="r">2019</th><th class="r">2020</th><th class="r">2021</th>
+            <th class="r">2022</th><th class="r">2023</th><th class="r">2024</th>
+            <th class="r">CAGR</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyPendapatan"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB BELANJA -->
+  <div id="tab-belanja" class="tab-panel">
+    <div class="sec-title">Struktur Belanja Daerah</div>
+    <div class="chart-card" style="margin-bottom:16px">
+      <h4>Tren Komponen Belanja 2019–2024 <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">triliun Rp</span></h4>
+      <div class="chart-wrap xl"><canvas id="chartBelanjaDetail"></canvas></div>
+      <p class="src">Sumber: Kemenkeu RI / SIKD</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Jenis Belanja</th>
+            <th class="r">2019</th><th class="r">2020</th><th class="r">2021</th>
+            <th class="r">2022</th><th class="r">2023</th><th class="r">2024</th>
+            <th class="r">% dari Total 2024</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyBelanja"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB PEMBIAYAAN -->
+  <div id="tab-pembiayaan" class="tab-panel">
+    <div class="sec-title">Surplus / Defisit APBD</div>
+    <div class="chart-card" style="margin-bottom:16px">
+      <h4>Surplus / Defisit Tahunan 2019–2024 <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">triliun Rp</span></h4>
+      <div class="chart-wrap md"><canvas id="chartSurplusDefisit"></canvas></div>
+      <p class="src">Positif = Surplus, Negatif = Defisit. Sumber: Kemenkeu RI / SIKD</p>
+    </div>
+    <div class="note">
+      <strong>Tentang Pembiayaan:</strong> Defisit APBD ditutup melalui Pembiayaan Neto (SiLPA tahun sebelumnya, penerbitan obligasi daerah, atau pinjaman daerah). Surplus digunakan untuk pembentukan Dana Cadangan atau penyertaan modal BUMD.
+    </div>
+    <div class="chart-card">
+      <h4>Rasio PAD terhadap Total Pendapatan</h4>
+      <div class="chart-wrap"><canvas id="chartRasioPAD"></canvas></div>
+      <p class="src">Rasio PAD mencerminkan kemandirian fiskal daerah. Sumber: Kemenkeu RI / SIKD</p>
+    </div>
+  </div>
+
+  <!-- TAB TABEL LENGKAP -->
+  <div id="tab-tabel" class="tab-panel">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Komponen APBD</th>
+            <th class="r">2019</th><th class="r">2020</th><th class="r">2021</th>
+            <th class="r">2022</th><th class="r">2023</th><th class="r">2024</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyFull"></tbody>
+      </table>
+    </div>
+    <p style="font-size:11px;color:var(--dim);margin-top:-12px">Satuan: Triliun Rupiah. Sumber: Kemenkeu RI / SIKD (Sistem Informasi Keuangan Daerah)</p>
+  </div>
+
+</div><!-- /page-body -->
+
+<script>
+/* ═══════════════════ DATA ═══════════════════ */
+const TAHUN = [2019, 2020, 2021, 2022, 2023, 2024];
+
+const DATA = {
+  pendapatan:     [32.18, 33.40, 35.82, 36.90, 38.45, 40.12],
+  belanja:        [33.50, 34.20, 36.10, 37.80, 39.20, 41.05],
+  pad:            [16.40, 15.80, 17.20, 19.10, 21.30, 22.80],
+  transfer:       [14.20, 15.90, 16.80, 15.80, 14.90, 15.10],
+  pegawai:        [8.20,  8.50,  8.90,  9.40,  9.80, 10.20],
+  modal:          [4.10,  3.80,  4.50,  5.20,  5.80,  6.10],
+  barang:         [7.30,  7.80,  8.20,  8.60,  9.10,  9.50],
+};
+
+// Lain-lain pendapatan = Total - PAD - Transfer
+DATA.lainPendapatan = TAHUN.map((_, i) => +(DATA.pendapatan[i] - DATA.pad[i] - DATA.transfer[i]).toFixed(2));
+// Lain-lain belanja = Total - Pegawai - Modal - Barang
+DATA.lainBelanja = TAHUN.map((_, i) => +(DATA.belanja[i] - DATA.pegawai[i] - DATA.modal[i] - DATA.barang[i]).toFixed(2));
+// Surplus/Defisit
+DATA.surplusDefisit = TAHUN.map((_, i) => +(DATA.pendapatan[i] - DATA.belanja[i]).toFixed(2));
+
+function fmt(v, dec=2) { return v.toLocaleString('id-ID', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+function cagr(v0, vn, n) { return (Math.pow(vn/v0, 1/n) - 1) * 100; }
+
+let charts = {};
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+const PALETTE = ['#60A5FA','#34D399','#FBBF24','#F87171','#A78BFA','#FB923C'];
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { labels: { color: '#94A3B8', font: { size: 11 }, boxWidth: 14 } } },
+  scales: {
+    x: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8' } },
+    y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8' } }
+  }
+};
+
+/* ═══════ KPI ═══════ */
+function initKPI() {
+  const n = TAHUN.length - 1;
+  const rasio = (DATA.pad[n] / DATA.pendapatan[n] * 100).toFixed(1);
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-label">Total Pendapatan 2024</div>
+      <div class="kpi-value">Rp ${fmt(DATA.pendapatan[n])}</div>
+      <div class="kpi-unit">triliun rupiah</div>
+      <div class="kpi-delta up">▲ ${fmt(DATA.pendapatan[n]-DATA.pendapatan[n-1])} T dari 2023</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Total Belanja 2024</div>
+      <div class="kpi-value">Rp ${fmt(DATA.belanja[n])}</div>
+      <div class="kpi-unit">triliun rupiah</div>
+      <div class="kpi-delta dn">▲ ${fmt(DATA.belanja[n]-DATA.belanja[n-1])} T dari 2023</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">PAD 2024</div>
+      <div class="kpi-value">Rp ${fmt(DATA.pad[n])}</div>
+      <div class="kpi-unit">triliun rupiah</div>
+      <div class="kpi-delta up">▲ ${fmt(DATA.pad[n]-DATA.pad[n-1])} T dari 2023</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Rasio PAD / Pendapatan</div>
+      <div class="kpi-value">${rasio}<span style="font-size:18px">%</span></div>
+      <div class="kpi-unit">kemandirian fiskal 2024</div>
+      <div class="kpi-delta neu">Target nasional ≥ 50%</div>
+    </div>
+  `;
+}
+
+/* ═══════ IKHTISAR CHARTS ═══════ */
+function initIkhtisar() {
+  initKPI();
+
+  destroyChart('chartTren');
+  charts['chartTren'] = new Chart(document.getElementById('chartTren'), {
+    type: 'line',
+    data: {
+      labels: TAHUN,
+      datasets: [
+        { label: 'Pendapatan', data: DATA.pendapatan, borderColor: '#60A5FA', backgroundColor: 'rgba(96,165,250,.1)', fill: true, tension: 0.3, pointRadius: 4, borderWidth: 2 },
+        { label: 'Belanja', data: DATA.belanja, borderColor: '#F87171', backgroundColor: 'rgba(248,113,113,.1)', fill: true, tension: 0.3, pointRadius: 4, borderWidth: 2 },
+      ]
+    },
+    options: { ...chartDefaults, interaction: { intersect: false, mode: 'index' },
+      plugins: { ...chartDefaults.plugins, tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': Rp ' + fmt(ctx.raw) + ' T' } } },
+      scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { ...chartDefaults.scales.y.ticks, callback: v => 'Rp ' + v + ' T' } } }
+    }
+  });
+
+  const padN = DATA.pad[5], trN = DATA.transfer[5], lpN = DATA.lainPendapatan[5];
+  destroyChart('chartDonutPendapatan');
+  charts['chartDonutPendapatan'] = new Chart(document.getElementById('chartDonutPendapatan'), {
+    type: 'doughnut',
+    data: {
+      labels: ['PAD', 'Transfer Pusat', 'Lain-lain'],
+      datasets: [{ data: [padN, trN, lpN], backgroundColor: ['#60A5FA','#34D399','#FBBF24'], borderColor: '#1E293B', borderWidth: 2, hoverOffset: 6 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { color: '#94A3B8', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': Rp ' + fmt(ctx.raw) + ' T (' + fmt(ctx.raw/(padN+trN+lpN)*100,1) + '%)' } } }
+    }
+  });
+
+  destroyChart('chartBelanja');
+  charts['chartBelanja'] = new Chart(document.getElementById('chartBelanja'), {
+    type: 'bar',
+    data: {
+      labels: TAHUN,
+      datasets: [
+        { label: 'Pegawai', data: DATA.pegawai, backgroundColor: '#60A5FA', borderRadius: 3, stack: 'belanja' },
+        { label: 'Modal', data: DATA.modal, backgroundColor: '#34D399', borderRadius: 3, stack: 'belanja' },
+        { label: 'Barang', data: DATA.barang, backgroundColor: '#FBBF24', borderRadius: 3, stack: 'belanja' },
+        { label: 'Lain-lain', data: DATA.lainBelanja, backgroundColor: '#A78BFA', borderRadius: 3, stack: 'belanja' },
+      ]
+    },
+    options: { ...chartDefaults, interaction: { intersect: false, mode: 'index' },
+      plugins: { ...chartDefaults.plugins, tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': Rp ' + fmt(ctx.raw) + ' T' } } },
+      scales: { ...chartDefaults.scales, x: { ...chartDefaults.scales.x, stacked: true }, y: { ...chartDefaults.scales.y, stacked: true, ticks: { ...chartDefaults.scales.y.ticks, callback: v => 'Rp ' + v + ' T' } } }
+    }
+  });
+}
+
+/* ═══════ PENDAPATAN TAB ═══════ */
+function initPendapatan() {
+  destroyChart('chartPendapatanDetail');
+  charts['chartPendapatanDetail'] = new Chart(document.getElementById('chartPendapatanDetail'), {
+    type: 'line',
+    data: {
+      labels: TAHUN,
+      datasets: [
+        { label: 'Total Pendapatan', data: DATA.pendapatan, borderColor: '#60A5FA', tension: 0.3, pointRadius: 4, borderWidth: 2, backgroundColor: 'rgba(96,165,250,.08)', fill: true },
+        { label: 'PAD', data: DATA.pad, borderColor: '#34D399', tension: 0.3, pointRadius: 4, borderWidth: 2, backgroundColor: 'transparent' },
+        { label: 'Transfer Pusat', data: DATA.transfer, borderColor: '#FBBF24', tension: 0.3, pointRadius: 4, borderWidth: 2, backgroundColor: 'transparent' },
+        { label: 'Lain-lain', data: DATA.lainPendapatan, borderColor: '#A78BFA', tension: 0.3, pointRadius: 4, borderWidth: 2, backgroundColor: 'transparent' },
+      ]
+    },
+    options: { ...chartDefaults, interaction: { intersect: false, mode: 'index' },
+      plugins: { ...chartDefaults.plugins, tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': Rp ' + fmt(ctx.raw) + ' T' } } },
+      scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { ...chartDefaults.scales.y.ticks, callback: v => 'Rp ' + v + ' T' } } }
+    }
+  });
+
+  const rows = [
+    { label: 'Total Pendapatan', data: DATA.pendapatan, bold: true },
+    { label: '  PAD (Pendapatan Asli Daerah)', data: DATA.pad },
+    { label: '  Transfer Pusat', data: DATA.transfer },
+    { label: '  Lain-lain Pendapatan Sah', data: DATA.lainPendapatan },
+  ];
+  document.getElementById('tbodyPendapatan').innerHTML = rows.map(r => {
+    const c = cagr(r.data[0], r.data[5], 5);
+    return `<tr>
+      <td style="${r.bold?'font-weight:600':''}">${r.label}</td>
+      ${r.data.map(v => `<td class="tr mono">${fmt(v)}</td>`).join('')}
+      <td class="tr mono" style="color:${c>0?'var(--green)':'var(--red)'}">+${fmt(c,1)}%/thn</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════ BELANJA TAB ═══════ */
+function initBelanja() {
+  destroyChart('chartBelanjaDetail');
+  charts['chartBelanjaDetail'] = new Chart(document.getElementById('chartBelanjaDetail'), {
+    type: 'bar',
+    data: {
+      labels: TAHUN,
+      datasets: [
+        { label: 'Belanja Pegawai', data: DATA.pegawai, backgroundColor: '#60A5FA', borderRadius: 3 },
+        { label: 'Belanja Modal', data: DATA.modal, backgroundColor: '#34D399', borderRadius: 3 },
+        { label: 'Belanja Barang', data: DATA.barang, backgroundColor: '#FBBF24', borderRadius: 3 },
+        { label: 'Lain-lain Belanja', data: DATA.lainBelanja, backgroundColor: '#A78BFA', borderRadius: 3 },
+      ]
+    },
+    options: { ...chartDefaults, interaction: { intersect: false, mode: 'index' },
+      plugins: { ...chartDefaults.plugins, tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': Rp ' + fmt(ctx.raw) + ' T' } } },
+      scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { ...chartDefaults.scales.y.ticks, callback: v => 'Rp ' + v + ' T' } } }
+    }
+  });
+
+  const totalB24 = DATA.belanja[5];
+  const rows = [
+    { label: 'Total Belanja', data: DATA.belanja, bold: true },
+    { label: '  Belanja Pegawai', data: DATA.pegawai },
+    { label: '  Belanja Modal', data: DATA.modal },
+    { label: '  Belanja Barang & Jasa', data: DATA.barang },
+    { label: '  Lain-lain Belanja', data: DATA.lainBelanja },
+  ];
+  document.getElementById('tbodyBelanja').innerHTML = rows.map(r => {
+    const pct = (r.data[5] / totalB24 * 100).toFixed(1);
+    return `<tr>
+      <td style="${r.bold?'font-weight:600':''}">${r.label}</td>
+      ${r.data.map(v => `<td class="tr mono">${fmt(v)}</td>`).join('')}
+      <td class="tr mono">${r.bold ? '100,0%' : pct + '%'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════ PEMBIAYAAN TAB ═══════ */
+function initPembiayaan() {
+  destroyChart('chartSurplusDefisit');
+  charts['chartSurplusDefisit'] = new Chart(document.getElementById('chartSurplusDefisit'), {
+    type: 'bar',
+    data: {
+      labels: TAHUN,
+      datasets: [{
+        label: 'Surplus / Defisit',
+        data: DATA.surplusDefisit,
+        backgroundColor: DATA.surplusDefisit.map(v => v >= 0 ? 'rgba(52,211,153,.7)' : 'rgba(248,113,113,.7)'),
+        borderColor: DATA.surplusDefisit.map(v => v >= 0 ? '#34D399' : '#F87171'),
+        borderWidth: 1, borderRadius: 5
+      }]
+    },
+    options: { ...chartDefaults,
+      plugins: { ...chartDefaults.plugins, legend: { display: false },
+        tooltip: { callbacks: { label: ctx => (ctx.raw >= 0 ? ' Surplus: +' : ' Defisit: ') + fmt(ctx.raw) + ' T' } } },
+      scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { ...chartDefaults.scales.y.ticks, callback: v => 'Rp ' + v + ' T' } } }
+    }
+  });
+
+  const rasio = DATA.pad.map((v, i) => +(v / DATA.pendapatan[i] * 100).toFixed(1));
+  destroyChart('chartRasioPAD');
+  charts['chartRasioPAD'] = new Chart(document.getElementById('chartRasioPAD'), {
+    type: 'line',
+    data: {
+      labels: TAHUN,
+      datasets: [{ label: 'Rasio PAD (%)', data: rasio, borderColor: '#FBBF24', backgroundColor: 'rgba(251,191,36,.1)', fill: true, tension: 0.3, pointRadius: 5, borderWidth: 2 }]
+    },
+    options: { ...chartDefaults,
+      plugins: { ...chartDefaults.plugins, tooltip: { callbacks: { label: ctx => ' Rasio PAD: ' + fmt(ctx.raw,1) + '%' } } },
+      scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, ticks: { ...chartDefaults.scales.y.ticks, callback: v => v + '%' }, min: 40, max: 60 } }
+    }
+  });
+}
+
+/* ═══════ TABEL LENGKAP ═══════ */
+function initTabel() {
+  const allRows = [
+    { label: 'PENDAPATAN DAERAH', data: DATA.pendapatan, style: 'font-weight:700;color:#60A5FA' },
+    { label: '  Pendapatan Asli Daerah (PAD)', data: DATA.pad, style: '' },
+    { label: '  Transfer Pusat', data: DATA.transfer, style: '' },
+    { label: '  Lain-lain Pendapatan Sah', data: DATA.lainPendapatan, style: 'color:var(--muted)' },
+    { label: 'BELANJA DAERAH', data: DATA.belanja, style: 'font-weight:700;color:#F87171' },
+    { label: '  Belanja Pegawai', data: DATA.pegawai, style: '' },
+    { label: '  Belanja Modal', data: DATA.modal, style: '' },
+    { label: '  Belanja Barang & Jasa', data: DATA.barang, style: '' },
+    { label: '  Lain-lain Belanja', data: DATA.lainBelanja, style: 'color:var(--muted)' },
+    { label: 'SURPLUS / DEFISIT', data: DATA.surplusDefisit, style: 'font-weight:700;font-style:italic' },
+  ];
+  document.getElementById('tbodyFull').innerHTML = allRows.map(r => `
+    <tr>
+      <td style="${r.style}">${r.label}</td>
+      ${r.data.map((v,i) => `<td class="tr mono" style="${r.label.startsWith('SURPLUS') ? (v>=0?'color:var(--green)':'color:var(--red)') : ''}">${v >= 0 ? fmt(v) : '(' + fmt(Math.abs(v)) + ')'}</td>`).join('')}
+    </tr>
+  `).join('');
+}
+
+/* ═══════ TABS ═══════ */
+let tabReady = {};
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (!tabReady[tab]) {
+      if (tab === 'pendapatan') initPendapatan();
+      if (tab === 'belanja') initBelanja();
+      if (tab === 'pembiayaan') initPembiayaan();
+      if (tab === 'tabel') initTabel();
+      tabReady[tab] = true;
+    }
+  });
+});
+
+(function () {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+  s.onload = () => { initIkhtisar(); tabReady['ikhtisar'] = true; };
+  document.head.appendChild(s);
+})();
+</script>
+<script src="/assets/cockpit-loader.js"></script>
+</body>
+</html>

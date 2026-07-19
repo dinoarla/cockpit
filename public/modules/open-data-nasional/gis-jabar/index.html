@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Geografis / GIS — Jawa Barat | Cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0F172A; --card:#1E293B; --border:#334155; --text:#F1F5F9; --dim:#64748B; --muted:#94A3B8;
+  --amber:#F59E0B; --green:#22C55E; --red:#EF4444; --teal:#14B8A6; --purple:#A78BFA; --orange:#FB923C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+
+.module-header{background:linear-gradient(135deg,#064E3B 0%,#065F46 55%,#059669 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase;transition:color .15s}
+.back-link:hover{color:#fff}
+.back-link svg{width:13px;height:13px;flex-shrink:0}
+.breadcrumb{padding:5px 24px 0;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.03em}
+.breadcrumb span{color:rgba(255,255,255,.3);margin:0 4px}
+.header-body{padding:14px 24px 22px}
+.header-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:5px}
+.header-desc{font-size:13px;color:rgba(255,255,255,.8);max-width:740px;line-height:1.6;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;letter-spacing:.02em}
+
+.tabs-bar{position:sticky;top:0;z-index:100;background:#1E293B;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 20px;font-size:13px;font-weight:500;font-family:'Space Grotesk',sans-serif;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:#6EE7B7;border-bottom-color:#6EE7B7;font-weight:600}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 56px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#6EE7B7;margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.sec-title:first-child{margin-top:0}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#6EE7B7;line-height:1.05}
+.kpi-unit{font-size:11.5px;font-weight:400;color:var(--muted)}
+.kpi-delta{font-size:11px;font-weight:600;margin-top:1px;color:var(--muted)}
+
+.ds-category{margin-bottom:28px}
+.ds-cat-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:#6EE7B7;margin-bottom:12px;padding:6px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.ds-cat-title span{background:rgba(110,231,183,.1);border:1px solid rgba(110,231,183,.2);border-radius:5px;padding:2px 8px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#6EE7B7}
+.ds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.ds-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;transition:border-color .15s}
+.ds-card:hover{border-color:#6EE7B7}
+.ds-name{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.ds-meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.ds-tag{font-family:'JetBrains Mono',monospace;font-size:9.5px;padding:2px 7px;border-radius:4px;font-weight:500}
+.ds-tag.skala{background:rgba(96,165,250,.12);color:#93C5FD;border:1px solid rgba(96,165,250,.2)}
+.ds-tag.format{background:rgba(167,139,250,.12);color:#C4B5FD;border:1px solid rgba(167,139,250,.2)}
+.ds-tag.tahun{background:rgba(251,191,36,.12);color:#FDE68A;border:1px solid rgba(251,191,36,.2)}
+.ds-sumber{font-size:11px;color:var(--dim)}
+
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#0F172A;border-bottom:1px solid var(--border);font-weight:500}
+th.r{text-align:right}
+td{padding:9px 12px;border-bottom:1px solid #1E293B;vertical-align:middle;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#263348}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11.5px}
+
+.note{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-left:3px solid #10B981;border-radius:8px;padding:12px 16px;font-size:12px;color:#6EE7B7;line-height:1.65;margin-bottom:20px}
+.note strong{font-weight:600}
+
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.chart-card h4{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px}
+.chart-card .src{font-size:10px;color:var(--dim);margin-top:8px}
+.chart-wrap{position:relative;height:260px}
+.chart-wrap.md{height:300px}
+
+.format-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:700px){.format-grid{grid-template-columns:repeat(2,1fr)}}
+.format-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.format-icon{font-size:28px;margin-bottom:8px}
+.format-name{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#6EE7B7}
+.format-desc{font-size:11px;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+
+<div class="module-header">
+  <a href="/menu.html" class="back-link">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+    Kembali ke Menu
+  </a>
+  <div class="breadcrumb">Open Data Nasional <span>›</span> Geospasial <span>›</span> GIS Jabar</div>
+  <div class="header-body">
+    <div class="header-title">Data Geografis / GIS — Jawa Barat</div>
+    <div class="header-desc">Katalog dataset geospasial Jawa Barat dari BIG (Badan Informasi Geospasial) dan Ina-Geoportal. Mencakup data dasar rupabumi, tematik fisik, sosial-ekonomi, dan lingkungan dalam berbagai format dan skala.</div>
+    <div class="meta-row">
+      <span class="badge">BIG — Ina-Geoportal</span>
+      <span class="badge">47 Dataset</span>
+      <span class="badge">SHP · GeoJSON · KMZ · CSV</span>
+      <span class="badge">1:25rb – 1:250rb</span>
+      <span class="badge">Update 2023</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="katalog">Katalog Data</button>
+    <button class="tab-btn" data-tab="statistik">Statistik</button>
+    <button class="tab-btn" data-tab="akses">Sumber &amp; Akses</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <!-- TAB KATALOG -->
+  <div id="tab-katalog" class="tab-panel active">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Dataset</div>
+        <div class="kpi-value">47</div>
+        <div class="kpi-unit">dataset tersedia</div>
+        <div class="kpi-delta">4 kategori utama</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Format Tersedia</div>
+        <div class="kpi-value">4</div>
+        <div class="kpi-unit">SHP / GeoJSON / KMZ / CSV</div>
+        <div class="kpi-delta">Vektor &amp; tabular</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Skala Tersedia</div>
+        <div class="kpi-value">3</div>
+        <div class="kpi-unit">1:25rb · 1:50rb · 1:250rb</div>
+        <div class="kpi-delta">Sesuai kebutuhan analisis</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Tahun Update Terbaru</div>
+        <div class="kpi-value">2023</div>
+        <div class="kpi-unit">revisi terakhir BIG</div>
+        <div class="kpi-delta">Sumber: Ina-Geoportal</div>
+      </div>
+    </div>
+
+    <div id="katalogContainer"></div>
+  </div>
+
+  <!-- TAB STATISTIK -->
+  <div id="tab-statistik" class="tab-panel">
+    <div class="sec-title">Komposisi Dataset per Kategori</div>
+
+    <div class="format-grid">
+      <div class="format-card">
+        <div class="format-icon">🗺️</div>
+        <div class="format-name">SHP</div>
+        <div class="format-desc">Shapefile (ESRI)<br>Vektor standar GIS</div>
+      </div>
+      <div class="format-card">
+        <div class="format-icon">🌐</div>
+        <div class="format-name">GeoJSON</div>
+        <div class="format-desc">Format web-native<br>Kompatibel Leaflet/MapBox</div>
+      </div>
+      <div class="format-card">
+        <div class="format-icon">📍</div>
+        <div class="format-name">KMZ</div>
+        <div class="format-desc">Google Earth format<br>Visualisasi 3D</div>
+      </div>
+      <div class="format-card">
+        <div class="format-icon">📊</div>
+        <div class="format-name">CSV</div>
+        <div class="format-desc">Data tabular koordinat<br>Kompatibel Excel/Python</div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h4>Distribusi Dataset per Kategori</h4>
+      <div class="chart-wrap md"><canvas id="chartKategori"></canvas></div>
+      <p class="src">Sumber: BIG Ina-Geoportal &amp; Portal Data Jawa Barat (data.jabarprov.go.id)</p>
+    </div>
+
+    <div class="chart-card">
+      <h4>Distribusi Dataset per Skala</h4>
+      <div class="chart-wrap"><canvas id="chartSkala"></canvas></div>
+      <p class="src">Skala peta menentukan tingkat detail dan luas wilayah yang dapat dianalisis.</p>
+    </div>
+  </div>
+
+  <!-- TAB AKSES -->
+  <div id="tab-akses" class="tab-panel">
+    <div class="sec-title">Portal Data Geospasial</div>
+    <div class="note">
+      <strong>Akses Data:</strong> Dataset geospasial Jawa Barat dapat diakses melalui beberapa portal resmi pemerintah. Sebagian data tersedia bebas (open access), sebagian memerlukan registrasi atau permintaan resmi melalui instansi terkait.
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Portal / Sumber</th>
+            <th>URL</th>
+            <th>Jenis Data</th>
+            <th>Akses</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ina-Geoportal BIG</strong></td>
+            <td class="mono" style="color:#6EE7B7">tanahair.indonesia.go.id</td>
+            <td>Rupabumi, topografi, batas admin</td>
+            <td><span style="color:#6EE7B7;font-size:11px">Registrasi gratis</span></td>
+          </tr>
+          <tr>
+            <td><strong>Portal Data Jabar</strong></td>
+            <td class="mono" style="color:#6EE7B7">data.jabarprov.go.id</td>
+            <td>Data tematik, sosek, lingkungan</td>
+            <td><span style="color:#6EE7B7;font-size:11px">Open access</span></td>
+          </tr>
+          <tr>
+            <td><strong>ESDM One Map</strong></td>
+            <td class="mono" style="color:#6EE7B7">geoportal.esdm.go.id</td>
+            <td>Geologi, mineral, energi</td>
+            <td><span style="color:#6EE7B7;font-size:11px">Registrasi</span></td>
+          </tr>
+          <tr>
+            <td><strong>KLHK Geoportal</strong></td>
+            <td class="mono" style="color:#6EE7B7">geoportal.menlhk.go.id</td>
+            <td>Kawasan hutan, tutupan lahan</td>
+            <td><span style="color:#6EE7B7;font-size:11px">Open access</span></td>
+          </tr>
+          <tr>
+            <td><strong>BRIN GeoNetwork</strong></td>
+            <td class="mono" style="color:#6EE7B7">geonetwork.brin.go.id</td>
+            <td>Data riset multidisiplin</td>
+            <td><span style="color:#6EE7B7;font-size:11px">Registrasi</span></td>
+          </tr>
+          <tr>
+            <td><strong>BPS WebGIS</strong></td>
+            <td class="mono" style="color:#6EE7B7">sig.bps.go.id</td>
+            <td>Peta desa/kelurahan, sensus spasial</td>
+            <td><span style="color:#6EE7B7;font-size:11px">Open access</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sec-title">Standar & Format Data</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Standar</th><th>Keterangan</th><th>Digunakan untuk</th></tr></thead>
+        <tbody>
+          <tr><td><strong>SNI 6502</strong></td><td>Standar Nasional Indonesia untuk peta rupabumi</td><td>Batas administrasi, jaringan jalan, hidrografi</td></tr>
+          <tr><td><strong>WGS-84</strong></td><td>Sistem referensi koordinat global</td><td>Semua data geospasial Indonesia</td></tr>
+          <tr><td><strong>Datum DGN-95</strong></td><td>Datum Geodesi Nasional 1995</td><td>Data BIG sebelum migrasi WGS-84</td></tr>
+          <tr><td><strong>EPSG:4326</strong></td><td>Geographic CRS — Latitude/Longitude</td><td>GeoJSON, web mapping</td></tr>
+          <tr><td><strong>EPSG:32748</strong></td><td>UTM Zone 48S (Jawa Barat)</td><td>Analisis spasial lokal</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /page-body -->
+
+<script>
+/* ═══════════════════ DATA ═══════════════════ */
+const KATALOG = [
+  {
+    kategori: 'Dasar (Rupabumi)',
+    icon: '🗺️',
+    count: 5,
+    datasets: [
+      { nama: 'Batas Administrasi Provinsi & Kab/Kota', skala: '1:250.000', tahun: 2023, format: 'SHP/GeoJSON', sumber: 'BIG / Kemendagri' },
+      { nama: 'Jaringan Jalan Nasional & Provinsi', skala: '1:50.000', tahun: 2022, format: 'SHP', sumber: 'BIG / Bina Marga' },
+      { nama: 'Hidrografi (Sungai & Danau)', skala: '1:50.000', tahun: 2022, format: 'SHP', sumber: 'BIG / BBWS' },
+      { nama: 'Toponim (Nama Rupabumi)', skala: '1:25.000', tahun: 2021, format: 'CSV/SHP', sumber: 'BIG' },
+      { nama: 'Kontur & Model Elevasi Digital (DEM)', skala: '1:25.000', tahun: 2021, format: 'GeoTIFF', sumber: 'BIG / DEMNAS' },
+    ]
+  },
+  {
+    kategori: 'Tematik Fisik',
+    icon: '🌋',
+    count: 5,
+    datasets: [
+      { nama: 'Peta Geologi Regional', skala: '1:250.000', tahun: 2020, format: 'SHP', sumber: 'ESDM / Pusat Geologi' },
+      { nama: 'Peta Tanah (Soil Map)', skala: '1:50.000', tahun: 2019, format: 'SHP', sumber: 'BSIP / Kementan' },
+      { nama: 'Peta Kelerengan Lereng', skala: '1:50.000', tahun: 2021, format: 'GeoTIFF', sumber: 'BIG / DEMNAS' },
+      { nama: 'Peta Kawasan Rawan Bencana', skala: '1:50.000', tahun: 2022, format: 'SHP', sumber: 'BNPB / PVMBG' },
+      { nama: 'Peta Penggunaan/Tutupan Lahan', skala: '1:50.000', tahun: 2023, format: 'SHP', sumber: 'KLHK / BIG' },
+    ]
+  },
+  {
+    kategori: 'Tematik Sosial-Ekonomi',
+    icon: '🏭',
+    count: 4,
+    datasets: [
+      { nama: 'Kawasan Industri & KEK', skala: '1:50.000', tahun: 2022, format: 'SHP/GeoJSON', sumber: 'Kemen. Perindustrian' },
+      { nama: 'Zona Ekonomi Wilayah (RTRW)', skala: '1:50.000', tahun: 2021, format: 'SHP', sumber: 'ATR/BPN Jabar' },
+      { nama: 'Fasilitas Umum (RS, Sekolah, dll)', skala: '1:25.000', tahun: 2023, format: 'GeoJSON/CSV', sumber: 'BPS / OSM' },
+      { nama: 'Kawasan Permukiman & Perumahan', skala: '1:25.000', tahun: 2022, format: 'SHP', sumber: 'PUPR / BPS' },
+    ]
+  },
+  {
+    kategori: 'Lingkungan',
+    icon: '🌿',
+    count: 4,
+    datasets: [
+      { nama: 'Kawasan Hutan (SK Menhut)', skala: '1:250.000', tahun: 2023, format: 'SHP', sumber: 'KLHK' },
+      { nama: 'Ruang Terbuka Hijau (RTH)', skala: '1:25.000', tahun: 2022, format: 'SHP/GeoJSON', sumber: 'Diskimrum Jabar' },
+      { nama: 'Daerah Aliran Sungai (DAS)', skala: '1:250.000', tahun: 2021, format: 'SHP', sumber: 'KLHK / BBWS' },
+      { nama: 'Kawasan Lindung & Konservasi', skala: '1:50.000', tahun: 2022, format: 'SHP', sumber: 'KLHK / BKSDA' },
+    ]
+  },
+];
+
+function initKatalog() {
+  const container = document.getElementById('katalogContainer');
+  container.innerHTML = KATALOG.map(cat => `
+    <div class="ds-category">
+      <div class="ds-cat-title">
+        ${cat.icon} ${cat.kategori} <span>${cat.count} dataset</span>
+      </div>
+      <div class="ds-grid">
+        ${cat.datasets.map(ds => `
+          <div class="ds-card">
+            <div class="ds-name">${ds.nama}</div>
+            <div class="ds-meta">
+              <span class="ds-tag skala">${ds.skala}</span>
+              <span class="ds-tag format">${ds.format}</span>
+              <span class="ds-tag tahun">${ds.tahun}</span>
+            </div>
+            <div class="ds-sumber">${ds.sumber}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+let charts = {};
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+function initStatistik() {
+  const katLabels = KATALOG.map(c => c.kategori);
+  const katCounts = KATALOG.map(c => c.count);
+
+  destroyChart('chartKategori');
+  charts['chartKategori'] = new Chart(document.getElementById('chartKategori'), {
+    type: 'doughnut',
+    data: {
+      labels: katLabels,
+      datasets: [{ data: katCounts, backgroundColor: ['#6EE7B7','#60A5FA','#FBBF24','#A78BFA'], borderColor: '#1E293B', borderWidth: 2, hoverOffset: 6 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'right', labels: { color: '#94A3B8', font: { size: 11 }, boxWidth: 14 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.raw + ' dataset' } } }
+    }
+  });
+
+  destroyChart('chartSkala');
+  charts['chartSkala'] = new Chart(document.getElementById('chartSkala'), {
+    type: 'bar',
+    data: {
+      labels: ['1:25.000', '1:50.000', '1:250.000'],
+      datasets: [{
+        label: 'Jumlah Dataset',
+        data: [9, 18, 6],
+        backgroundColor: ['#6EE7B7','#60A5FA','#FBBF24'],
+        borderRadius: 6, borderSkipped: false
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.raw + ' dataset' } } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8' } },
+        y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8', stepSize: 3 } }
+      }
+    }
+  });
+}
+
+/* ═══════ TABS ═══════ */
+let tabReady = {};
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (!tabReady[tab]) {
+      if (tab === 'statistik') initStatistik();
+      tabReady[tab] = true;
+    }
+  });
+});
+
+initKatalog();
+tabReady['katalog'] = true;
+
+(function () {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+  s.onload = () => {};
+  document.head.appendChild(s);
+})();
+</script>
+<script src="/assets/cockpit-loader.js"></script>
+</body>
+</html>

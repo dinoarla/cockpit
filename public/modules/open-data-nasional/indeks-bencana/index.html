@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indeks Risiko Bencana Indonesia — Jawa Barat | Cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0F172A; --card:#1E293B; --border:#334155; --text:#F1F5F9; --dim:#64748B; --muted:#94A3B8;
+  --amber:#F59E0B; --green:#22C55E; --red:#EF4444; --teal:#14B8A6; --purple:#A78BFA; --orange:#FB923C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+
+.module-header{background:linear-gradient(135deg,#450A0A 0%,#7F1D1D 55%,#DC2626 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase;transition:color .15s}
+.back-link:hover{color:#fff}
+.back-link svg{width:13px;height:13px;flex-shrink:0}
+.breadcrumb{padding:5px 24px 0;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.03em}
+.breadcrumb span{color:rgba(255,255,255,.3);margin:0 4px}
+.header-body{padding:14px 24px 22px}
+.header-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:5px}
+.header-desc{font-size:13px;color:rgba(255,255,255,.8);max-width:740px;line-height:1.6;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;letter-spacing:.02em}
+
+.tabs-bar{position:sticky;top:0;z-index:100;background:#1E293B;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 20px;font-size:13px;font-weight:500;font-family:'Space Grotesk',sans-serif;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:#FCA5A5;border-bottom-color:#FCA5A5;font-weight:600}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 56px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#FCA5A5;margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.sec-title:first-child{margin-top:0}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#FCA5A5;line-height:1.05}
+.kpi-unit{font-size:11.5px;font-weight:400;color:var(--muted)}
+.kpi-delta{font-size:11px;font-weight:600;margin-top:1px}
+.kpi-delta.up{color:var(--green)}.kpi-delta.dn{color:var(--red)}.kpi-delta.neu{color:var(--amber)}
+
+.chart-grid{display:grid;gap:16px;margin-bottom:24px}
+.chart-grid.cols-2{grid-template-columns:1.4fr 1fr}
+@media(max-width:800px){.chart-grid.cols-2{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.chart-card h4{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px}
+.chart-card .src{font-size:10px;color:var(--dim);margin-top:8px}
+.chart-wrap{position:relative;height:260px}
+.chart-wrap.md{height:320px}
+.chart-wrap.xl{height:700px}
+.chart-wrap.hbar{height:620px}
+
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#0F172A;border-bottom:1px solid var(--border);font-weight:500;cursor:pointer}
+th.r{text-align:right}
+td{padding:9px 12px;border-bottom:1px solid #1E293B;vertical-align:middle;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#263348}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.tr{text-align:right}
+
+.badge-kat{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9.5px;padding:2px 8px;border-radius:5px;font-weight:600}
+.badge-tinggi{background:rgba(239,68,68,.18);color:#FCA5A5;border:1px solid rgba(239,68,68,.3)}
+.badge-sedang{background:rgba(245,158,11,.18);color:#FDE68A;border:1px solid rgba(245,158,11,.3)}
+.badge-rendah{background:rgba(34,197,94,.18);color:#86EFAC;border:1px solid rgba(34,197,94,.3)}
+
+.note{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-left:3px solid #EF4444;border-radius:8px;padding:12px 16px;font-size:12px;color:#FCA5A5;line-height:1.65;margin-bottom:20px}
+.note strong{font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="module-header">
+  <a href="/menu.html" class="back-link">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+    Kembali ke Menu
+  </a>
+  <div class="breadcrumb">Open Data Nasional <span>›</span> Lingkungan &amp; Iklim <span>›</span> Indeks Bencana</div>
+  <div class="header-body">
+    <div class="header-title">Indeks Risiko Bencana Indonesia — Jawa Barat</div>
+    <div class="header-desc">Skor IRBI 2022 untuk 27 kabupaten/kota di Jawa Barat — mencakup tiga komponen utama: bahaya (hazard), kerentanan (vulnerability), dan kapasitas daerah. Skor semakin tinggi mencerminkan risiko bencana yang lebih besar.</div>
+    <div class="meta-row">
+      <span class="badge">BNPB — IRBI 2022</span>
+      <span class="badge">27 Kab/Kota Jabar</span>
+      <span class="badge">3 Komponen Risiko</span>
+      <span class="badge">Banjir · Longsor · Gempa</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="risiko">Peta Risiko</button>
+    <button class="tab-btn" data-tab="komponen">Komponen</button>
+    <button class="tab-btn" data-tab="peringkat">Peringkat</button>
+    <button class="tab-btn" data-tab="tentang">Tentang</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <!-- TAB PETA RISIKO -->
+  <div id="tab-risiko" class="tab-panel active">
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="chart-card">
+      <h4>Skor IRBI 2022 — 27 Kab/Kota Jawa Barat <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">skor 0–200 (semakin tinggi = semakin berisiko)</span></h4>
+      <div class="chart-wrap hbar"><canvas id="chartIRBI"></canvas></div>
+      <p class="src">Sumber: BNPB — Indeks Risiko Bencana Indonesia (IRBI) 2022. Merah = Tinggi, Kuning = Sedang, Hijau = Rendah.</p>
+    </div>
+  </div>
+
+  <!-- TAB KOMPONEN -->
+  <div id="tab-komponen" class="tab-panel">
+    <div class="sec-title">3 Komponen Risiko Bencana (Top 10 Daerah)</div>
+    <div class="note">
+      <strong>Definisi Komponen:</strong> Bahaya (hazard) = intensitas/frekuensi ancaman bencana. Kerentanan (vulnerability) = kondisi sosial-ekonomi-fisik yang memperparah dampak. Kapasitas = kemampuan daerah mengurangi risiko. Risiko = f(Bahaya × Kerentanan / Kapasitas).
+    </div>
+    <div class="chart-card">
+      <h4>Bahaya, Kerentanan &amp; Kapasitas — Top 10 Daerah Berisiko</h4>
+      <div class="chart-wrap xl"><canvas id="chartKomponen"></canvas></div>
+      <p class="src">Sumber: BNPB IRBI 2022. Kapasitas: nilai lebih tinggi = daerah lebih siap (mengurangi risiko).</p>
+    </div>
+  </div>
+
+  <!-- TAB PERINGKAT -->
+  <div id="tab-peringkat" class="tab-panel">
+    <div class="sec-title">Tabel Peringkat Lengkap — Sortable</div>
+    <div class="tbl-wrap">
+      <table id="tabelIRBI">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th data-col="nama">Wilayah ↕</th>
+            <th class="r" data-col="skor">Skor IRBI ↕</th>
+            <th class="r">Kategori</th>
+            <th class="r" data-col="bahaya">Bahaya ↕</th>
+            <th class="r" data-col="kerentanan">Kerentanan ↕</th>
+            <th class="r" data-col="kapasitas">Kapasitas ↕</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyIRBI"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB TENTANG -->
+  <div id="tab-tentang" class="tab-panel">
+    <div class="sec-title">Tentang IRBI</div>
+    <div class="note">
+      <strong>IRBI (Indeks Risiko Bencana Indonesia)</strong> adalah indeks komposit yang dikembangkan BNPB untuk mengukur tingkat risiko bencana di setiap daerah di Indonesia. IRBI 2022 mencakup 13 jenis bencana: banjir, tanah longsor, gempa bumi, tsunami, letusan gunung api, kekeringan, kebakaran hutan dan lahan, gelombang ekstrem, abrasi, cuaca ekstrem, banjir bandang, epidemi dan wabah penyakit, serta gagal teknologi.
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Aspek</th>
+            <th>Keterangan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Sumber</strong></td><td>BNPB — Badan Nasional Penanggulangan Bencana</td></tr>
+          <tr><td><strong>Tahun</strong></td><td>IRBI 2022</td></tr>
+          <tr><td><strong>Skala</strong></td><td>Kabupaten/Kota (seluruh Indonesia)</td></tr>
+          <tr><td><strong>Kategori Tinggi</strong></td><td>Skor ≥ 150 — memerlukan perhatian dan intervensi prioritas</td></tr>
+          <tr><td><strong>Kategori Sedang</strong></td><td>Skor 75–149 — perlu pengurangan risiko berkelanjutan</td></tr>
+          <tr><td><strong>Kategori Rendah</strong></td><td>Skor &lt; 75 — relatif aman, kapasitas memadai</td></tr>
+          <tr><td><strong>Akses Data</strong></td><td><span style="color:#FCA5A5;font-family:'JetBrains Mono',monospace">https://inarisk.bnpb.go.id</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /page-body -->
+
+<script>
+/* ═══════════════════ DATA ═══════════════════ */
+const IRBI_DATA = [
+  { nama: 'Kab. Cianjur',       skor: 187.6, kategori: 'Tinggi',  bahaya: 0.82, kerentanan: 0.71, kapasitas: 0.35 },
+  { nama: 'Kab. Garut',         skor: 185.2, kategori: 'Tinggi',  bahaya: 0.80, kerentanan: 0.68, kapasitas: 0.33 },
+  { nama: 'Kab. Sukabumi',      skor: 178.4, kategori: 'Tinggi',  bahaya: 0.79, kerentanan: 0.65, kapasitas: 0.34 },
+  { nama: 'Kab. Tasikmalaya',   skor: 171.3, kategori: 'Tinggi',  bahaya: 0.76, kerentanan: 0.64, kapasitas: 0.36 },
+  { nama: 'Kab. Bandung',       skor: 165.8, kategori: 'Tinggi',  bahaya: 0.74, kerentanan: 0.61, kapasitas: 0.38 },
+  { nama: 'Kab. Bogor',         skor: 162.4, kategori: 'Tinggi',  bahaya: 0.73, kerentanan: 0.58, kapasitas: 0.40 },
+  { nama: 'Kab. Majalengka',    skor: 158.7, kategori: 'Tinggi',  bahaya: 0.71, kerentanan: 0.60, kapasitas: 0.37 },
+  { nama: 'Kab. Ciamis',        skor: 152.3, kategori: 'Tinggi',  bahaya: 0.68, kerentanan: 0.58, kapasitas: 0.39 },
+  { nama: 'Kab. Kuningan',      skor: 148.9, kategori: 'Tinggi',  bahaya: 0.67, kerentanan: 0.57, kapasitas: 0.41 },
+  { nama: 'Kab. Sumedang',      skor: 145.2, kategori: 'Sedang',  bahaya: 0.65, kerentanan: 0.55, kapasitas: 0.42 },
+  { nama: 'Kab. Subang',        skor: 142.6, kategori: 'Sedang',  bahaya: 0.63, kerentanan: 0.54, kapasitas: 0.43 },
+  { nama: 'Kab. Indramayu',     skor: 139.8, kategori: 'Sedang',  bahaya: 0.61, kerentanan: 0.56, kapasitas: 0.44 },
+  { nama: 'Kab. Karawang',      skor: 135.4, kategori: 'Sedang',  bahaya: 0.59, kerentanan: 0.52, kapasitas: 0.46 },
+  { nama: 'Kab. Bekasi',        skor: 132.7, kategori: 'Sedang',  bahaya: 0.57, kerentanan: 0.54, kapasitas: 0.47 },
+  { nama: 'Kab. Cirebon',       skor: 128.5, kategori: 'Sedang',  bahaya: 0.55, kerentanan: 0.52, kapasitas: 0.48 },
+  { nama: 'Kab. Purwakarta',    skor: 124.3, kategori: 'Sedang',  bahaya: 0.54, kerentanan: 0.50, kapasitas: 0.49 },
+  { nama: 'Kab. Pangandaran',   skor: 121.8, kategori: 'Sedang',  bahaya: 0.62, kerentanan: 0.48, kapasitas: 0.51 },
+  { nama: 'Kab. Bandung Barat', skor: 118.6, kategori: 'Sedang',  bahaya: 0.52, kerentanan: 0.47, kapasitas: 0.52 },
+  { nama: 'Kota Tasikmalaya',   skor: 112.4, kategori: 'Sedang',  bahaya: 0.49, kerentanan: 0.46, kapasitas: 0.54 },
+  { nama: 'Kota Bogor',         skor: 108.7, kategori: 'Sedang',  bahaya: 0.47, kerentanan: 0.45, kapasitas: 0.55 },
+  { nama: 'Kota Bandung',       skor: 104.5, kategori: 'Sedang',  bahaya: 0.44, kerentanan: 0.44, kapasitas: 0.57 },
+  { nama: 'Kota Cirebon',       skor: 98.3,  kategori: 'Sedang',  bahaya: 0.41, kerentanan: 0.43, kapasitas: 0.59 },
+  { nama: 'Kota Sukabumi',      skor: 94.7,  kategori: 'Sedang',  bahaya: 0.39, kerentanan: 0.42, kapasitas: 0.60 },
+  { nama: 'Kota Bekasi',        skor: 88.4,  kategori: 'Sedang',  bahaya: 0.36, kerentanan: 0.41, kapasitas: 0.62 },
+  { nama: 'Kota Depok',         skor: 84.2,  kategori: 'Sedang',  bahaya: 0.34, kerentanan: 0.40, kapasitas: 0.63 },
+  { nama: 'Kota Cimahi',        skor: 79.6,  kategori: 'Rendah',  bahaya: 0.31, kerentanan: 0.38, kapasitas: 0.65 },
+  { nama: 'Kota Banjar',        skor: 75.3,  kategori: 'Rendah',  bahaya: 0.29, kerentanan: 0.37, kapasitas: 0.67 },
+];
+
+function fmt(v, dec=1) { return v.toLocaleString('id-ID', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+function katColor(k) {
+  return k === 'Tinggi' ? 'rgba(239,68,68,.7)' : k === 'Sedang' ? 'rgba(245,158,11,.7)' : 'rgba(34,197,94,.7)';
+}
+function katBadge(k) {
+  const cls = k === 'Tinggi' ? 'badge-tinggi' : k === 'Sedang' ? 'badge-sedang' : 'badge-rendah';
+  return `<span class="badge-kat ${cls}">${k}</span>`;
+}
+
+let charts = {};
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+const baseOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { labels: { color: '#94A3B8', font: { size: 11 }, boxWidth: 14 } } },
+  scales: {
+    x: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8' } },
+    y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8' } }
+  }
+};
+
+/* ═══════ TAB RISIKO ═══════ */
+function initRisiko() {
+  const nTinggi = IRBI_DATA.filter(d => d.kategori === 'Tinggi').length;
+  const nSedang = IRBI_DATA.filter(d => d.kategori === 'Sedang').length;
+  const nRendah = IRBI_DATA.filter(d => d.kategori === 'Rendah').length;
+
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-label">Risiko Tinggi</div>
+      <div class="kpi-value" style="color:#FCA5A5">${nTinggi}</div>
+      <div class="kpi-unit">kab/kota skor ≥ 150</div>
+      <div class="kpi-delta dn">Cianjur hingga Kuningan</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Risiko Sedang</div>
+      <div class="kpi-value" style="color:#FDE68A">${nSedang}</div>
+      <div class="kpi-unit">kab/kota skor 75–149</div>
+      <div class="kpi-delta neu">Sumedang hingga Depok</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Skor Tertinggi</div>
+      <div class="kpi-value">${fmt(IRBI_DATA[0].skor)}</div>
+      <div class="kpi-unit">Kab. Cianjur — IRBI 2022</div>
+      <div class="kpi-delta dn">Bahaya 0,82 · Kapasitas 0,35</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Skor Terendah</div>
+      <div class="kpi-value" style="color:#86EFAC">${fmt(IRBI_DATA[IRBI_DATA.length-1].skor)}</div>
+      <div class="kpi-unit">Kota Banjar — IRBI 2022</div>
+      <div class="kpi-delta up">Kapasitas tertinggi 0,67</div>
+    </div>
+  `;
+
+  const sorted = [...IRBI_DATA].sort((a, b) => b.skor - a.skor);
+  destroyChart('chartIRBI');
+  charts['chartIRBI'] = new Chart(document.getElementById('chartIRBI'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(d => d.nama),
+      datasets: [{
+        label: 'Skor IRBI 2022',
+        data: sorted.map(d => d.skor),
+        backgroundColor: sorted.map(d => katColor(d.kategori)),
+        borderColor: sorted.map(d => d.kategori === 'Tinggi' ? '#EF4444' : d.kategori === 'Sedang' ? '#F59E0B' : '#22C55E'),
+        borderWidth: 1,
+        borderRadius: 3
+      }]
+    },
+    options: { ...baseOpts, indexAxis: 'y',
+      plugins: { ...baseOpts.plugins, legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' Skor: ' + fmt(ctx.raw) + ' — ' + sorted[ctx.dataIndex].kategori } } },
+      scales: { ...baseOpts.scales, x: { ...baseOpts.scales.x, min: 0, max: 220 }, y: { ...baseOpts.scales.y, ticks: { ...baseOpts.scales.y.ticks, font: { size: 11 } } } }
+    }
+  });
+}
+
+/* ═══════ TAB KOMPONEN ═══════ */
+function initKomponen() {
+  const top10 = IRBI_DATA.slice(0, 10);
+  destroyChart('chartKomponen');
+  charts['chartKomponen'] = new Chart(document.getElementById('chartKomponen'), {
+    type: 'bar',
+    data: {
+      labels: top10.map(d => d.nama),
+      datasets: [
+        { label: 'Bahaya', data: top10.map(d => d.bahaya), backgroundColor: 'rgba(239,68,68,.7)', borderRadius: 3, stack: 'a' },
+        { label: 'Kerentanan', data: top10.map(d => d.kerentanan), backgroundColor: 'rgba(245,158,11,.7)', borderRadius: 3, stack: 'a' },
+        { label: 'Kapasitas (inv)', data: top10.map(d => -(1 - d.kapasitas)), backgroundColor: 'rgba(34,197,94,.4)', borderRadius: 3, stack: 'a' },
+      ]
+    },
+    options: { ...baseOpts, indexAxis: 'y',
+      plugins: { ...baseOpts.plugins, legend: { position: 'bottom', labels: { color: '#94A3B8', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + Math.abs(ctx.raw).toFixed(2) } } },
+      scales: { ...baseOpts.scales, x: { ...baseOpts.scales.x, stacked: true }, y: { ...baseOpts.scales.y, stacked: true, ticks: { ...baseOpts.scales.y.ticks, font: { size: 11 } } } }
+    }
+  });
+}
+
+/* ═══════ TAB PERINGKAT ═══════ */
+let sortCol = 'skor', sortAsc = false;
+function renderTabel() {
+  const data = [...IRBI_DATA].sort((a, b) => {
+    const va = a[sortCol], vb = b[sortCol];
+    if (typeof va === 'string') return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return sortAsc ? va - vb : vb - va;
+  });
+  document.getElementById('tbodyIRBI').innerHTML = data.map((d, i) => `
+    <tr>
+      <td style="color:var(--muted);font-size:11px">${i+1}</td>
+      <td><strong>${d.nama}</strong></td>
+      <td class="tr mono" style="font-weight:600;color:${d.kategori==='Tinggi'?'#FCA5A5':d.kategori==='Sedang'?'#FDE68A':'#86EFAC'}">${fmt(d.skor)}</td>
+      <td class="tr">${katBadge(d.kategori)}</td>
+      <td class="tr mono">${d.bahaya.toFixed(2)}</td>
+      <td class="tr mono">${d.kerentanan.toFixed(2)}</td>
+      <td class="tr mono" style="color:#86EFAC">${d.kapasitas.toFixed(2)}</td>
+    </tr>
+  `).join('');
+}
+
+function initPeringkat() {
+  renderTabel();
+  document.querySelectorAll('#tabelIRBI th[data-col]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.col;
+      if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = col === 'nama'; }
+      renderTabel();
+    });
+  });
+}
+
+/* ═══════ TABS ═══════ */
+let tabReady = {};
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (!tabReady[tab]) {
+      if (tab === 'komponen') initKomponen();
+      if (tab === 'peringkat') initPeringkat();
+      tabReady[tab] = true;
+    }
+  });
+});
+
+(function () {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+  s.onload = () => { initRisiko(); tabReady['risiko'] = true; };
+  document.head.appendChild(s);
+})();
+</script>
+<script src="/assets/cockpit-loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peta Administrasi Wilayah — Jawa Barat | Cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0F172A; --card:#1E293B; --border:#334155; --text:#F1F5F9; --dim:#64748B; --muted:#94A3B8;
+  --amber:#F59E0B; --green:#22C55E; --red:#EF4444; --teal:#14B8A6; --purple:#A78BFA; --orange:#FB923C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+
+.module-header{background:linear-gradient(135deg,#1E1B4B 0%,#312E81 55%,#4338CA 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase;transition:color .15s}
+.back-link:hover{color:#fff}
+.back-link svg{width:13px;height:13px;flex-shrink:0}
+.breadcrumb{padding:5px 24px 0;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.03em}
+.breadcrumb span{color:rgba(255,255,255,.3);margin:0 4px}
+.header-body{padding:14px 24px 22px}
+.header-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:5px}
+.header-desc{font-size:13px;color:rgba(255,255,255,.8);max-width:740px;line-height:1.6;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;letter-spacing:.02em}
+
+.tabs-bar{position:sticky;top:0;z-index:100;background:#1E293B;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 20px;font-size:13px;font-weight:500;font-family:'Space Grotesk',sans-serif;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:#C4B5FD;border-bottom-color:#C4B5FD;font-weight:600}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 56px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#C4B5FD;margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.sec-title:first-child{margin-top:0}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#C4B5FD;line-height:1.05}
+.kpi-unit{font-size:11.5px;font-weight:400;color:var(--muted)}
+.kpi-delta{font-size:11px;font-weight:600;margin-top:1px;color:var(--muted)}
+
+.chart-grid{display:grid;gap:16px;margin-bottom:24px}
+.chart-grid.cols-2{grid-template-columns:2fr 1fr}
+@media(max-width:800px){.chart-grid.cols-2{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.chart-card h4{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px}
+.chart-card .src{font-size:10px;color:var(--dim);margin-top:8px}
+.chart-wrap{position:relative;height:260px}
+.chart-wrap.md{height:300px}
+.chart-wrap.xl{height:400px}
+.chart-wrap.hbar{height:580px}
+
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#0F172A;border-bottom:1px solid var(--border);font-weight:500;cursor:pointer}
+th.r{text-align:right}
+td{padding:9px 12px;border-bottom:1px solid #1E293B;vertical-align:middle;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#263348}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.tr{text-align:right}
+.b-kab{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9.5px;padding:2px 7px;border-radius:5px;font-weight:500;background:rgba(96,165,250,.1);color:#93C5FD;border:1px solid rgba(96,165,250,.2)}
+.b-kota{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9.5px;padding:2px 7px;border-radius:5px;font-weight:500;background:rgba(167,139,250,.1);color:#C4B5FD;border:1px solid rgba(167,139,250,.2)}
+
+.controls-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.ctrl-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+select.ctrl-select{background:#1E293B;border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-size:13px;color:var(--text);outline:none;cursor:pointer;font-family:'Space Grotesk',sans-serif}
+select.ctrl-select:focus{border-color:#C4B5FD}
+
+.note{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.25);border-left:3px solid #A78BFA;border-radius:8px;padding:12px 16px;font-size:12px;color:#DDD6FE;line-height:1.65;margin-bottom:20px}
+.note strong{font-weight:600}
+
+.stat-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:600px){.stat-summary{grid-template-columns:1fr}}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.stat-val{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#C4B5FD}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:2px}
+</style>
+</head>
+<body>
+
+<div class="module-header">
+  <a href="/menu.html" class="back-link">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+    Kembali ke Menu
+  </a>
+  <div class="breadcrumb">Open Data Nasional <span>›</span> Geospasial <span>›</span> Peta Administrasi</div>
+  <div class="header-body">
+    <div class="header-title">Peta Administrasi Wilayah — Jawa Barat</div>
+    <div class="header-desc">Statistik administrasi wilayah 27 kabupaten/kota di Jawa Barat — luas wilayah, ibukota, jumlah kecamatan, dan jumlah desa/kelurahan berdasarkan data BPS, BIG, dan Kemendagri.</div>
+    <div class="meta-row">
+      <span class="badge">BPS · BIG · Kemendagri</span>
+      <span class="badge">27 Kab/Kota</span>
+      <span class="badge">627 Kecamatan</span>
+      <span class="badge">5.962 Desa/Kelurahan</span>
+      <span class="badge">Luas: 35.378 km²</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="ringkasan">Ringkasan</button>
+    <button class="tab-btn" data-tab="perwilayah">Per Wilayah</button>
+    <button class="tab-btn" data-tab="luas">Luas &amp; Batas</button>
+    <button class="tab-btn" data-tab="tabel">Tabel Lengkap</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <!-- TAB RINGKASAN -->
+  <div id="tab-ringkasan" class="tab-panel active">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Luas Jabar</div>
+        <div class="kpi-value">35.378</div>
+        <div class="kpi-unit">km² (35.377,8 km²)</div>
+        <div class="kpi-delta">Provinsi terluas di Jawa</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Jumlah Kecamatan</div>
+        <div class="kpi-value">627</div>
+        <div class="kpi-unit">kecamatan se-Jawa Barat</div>
+        <div class="kpi-delta">Rata-rata 23 per kab/kota</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Jumlah Desa/Kel</div>
+        <div class="kpi-value">5.962</div>
+        <div class="kpi-unit">desa &amp; kelurahan</div>
+        <div class="kpi-delta">18 Kab + 9 Kota = 27</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Kab/Kota</div>
+        <div class="kpi-value">27</div>
+        <div class="kpi-unit">18 Kabupaten + 9 Kota</div>
+        <div class="kpi-delta">Terbanyak se-Indonesia</div>
+      </div>
+    </div>
+
+    <div class="stat-summary">
+      <div class="stat-card">
+        <div class="stat-label">Kabupaten Terluas</div>
+        <div class="stat-val">Kab. Sukabumi</div>
+        <div class="stat-sub">4.161,4 km² — 11,8% dari total Jabar</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Kota Terluas</div>
+        <div class="stat-val">Kota Bekasi</div>
+        <div class="stat-sub">210,5 km²</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Wilayah Terkecil</div>
+        <div class="stat-val">Kota Cirebon</div>
+        <div class="stat-sub">37,4 km² — kota terkecil di Jabar</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Kecamatan Terbanyak</div>
+        <div class="stat-val">Kab. Bogor</div>
+        <div class="stat-sub">40 kecamatan, 435 desa/kel</div>
+      </div>
+    </div>
+
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Top 10 Wilayah Terluas <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">km²</span></h4>
+        <div class="chart-wrap xl"><canvas id="chartTop10Luas"></canvas></div>
+        <p class="src">Sumber: BPS, BIG. Biru = Kabupaten, Ungu = Kota</p>
+      </div>
+      <div class="chart-card">
+        <h4>Proporsi Luas Kabupaten vs Kota</h4>
+        <div class="chart-wrap xl"><canvas id="chartDonutLuas"></canvas></div>
+        <p class="src">Kabupaten mendominasi 97,5% luas wilayah Jawa Barat</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB PER WILAYAH -->
+  <div id="tab-perwilayah" class="tab-panel">
+    <div class="sec-title">Perbandingan Jumlah Kecamatan per Wilayah</div>
+    <div class="chart-card">
+      <h4>Jumlah Kecamatan per Kab/Kota <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">kecamatan</span></h4>
+      <div class="chart-wrap hbar"><canvas id="chartKecamatan"></canvas></div>
+      <p class="src">Sumber: BPS Jawa Barat, Kemendagri. Diurutkan dari terbanyak.</p>
+    </div>
+  </div>
+
+  <!-- TAB LUAS & BATAS -->
+  <div id="tab-luas" class="tab-panel">
+    <div class="sec-title">Distribusi Luas Wilayah</div>
+    <div class="note">
+      <strong>Catatan:</strong> Total luas Jawa Barat adalah 35.377,8 km² berdasarkan data BPS (Badan Pusat Statistik) dan BIG (Badan Informasi Geospasial). Luas ini tidak termasuk wilayah laut/perairan. 18 kabupaten menguasai sekitar 97,5% total luas, sementara 9 kota hanya mencakup 2,5%.
+    </div>
+    <div class="chart-card">
+      <h4>Luas Seluruh 27 Kab/Kota <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">km²</span></h4>
+      <div class="chart-wrap hbar"><canvas id="chartLuasAll"></canvas></div>
+      <p class="src">Sumber: BPS, BIG, Kemendagri. Biru = Kabupaten, Ungu = Kota.</p>
+    </div>
+  </div>
+
+  <!-- TAB TABEL LENGKAP -->
+  <div id="tab-tabel" class="tab-panel">
+    <div class="controls-row">
+      <span class="ctrl-label">Urutkan:</span>
+      <select class="ctrl-select" id="sortTabel">
+        <option value="luas">Luas Terbesar</option>
+        <option value="kecamatan">Kecamatan Terbanyak</option>
+        <option value="desa">Desa/Kel Terbanyak</option>
+        <option value="nama">Nama A–Z</option>
+      </select>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nama Wilayah</th>
+            <th>Jenis</th>
+            <th>Ibukota</th>
+            <th class="r">Luas (km²)</th>
+            <th class="r">Kecamatan</th>
+            <th class="r">Desa/Kel</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyAdmin"></tbody>
+      </table>
+    </div>
+    <div style="display:flex;gap:16px;font-size:11px;color:var(--muted);margin-top:-12px;flex-wrap:wrap">
+      <span>Total: <strong style="color:var(--text)">35.377,8 km²</strong></span>
+      <span>Kecamatan: <strong style="color:var(--text)">627</strong></span>
+      <span>Desa/Kel: <strong style="color:var(--text)">5.962</strong></span>
+    </div>
+  </div>
+
+</div><!-- /page-body -->
+
+<script>
+/* ═══════════════════ DATA ═══════════════════ */
+// [nama, jenis, luas_km2, ibukota, kecamatan, desa_kelurahan]
+const ADMIN_DATA = [
+  ['Kab. Bogor',         'Kabupaten', 2710.6, 'Cibinong',        40, 435],
+  ['Kab. Sukabumi',      'Kabupaten', 4161.4, 'Palabuhanratu',   47, 381],
+  ['Kab. Cianjur',       'Kabupaten', 3596.8, 'Cianjur',         32, 360],
+  ['Kab. Bandung',       'Kabupaten', 1767.9, 'Soreang',         31, 276],
+  ['Kab. Garut',         'Kabupaten', 3074.1, 'Garut',           42, 421],
+  ['Kab. Tasikmalaya',   'Kabupaten', 2708.2, 'Singaparna',      39, 351],
+  ['Kab. Ciamis',        'Kabupaten', 1414.8, 'Ciamis',          27, 265],
+  ['Kab. Kuningan',      'Kabupaten', 1110.6, 'Kuningan',        32, 376],
+  ['Kab. Cirebon',       'Kabupaten',  990.3, 'Sumber',          40, 412],
+  ['Kab. Majalengka',    'Kabupaten', 1204.2, 'Majalengka',      26, 330],
+  ['Kab. Sumedang',      'Kabupaten', 1522.0, 'Sumedang',        26, 270],
+  ['Kab. Indramayu',     'Kabupaten', 2099.4, 'Indramayu',       31, 317],
+  ['Kab. Subang',        'Kabupaten', 1893.9, 'Subang',          30, 253],
+  ['Kab. Purwakarta',    'Kabupaten',  971.7, 'Purwakarta',      17, 183],
+  ['Kab. Karawang',      'Kabupaten', 1753.4, 'Karawang',        30, 309],
+  ['Kab. Bekasi',        'Kabupaten', 1224.9, 'Cikarang Pusat',  23, 187],
+  ['Kab. Bandung Barat', 'Kabupaten', 1305.8, 'Ngamprah',        16, 165],
+  ['Kab. Pangandaran',   'Kabupaten', 1679.6, 'Parigi',          10, 93],
+  ['Kota Bogor',         'Kota',       118.5, 'Bogor',            6,  68],
+  ['Kota Sukabumi',      'Kota',        48.0, 'Sukabumi',         7,  33],
+  ['Kota Bandung',       'Kota',       167.3, 'Bandung',         30, 151],
+  ['Kota Cirebon',       'Kota',        37.4, 'Cirebon',          5,  22],
+  ['Kota Bekasi',        'Kota',       210.5, 'Bekasi',          12,  56],
+  ['Kota Depok',         'Kota',       200.3, 'Depok',           11,  63],
+  ['Kota Cimahi',        'Kota',        40.2, 'Cimahi',           3,  15],
+  ['Kota Tasikmalaya',   'Kota',       171.6, 'Tasikmalaya',     10,  69],
+  ['Kota Banjar',        'Kota',       131.8, 'Banjar',           4,  25],
+];
+
+function fmt(v, dec=1) { return v.toLocaleString('id-ID', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+
+let charts = {};
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+const baseOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { labels: { color: '#94A3B8', font: { size: 11 }, boxWidth: 14 } } },
+  scales: {
+    x: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8' } },
+    y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8' } }
+  }
+};
+
+function colorByJenis(j) {
+  return j === 'Kabupaten' ? 'rgba(96,165,250,.75)' : 'rgba(167,139,250,.75)';
+}
+
+/* ═══════ TAB RINGKASAN ═══════ */
+function initRingkasan() {
+  const sortedLuas = [...ADMIN_DATA].sort((a, b) => b[2] - a[2]);
+  const top10 = sortedLuas.slice(0, 10);
+
+  destroyChart('chartTop10Luas');
+  charts['chartTop10Luas'] = new Chart(document.getElementById('chartTop10Luas'), {
+    type: 'bar',
+    data: {
+      labels: top10.map(d => d[0]),
+      datasets: [{
+        label: 'Luas (km²)',
+        data: top10.map(d => d[2]),
+        backgroundColor: top10.map(d => colorByJenis(d[1])),
+        borderRadius: 4, borderSkipped: false
+      }]
+    },
+    options: { ...baseOpts, indexAxis: 'y',
+      plugins: { ...baseOpts.plugins, legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + fmt(ctx.raw) + ' km²' } } },
+      scales: { ...baseOpts.scales, x: { ...baseOpts.scales.x, ticks: { ...baseOpts.scales.x.ticks, callback: v => v + ' km²' } }, y: { ...baseOpts.scales.y, ticks: { ...baseOpts.scales.y.ticks, font: { size: 11 } } } }
+    }
+  });
+
+  const luasKab = ADMIN_DATA.filter(d => d[1] === 'Kabupaten').reduce((s, d) => s + d[2], 0);
+  const luasKota = ADMIN_DATA.filter(d => d[1] === 'Kota').reduce((s, d) => s + d[2], 0);
+
+  destroyChart('chartDonutLuas');
+  charts['chartDonutLuas'] = new Chart(document.getElementById('chartDonutLuas'), {
+    type: 'doughnut',
+    data: {
+      labels: ['18 Kabupaten', '9 Kota'],
+      datasets: [{ data: [luasKab, luasKota], backgroundColor: ['rgba(96,165,250,.8)','rgba(167,139,250,.8)'], borderColor: '#1E293B', borderWidth: 2, hoverOffset: 6 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { color: '#94A3B8', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => ' ' + fmt(ctx.raw) + ' km² (' + fmt(ctx.raw/(luasKab+luasKota)*100,1) + '%)' } } }
+    }
+  });
+}
+
+/* ═══════ TAB PER WILAYAH ═══════ */
+function initPerWilayah() {
+  const sorted = [...ADMIN_DATA].sort((a, b) => b[4] - a[4]);
+  destroyChart('chartKecamatan');
+  charts['chartKecamatan'] = new Chart(document.getElementById('chartKecamatan'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(d => d[0]),
+      datasets: [{
+        label: 'Jumlah Kecamatan',
+        data: sorted.map(d => d[4]),
+        backgroundColor: sorted.map(d => colorByJenis(d[1])),
+        borderRadius: 3
+      }]
+    },
+    options: { ...baseOpts, indexAxis: 'y',
+      plugins: { ...baseOpts.plugins, legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.raw + ' kecamatan' } } },
+      scales: { ...baseOpts.scales, x: { ...baseOpts.scales.x, ticks: { ...baseOpts.scales.x.ticks, stepSize: 5 } }, y: { ...baseOpts.scales.y, ticks: { ...baseOpts.scales.y.ticks, font: { size: 10.5 } } } }
+    }
+  });
+}
+
+/* ═══════ TAB LUAS & BATAS ═══════ */
+function initLuas() {
+  const sorted = [...ADMIN_DATA].sort((a, b) => b[2] - a[2]);
+  destroyChart('chartLuasAll');
+  charts['chartLuasAll'] = new Chart(document.getElementById('chartLuasAll'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(d => d[0]),
+      datasets: [{
+        label: 'Luas (km²)',
+        data: sorted.map(d => d[2]),
+        backgroundColor: sorted.map(d => colorByJenis(d[1])),
+        borderRadius: 3
+      }]
+    },
+    options: { ...baseOpts, indexAxis: 'y',
+      plugins: { ...baseOpts.plugins, legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + fmt(ctx.raw) + ' km²' } } },
+      scales: { ...baseOpts.scales, x: { ...baseOpts.scales.x, ticks: { ...baseOpts.scales.x.ticks, callback: v => v + ' km²' } }, y: { ...baseOpts.scales.y, ticks: { ...baseOpts.scales.y.ticks, font: { size: 10.5 } } } }
+    }
+  });
+}
+
+/* ═══════ TAB TABEL ═══════ */
+function renderTabel() {
+  const sortKey = document.getElementById('sortTabel').value;
+  let data = [...ADMIN_DATA];
+  if (sortKey === 'luas') data.sort((a, b) => b[2] - a[2]);
+  else if (sortKey === 'kecamatan') data.sort((a, b) => b[4] - a[4]);
+  else if (sortKey === 'desa') data.sort((a, b) => b[5] - a[5]);
+  else data.sort((a, b) => a[0].localeCompare(b[0]));
+
+  document.getElementById('tbodyAdmin').innerHTML = data.map((d, i) => `
+    <tr>
+      <td style="color:var(--muted);font-size:11px">${i + 1}</td>
+      <td><strong>${d[0]}</strong></td>
+      <td>${d[1] === 'Kabupaten' ? '<span class="b-kab">KAB</span>' : '<span class="b-kota">KOTA</span>'}</td>
+      <td style="color:var(--muted)">${d[3]}</td>
+      <td class="tr mono">${fmt(d[2])}</td>
+      <td class="tr mono">${d[4]}</td>
+      <td class="tr mono">${d[5]}</td>
+    </tr>
+  `).join('');
+}
+
+function initTabel() {
+  renderTabel();
+  document.getElementById('sortTabel').addEventListener('change', renderTabel);
+}
+
+/* ═══════ TABS ═══════ */
+let tabReady = {};
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (!tabReady[tab]) {
+      if (tab === 'perwilayah') initPerWilayah();
+      if (tab === 'luas') initLuas();
+      if (tab === 'tabel') initTabel();
+      tabReady[tab] = true;
+    }
+  });
+});
+
+(function () {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+  s.onload = () => { initRingkasan(); tabReady['ringkasan'] = true; };
+  document.head.appendChild(s);
+})();
+</script>
+<script src="/assets/cockpit-loader.js"></script>
+</body>
+</html>

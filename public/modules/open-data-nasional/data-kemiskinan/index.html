@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Kemiskinan & Sosial — Jawa Barat | Cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0F172A; --card:#1E293B; --border:#334155; --text:#F1F5F9; --dim:#64748B; --muted:#94A3B8;
+  --amber:#F59E0B; --green:#22C55E; --red:#EF4444; --teal:#14B8A6; --purple:#A78BFA; --orange:#FB923C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+
+.module-header{background:linear-gradient(135deg,#1C1917 0%,#44403C 55%,#78716C 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase;transition:color .15s}
+.back-link:hover{color:#fff}
+.back-link svg{width:13px;height:13px;flex-shrink:0}
+.breadcrumb{padding:5px 24px 0;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.03em}
+.breadcrumb span{color:rgba(255,255,255,.3);margin:0 4px}
+.header-body{padding:14px 24px 22px}
+.header-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:5px}
+.header-desc{font-size:13px;color:rgba(255,255,255,.8);max-width:740px;line-height:1.6;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;letter-spacing:.02em}
+
+.tabs-bar{position:sticky;top:0;z-index:100;background:#1E293B;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 20px;font-size:13px;font-weight:500;font-family:'Space Grotesk',sans-serif;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:#D6D3D1;border-bottom-color:#D6D3D1;font-weight:600}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 56px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#D6D3D1;margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.sec-title:first-child{margin-top:0}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#D6D3D1;line-height:1.05}
+.kpi-unit{font-size:11.5px;font-weight:400;color:var(--muted)}
+.kpi-delta{font-size:11px;font-weight:600;margin-top:1px}
+.kpi-delta.up{color:var(--green)}.kpi-delta.dn{color:var(--red)}.kpi-delta.neu{color:var(--amber)}
+
+.chart-grid{display:grid;gap:16px;margin-bottom:24px}
+.chart-grid.cols-2{grid-template-columns:2fr 1fr}
+@media(max-width:800px){.chart-grid.cols-2{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.chart-card h4{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px}
+.chart-card .src{font-size:10px;color:var(--dim);margin-top:8px}
+.chart-wrap{position:relative;height:260px}
+.chart-wrap.md{height:300px}
+.chart-wrap.xl{height:360px}
+.chart-wrap.hbar{height:640px}
+.chart-wrap.scatter{height:360px}
+
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#0F172A;border-bottom:1px solid var(--border);font-weight:500;cursor:pointer}
+th.r{text-align:right}
+td{padding:9px 12px;border-bottom:1px solid #1E293B;vertical-align:middle;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#263348}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.tr{text-align:right}
+
+.controls-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.ctrl-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+select.ctrl-select{background:#1E293B;border:1px solid var(--border);border-radius:7px;padding:6px 10px;font-size:13px;color:var(--text);outline:none;cursor:pointer;font-family:'Space Grotesk',sans-serif}
+
+.note{background:rgba(214,211,209,.06);border:1px solid rgba(214,211,209,.2);border-left:3px solid #D6D3D1;border-radius:8px;padding:12px 16px;font-size:12px;color:#D6D3D1;line-height:1.65;margin-bottom:20px}
+.note strong{font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="module-header">
+  <a href="/menu.html" class="back-link">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+    Kembali ke Menu
+  </a>
+  <div class="breadcrumb">Open Data Nasional <span>›</span> Sosial &amp; Kependudukan <span>›</span> Data Kemiskinan</div>
+  <div class="header-body">
+    <div class="header-title">Data Kemiskinan &amp; Sosial — Jawa Barat</div>
+    <div class="header-desc">Tingkat kemiskinan, IPM (Indeks Pembangunan Manusia), dan Gini Ratio Jawa Barat 2015–2024, serta sebaran kemiskinan per kabupaten/kota 2023. Data bersumber dari Survei Sosial Ekonomi Nasional (Susenas) BPS.</div>
+    <div class="meta-row">
+      <span class="badge">BPS — Susenas</span>
+      <span class="badge">2015–2024</span>
+      <span class="badge">27 Kab/Kota 2023</span>
+      <span class="badge">Kemiskinan · IPM · Gini</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="ikhtisar">Ikhtisar</button>
+    <button class="tab-btn" data-tab="tren">Tren</button>
+    <button class="tab-btn" data-tab="perdaerah">Per Daerah</button>
+    <button class="tab-btn" data-tab="tabel">Tabel</button>
+    <button class="tab-btn" data-tab="tentang">Tentang</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+  <!-- TAB IKHTISAR -->
+  <div id="tab-ikhtisar" class="tab-panel active">
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="chart-card">
+      <h4>Tren Kemiskinan Jawa Barat 2015–2024 <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">%</span></h4>
+      <div class="chart-wrap xl"><canvas id="chartTrenKemiskinan"></canvas></div>
+      <p class="src">Sumber: BPS — Susenas Maret. Lonjakan 2020 akibat pandemi COVID-19.</p>
+    </div>
+
+    <div class="chart-grid cols-2">
+      <div class="chart-card">
+        <h4>Kemiskinan vs IPM 2015–2024</h4>
+        <div class="chart-wrap md"><canvas id="chartKemiskinanIPM"></canvas></div>
+        <p class="src">Korelasi negatif: IPM meningkat → kemiskinan menurun. Sumber: BPS</p>
+      </div>
+      <div class="chart-card">
+        <h4>Gini Ratio 2015–2024</h4>
+        <div class="chart-wrap md"><canvas id="chartGini"></canvas></div>
+        <p class="src">Gini mendekati 0 = lebih merata. Tren menurun positif. Sumber: BPS</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB TREN -->
+  <div id="tab-tren" class="tab-panel">
+    <div class="sec-title">Tren 3 Indikator Utama 2015–2024</div>
+    <div class="note">
+      <strong>Lonjakan 2020:</strong> Tingkat kemiskinan naik dari 6,91% (2019) menjadi 8,43% (2020) akibat dampak pandemi COVID-19. Pemerintah merespons dengan program Bansos, PKH, BLT Dana Desa, dan Kartu Prakerja. Pemulihan berlanjut hingga 2024.
+    </div>
+    <div class="chart-card">
+      <h4>Tingkat Kemiskinan, IPM &amp; Gini Ratio 2015–2024 (Dual Axis)</h4>
+      <div class="chart-wrap xl"><canvas id="chartTrenDual"></canvas></div>
+      <p class="src">Sumber: BPS Susenas. Sumbu kiri = Kemiskinan (%) &amp; Gini (×100). Sumbu kanan = IPM.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Tahun</th>
+            <th class="r">Kemiskinan (%)</th>
+            <th class="r">IPM</th>
+            <th class="r">Gini Ratio</th>
+            <th class="r">Δ Kemiskinan</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyTren"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB PER DAERAH -->
+  <div id="tab-perdaerah" class="tab-panel">
+    <div class="sec-title">Kemiskinan per Kab/Kota Jawa Barat 2023</div>
+    <div class="chart-card">
+      <h4>Tingkat Kemiskinan (%) per Kab/Kota 2023 <span style="font-size:10px;font-weight:400;color:var(--dim);font-family:'JetBrains Mono',monospace">diurutkan dari tertinggi</span></h4>
+      <div class="chart-wrap hbar"><canvas id="chartPerDaerah"></canvas></div>
+      <p class="src">Sumber: BPS — Susenas 2023. Merah = &gt;10%, Kuning = 7–10%, Hijau = &lt;7%</p>
+    </div>
+
+    <div class="sec-title">Korelasi Kemiskinan vs Jumlah Penduduk Miskin 2023</div>
+    <div class="chart-card">
+      <h4>Scatter: % Kemiskinan vs Jiwa Miskin (ribu) 2023</h4>
+      <div class="chart-wrap scatter"><canvas id="chartScatter"></canvas></div>
+      <p class="src">Ukuran titik = jiwa miskin relatif. Kab. Bogor: penduduk miskin terbanyak meski % lebih rendah. Sumber: BPS 2023</p>
+    </div>
+  </div>
+
+  <!-- TAB TABEL -->
+  <div id="tab-tabel" class="tab-panel">
+    <div class="controls-row">
+      <span class="ctrl-label">Urutkan:</span>
+      <select class="ctrl-select" id="sortMiskin">
+        <option value="pct">% Kemiskinan ↓</option>
+        <option value="jiwa">Jiwa Miskin ↓</option>
+        <option value="nama">Nama A–Z</option>
+      </select>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Wilayah</th>
+            <th class="r">% Kemiskinan 2023</th>
+            <th class="r">Jiwa Miskin (ribu) 2023</th>
+            <th>Kategori</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyMiskin"></tbody>
+      </table>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:-12px">Sumber: BPS — Susenas Maret 2023 | Rata-rata Jawa Barat: 7,46%</p>
+  </div>
+
+  <!-- TAB TENTANG -->
+  <div id="tab-tentang" class="tab-panel">
+    <div class="sec-title">Tentang Dataset</div>
+    <div class="note">
+      <strong>Definisi Kemiskinan BPS:</strong> Penduduk dikategorikan miskin apabila rata-rata pengeluaran per kapita per bulan di bawah Garis Kemiskinan (GK). GK ditetapkan berdasarkan kebutuhan minimum makanan (setara 2.100 Kkal) dan non-makanan. Pengukuran menggunakan Susenas (Survei Sosial Ekonomi Nasional), biasanya pada bulan Maret dan September.
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Indikator</th><th>Definisi</th><th>Satuan</th><th>Frekuensi</th></tr></thead>
+        <tbody>
+          <tr><td><strong>P0 (Headcount Ratio)</strong></td><td>Proporsi penduduk miskin terhadap total penduduk</td><td>%</td><td>Semi-tahunan</td></tr>
+          <tr><td><strong>IPM</strong></td><td>Indeks Pembangunan Manusia: komposit umur panjang, pendidikan, pengeluaran</td><td>Skor 0–100</td><td>Tahunan</td></tr>
+          <tr><td><strong>Gini Ratio</strong></td><td>Koefisien ketimpangan distribusi pengeluaran (0=merata, 1=timpang)</td><td>0–1</td><td>Semi-tahunan</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:12px">Sumber: <span style="color:#D6D3D1;font-family:'JetBrains Mono',monospace">https://www.bps.go.id</span> | Open data BPS: <span style="color:#D6D3D1;font-family:'JetBrains Mono',monospace">https://opendata.bps.go.id</span></p>
+  </div>
+
+</div><!-- /page-body -->
+
+<script>
+/* ═══════════════════ DATA ═══════════════════ */
+const TAHUN = [2015,2016,2017,2018,2019,2020,2021,2022,2023,2024];
+const KEMISKINAN = [8.98,8.77,8.71,7.25,6.91,8.43,7.88,7.62,7.46,7.20];
+const IPM        = [69.50,70.05,70.69,71.30,72.03,72.09,72.45,73.12,73.88,74.24];
+const GINI       = [0.415,0.402,0.393,0.405,0.398,0.387,0.384,0.376,0.378,0.372];
+
+const MISKIN_DATA = [
+  { nama: 'Kab. Garut',         pct: 11.42, jiwa: 286.4 },
+  { nama: 'Kab. Cianjur',       pct: 10.98, jiwa: 231.8 },
+  { nama: 'Kab. Indramayu',     pct: 10.76, jiwa: 198.2 },
+  { nama: 'Kab. Tasikmalaya',   pct: 10.54, jiwa: 186.6 },
+  { nama: 'Kab. Sukabumi',      pct: 9.87,  jiwa: 243.1 },
+  { nama: 'Kab. Majalengka',    pct: 9.65,  jiwa: 121.8 },
+  { nama: 'Kab. Kuningan',      pct: 9.43,  jiwa: 106.2 },
+  { nama: 'Kab. Cirebon',       pct: 9.21,  jiwa: 193.7 },
+  { nama: 'Kab. Ciamis',        pct: 8.89,  jiwa: 95.4  },
+  { nama: 'Kab. Subang',        pct: 8.76,  jiwa: 130.2 },
+  { nama: 'Kota Cirebon',       pct: 8.76,  jiwa: 27.6  },
+  { nama: 'Kab. Sumedang',      pct: 8.54,  jiwa: 97.8  },
+  { nama: 'Kab. Karawang',      pct: 7.98,  jiwa: 182.3 },
+  { nama: 'Kab. Bogor',         pct: 7.65,  jiwa: 416.4 },
+  { nama: 'Kota Tasikmalaya',   pct: 7.54,  jiwa: 47.8  },
+  { nama: 'Kab. Purwakarta',    pct: 7.43,  jiwa: 76.2  },
+  { nama: 'Kab. Pangandaran',   pct: 7.21,  jiwa: 27.8  },
+  { nama: 'Kab. Bandung',       pct: 6.98,  jiwa: 219.6 },
+  { nama: 'Kab. Bandung Barat', pct: 6.87,  jiwa: 97.6  },
+  { nama: 'Kota Sukabumi',      pct: 6.34,  jiwa: 18.9  },
+  { nama: 'Kota Bogor',         pct: 5.87,  jiwa: 58.1  },
+  { nama: 'Kab. Bekasi',        pct: 5.43,  jiwa: 181.3 },
+  { nama: 'Kota Banjar',        pct: 5.43,  jiwa: 10.2  },
+  { nama: 'Kota Cimahi',        pct: 4.87,  jiwa: 25.6  },
+  { nama: 'Kota Bekasi',        pct: 4.12,  jiwa: 116.2 },
+  { nama: 'Kota Bandung',       pct: 4.03,  jiwa: 96.8  },
+  { nama: 'Kota Depok',         pct: 2.43,  jiwa: 54.2  },
+];
+
+function fmt(v, dec=2) { return v.toLocaleString('id-ID', {minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+function pctColor(pct) {
+  if (pct > 10) return 'rgba(239,68,68,.75)';
+  if (pct >= 7) return 'rgba(245,158,11,.75)';
+  return 'rgba(34,197,94,.75)';
+}
+function pctKat(pct) {
+  if (pct > 10) return '<span style="font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(239,68,68,.15);color:#FCA5A5;font-family:JetBrains Mono,monospace;border:1px solid rgba(239,68,68,.25)">Tinggi</span>';
+  if (pct >= 7) return '<span style="font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(245,158,11,.15);color:#FDE68A;font-family:JetBrains Mono,monospace;border:1px solid rgba(245,158,11,.25)">Sedang</span>';
+  return '<span style="font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(34,197,94,.15);color:#86EFAC;font-family:JetBrains Mono,monospace;border:1px solid rgba(34,197,94,.25)">Rendah</span>';
+}
+
+let charts = {};
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+const baseOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { labels: { color: '#94A3B8', font: { size: 11 }, boxWidth: 14 } } },
+  scales: {
+    x: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8' } },
+    y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8' } }
+  }
+};
+
+/* ═══════ TAB IKHTISAR ═══════ */
+function initIkhtisar() {
+  const last = TAHUN.length - 1;
+  const delta = KEMISKINAN[last] - KEMISKINAN[0];
+
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-label">Kemiskinan Jabar 2024</div>
+      <div class="kpi-value">${fmt(KEMISKINAN[last], 2)}<span style="font-size:18px">%</span></div>
+      <div class="kpi-unit">persen dari total penduduk</div>
+      <div class="kpi-delta up">▼ ${fmt(Math.abs(delta), 2)}% dari 2015</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">IPM 2024</div>
+      <div class="kpi-value">${fmt(IPM[last], 2)}</div>
+      <div class="kpi-unit">Indeks Pembangunan Manusia</div>
+      <div class="kpi-delta up">▲ ${fmt(IPM[last]-IPM[0], 2)} dari 2015</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Gini Ratio 2024</div>
+      <div class="kpi-value">${GINI[last].toFixed(3)}</div>
+      <div class="kpi-unit">koefisien ketimpangan</div>
+      <div class="kpi-delta up">▼ ${(GINI[0]-GINI[last]).toFixed(3)} dari 2015</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Penurunan vs 2015</div>
+      <div class="kpi-value">${fmt(Math.abs(delta), 2)}<span style="font-size:18px">pp</span></div>
+      <div class="kpi-unit">persentase poin 2015→2024</div>
+      <div class="kpi-delta up">Puncak 2020: 8,43% (pandemi)</div>
+    </div>
+  `;
+
+  // Trend kemiskinan
+  destroyChart('chartTrenKemiskinan');
+  charts['chartTrenKemiskinan'] = new Chart(document.getElementById('chartTrenKemiskinan'), {
+    type: 'line',
+    data: {
+      labels: TAHUN,
+      datasets: [{
+        label: 'Kemiskinan (%)',
+        data: KEMISKINAN,
+        borderColor: '#D6D3D1',
+        backgroundColor: 'rgba(214,211,209,.1)',
+        fill: true, tension: 0.3,
+        pointRadius: TAHUN.map((_, i) => i === 5 ? 8 : 4),
+        pointBackgroundColor: TAHUN.map((_, i) => i === 5 ? '#EF4444' : '#D6D3D1'),
+        pointBorderColor: '#1E293B', pointBorderWidth: 2,
+        borderWidth: 2
+      }]
+    },
+    options: { ...baseOpts, interaction: { intersect: false, mode: 'index' },
+      plugins: { ...baseOpts.plugins, legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' Kemiskinan: ' + fmt(ctx.raw, 2) + '%' } } },
+      scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, ticks: { ...baseOpts.scales.y.ticks, callback: v => v + '%' } } }
+    }
+  });
+
+  // IPM + Kemiskinan dual line
+  destroyChart('chartKemiskinanIPM');
+  charts['chartKemiskinanIPM'] = new Chart(document.getElementById('chartKemiskinanIPM'), {
+    type: 'line',
+    data: {
+      labels: TAHUN,
+      datasets: [
+        { label: 'Kemiskinan (%)', data: KEMISKINAN, borderColor: '#EF4444', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3, borderWidth: 2, yAxisID: 'y' },
+        { label: 'IPM', data: IPM, borderColor: '#34D399', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3, borderWidth: 2, yAxisID: 'y1' },
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' },
+      plugins: { legend: { position: 'bottom', labels: { color: '#94A3B8', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.raw, 2) } } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8' } },
+        y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#EF4444', callback: v => v + '%' }, position: 'left' },
+        y1: { grid: { display: false }, ticks: { color: '#34D399', callback: v => v.toFixed(0) }, position: 'right' }
+      }
+    }
+  });
+
+  // Gini
+  destroyChart('chartGini');
+  charts['chartGini'] = new Chart(document.getElementById('chartGini'), {
+    type: 'bar',
+    data: {
+      labels: TAHUN,
+      datasets: [{
+        label: 'Gini Ratio',
+        data: GINI,
+        backgroundColor: GINI.map(v => v === Math.max(...GINI) ? 'rgba(239,68,68,.75)' : 'rgba(214,211,209,.5)'),
+        borderRadius: 4, borderSkipped: false
+      }]
+    },
+    options: { ...baseOpts, plugins: { ...baseOpts.plugins, legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' Gini: ' + ctx.raw.toFixed(3) } } },
+      scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, min: 0.35, max: 0.43, ticks: { ...baseOpts.scales.y.ticks, callback: v => v.toFixed(2) } } }
+    }
+  });
+}
+
+/* ═══════ TAB TREN ═══════ */
+function initTren() {
+  destroyChart('chartTrenDual');
+  charts['chartTrenDual'] = new Chart(document.getElementById('chartTrenDual'), {
+    type: 'line',
+    data: {
+      labels: TAHUN,
+      datasets: [
+        { label: 'Kemiskinan (%)', data: KEMISKINAN, borderColor: '#EF4444', backgroundColor: 'rgba(239,68,68,.08)', fill: true, tension: 0.3, pointRadius: 4, borderWidth: 2, yAxisID: 'y' },
+        { label: 'Gini ×100', data: GINI.map(v => +(v*100).toFixed(1)), borderColor: '#FBBF24', backgroundColor: 'transparent', tension: 0.3, pointRadius: 4, borderWidth: 2, borderDash: [5,3], yAxisID: 'y' },
+        { label: 'IPM', data: IPM, borderColor: '#34D399', backgroundColor: 'transparent', tension: 0.3, pointRadius: 4, borderWidth: 2, yAxisID: 'y1' },
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' },
+      plugins: { legend: { position: 'bottom', labels: { color: '#94A3B8', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.raw, 2) } } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8' } },
+        y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8', callback: v => v.toFixed(1) }, position: 'left' },
+        y1: { grid: { display: false }, ticks: { color: '#34D399' }, position: 'right', min: 68, max: 76 }
+      }
+    }
+  });
+
+  document.getElementById('tbodyTren').innerHTML = TAHUN.map((yr, i) => {
+    const delta = i === 0 ? '—' : fmt(KEMISKINAN[i] - KEMISKINAN[i-1], 2);
+    const deltaStyle = i > 0 ? (KEMISKINAN[i] < KEMISKINAN[i-1] ? 'color:var(--green)' : 'color:var(--red)') : '';
+    return `<tr ${i===5?'style="background:rgba(239,68,68,.05)"':''}>
+      <td class="mono" style="font-weight:${i===9?700:400}">${yr}</td>
+      <td class="tr mono">${fmt(KEMISKINAN[i], 2)}%</td>
+      <td class="tr mono">${fmt(IPM[i], 2)}</td>
+      <td class="tr mono">${GINI[i].toFixed(3)}</td>
+      <td class="tr mono" style="${deltaStyle}">${i===5?'▲ ':''}${delta}${i>0?'pp':''}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════ TAB PER DAERAH ═══════ */
+function initPerDaerah() {
+  const sorted = [...MISKIN_DATA].sort((a, b) => b.pct - a.pct);
+
+  destroyChart('chartPerDaerah');
+  charts['chartPerDaerah'] = new Chart(document.getElementById('chartPerDaerah'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(d => d.nama),
+      datasets: [{
+        label: '% Kemiskinan 2023',
+        data: sorted.map(d => d.pct),
+        backgroundColor: sorted.map(d => pctColor(d.pct)),
+        borderColor: sorted.map(d => pctColor(d.pct).replace('.75', '1')),
+        borderWidth: 1, borderRadius: 3
+      }]
+    },
+    options: { ...baseOpts, indexAxis: 'y',
+      plugins: { ...baseOpts.plugins, legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + fmt(ctx.raw, 2) + '% — ' + fmt(sorted[ctx.dataIndex].jiwa, 1) + ' ribu jiwa' } } },
+      scales: { ...baseOpts.scales, x: { ...baseOpts.scales.x, min: 0, max: 13, ticks: { ...baseOpts.scales.x.ticks, callback: v => v + '%' } }, y: { ...baseOpts.scales.y, ticks: { ...baseOpts.scales.y.ticks, font: { size: 11 } } } }
+    }
+  });
+
+  // Scatter plot
+  destroyChart('chartScatter');
+  charts['chartScatter'] = new Chart(document.getElementById('chartScatter'), {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        label: 'Kab/Kota 2023',
+        data: MISKIN_DATA.map(d => ({ x: d.pct, y: d.jiwa, nama: d.nama })),
+        backgroundColor: MISKIN_DATA.map(d => pctColor(d.pct)),
+        pointRadius: MISKIN_DATA.map(d => Math.max(6, Math.sqrt(d.jiwa) * 1.2)),
+        pointHoverRadius: MISKIN_DATA.map(d => Math.max(8, Math.sqrt(d.jiwa) * 1.5)),
+        borderColor: 'rgba(255,255,255,.3)', borderWidth: 1
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: {
+          label: ctx => {
+            const d = MISKIN_DATA[ctx.dataIndex];
+            return [' ' + d.nama, ' Kemiskinan: ' + fmt(d.pct, 2) + '%', ' Jiwa Miskin: ' + fmt(d.jiwa, 1) + ' ribu'];
+          }
+        } }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8', callback: v => v + '%' }, title: { display: true, text: 'Tingkat Kemiskinan (%)', color: '#94A3B8', font: { size: 11 } } },
+        y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#94A3B8', callback: v => v + ' rb' }, title: { display: true, text: 'Jiwa Miskin (ribu)', color: '#94A3B8', font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+/* ═══════ TAB TABEL ═══════ */
+function renderTabelMiskin() {
+  const sortKey = document.getElementById('sortMiskin').value;
+  let data = [...MISKIN_DATA];
+  if (sortKey === 'pct') data.sort((a, b) => b.pct - a.pct);
+  else if (sortKey === 'jiwa') data.sort((a, b) => b.jiwa - a.jiwa);
+  else data.sort((a, b) => a.nama.localeCompare(b.nama));
+
+  document.getElementById('tbodyMiskin').innerHTML = data.map((d, i) => `
+    <tr>
+      <td style="color:var(--muted);font-size:11px">${i + 1}</td>
+      <td><strong>${d.nama}</strong></td>
+      <td class="tr mono" style="color:${d.pct>10?'#FCA5A5':d.pct>=7?'#FDE68A':'#86EFAC'}">${fmt(d.pct, 2)}%</td>
+      <td class="tr mono">${fmt(d.jiwa, 1)}</td>
+      <td>${pctKat(d.pct)}</td>
+    </tr>
+  `).join('');
+}
+
+function initTabel() {
+  renderTabelMiskin();
+  document.getElementById('sortMiskin').addEventListener('change', renderTabelMiskin);
+}
+
+/* ═══════ TABS ═══════ */
+let tabReady = {};
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (!tabReady[tab]) {
+      if (tab === 'tren') initTren();
+      if (tab === 'perdaerah') initPerDaerah();
+      if (tab === 'tabel') initTabel();
+      tabReady[tab] = true;
+    }
+  });
+});
+
+(function () {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+  s.onload = () => { initIkhtisar(); tabReady['ikhtisar'] = true; };
+  document.head.appendChild(s);
+})();
+</script>
+<script src="/assets/cockpit-loader.js"></script>
+</body>
+</html>
