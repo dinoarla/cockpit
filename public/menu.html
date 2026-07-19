@@ -394,13 +394,13 @@
   }
   @media(max-width:960px){.server-sidebar{display:none;}}
 
-  /* ── KNOWLEDGE GRAPH SIDEBAR (RIGHT) ── */
+  /* ── COCKPIT SYNAPS SIDEBAR (RIGHT) ── */
   .kg-sidebar{
     width:236px;flex-shrink:0;
     position:sticky;top:56px;
     height:calc(100vh - 56px);
-    background:#0D1117;
-    border-left:1px solid rgba(255,255,255,.06);
+    background:#020408;
+    border-left:1px solid rgba(255,255,255,.04);
     display:flex;flex-direction:column;
     overflow:hidden;
     transition:width .28s cubic-bezier(.4,0,.2,1),border .28s;
@@ -408,7 +408,7 @@
   @media(max-width:1100px){.kg-sidebar{display:none;}}
   .kg-sidebar.kg-collapsed{
     width:44px !important;
-    border-left:1px solid rgba(255,255,255,.05) !important;
+    border-left:1px solid rgba(255,255,255,.03) !important;
   }
   .kg-sidebar.kg-collapsed .kg-hd{
     flex-direction:column;gap:0;padding:0;border-bottom:none;
@@ -444,11 +444,11 @@
   .kg-hd{
     display:flex;align-items:center;gap:7px;
     font-family:'DM Mono',monospace;font-size:.52rem;font-weight:500;
-    color:rgba(230,237,243,.25);letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(200,220,255,.2);letter-spacing:.14em;text-transform:uppercase;
     padding:18px 14px 14px;flex-shrink:0;
-    border-bottom:1px solid rgba(255,255,255,.06);
+    border-bottom:1px solid rgba(255,255,255,.04);
   }
-  .kg-hd i{color:rgba(168,139,250,.6);font-size:.65rem;}
+  .kg-hd i{color:rgba(140,180,255,.5);font-size:.65rem;}
   .kg-cnt{
     margin-left:auto;font-size:.44rem;
     background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
@@ -490,11 +490,11 @@
   }
 
   /* ── FULL GRAPH MODAL ── */
-  .graph-modal{display:none;position:fixed;inset:0;z-index:3000;background:#070B0F;flex-direction:column;}
+  .graph-modal{display:none;position:fixed;inset:0;z-index:3000;background:#000;flex-direction:column;}
   .graph-modal.open{display:flex;}
   .gm-bar{
-    height:50px;flex-shrink:0;background:#0D1117;
-    border-bottom:1px solid rgba(255,255,255,.07);
+    height:50px;flex-shrink:0;background:#03060D;
+    border-bottom:1px solid rgba(255,255,255,.05);
     display:flex;align-items:center;padding:0 16px;gap:12px;
   }
   .gm-title{
@@ -847,8 +847,8 @@
 
 <aside class="kg-sidebar" id="kgSidebar">
   <div class="kg-hd">
-    <i class="fa-solid fa-diagram-project"></i>
-    <span class="kg-hd-text">Knowledge Graph</span>
+    <i class="fa-solid fa-atom"></i>
+    <span class="kg-hd-text">Cockpit Synaps</span>
     <span class="kg-cnt" id="kg-node-count"></span>
     <button class="kg-expand-btn" id="kgExpandBtn" title="Buka full graph"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
     <button class="kg-col-btn" id="kgColBtn" title="Sembunyikan sidebar"><i class="fa-solid fa-chevron-right" id="kgColIco"></i></button>
@@ -1615,21 +1615,36 @@ function initKnowledgeGraph(domainList) {
   svgEl.setAttribute('height', H);
   const svg = d3.select(svgEl);
   svg.selectAll('*').remove();
-  const g = svg.append('g');
 
+  // ── Bloom filter ──
+  const defs = svg.append('defs');
+  const bloom = defs.append('filter').attr('id','kg-bloom').attr('x','-80%').attr('y','-80%').attr('width','260%').attr('height','260%');
+  bloom.append('feGaussianBlur').attr('in','SourceGraphic').attr('stdDeviation','3.5').attr('result','blur');
+  const merge = bloom.append('feMerge');
+  merge.append('feMergeNode').attr('in','blur');
+  merge.append('feMergeNode').attr('in','SourceGraphic');
+
+  const g = svg.append('g');
   svg.call(d3.zoom().scaleExtent([.3, 4]).on('zoom', e => g.attr('transform', e.transform)));
 
+  // Links — thin solid, no dashes
   const link = g.append('g').selectAll('line').data(links).join('line')
-    .attr('stroke', d => d.cross ? 'rgba(255,255,255,.14)' : 'rgba(255,255,255,.07)')
-    .attr('stroke-width', d => d.cross ? 1.3 : .8)
-    .attr('stroke-dasharray', d => d.cross ? '3,3' : null);
+    .attr('stroke', 'rgba(180,200,255,.09)')
+    .attr('stroke-width', .7);
 
+  // Glow halos (outer) — large blurred circles
+  const halo = g.append('g').selectAll('circle').data(nodes.filter(n=>n.status==='aktif')).join('circle')
+    .attr('r', d => d.accessible ? 9 : 6)
+    .attr('fill', d => d.color)
+    .attr('opacity', .08)
+    .attr('pointer-events','none');
+
+  // Node cores (inner)
   const node = g.append('g').selectAll('circle').data(nodes).join('circle')
-    .attr('r', d => d.status === 'aktif' ? 5.5 : 3.5)
-    .attr('fill', d => d.status === 'aktif' ? d.color : '#252A34')
-    .attr('stroke', d => d.status === 'aktif' ? d.color + '66' : '#374151')
-    .attr('stroke-width', d => d.status === 'aktif' ? 3 : 1)
-    .attr('opacity', d => d.status === 'aktif' ? (d.accessible ? .88 : .5) : .28)
+    .attr('r', d => d.status === 'aktif' ? (d.accessible ? 4 : 3) : 2)
+    .attr('fill', d => d.status === 'aktif' ? d.color : '#1e2330')
+    .attr('opacity', d => d.status === 'aktif' ? (d.accessible ? 1 : .5) : .2)
+    .attr('filter', d => d.status === 'aktif' ? 'url(#kg-bloom)' : null)
     .style('cursor', d => (d.status === 'aktif' && d.accessible && d.routePath) ? 'pointer' : 'default');
 
   const tt = d3.select('#kg-tooltip');
@@ -1645,15 +1660,22 @@ function initKnowledgeGraph(domainList) {
       link
         .attr('stroke', l =>
           (l.source.id === d.id || l.target.id === d.id)
-            ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.03)')
+            ? d.color + 'CC' : 'rgba(180,200,255,.03)')
         .attr('stroke-width', l =>
-          (l.source.id === d.id || l.target.id === d.id) ? 1.8 : .5);
+          (l.source.id === d.id || l.target.id === d.id) ? 1.5 : .4);
       node.attr('opacity', n => {
         if (n.id === d.id) return 1;
         const conn = links.some(l =>
           (l.source.id === n.id && l.target.id === d.id) ||
           (l.source.id === d.id && l.target.id === n.id));
-        return conn ? .9 : .12;
+        return conn ? 1 : .08;
+      });
+      halo.attr('opacity', n => {
+        if (n.id === d.id) return .25;
+        const conn = links.some(l =>
+          (l.source.id === n.id && l.target.id === d.id) ||
+          (l.source.id === d.id && l.target.id === n.id));
+        return conn ? .15 : .02;
       });
     })
     .on('mousemove', function(e) {
@@ -1666,10 +1688,9 @@ function initKnowledgeGraph(domainList) {
     })
     .on('mouseout', function() {
       tt.style('display', 'none');
-      link
-        .attr('stroke', l => l.cross ? 'rgba(255,255,255,.14)' : 'rgba(255,255,255,.07)')
-        .attr('stroke-width', l => l.cross ? 1.3 : .8);
-      node.attr('opacity', n => n.status === 'aktif' ? (n.accessible ? .88 : .5) : .28);
+      link.attr('stroke', 'rgba(180,200,255,.09)').attr('stroke-width', .7);
+      node.attr('opacity', n => n.status === 'aktif' ? (n.accessible ? 1 : .5) : .2);
+      halo.attr('opacity', .08);
     })
     .on('click', function(e, d) {
       if (d.status === 'aktif' && d.accessible && d.routePath)
@@ -1678,11 +1699,11 @@ function initKnowledgeGraph(domainList) {
 
   const sim = d3.forceSimulation(nodes)
     .stop()
-    .force('link',      d3.forceLink(links).id(d => d.id).distance(28).strength(.18))
-    .force('charge',    d3.forceManyBody().strength(-60))
-    .force('x',         d3.forceX(d => (CP[d.gk]?.x || .5) * W).strength(.26))
-    .force('y',         d3.forceY(d => (CP[d.gk]?.y || .5) * H).strength(.26))
-    .force('collision', d3.forceCollide(7.5));
+    .force('link',      d3.forceLink(links).id(d => d.id).distance(24).strength(.12))
+    .force('charge',    d3.forceManyBody().strength(-90))
+    .force('x',         d3.forceX(d => (CP[d.gk]?.x || .5) * W).strength(.22))
+    .force('y',         d3.forceY(d => (CP[d.gk]?.y || .5) * H).strength(.22))
+    .force('collision', d3.forceCollide(6));
 
   const drag = d3.drag()
     .on('start', (e, d) => { if (!e.active) sim.alphaTarget(.3).restart(); d.fx = d.x; d.fy = d.y; })
@@ -1695,8 +1716,11 @@ function initKnowledgeGraph(domainList) {
       .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
       .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
     node
-      .attr('cx', d => Math.max(7, Math.min(W - 7, d.x)))
-      .attr('cy', d => Math.max(7, Math.min(H - 7, d.y)));
+      .attr('cx', d => Math.max(6, Math.min(W - 6, d.x)))
+      .attr('cy', d => Math.max(6, Math.min(H - 6, d.y)));
+    halo
+      .attr('cx', d => Math.max(6, Math.min(W - 6, d.x)))
+      .attr('cy', d => Math.max(6, Math.min(H - 6, d.y)));
   }).restart();
 }
 
@@ -1816,75 +1840,80 @@ function initFullGraph(domainList) {
   const svg = d3.select(svgEl).attr('viewBox',`0 0 ${W} ${H}`);
   svg.selectAll('*').remove();
   const defs = svg.append('defs');
-  const fid = 'gm-hull-blur';
-  const fBlur = defs.append('filter').attr('id',fid).attr('x','-40%').attr('y','-40%').attr('width','180%').attr('height','180%');
-  fBlur.append('feGaussianBlur').attr('stdDeviation',22);
+
+  // Bloom filter for node glow
+  const bloom = defs.append('filter').attr('id','gm-bloom').attr('x','-100%').attr('y','-100%').attr('width','300%').attr('height','300%');
+  bloom.append('feGaussianBlur').attr('in','SourceGraphic').attr('stdDeviation','5').attr('result','blur');
+  const bMerge = bloom.append('feMerge');
+  bMerge.append('feMergeNode').attr('in','blur');
+  bMerge.append('feMergeNode').attr('in','SourceGraphic');
 
   const g = svg.append('g');
-  const hullG = g.append('g');
+
+  // Star field background
+  const rng = (n) => Math.random() * n;
+  const starG = g.append('g').attr('pointer-events','none');
+  for (let i = 0; i < 120; i++) {
+    starG.append('circle')
+      .attr('cx', rng(W * 3 - W)).attr('cy', rng(H * 3 - H))
+      .attr('r', Math.random() < .15 ? .9 : .45)
+      .attr('fill', 'rgba(200,215,255,' + (.05 + Math.random() * .18).toFixed(2) + ')')
+      .attr('pointer-events','none');
+  }
 
   // Zoom
   const zoom = d3.zoom().scaleExtent([.08,8]).on('zoom', e => {
     g.attr('transform', e.transform);
     const k = e.transform.k;
     document.getElementById('gm-zoom-val').textContent = Math.round(k*100)+'%';
-    labelSel.attr('opacity', d => activeTopics.has(d.gk) ? Math.max(0,Math.min(1,(k-.35)/.45)) : 0);
+    labelSel.attr('opacity', d => activeTopics.has(d.gk) ? Math.max(0,Math.min(1,(k-.4)/.5)) : 0);
   });
   svg.call(zoom);
 
+  // Links — thin solid, no dashes
   const linkSel = g.append('g').selectAll('line').data(links).join('line')
-    .attr('stroke', d=>d.cross?'rgba(255,255,255,.2)':'rgba(255,255,255,.1)')
-    .attr('stroke-width', d=>d.cross?1.8:1)
-    .attr('stroke-dasharray', d=>d.cross?'5,4':null);
+    .attr('stroke', 'rgba(180,200,255,.07)')
+    .attr('stroke-width', .8);
 
+  // Glow halos — outer blurred rings behind nodes
+  const haloSel = g.append('g').selectAll('circle').data(nodes.filter(n=>n.status==='aktif')).join('circle')
+    .attr('r', d => nr(d) * 2.2)
+    .attr('fill', d => d.color)
+    .attr('opacity', .07)
+    .attr('pointer-events','none');
+
+  // Node cores with bloom glow
   const nodeSel = g.append('g').selectAll('circle').data(nodes).join('circle')
     .attr('r', nr)
-    .attr('fill', d=>d.status==='aktif'?d.color:'#252A34')
-    .attr('stroke', d=>d.status==='aktif'?d.color+'55':'#3A4050')
-    .attr('stroke-width', d=>d.status==='aktif'?4:1)
-    .attr('opacity', d=>d.status==='aktif'?(d.accessible?.9:.5):.3)
+    .attr('fill', d=>d.status==='aktif'?d.color:'#1e2330')
+    .attr('opacity', d=>d.status==='aktif'?(d.accessible?1:.45):.18)
+    .attr('filter', d=>d.status==='aktif'?'url(#gm-bloom)':null)
     .style('cursor', d=>(d.status==='aktif'&&d.accessible&&d.routePath)?'pointer':'default');
 
   const labelSel = g.append('g').selectAll('text').data(nodes).join('text')
     .text(d=>d.name.length>15?d.name.slice(0,14)+'…':d.name)
     .attr('font-family','DM Sans,sans-serif').attr('font-size',11)
-    .attr('fill','rgba(230,237,243,.78)').attr('text-anchor','middle')
+    .attr('fill','rgba(200,215,255,.7)').attr('text-anchor','middle')
     .attr('dy', d=>nr(d)+14).attr('pointer-events','none').attr('opacity',0);
-
-  // Hull drawing
-  function drawHulls() {
-    const grps = {};
-    for (const n of nodes) {
-      if (!activeTopics.has(n.gk)||!n.x) continue;
-      (grps[n.gk]=grps[n.gk]||[]).push([n.x,n.y]);
-    }
-    hullG.selectAll('path').data(Object.entries(grps)).join('path')
-      .attr('d',([,pts])=>{
-        if (pts.length<2) { const[x,y]=pts[0]; return `M${x-28},${y-28}h56v56h-56Z`; }
-        const pad=pts.flatMap(([x,y])=>[[x-24,y-24],[x+24,y-24],[x-24,y+24],[x+24,y+24]]);
-        const hull=d3.polygonHull(pad);
-        return hull?'M'+hull.map(p=>p.join(',')).join('L')+'Z':null;
-      })
-      .attr('fill',([gk])=>(GC[gk]||'#888')+'18')
-      .attr('stroke',([gk])=>(GC[gk]||'#888')+'40')
-      .attr('stroke-width',1.5).attr('stroke-linejoin','round')
-      .attr('filter',`url(#${fid})`);
-  }
 
   // Highlight helpers
   function resetVis() {
     const k=d3.zoomTransform(svgEl).k;
-    linkSel.attr('stroke',l=>l.cross?'rgba(255,255,255,.2)':'rgba(255,255,255,.1)')
-      .attr('stroke-width',l=>l.cross?1.8:1).attr('opacity',1);
-    nodeSel.attr('opacity',d=>activeTopics.has(d.gk)?(d.status==='aktif'?(d.accessible?.9:.5):.3):0);
-    labelSel.attr('opacity',d=>activeTopics.has(d.gk)?Math.max(0,Math.min(1,(k-.35)/.45)):0);
+    linkSel.attr('stroke','rgba(180,200,255,.07)').attr('stroke-width',.8).attr('opacity',1);
+    nodeSel.attr('opacity',d=>activeTopics.has(d.gk)?(d.status==='aktif'?(d.accessible?1:.45):.18):0);
+    haloSel.attr('opacity',d=>activeTopics.has(d.gk)?.07:0);
+    labelSel.attr('opacity',d=>activeTopics.has(d.gk)?Math.max(0,Math.min(1,(k-.4)/.5)):0);
   }
   function highlightNode(d) {
-    linkSel.attr('stroke',l=>(l.source.id===d.id||l.target.id===d.id)?d.color+'CC':'rgba(255,255,255,.04)')
-      .attr('stroke-width',l=>(l.source.id===d.id||l.target.id===d.id)?2.5:.8);
+    linkSel.attr('stroke',l=>(l.source.id===d.id||l.target.id===d.id)?d.color+'BB':'rgba(180,200,255,.02)')
+      .attr('stroke-width',l=>(l.source.id===d.id||l.target.id===d.id)?2:.5);
     nodeSel.attr('opacity',n=>{
       if(n.id===d.id) return 1;
-      return links.some(l=>(l.source.id===n.id&&l.target.id===d.id)||(l.source.id===d.id&&l.target.id===n.id))?.88:.08;
+      return links.some(l=>(l.source.id===n.id&&l.target.id===d.id)||(l.source.id===d.id&&l.target.id===n.id))?1:.06;
+    });
+    haloSel.attr('opacity',n=>{
+      if(n.id===d.id) return .28;
+      return links.some(l=>(l.source.id===n.id&&l.target.id===d.id)||(l.source.id===d.id&&l.target.id===n.id))?.16:.01;
     });
     labelSel.attr('opacity',n=>{
       if(n.id===d.id) return 1;
@@ -1932,11 +1961,11 @@ function initFullGraph(domainList) {
 
   // Simulation
   const sim = d3.forceSimulation(nodes).stop()
-    .force('link', d3.forceLink(links).id(d=>d.id).distance(70).strength(.14))
-    .force('charge', d3.forceManyBody().strength(-160))
-    .force('x', d3.forceX(d=>(CP[d.gk]?.x||.5)*W).strength(.18))
-    .force('y', d3.forceY(d=>(CP[d.gk]?.y||.5)*H).strength(.18))
-    .force('collision', d3.forceCollide(d=>nr(d)+10));
+    .force('link', d3.forceLink(links).id(d=>d.id).distance(75).strength(.1))
+    .force('charge', d3.forceManyBody().strength(-220))
+    .force('x', d3.forceX(d=>(CP[d.gk]?.x||.5)*W).strength(.16))
+    .force('y', d3.forceY(d=>(CP[d.gk]?.y||.5)*H).strength(.16))
+    .force('collision', d3.forceCollide(d=>nr(d)+8));
 
   const drag = d3.drag()
     .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(.3).restart(); d.fx=d.x;d.fy=d.y; })
@@ -1945,9 +1974,9 @@ function initFullGraph(domainList) {
   nodeSel.call(drag);
 
   sim.on('tick',()=>{
-    drawHulls();
     linkSel.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
     nodeSel.attr('cx',d=>d.x).attr('cy',d=>d.y);
+    haloSel.attr('cx',d=>d.x).attr('cy',d=>d.y);
     labelSel.attr('x',d=>d.x).attr('y',d=>d.y);
   }).restart();
 
@@ -1977,12 +2006,12 @@ function initFullGraph(domainList) {
       const gk = chip.dataset.gk;
       const on = chip.classList.toggle('on');
       if(on) activeTopics.add(gk); else activeTopics.delete(gk);
-      nodeSel.attr('opacity',d=>activeTopics.has(d.gk)?(d.status==='aktif'?(d.accessible?.9:.5):.3):0)
+      nodeSel.attr('opacity',d=>activeTopics.has(d.gk)?(d.status==='aktif'?(d.accessible?1:.45):.18):0)
         .style('pointer-events',d=>activeTopics.has(d.gk)?null:'none');
+      haloSel.attr('opacity',d=>activeTopics.has(d.gk)?.07:0);
       const k=d3.zoomTransform(svgEl).k;
-      labelSel.attr('opacity',d=>activeTopics.has(d.gk)?Math.max(0,Math.min(1,(k-.35)/.45)):0);
+      labelSel.attr('opacity',d=>activeTopics.has(d.gk)?Math.max(0,Math.min(1,(k-.4)/.5)):0);
       linkSel.attr('opacity',d=>(activeTopics.has(d.source.gk)&&activeTopics.has(d.target.gk))?1:0);
-      drawHulls();
       if(selectedNode&&!activeTopics.has(selectedNode.gk)) hideInfo();
     });
   });
@@ -1991,12 +2020,12 @@ function initFullGraph(domainList) {
   document.getElementById('gm-search-inp').addEventListener('input',function(){
     const q=this.value.toLowerCase().trim();
     if(!q){resetVis();return;}
-    const k=d3.zoomTransform(svgEl).k;
-    nodeSel.attr('opacity',d=>!activeTopics.has(d.gk)?0:d.name.toLowerCase().includes(q)?1:.05);
-    labelSel.attr('opacity',d=>!activeTopics.has(d.gk)?0:d.name.toLowerCase().includes(q)?1:.03);
+    nodeSel.attr('opacity',d=>!activeTopics.has(d.gk)?0:d.name.toLowerCase().includes(q)?1:.04);
+    haloSel.attr('opacity',d=>!activeTopics.has(d.gk)?0:d.name.toLowerCase().includes(q)?.2:.01);
+    labelSel.attr('opacity',d=>!activeTopics.has(d.gk)?0:d.name.toLowerCase().includes(q)?1:.02);
     linkSel.attr('opacity',d=>{
       if(!activeTopics.has(d.source.gk)||!activeTopics.has(d.target.gk)) return 0;
-      return d.source.name.toLowerCase().includes(q)||d.target.name.toLowerCase().includes(q)?.6:.03;
+      return d.source.name.toLowerCase().includes(q)||d.target.name.toLowerCase().includes(q)?.5:.02;
     });
   });
 }
@@ -2045,7 +2074,7 @@ adminHeader.addEventListener('click', () => {
 <!-- Full-screen Knowledge Graph Modal -->
 <div class="graph-modal" id="graphModal">
   <div class="gm-bar">
-    <div class="gm-title"><i class="fa-solid fa-diagram-project"></i>Knowledge Graph</div>
+    <div class="gm-title"><i class="fa-solid fa-atom"></i>Cockpit Synaps</div>
     <div class="gm-srch-wrap">
       <i class="fa-solid fa-magnifying-glass"></i>
       <input id="gm-search-inp" type="text" placeholder="Cari modul…" autocomplete="off">
