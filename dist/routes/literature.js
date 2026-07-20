@@ -90,14 +90,15 @@ literatureRoutes.post("/sync-zotero", async (c) => {
     const [kRow] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_api_key"));
     if (!uRow?.value || !kRow?.value)
         return c.json({ error: "Zotero belum dikonfigurasi" }, 400);
-    const res = await fetch(`https://api.zotero.org/users/${uRow.value}/items?format=json&limit=100&v=3`, { headers: { "Zotero-API-Key": kRow.value } });
+    const itemTypes = "journalArticle||conferencePaper||book||bookSection||thesis||report||preprint";
+    const res = await fetch(`https://api.zotero.org/users/${uRow.value}/items?format=json&limit=100&v=3&itemType=${encodeURIComponent(itemTypes)}`, { headers: { "Zotero-API-Key": kRow.value } });
     if (!res.ok)
         return c.json({ error: `Zotero API error: ${res.status}` }, 502);
     const items = (await res.json());
     let synced = 0;
     for (const item of items) {
         const d = item.data;
-        if (!d?.title)
+        if (!d?.title || d.title.length < 5)
             continue;
         const authors = (d.creators || [])
             .map((cr) => cr.lastName || cr.name || "").filter(Boolean).join(", ");

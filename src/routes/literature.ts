@@ -85,8 +85,9 @@ literatureRoutes.post("/sync-zotero", async (c) => {
   if (!uRow?.value || !kRow?.value)
     return c.json({ error: "Zotero belum dikonfigurasi" }, 400);
 
+  const itemTypes = "journalArticle||conferencePaper||book||bookSection||thesis||report||preprint";
   const res = await fetch(
-    `https://api.zotero.org/users/${uRow.value}/items?format=json&limit=100&v=3`,
+    `https://api.zotero.org/users/${uRow.value}/items?format=json&limit=100&v=3&itemType=${encodeURIComponent(itemTypes)}`,
     { headers: { "Zotero-API-Key": kRow.value } }
   );
   if (!res.ok) return c.json({ error: `Zotero API error: ${res.status}` }, 502);
@@ -95,7 +96,7 @@ literatureRoutes.post("/sync-zotero", async (c) => {
   let synced = 0;
   for (const item of items) {
     const d = item.data;
-    if (!d?.title) continue;
+    if (!d?.title || d.title.length < 5) continue;
     const authors = (d.creators || [])
       .map((cr: any) => cr.lastName || cr.name || "").filter(Boolean).join(", ");
     const year = d.date ? parseInt(d.date) : null;
