@@ -168,6 +168,17 @@ adminRoutes.get("/sessions", async (c) => {
         .limit(200);
     return c.json(activeSessions);
 });
+adminRoutes.delete("/sessions/:id", async (c) => {
+    const id = c.req.param("id");
+    await db.delete(sessions).where(eq(sessions.id, id));
+    return c.json({ ok: true });
+});
+// POST fallback (Hostinger blocks DELETE method)
+adminRoutes.post("/sessions/:id/delete", async (c) => {
+    const id = c.req.param("id");
+    await db.delete(sessions).where(eq(sessions.id, id));
+    return c.json({ ok: true });
+});
 /* ── SECURITY SUMMARY ── */
 adminRoutes.get("/security", async (c) => {
     const now = new Date();

@@ -215,7 +215,7 @@ async function killSession(id, btn) {
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
   try {
-    const res = await fetch(`/api/admin/sessions/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    const res = await fetch(`/api/admin/sessions/${encodeURIComponent(id)}/delete`, { method: 'POST' });
     if (res.ok) {
       document.getElementById(`sr-${id}`)?.remove();
       const remaining = document.querySelectorAll('.session-row').length;

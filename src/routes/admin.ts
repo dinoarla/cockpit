@@ -207,6 +207,12 @@ adminRoutes.delete("/sessions/:id", async (c) => {
   await db.delete(sessions).where(eq(sessions.id, id));
   return c.json({ ok: true });
 });
+// POST fallback (Hostinger blocks DELETE method)
+adminRoutes.post("/sessions/:id/delete", async (c) => {
+  const id = c.req.param("id");
+  await db.delete(sessions).where(eq(sessions.id, id));
+  return c.json({ ok: true });
+});
 
 /* ── SECURITY SUMMARY ── */
 
