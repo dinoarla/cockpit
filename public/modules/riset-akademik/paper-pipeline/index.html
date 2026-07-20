@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paper Pipeline — COCKPIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/assets/cockpit-loader.js"></script>
+<style>
+:root{
+  --ind:#4F46E5;--ind-dk:#312E81;--ind-lt:#EEF2FF;--ind-mid:#6366F1;
+  --bg:#F5F5FF;--card:#FFFFFF;--border:#DDD6FE;
+  --text:#111827;--muted:#6B7280;--dim:#9CA3AF;
+  --green:#16A34A;--red:#DC2626;--amber:#D97706;--blue:#1D4ED8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+.module-header{background:linear-gradient(135deg,#1E1B4B 0%,#4F46E5 55%,#7C3AED 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase}
+.back-link svg{width:13px;height:13px;flex-shrink:0}
+.back-link:hover{color:#fff}
+.breadcrumb{padding:5px 24px 0;font-size:11px;color:rgba(255,255,255,.55)}
+.header-body{padding:14px 24px 22px}
+.header-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:5px}
+.header-desc{font-size:13px;color:rgba(255,255,255,.8);max-width:740px;line-height:1.6;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace}
+.tabs-bar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tab-btn{flex-shrink:0;padding:12px 20px;font-size:13px;font-weight:500;font-family:'Space Grotesk',sans-serif;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:var(--ind);border-bottom-color:var(--ind);font-weight:600}
+.page-body{max-width:1100px;margin:0 auto;padding:24px 20px 56px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ind-dk);margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+.sec-title:first-child{margin-top:0}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:var(--ind-dk);line-height:1.05}
+.kpi-unit{font-size:11.5px;font-weight:400;color:var(--muted)}
+.kpi-note{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* Kanban */
+.kanban{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;align-items:flex-start}
+.kanban::-webkit-scrollbar{height:4px}
+.kanban::-webkit-scrollbar-track{background:#F3F4F6}
+.kanban::-webkit-scrollbar-thumb{background:#C4B5FD;border-radius:2px}
+.kanban-col{min-width:230px;max-width:260px;flex-shrink:0}
+.col-head{padding:10px 14px;border-radius:10px 10px 0 0;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.col-count{background:rgba(0,0,0,.12);border-radius:20px;padding:1px 8px;font-size:11px;font-weight:700}
+.col-body{background:#F9FAFB;border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:60px}
+.paper-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 13px;cursor:default}
+.paper-card:hover{border-color:#A5B4FC;box-shadow:0 2px 8px rgba(99,102,241,.1)}
+.paper-title{font-weight:600;font-size:12.5px;line-height:1.45;margin-bottom:6px;color:var(--text)}
+.paper-meta{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.paper-tag{font-size:10px;padding:2px 7px;border-radius:12px;font-family:'JetBrains Mono',monospace;font-weight:500}
+.tag-journal{background:#DBEAFE;color:#1E40AF}
+.tag-conf{background:#FCE7F3;color:#9D174D}
+.tag-wip{background:#FEF3C7;color:#92400E}
+.paper-info{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+.paper-info strong{color:var(--text);font-weight:500}
+.paper-deadline{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:4px;margin-top:5px}
+.dl-soon{background:#FEF3C7;color:#92400E}
+.dl-ok{background:#DCFCE7;color:#15803D}
+.dl-past{background:#FEE2E2;color:#991B1B}
+
+/* Table view */
+.paper-table{width:100%;border-collapse:collapse;font-size:13px}
+.paper-table th{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;padding:10px 12px;background:var(--ind-lt);border-bottom:2px solid var(--border)}
+.paper-table td{padding:13px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.paper-table tr:last-child td{border-bottom:none}
+.paper-table tr:hover td{background:var(--ind-lt)}
+.status-pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.s-ide{background:#F3F4F6;color:#374151}
+.s-draft{background:#FEF3C7;color:#92400E}
+.s-submit{background:#DBEAFE;color:#1E40AF}
+.s-review{background:#F3E8FF;color:#6D28D9}
+.s-revisi{background:#FEF3C7;color:#92400E}
+.s-accepted{background:#D1FAE5;color:#065F46}
+.s-published{background:#DCFCE7;color:#15803D}
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.chart-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;margin-bottom:14px}
+</style>
+</head>
+<body>
+
+<div class="module-header">
+  <a href="/" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Kembali ke COCKPIT
+  </a>
+  <div class="breadcrumb">Riset &amp; Akademik <span>›</span> Publikasi</div>
+  <div class="header-body">
+    <div class="header-title">Paper Pipeline</div>
+    <div class="header-desc">Tracker pipeline publikasi — dari ide hingga terbit. Status, target jurnal, dan deadline per paper.</div>
+    <div class="meta-row">
+      <span class="badge">📄 Publikasi Akademik</span>
+      <span class="badge" id="hdr-total">— paper</span>
+      <span class="badge" id="hdr-active">— aktif</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="kanban">Kanban Board</button>
+    <button class="tab-btn" data-tab="list">Daftar Lengkap</button>
+    <button class="tab-btn" data-tab="stats">Statistik</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+<!-- ── KANBAN ── -->
+<div class="tab-panel active" id="tab-kanban">
+  <div class="kpi-grid" id="kpi-grid"></div>
+  <div class="kanban" id="kanban-board"></div>
+</div>
+
+<!-- ── LIST ── -->
+<div class="tab-panel" id="tab-list">
+  <div class="sec-title">Semua Paper</div>
+  <div class="table-wrap">
+    <table class="paper-table">
+      <thead>
+        <tr>
+          <th style="width:40%">Judul</th>
+          <th>Status</th>
+          <th>Target Jurnal / Konferensi</th>
+          <th>IF / Rank</th>
+          <th>Deadline</th>
+        </tr>
+      </thead>
+      <tbody id="paper-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── STATS ── -->
+<div class="tab-panel" id="tab-stats">
+  <div class="chart-wrap">
+    <div class="chart-title">Distribusi Status Paper</div>
+    <canvas id="chart-status" height="200"></canvas>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart-title">Topik / Tema Penelitian</div>
+    <canvas id="chart-tema" height="200"></canvas>
+  </div>
+</div>
+
+</div>
+
+<script>
+/* ─── DATA — update manual ─── */
+const PAPERS = [
+  {
+    judul: 'Renewable Energy Integration and Grid Reliability in West Java Distribution System',
+    status: 'review', tipe: 'journal',
+    jurnal: 'Energy Policy', if_rank: 'IF 9.0 (Q1)', deadline: '2026-09',
+    tema: ['distribusi','keandalan','RE integration'],
+    submitted: '2026-05-12', notes: 'Under review — Major revision expected'
+  },
+  {
+    judul: 'Customer-Level Electricity Demand Analysis Using AMR Data: A Case Study of PLN UID Jabar',
+    status: 'revisi', tipe: 'journal',
+    jurnal: 'Applied Energy', if_rank: 'IF 11.4 (Q1)', deadline: '2026-08',
+    tema: ['AMR','demand analysis','pelanggan'],
+    submitted: '2026-03-20', notes: 'Minor revision, resubmit in 2 months'
+  },
+  {
+    judul: 'Energy Poverty and Electrification Equity in Rural West Java: A Spatial Analysis',
+    status: 'draft', tipe: 'journal',
+    jurnal: 'Energy for Sustainable Development', if_rank: 'IF 6.9 (Q1)', deadline: '2026-10',
+    tema: ['ekuitas','kemiskinan energi','GIS'],
+    submitted: null, notes: 'Target submit Q4 2026'
+  },
+  {
+    judul: 'Transition Pathways for Coal-Fired Power Plants in Java: Economic and Environmental Trade-offs',
+    status: 'draft', tipe: 'journal',
+    jurnal: 'Energy Research & Social Science', if_rank: 'IF 8.1 (Q1)', deadline: '2026-12',
+    tema: ['transisi energi','RUPTL','dekarbonisasi'],
+    submitted: null, notes: 'Dalam proses penulisan bab metode'
+  },
+  {
+    judul: 'Spatial Distribution of Electricity Losses and Non-Technical Loss Patterns in West Java',
+    status: 'ide', tipe: 'journal',
+    jurnal: 'Utilities Policy (tentative)', if_rank: 'IF 4.4 (Q2)', deadline: null,
+    tema: ['losses','GIS','P2TL'],
+    submitted: null, notes: 'Ide awal — butuh data P2TL lengkap'
+  },
+  {
+    judul: 'Smart Meter Rollout and Behavioral Change in Electricity Consumption: Evidence from Indonesia',
+    status: 'ide', tipe: 'conf',
+    jurnal: 'IEEE PowerTech 2027 (target)', if_rank: 'Scopus Q2', deadline: '2027-01',
+    tema: ['smart meter','AMI','perilaku pelanggan'],
+    submitted: null, notes: 'Rencana submit ke konferensi 2027'
+  },
+];
+
+const STAGES = ['ide','draft','submit','review','revisi','accepted','published'];
+const STAGE_LABEL = { ide:'Ide',draft:'Draft',submit:'Submit',review:'Review',revisi:'Revisi',accepted:'Accepted',published:'Published' };
+const STAGE_COL = { ide:'#6B7280',draft:'#D97706',submit:'#1D4ED8',review:'#7C3AED',revisi:'#B45309',accepted:'#065F46',published:'#15803D' };
+const STAGE_BG  = { ide:'#F3F4F6',draft:'#FEF3C7',submit:'#DBEAFE',review:'#F3E8FF',revisi:'#FEF3C7',accepted:'#D1FAE5',published:'#DCFCE7' };
+const STATUS_CLS = { ide:'s-ide',draft:'s-draft',submit:'s-submit',review:'s-review',revisi:'s-revisi',accepted:'s-accepted',published:'s-published' };
+
+document.getElementById('hdr-total').textContent  = PAPERS.length + ' paper';
+document.getElementById('hdr-active').textContent = PAPERS.filter(p=>!['ide','published'].includes(p.status)).length + ' dalam proses';
+
+const activeStages = ['draft','submit','review','revisi','accepted'];
+const kpiData = [
+  { label:'Total Paper',    value: PAPERS.length,                                           unit:'paper', note:'Semua status' },
+  { label:'Dalam Proses',   value: PAPERS.filter(p=>activeStages.includes(p.status)).length, unit:'paper', note:'Draft → Accepted' },
+  { label:'Under Review',   value: PAPERS.filter(p=>p.status==='review').length,             unit:'paper', note:'Menunggu reviewer' },
+  { label:'Published/Acc.', value: PAPERS.filter(p=>['accepted','published'].includes(p.status)).length, unit:'paper', note:'Terbit atau diterima' },
+];
+document.getElementById('kpi-grid').innerHTML = kpiData.map(k=>`
+  <div class="kpi-card">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-value">${k.value} <span class="kpi-unit">${k.unit}</span></div>
+    <div class="kpi-note">${k.note}</div>
+  </div>`).join('');
+
+/* Kanban */
+const colDefs = [
+  { key:'ide',      label:'Ide',       bg:'#F3F4F6', fg:'#374151' },
+  { key:'draft',    label:'Draft',     bg:'#FEF3C7', fg:'#92400E' },
+  { key:'submit',   label:'Submitted', bg:'#DBEAFE', fg:'#1E40AF' },
+  { key:'review',   label:'In Review', bg:'#F3E8FF', fg:'#6D28D9' },
+  { key:'revisi',   label:'Revisi',    bg:'#FFEDD5', fg:'#9A3412' },
+  { key:'accepted', label:'Accepted',  bg:'#D1FAE5', fg:'#065F46' },
+];
+const board = document.getElementById('kanban-board');
+board.innerHTML = colDefs.map(col => {
+  const papers = PAPERS.filter(p=>p.status===col.key);
+  const cards = papers.map(p => {
+    const dlCls = !p.deadline ? '' : (new Date(p.deadline)<new Date() ? 'dl-past' : (new Date(p.deadline)-new Date()<60*24*3600*1000 ? 'dl-soon' : 'dl-ok'));
+    return `<div class="paper-card">
+      <div class="paper-title">${p.judul}</div>
+      <div class="paper-meta">
+        <span class="paper-tag ${p.tipe==='journal'?'tag-journal':'tag-conf'}">${p.tipe==='journal'?'Jurnal':'Konferensi'}</span>
+        ${p.tema.slice(0,2).map(t=>`<span class="paper-tag tag-wip">${t}</span>`).join('')}
+      </div>
+      <div class="paper-info">
+        <span><strong>${p.jurnal}</strong></span>
+        <span>${p.if_rank}</span>
+        ${p.notes ? `<span style="color:var(--muted);font-size:10.5px;margin-top:2px">${p.notes}</span>` : ''}
+      </div>
+      ${p.deadline ? `<span class="paper-deadline ${dlCls}">⏰ ${p.deadline}</span>` : ''}
+    </div>`;
+  }).join('');
+  return `<div class="kanban-col">
+    <div class="col-head" style="background:${col.bg};color:${col.fg}">${col.label}<span class="col-count">${papers.length}</span></div>
+    <div class="col-body">${cards||'<div style="font-size:11px;color:var(--dim);padding:8px">Kosong</div>'}</div>
+  </div>`;
+}).join('');
+
+/* Table */
+document.getElementById('paper-tbody').innerHTML = PAPERS.map(p=>`
+  <tr>
+    <td><div style="font-weight:500;font-size:13px;line-height:1.5">${p.judul}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">${p.tema.map(t=>`<span style="background:#EEF2FF;color:#4338CA;padding:1px 6px;border-radius:10px;font-size:10px;margin-right:3px">${t}</span>`).join('')}</div></td>
+    <td><span class="status-pill ${STATUS_CLS[p.status]}">${STAGE_LABEL[p.status]}</span></td>
+    <td style="font-size:12px">${p.jurnal}</td>
+    <td style="font-size:12px;font-family:'JetBrains Mono',monospace;white-space:nowrap">${p.if_rank}</td>
+    <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${p.deadline||'—'}</td>
+  </tr>`).join('');
+
+/* Stats */
+const statusCounts = {};
+PAPERS.forEach(p=>statusCounts[p.status]=(statusCounts[p.status]||0)+1);
+new Chart(document.getElementById('chart-status'),{
+  type:'bar',
+  data:{labels:Object.keys(statusCounts).map(s=>STAGE_LABEL[s]),
+        datasets:[{data:Object.values(statusCounts),backgroundColor:Object.keys(statusCounts).map(s=>STAGE_BG[s]),borderWidth:0,borderRadius:6}]},
+  options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+});
+
+const temaCounts = {};
+PAPERS.forEach(p=>p.tema.forEach(t=>temaCounts[t]=(temaCounts[t]||0)+1));
+const temaColors=['#818CF8','#38BDF8','#4ADE80','#FB923C','#F472B6','#FBBF24','#A78BFA'];
+new Chart(document.getElementById('chart-tema'),{
+  type:'doughnut',
+  data:{labels:Object.keys(temaCounts),datasets:[{data:Object.values(temaCounts),backgroundColor:temaColors,borderWidth:0}]},
+  options:{responsive:true,plugins:{legend:{position:'bottom'}},cutout:'60%'}
+});
+
+/* Tabs */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

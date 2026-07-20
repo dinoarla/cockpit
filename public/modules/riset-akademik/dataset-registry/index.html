@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dataset Registry — COCKPIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/assets/cockpit-loader.js"></script>
+<style>
+:root{
+  --ind:#4F46E5;--ind-dk:#312E81;--ind-lt:#EEF2FF;--ind-mid:#6366F1;
+  --bg:#F5F5FF;--card:#FFFFFF;--border:#DDD6FE;
+  --text:#111827;--muted:#6B7280;--dim:#9CA3AF;
+  --green:#16A34A;--red:#DC2626;--amber:#D97706;--teal:#0F766E;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+.module-header{background:linear-gradient(135deg,#1E1B4B 0%,#4F46E5 55%,#0D9488 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase}
+.back-link svg{width:13px;height:13px}.back-link:hover{color:#fff}
+.breadcrumb{padding:5px 24px 0;font-size:11px;color:rgba(255,255,255,.55)}
+.header-body{padding:14px 24px 22px}
+.header-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:5px}
+.header-desc{font-size:13px;color:rgba(255,255,255,.8);max-width:740px;line-height:1.6;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);font-family:'JetBrains Mono',monospace}
+.tabs-bar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;scrollbar-width:none}
+.tab-btn{flex-shrink:0;padding:12px 20px;font-size:13px;font-weight:500;font-family:'Space Grotesk',sans-serif;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:var(--ind);border-bottom-color:var(--ind);font-weight:600}
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 56px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ind-dk);margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+.sec-title:first-child{margin-top:0}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:var(--ind-dk);line-height:1.05}
+.kpi-unit{font-size:11.5px;font-weight:400;color:var(--muted)}
+.kpi-note{font-size:11px;color:var(--muted);margin-top:2px}
+/* Dataset cards */
+.ds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:24px}
+.ds-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;transition:box-shadow .15s}
+.ds-card:hover{box-shadow:0 4px 16px rgba(99,102,241,.12);border-color:#A5B4FC}
+.ds-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.ds-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ds-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:2px}
+.ds-source{font-size:11px;color:var(--muted)}
+.ds-desc{font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.ds-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.ds-tag{font-size:10.5px;padding:2px 8px;border-radius:12px;font-family:'JetBrains Mono',monospace;font-weight:500}
+.tag-cockpit{background:#EEF2FF;color:#4338CA}
+.tag-bps{background:#DCFCE7;color:#15803D}
+.tag-pln{background:#FEF3C7;color:#92400E}
+.tag-bmkg{background:#DBEAFE;color:#1E40AF}
+.tag-bnpb{background:#FEE2E2;color:#991B1B}
+.tag-big{background:#F0FDF4;color:#166534}
+.tag-kemenkeu{background:#F3E8FF;color:#6D28D9}
+.tag-worldbank{background:#E0F2FE;color:#075985}
+.tag-academic{background:#FCE7F3;color:#9D174D}
+.ds-footer{display:flex;align-items:center;justify-content:space-between}
+.ds-period{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+.ds-status{display:inline-flex;align-items:center;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.ds-used{background:#DCFCE7;color:#15803D}
+.ds-partial{background:#FEF3C7;color:#92400E}
+.ds-planned{background:#F3F4F6;color:#6B7280}
+.ds-link{font-size:11px;color:var(--ind);text-decoration:none;font-weight:500}
+.ds-link:hover{text-decoration:underline}
+/* Filter */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filter-btn{padding:5px 14px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-weight:500;background:#fff;color:var(--muted);cursor:pointer;transition:all .15s}
+.filter-btn.active{background:var(--ind);border-color:var(--ind);color:#fff}
+.chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.chart-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;margin-bottom:14px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="module-header">
+  <a href="/" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Kembali ke COCKPIT
+  </a>
+  <div class="breadcrumb">Riset &amp; Akademik <span>›</span> Dataset</div>
+  <div class="header-body">
+    <div class="header-title">Dataset Registry</div>
+    <div class="header-desc">Inventaris semua dataset yang digunakan dalam penelitian — sumber, periode, format, dan status penggunaan.</div>
+    <div class="meta-row">
+      <span class="badge">🗄 Registri Dataset</span>
+      <span class="badge" id="hdr-total">— dataset</span>
+      <span class="badge" id="hdr-used">— digunakan</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="cards">Katalog</button>
+    <button class="tab-btn" data-tab="stats">Statistik</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+<div class="tab-panel active" id="tab-cards">
+  <div class="kpi-grid" id="kpi-grid"></div>
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">Semua</button>
+    <button class="filter-btn" data-filter="cockpit">Internal COCKPIT</button>
+    <button class="filter-btn" data-filter="pln">PLN</button>
+    <button class="filter-btn" data-filter="publik">Data Publik</button>
+  </div>
+  <div class="ds-grid" id="ds-grid"></div>
+</div>
+
+<div class="tab-panel" id="tab-stats">
+  <div class="grid-2">
+    <div class="chart-wrap">
+      <div class="chart-title">Status Penggunaan</div>
+      <canvas id="chart-status" height="220"></canvas>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Distribusi Sumber</div>
+      <canvas id="chart-source" height="220"></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const DATASETS = [
+  /* ── Internal COCKPIT ── */
+  { nama:'Penggantian kWh Meter 2024–2026', sumber:'PLN UID Jabar (COCKPIT)', ikon:'🔁', ikonBg:'#FEF3C7',
+    desc:'2,2 juta record penggantian meter dari 779 file XLS — 18 UP3. Alasan, merk, umur meter.', tag:['cockpit','pln'],
+    tagStyle:'tag-cockpit', periode:'2024–2026', format:'MySQL / CSV', status:'digunakan', linkLabel:'Buka Modul', link:'/modules/energi-jabar/ganti-meter/' },
+  { nama:'Data Baca Meter Pascabayar 2026', sumber:'PLN UID Jabar (COCKPIT)', ikon:'📊', ikonBg:'#DBEAFE',
+    desc:'Pembacaan meter bulanan 18 UP3 Jawa Barat — sebaran tarif, daya, kode pesan, tren kWh.', tag:['cockpit','pln'],
+    tagStyle:'tag-cockpit', periode:'Jan–Jul 2026', format:'MySQL', status:'digunakan', linkLabel:'Buka Modul', link:'/modules/energi-jabar/baca-meter/' },
+  { nama:'OLAP Tagihan Listrik AMR Jabar', sumber:'PLN UID Jabar (COCKPIT)', ikon:'🧾', ikonBg:'#F3E8FF',
+    desc:'Ringkasan tagihan dan penjualan per UP3 — 20 periode bulanan, segmentasi golongan tarif.', tag:['cockpit','pln'],
+    tagStyle:'tag-cockpit', periode:'2024–2026', format:'MySQL', status:'digunakan', linkLabel:'Buka Modul', link:'/modules/energi-jabar/olap-tagihan/' },
+  { nama:'Data Induk Langganan PLN Jabar', sumber:'PLN UID Jabar (COCKPIT)', ikon:'👥', ikonBg:'#DCFCE7',
+    desc:'Master data pelanggan — 13,9 juta pelanggan, daya, golongan tarif, UNITUP.', tag:['cockpit','pln'],
+    tagStyle:'tag-cockpit', periode:'2026 (snapshot)', format:'MySQL', status:'digunakan', linkLabel:'Buka Modul', link:'/modules/energi-jabar/pelanggan/' },
+  { nama:'PLN Statistics 2014–2025', sumber:'PLN (COCKPIT)', ikon:'📈', ikonBg:'#EEF2FF',
+    desc:'Data statistik nasional 12 tahun — kapasitas, produksi, pelanggan, susut energi.', tag:['cockpit','pln'],
+    tagStyle:'tag-cockpit', periode:'2014–2025', format:'MySQL / JSON', status:'digunakan', linkLabel:'Buka Modul', link:'/modules/energi-jabar/pln-stat/' },
+  { nama:'Keandalan Distribusi (SAIDI/SAIFI)', sumber:'PLN UID Jabar (COCKPIT)', ikon:'📡', ikonBg:'#FEE2E2',
+    desc:'Indeks keandalan per ULP dan UP3 — SAIDI, SAIFI, MAIFI, tren gangguan.', tag:['cockpit','pln'],
+    tagStyle:'tag-cockpit', periode:'2023–2026', format:'MySQL', status:'sebagian', linkLabel:'Buka Modul', link:'/modules/energi-jabar/keandalan-layanan/' },
+  /* ── Open Data Publik ── */
+  { nama:'Kependudukan BPS Jawa Barat', sumber:'BPS (COCKPIT)', ikon:'🏘', ikonBg:'#DCFCE7',
+    desc:'Proyeksi penduduk 2020–2045, 27 kab/kota, piramida usia, kepadatan.', tag:['cockpit','publik'],
+    tagStyle:'tag-bps', periode:'2020–2045', format:'Embedded JSON', status:'digunakan', linkLabel:'Buka Modul', link:'/modules/open-data-nasional/kependudukan-bps/' },
+  { nama:'Data Kemiskinan & IPM Jawa Barat', sumber:'BPS (COCKPIT)', ikon:'📉', ikonBg:'#FCE7F3',
+    desc:'IPM, tingkat kemiskinan, Gini ratio, pengeluaran per kapita 2015–2024 — 27 kab/kota.', tag:['cockpit','publik'],
+    tagStyle:'tag-bps', periode:'2015–2024', format:'Embedded JSON', status:'digunakan', linkLabel:'Buka Modul', link:'/modules/open-data-nasional/data-kemiskinan/' },
+  { nama:'Iklim & Cuaca BMKG Jabar', sumber:'BMKG (COCKPIT)', ikon:'🌧', ikonBg:'#DBEAFE',
+    desc:'Curah hujan bulanan dan suhu 5 stasiun pengamatan — relevan untuk demand analysis dan PLTA.', tag:['cockpit','publik'],
+    tagStyle:'tag-bmkg', periode:'2015–2025', format:'Embedded JSON', status:'digunakan', linkLabel:'Buka Modul', link:'/modules/open-data-nasional/iklim-cuaca/' },
+  { nama:'Indeks Bencana BNPB (IRBI 2022)', sumber:'BNPB (COCKPIT)', ikon:'🚨', ikonBg:'#FEE2E2',
+    desc:'Indeks Risiko Bencana Indonesia 2022 — 27 kab/kota Jabar, skor risiko, kategori.', tag:['cockpit','publik'],
+    tagStyle:'tag-bnpb', periode:'2022', format:'Embedded JSON', status:'digunakan', linkLabel:'Buka Modul', link:'/modules/open-data-nasional/indeks-bencana/' },
+  { nama:'GIS Jabar — Katalog BIG/Ina-Geoportal', sumber:'BIG (COCKPIT)', ikon:'🗺', ikonBg:'#F0FDF4',
+    desc:'Katalog 47 dataset geospasial — tata ruang, infrastruktur, DEM, citra satelit.', tag:['cockpit','publik'],
+    tagStyle:'tag-big', periode:'2020–2025', format:'Shapefile / GeoJSON', status:'sebagian', linkLabel:'Buka Modul', link:'/modules/open-data-nasional/gis-jabar/' },
+  { nama:'APBD Jawa Barat 2019–2024', sumber:'Kemenkeu/SIKD (COCKPIT)', ikon:'💰', ikonBg:'#F3E8FF',
+    desc:'Anggaran & realisasi APBD 6 tahun — pendapatan, belanja, pembiayaan per sektor.', tag:['cockpit','publik'],
+    tagStyle:'tag-kemenkeu', periode:'2019–2024', format:'Embedded JSON', status:'digunakan', linkLabel:'Buka Modul', link:'/modules/open-data-nasional/apbd-jabar/' },
+  /* ── Eksternal (belum di COCKPIT) ── */
+  { nama:'World Bank World Development Indicators', sumber:'World Bank Open Data', ikon:'🌐', ikonBg:'#E0F2FE',
+    desc:'Indikator pembangunan global — akses listrik, emisi CO₂, konsumsi energi per kapita Indonesia.', tag:['publik'],
+    tagStyle:'tag-worldbank', periode:'1990–2024', format:'CSV / API', status:'direncanakan', linkLabel:'Sumber Eksternal', link:'https://databank.worldbank.org/' },
+  { nama:'IEA World Energy Statistics', sumber:'International Energy Agency', ikon:'⚡', ikonBg:'#FEF3C7',
+    desc:'Statistik energi dunia — produksi, konsumsi, trade per fuel type, benchmark Asia Tenggara.', tag:['publik'],
+    tagStyle:'tag-academic', periode:'2000–2023', format:'XLSX', status:'direncanakan', linkLabel:'Sumber Eksternal', link:'https://www.iea.org/data-and-statistics' },
+  { nama:'RUPTL PLN 2025-2034 (Full Document)', sumber:'PLN / ESDM', ikon:'📋', ikonBg:'#EEF2FF',
+    desc:'Rencana Usaha Penyediaan Tenaga Listrik — kapasitas pembangkit, investasi, RE targets.', tag:['pln'],
+    tagStyle:'tag-pln', periode:'2025–2034', format:'PDF / COCKPIT', status:'digunakan', linkLabel:'Buka Modul', link:'/modules/energi-jabar/ruptl/' },
+];
+
+const statusLabel = {digunakan:'Digunakan',sebagian:'Sebagian',direncanakan:'Direncanakan'};
+const statusCls = {digunakan:'ds-used',sebagian:'ds-partial',direncanakan:'ds-planned'};
+
+document.getElementById('hdr-total').textContent = DATASETS.length + ' dataset';
+document.getElementById('hdr-used').textContent  = DATASETS.filter(d=>d.status==='digunakan').length + ' aktif digunakan';
+
+const kpiDefs = [
+  {label:'Total Dataset',  value:DATASETS.length,                                          unit:'dataset'},
+  {label:'Digunakan',      value:DATASETS.filter(d=>d.status==='digunakan').length,         unit:'dataset'},
+  {label:'Internal COCKPIT',value:DATASETS.filter(d=>d.tag.includes('cockpit')).length,    unit:'dataset'},
+  {label:'Data Publik',    value:DATASETS.filter(d=>!d.tag.includes('cockpit')).length,     unit:'dataset'},
+];
+document.getElementById('kpi-grid').innerHTML = kpiDefs.map(k=>`
+  <div class="kpi-card">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-value">${k.value} <span class="kpi-unit">${k.unit}</span></div>
+  </div>`).join('');
+
+function renderCards(filter) {
+  let data = filter === 'all' ? DATASETS
+    : filter === 'cockpit' ? DATASETS.filter(d=>d.tag.includes('cockpit')&&d.tag.length<=2)
+    : filter === 'pln' ? DATASETS.filter(d=>d.tag.includes('pln'))
+    : DATASETS.filter(d=>d.tag.includes('publik'));
+  document.getElementById('ds-grid').innerHTML = data.map(d=>`
+    <div class="ds-card">
+      <div class="ds-header">
+        <div class="ds-icon" style="background:${d.ikonBg}">${d.ikon}</div>
+        <div>
+          <div class="ds-name">${d.nama}</div>
+          <div class="ds-source">${d.sumber}</div>
+        </div>
+      </div>
+      <div class="ds-desc">${d.desc}</div>
+      <div class="ds-meta">
+        ${d.tag.map(t=>`<span class="ds-tag tag-${t==='publik'?'bps':t==='cockpit'?'cockpit':t}">${t}</span>`).join('')}
+        <span class="ds-tag" style="background:#F3F4F6;color:#374151">${d.format}</span>
+      </div>
+      <div class="ds-footer">
+        <span class="ds-period">📅 ${d.periode}</span>
+        <span class="ds-status ${statusCls[d.status]}">${statusLabel[d.status]}</span>
+      </div>
+      ${d.link?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+        <a href="${d.link}" class="ds-link">→ ${d.linkLabel}</a>
+      </div>`:''}
+    </div>`).join('');
+}
+renderCards('all');
+
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCards(btn.dataset.filter);
+  });
+});
+
+/* Charts */
+const statusData = ['digunakan','sebagian','direncanakan'].map(s=>DATASETS.filter(d=>d.status===s).length);
+new Chart(document.getElementById('chart-status'),{
+  type:'doughnut',
+  data:{labels:['Digunakan','Sebagian','Direncanakan'],datasets:[{data:statusData,backgroundColor:['#22C55E','#F59E0B','#9CA3AF'],borderWidth:0}]},
+  options:{responsive:true,plugins:{legend:{position:'bottom'}},cutout:'60%'}
+});
+
+const sources = ['PLN','BPS','BMKG','BNPB','BIG','Kemenkeu','World Bank/IEA'];
+const srcCounts = [
+  DATASETS.filter(d=>d.tag.includes('pln')).length,
+  DATASETS.filter(d=>d.tagStyle==='tag-bps').length,
+  DATASETS.filter(d=>d.tagStyle==='tag-bmkg').length,
+  DATASETS.filter(d=>d.tagStyle==='tag-bnpb').length,
+  DATASETS.filter(d=>d.tagStyle==='tag-big').length,
+  DATASETS.filter(d=>d.tagStyle==='tag-kemenkeu').length,
+  DATASETS.filter(d=>d.tagStyle==='tag-worldbank'||d.tagStyle==='tag-academic').length,
+];
+new Chart(document.getElementById('chart-source'),{
+  type:'bar',
+  data:{labels:sources,datasets:[{data:srcCounts,backgroundColor:['#FB923C','#4ADE80','#38BDF8','#F87171','#34D399','#C084FC','#60A5FA'],borderRadius:4,borderWidth:0}]},
+  options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+});
+
+/* Tabs */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dissertation Tracker — COCKPIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/assets/cockpit-loader.js"></script>
+<style>
+:root{
+  --ind:#4F46E5;--ind-dk:#312E81;--ind-lt:#EEF2FF;--ind-mid:#6366F1;
+  --bg:#F5F5FF;--card:#FFFFFF;--border:#DDD6FE;--border-dk:#A5B4FC;
+  --text:#111827;--muted:#6B7280;--dim:#9CA3AF;
+  --green:#16A34A;--red:#DC2626;--amber:#D97706;--blue:#1D4ED8;--orange:#EA580C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+.module-header{background:linear-gradient(135deg,var(--ind-dk) 0%,var(--ind) 55%,#6366F1 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase;transition:color .15s}
+.back-link:hover{color:#fff}
+.back-link svg{width:13px;height:13px;flex-shrink:0}
+.breadcrumb{padding:5px 24px 0;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.03em}
+.header-body{padding:14px 24px 22px}
+.header-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:5px}
+.header-desc{font-size:13px;color:rgba(255,255,255,.8);max-width:740px;line-height:1.6;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;letter-spacing:.02em}
+.tabs-bar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;gap:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 20px;font-size:13px;font-weight:500;font-family:'Space Grotesk',sans-serif;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:var(--ind);border-bottom-color:var(--ind);font-weight:600}
+.tab-btn:hover:not(.active){color:var(--text)}
+.page-body{max-width:1100px;margin:0 auto;padding:24px 20px 56px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ind-dk);margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+.sec-title:first-child{margin-top:0}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:var(--ind-dk);line-height:1.05}
+.kpi-unit{font-size:11.5px;font-weight:400;color:var(--muted)}
+.kpi-note{font-size:11px;color:var(--muted);margin-top:1px}
+.kpi-note.ok{color:var(--green)}.kpi-note.warn{color:var(--amber)}.kpi-note.bad{color:var(--red)}
+.chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.chart-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px}
+.chart-container{position:relative}
+/* Chapter table */
+.ch-table{width:100%;border-collapse:collapse;font-size:13px}
+.ch-table th{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;padding:10px 12px;background:var(--ind-lt);border-bottom:2px solid var(--border)}
+.ch-table th:first-child{border-radius:8px 0 0 0}.ch-table th:last-child{border-radius:0 8px 0 0}
+.ch-table td{padding:13px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ch-table tr:last-child td{border-bottom:none}
+.ch-table tr:hover td{background:var(--ind-lt)}
+.ch-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);font-weight:500}
+.ch-title{font-weight:500;color:var(--text)}
+.status-pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.03em;white-space:nowrap}
+.s-selesai{background:#DCFCE7;color:#15803D}
+.s-revisi{background:#FEF3C7;color:#92400E}
+.s-menulis{background:#DBEAFE;color:#1D4ED8}
+.s-draft{background:#F3E8FF;color:#7C3AED}
+.s-belum{background:#F3F4F6;color:#6B7280}
+.prog-bar{height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden;min-width:80px}
+.prog-fill{height:100%;border-radius:3px;background:var(--ind-mid);transition:width .4s}
+.prog-fill.over{background:var(--green)}
+.prog-fill.behind{background:var(--amber)}
+.prog-txt{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px}
+.num-cell{font-family:'JetBrains Mono',monospace;font-size:12px;text-align:right}
+.deadline-cell{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+.deadline-cell.soon{color:var(--amber);font-weight:600}
+.deadline-cell.past{color:var(--red);font-weight:600}
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.overall-bar{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.overall-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.overall-track{height:14px;background:#E5E7EB;border-radius:7px;overflow:hidden;margin-bottom:6px}
+.overall-fill{height:100%;border-radius:7px;background:linear-gradient(90deg,var(--ind) 0%,var(--ind-mid) 100%);transition:width .8s cubic-bezier(.4,0,.2,1)}
+.overall-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="module-header">
+  <a href="/" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Kembali ke COCKPIT
+  </a>
+  <div class="breadcrumb">Riset &amp; Akademik <span>›</span> Disertasi</div>
+  <div class="header-body">
+    <div class="header-title">Dissertation Tracker</div>
+    <div class="header-desc">Progress penulisan disertasi PhD — per bab, kata, dan timeline. Update manual sesuai perkembangan nyata.</div>
+    <div class="meta-row">
+      <span class="badge">📚 Disertasi S3</span>
+      <span class="badge">7 Bab</span>
+      <span class="badge" id="hdr-pct">Memuat data…</span>
+      <span class="badge" id="hdr-words">— kata</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="chapters">Per Bab</button>
+    <button class="tab-btn" data-tab="timeline">Timeline</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+<!-- ── OVERVIEW ── -->
+<div class="tab-panel active" id="tab-overview">
+
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <div class="overall-bar">
+    <div class="overall-label">Progress Keseluruhan</div>
+    <div class="overall-track"><div class="overall-fill" id="overall-fill" style="width:0%"></div></div>
+    <div class="overall-meta">
+      <span id="overall-done">—</span>
+      <span id="overall-pct">— %</span>
+      <span id="overall-target">—</span>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="chart-wrap">
+      <div class="chart-title">Kata per Bab (Aktual vs Target)</div>
+      <div class="chart-container"><canvas id="chart-words" height="220"></canvas></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Status Bab</div>
+      <div class="chart-container"><canvas id="chart-status" height="220"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CHAPTERS ── -->
+<div class="tab-panel" id="tab-chapters">
+  <div class="sec-title">Detail Per Bab</div>
+  <div class="table-wrap">
+    <table class="ch-table" id="ch-table">
+      <thead>
+        <tr>
+          <th style="width:40px">Bab</th>
+          <th>Judul</th>
+          <th style="width:110px">Status</th>
+          <th style="width:140px">Progress Kata</th>
+          <th style="width:90px;text-align:right">Aktual</th>
+          <th style="width:80px;text-align:right">Target</th>
+          <th style="width:90px">Deadline</th>
+        </tr>
+      </thead>
+      <tbody id="ch-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── TIMELINE ── -->
+<div class="tab-panel" id="tab-timeline">
+  <div class="sec-title">Timeline Penulisan</div>
+  <div class="chart-wrap">
+    <div class="chart-title">Gantt — Rencana vs Aktual</div>
+    <div class="chart-container"><canvas id="chart-gantt" height="280"></canvas></div>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart-title">Akumulasi Kata Tertulis</div>
+    <div class="chart-container"><canvas id="chart-cumul" height="200"></canvas></div>
+  </div>
+</div>
+
+</div><!-- /page-body -->
+
+<script>
+/* ─── DATA — update manual di sini ─── */
+const CHAPTERS = [
+  { no:1, judul:'Pendahuluan & Latar Belakang',                    status:'selesai', kata:4350,  target:4000,  deadline:'2025-06', selesai:'2025-05' },
+  { no:2, judul:'Tinjauan Pustaka',                                 status:'revisi',  kata:8100,  target:9000,  deadline:'2025-10', selesai:null },
+  { no:3, judul:'Metodologi Penelitian',                            status:'menulis', kata:3700,  target:6000,  deadline:'2025-12', selesai:null },
+  { no:4, judul:'Bauran Energi & Transisi Energi Jawa Barat',       status:'menulis', kata:2200,  target:8000,  deadline:'2026-03', selesai:null },
+  { no:5, judul:'Distribusi, Keandalan & Akses Energi',             status:'draft',   kata:820,   target:7000,  deadline:'2026-06', selesai:null },
+  { no:6, judul:'Pembahasan & Implikasi Kebijakan',                 status:'belum',   kata:0,     target:6000,  deadline:'2026-09', selesai:null },
+  { no:7, judul:'Kesimpulan & Rekomendasi',                         status:'belum',   kata:0,     target:3000,  deadline:'2026-11', selesai:null },
+];
+
+const STATUS_LABEL = { selesai:'Selesai', revisi:'Revisi', menulis:'Menulis', draft:'Draft Awal', belum:'Belum Mulai' };
+const STATUS_CLASS = { selesai:'s-selesai', revisi:'s-revisi', menulis:'s-menulis', draft:'s-draft', belum:'s-belum' };
+
+const totalKata   = CHAPTERS.reduce((s,c) => s+c.kata, 0);
+const totalTarget = CHAPTERS.reduce((s,c) => s+c.target, 0);
+const pct = Math.round(totalKata / totalTarget * 100);
+const babSelesai  = CHAPTERS.filter(c => c.status === 'selesai').length;
+const babMenulis  = CHAPTERS.filter(c => c.status === 'menulis' || c.status === 'revisi').length;
+
+/* ─── Header badges ─── */
+document.getElementById('hdr-pct').textContent   = pct + '% selesai';
+document.getElementById('hdr-words').textContent = totalKata.toLocaleString('id') + ' kata';
+
+/* ─── KPI ─── */
+const kpis = [
+  { label:'Total Kata',    value: totalKata.toLocaleString('id'), unit:'kata tertulis', note:'Target '+totalTarget.toLocaleString('id'), cls:'' },
+  { label:'Progress',      value: pct+'%',                        unit:'dari target',   note: pct>=50?'On track':'Perlu dikejar', cls: pct>=50?'ok':'warn' },
+  { label:'Bab Selesai',   value: babSelesai+'/'+CHAPTERS.length, unit:'bab',           note: babMenulis+' bab sedang berjalan', cls:'' },
+  { label:'Est. Selesai',  value: '2026',                         unit:'Nov',           note:'Berdasarkan deadline bab 7', cls:'ok' },
+];
+document.getElementById('kpi-grid').innerHTML = kpis.map(k=>`
+  <div class="kpi-card">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-value">${k.value} <span class="kpi-unit">${k.unit}</span></div>
+    <div class="kpi-note ${k.cls}">${k.note}</div>
+  </div>`).join('');
+
+/* ─── Overall bar ─── */
+document.getElementById('overall-fill').style.width   = pct + '%';
+document.getElementById('overall-done').textContent   = totalKata.toLocaleString('id') + ' kata ditulis';
+document.getElementById('overall-pct').textContent    = pct + '%';
+document.getElementById('overall-target').textContent = 'Target: ' + totalTarget.toLocaleString('id');
+
+/* ─── Chart: words ─── */
+new Chart(document.getElementById('chart-words'), {
+  type:'bar',
+  data:{
+    labels: CHAPTERS.map(c=>'Bab '+c.no),
+    datasets:[
+      { label:'Tertulis', data:CHAPTERS.map(c=>c.kata),   backgroundColor:'rgba(99,102,241,.75)', borderRadius:4 },
+      { label:'Target',   data:CHAPTERS.map(c=>c.target), backgroundColor:'rgba(99,102,241,.15)', borderRadius:4 },
+    ]
+  },
+  options:{ responsive:true, plugins:{ legend:{position:'bottom'} }, scales:{ y:{ ticks:{ callback:v=>v.toLocaleString('id') } } } }
+});
+
+/* ─── Chart: status donut ─── */
+const statusCount = {};
+CHAPTERS.forEach(c => statusCount[c.status] = (statusCount[c.status]||0)+1);
+new Chart(document.getElementById('chart-status'), {
+  type:'doughnut',
+  data:{
+    labels:Object.keys(statusCount).map(s=>STATUS_LABEL[s]),
+    datasets:[{ data:Object.values(statusCount), backgroundColor:['#22C55E','#F59E0B','#3B82F6','#A855F7','#9CA3AF'], borderWidth:0 }]
+  },
+  options:{ responsive:true, plugins:{ legend:{position:'bottom'} }, cutout:'65%' }
+});
+
+/* ─── Chapter table ─── */
+function deadlineClass(dl) {
+  if (!dl) return '';
+  const d = new Date(dl+'-01');
+  const now = new Date();
+  const diffMs = d - now;
+  const diffDays = diffMs / (1000*60*60*24);
+  if (diffDays < 0) return 'past';
+  if (diffDays < 60) return 'soon';
+  return '';
+}
+const tbody = document.getElementById('ch-tbody');
+tbody.innerHTML = CHAPTERS.map(c => {
+  const pct = Math.min(c.kata/c.target, 1);
+  const fillCls = c.kata > c.target ? 'over' : pct < 0.4 && c.status !== 'belum' ? 'behind' : '';
+  const dlCls = c.status === 'selesai' ? '' : deadlineClass(c.deadline);
+  return `<tr>
+    <td class="ch-num">${c.no}</td>
+    <td class="ch-title">${c.judul}</td>
+    <td><span class="status-pill ${STATUS_CLASS[c.status]}">${STATUS_LABEL[c.status]}</span></td>
+    <td>
+      <div class="prog-bar"><div class="prog-fill ${fillCls}" style="width:${Math.min(pct*100,100)}%"></div></div>
+      <div class="prog-txt">${Math.round(pct*100)}%</div>
+    </td>
+    <td class="num-cell">${c.kata.toLocaleString('id')}</td>
+    <td class="num-cell" style="color:var(--muted)">${c.target.toLocaleString('id')}</td>
+    <td class="deadline-cell ${dlCls}">${c.deadline || '—'}</td>
+  </tr>`;
+}).join('');
+
+/* ─── Timeline Gantt (horizontal bar) ─── */
+const START_MONTH = '2024-08';
+const ms0 = new Date(START_MONTH+'-01').getTime();
+function monthOffset(ym) { return (new Date(ym+'-01').getTime() - ms0)/(1000*60*60*24*30.44); }
+const MONTHS = [];
+for (let y=2024; y<=2027; y++) for (let m=1; m<=12; m++) MONTHS.push(y+'-'+String(m).padStart(2,'0'));
+
+const ganttData = CHAPTERS.map(c => ({
+  label: 'Bab '+c.no,
+  start: monthOffset(c.no===1?'2024-08':CHAPTERS[c.no-2].deadline),
+  end:   monthOffset(c.deadline),
+  done:  c.selesai ? monthOffset(c.selesai) : (c.kata/c.target * (monthOffset(c.deadline) - monthOffset(c.no===1?'2024-08':CHAPTERS[c.no-2].deadline))),
+}));
+
+new Chart(document.getElementById('chart-gantt'), {
+  type:'bar',
+  data:{
+    labels: ganttData.map(d=>d.label),
+    datasets:[
+      { label:'Rencana', data: ganttData.map(d=>[d.start, d.end]),   backgroundColor:'rgba(99,102,241,.18)', borderSkipped:false, borderRadius:3 },
+      { label:'Progress',data: ganttData.map(d=>[d.start, d.start+d.done]), backgroundColor:'rgba(99,102,241,.75)', borderSkipped:false, borderRadius:3 },
+    ]
+  },
+  options:{
+    indexAxis:'y', responsive:true,
+    plugins:{ legend:{position:'bottom'} },
+    scales:{
+      x:{ min:0, max:28, ticks:{ callback:v => { const d=new Date(ms0+v*30.44*24*3600*1000); return (d.getMonth()+1)+'/'+d.getFullYear(); } } },
+      y:{ grid:{display:false} }
+    }
+  }
+});
+
+/* ─── Cumulative words ─── */
+const cumLabels = ['Agt\'24','Okt\'24','Des\'24','Feb\'25','Apr\'25','Jun\'25','Agt\'25','Okt\'25','Des\'25','Feb\'26','Apr\'26','Jun\'26','Agt\'26','Okt\'26','Nov\'26'];
+const cumActual = [0,200,500,900,1400,4350,4800,5900,7200,8900,10200,11020,null,null,null];
+const cumTarget = [0,600,1400,2200,3200,4200,5200,6400,8000,10000,12500,15500,19000,22000,25000];
+new Chart(document.getElementById('chart-cumul'), {
+  type:'line',
+  data:{
+    labels:cumLabels,
+    datasets:[
+      { label:'Aktual', data:cumActual, borderColor:'#6366F1', backgroundColor:'rgba(99,102,241,.12)', tension:.3, fill:true, spanGaps:false, pointRadius:3 },
+      { label:'Target', data:cumTarget, borderColor:'rgba(99,102,241,.3)', borderDash:[5,4], tension:.3, fill:false, pointRadius:0 },
+    ]
+  },
+  options:{ responsive:true, plugins:{ legend:{position:'bottom'} }, scales:{ y:{ ticks:{ callback:v=>v.toLocaleString('id') } } } }
+});
+
+/* ─── Tabs ─── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

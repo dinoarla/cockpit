@@ -924,6 +924,11 @@ const MODULE_ICONS = {
   // open-data-nasional: Sosial & Kependudukan
   'kependudukan-bps':        '<i class="fa-solid fa-people-group"></i>',
   'data-kemiskinan':         '<i class="fa-solid fa-hand-holding-heart"></i>',
+  // riset-akademik
+  'dissertation-tracker':    '<i class="fa-solid fa-book-open"></i>',
+  'literature-map':          '<i class="fa-solid fa-map-location-dot"></i>',
+  'dataset-registry':        '<i class="fa-solid fa-database"></i>',
+  'paper-pipeline':          '<i class="fa-solid fa-paper-plane"></i>',
 };
 const MODULE_DESC = {
   // energi-jabar: PLN
@@ -974,6 +979,11 @@ const MODULE_DESC = {
   // open-data-nasional: Sosial & Kependudukan
   'kependudukan-bps':        'Data kependudukan BPS — jumlah penduduk, kepadatan, struktur usia, proyeksi per wilayah',
   'data-kemiskinan':         'Data kemiskinan & sosial BPS — garis kemiskinan, P0/P1/P2, DTKS, program bantuan sosial',
+  // riset-akademik
+  'dissertation-tracker':    'Monitoring progress disertasi PhD — per bab, kata ditulis vs target, status revisi, dan timeline sidang',
+  'literature-map':          'Peta literatur riset energi — tracker bacaan, status kutipan, relevansi, dan analisis sebaran tema & tahun',
+  'dataset-registry':        'Katalog dataset yang digunakan dalam riset — sumber internal COCKPIT, data PLN, dan data publik',
+  'paper-pipeline':          'Manajemen pipeline publikasi akademik — kanban dari ide hingga accepted, jurnal target, dan deadline submit',
 };
 
 // Mapping slug → section id (per domain)
@@ -1026,6 +1036,14 @@ const SECTION_MAP = {
   // open-data-nasional — Section 04: Sosial & Kependudukan
   'kependudukan-bps':        4,
   'data-kemiskinan':         4,
+  // riset-akademik — Section 01: Disertasi
+  'dissertation-tracker':   1,
+  // riset-akademik — Section 02: Literatur
+  'literature-map':          2,
+  // riset-akademik — Section 03: Dataset
+  'dataset-registry':        3,
+  // riset-akademik — Section 04: Publikasi
+  'paper-pipeline':          4,
 };
 const DOMAIN_SECTIONS = {
   'energi-jabar': [
@@ -1040,10 +1058,17 @@ const DOMAIN_SECTIONS = {
     { id: 3, num: '03', label: 'Geospasial' },
     { id: 4, num: '04', label: 'Sosial & Kependudukan' },
   ],
+  'riset-akademik': [
+    { id: 1, num: '01', label: 'Disertasi' },
+    { id: 2, num: '02', label: 'Literatur' },
+    { id: 3, num: '03', label: 'Dataset' },
+    { id: 4, num: '04', label: 'Publikasi' },
+  ],
 };
 const DOMAIN_ICONS = {
   'energi-jabar':       '<i class="fa-solid fa-bolt-lightning"></i>',
   'open-data-nasional': '<i class="fa-solid fa-globe"></i>',
+  'riset-akademik':     '<i class="fa-solid fa-graduation-cap"></i>',
 };
 
 // Loading phrases
@@ -1493,6 +1518,10 @@ function initKnowledgeGraph(domainList) {
     'open-data-nasional-2': '#34D399',
     'open-data-nasional-3': '#F472B6',
     'open-data-nasional-4': '#FB923C',
+    'riset-akademik-1':     '#E879F9',
+    'riset-akademik-2':     '#A78BFA',
+    'riset-akademik-3':     '#67E8F9',
+    'riset-akademik-4':     '#FCA5A5',
   };
   const CP = {
     'energi-jabar-1':       { x:.5,  y:.13 },
@@ -1503,6 +1532,10 @@ function initKnowledgeGraph(domainList) {
     'open-data-nasional-2': { x:.38, y:.88 },
     'open-data-nasional-3': { x:.62, y:.88 },
     'open-data-nasional-4': { x:.85, y:.88 },
+    'riset-akademik-1':     { x:.85, y:.18 },
+    'riset-akademik-2':     { x:.88, y:.40 },
+    'riset-akademik-3':     { x:.88, y:.60 },
+    'riset-akademik-4':     { x:.85, y:.80 },
   };
   const LL = {
     'energi-jabar-1':       'PLN',
@@ -1513,6 +1546,10 @@ function initKnowledgeGraph(domainList) {
     'open-data-nasional-2': 'Lingkungan',
     'open-data-nasional-3': 'Geospasial',
     'open-data-nasional-4': 'Sosial',
+    'riset-akademik-1':     'Disertasi',
+    'riset-akademik-2':     'Literatur',
+    'riset-akademik-3':     'Dataset',
+    'riset-akademik-4':     'Publikasi',
   };
   const XLINKS = [
     // ── PLN internal ────────────────────────────────────
@@ -1614,6 +1651,32 @@ function initKnowledgeGraph(domainList) {
     ['peta-admin',         'data-kemiskinan'],
     ['kependudukan-bps',   'data-kemiskinan'],
     ['data-kemiskinan',    'tariff-adjustment'],
+    // ── Riset Akademik internal ───────────────────────────
+    ['dissertation-tracker', 'literature-map'],
+    ['dissertation-tracker', 'dataset-registry'],
+    ['dissertation-tracker', 'paper-pipeline'],
+    ['literature-map',       'dataset-registry'],
+    ['literature-map',       'paper-pipeline'],
+    // ── Riset Akademik → Energi Jabar ────────────────────
+    ['dissertation-tracker', 'ekonomi-transisi'],
+    ['dissertation-tracker', 'ekuitas-akses'],
+    ['dissertation-tracker', 'keandalan-layanan'],
+    ['literature-map',       'ruptl'],
+    ['literature-map',       'ekonomi-transisi'],
+    ['literature-map',       'atlas-pembangkit'],
+    ['paper-pipeline',       'ekonomi-transisi'],
+    ['paper-pipeline',       'ekuitas-akses'],
+    // ── Riset Akademik → Open Data ───────────────────────
+    ['dissertation-tracker', 'kependudukan-bps'],
+    ['dissertation-tracker', 'data-kemiskinan'],
+    ['dataset-registry',     'kependudukan-bps'],
+    ['dataset-registry',     'pelanggan'],
+    ['dataset-registry',     'baca-meter'],
+    ['dataset-registry',     'ganti-meter'],
+    ['dataset-registry',     'pln-stat'],
+    ['dataset-registry',     'rkpd-jabar'],
+    ['dataset-registry',     'apbd-jabar'],
+    ['dataset-registry',     'gis-jabar'],
   ];
 
   const nodeMap = {}, nodes = [], links = [];
@@ -1810,18 +1873,24 @@ function initFullGraph(domainList) {
     'energi-jabar-3':'#60A5FA','energi-jabar-4':'#FBBF24',
     'open-data-nasional-1':'#A78BFA','open-data-nasional-2':'#34D399',
     'open-data-nasional-3':'#F472B6','open-data-nasional-4':'#FB923C',
+    'riset-akademik-1':'#E879F9','riset-akademik-2':'#A78BFA',
+    'riset-akademik-3':'#67E8F9','riset-akademik-4':'#FCA5A5',
   };
   const CP = {
     'energi-jabar-1':{x:.5,y:.15},'energi-jabar-2':{x:.25,y:.4},
     'energi-jabar-3':{x:.75,y:.4},'energi-jabar-4':{x:.5,y:.67},
     'open-data-nasional-1':{x:.15,y:.88},'open-data-nasional-2':{x:.38,y:.88},
     'open-data-nasional-3':{x:.62,y:.88},'open-data-nasional-4':{x:.85,y:.88},
+    'riset-akademik-1':{x:.88,y:.18},'riset-akademik-2':{x:.88,y:.40},
+    'riset-akademik-3':{x:.88,y:.60},'riset-akademik-4':{x:.88,y:.80},
   };
   const LL = {
     'energi-jabar-1':'PLN','energi-jabar-2':'Pembangkitan',
     'energi-jabar-3':'Transmisi','energi-jabar-4':'Distribusi',
     'open-data-nasional-1':'Tata Ruang','open-data-nasional-2':'Lingkungan',
     'open-data-nasional-3':'Geospasial','open-data-nasional-4':'Sosial',
+    'riset-akademik-1':'Disertasi','riset-akademik-2':'Literatur',
+    'riset-akademik-3':'Dataset','riset-akademik-4':'Publikasi',
   };
   const XLINKS = [
     // PLN internal
@@ -1879,6 +1948,21 @@ function initFullGraph(domainList) {
     ['gis-jabar','peta-admin'],['peta-admin','kependudukan-bps'],
     ['peta-admin','data-kemiskinan'],['kependudukan-bps','data-kemiskinan'],
     ['data-kemiskinan','tariff-adjustment'],
+    // Riset Akademik internal
+    ['dissertation-tracker','literature-map'],['dissertation-tracker','dataset-registry'],
+    ['dissertation-tracker','paper-pipeline'],['literature-map','dataset-registry'],
+    ['literature-map','paper-pipeline'],
+    // Riset Akademik → Energi Jabar
+    ['dissertation-tracker','ekonomi-transisi'],['dissertation-tracker','ekuitas-akses'],
+    ['dissertation-tracker','keandalan-layanan'],
+    ['literature-map','ruptl'],['literature-map','ekonomi-transisi'],['literature-map','atlas-pembangkit'],
+    ['paper-pipeline','ekonomi-transisi'],['paper-pipeline','ekuitas-akses'],
+    // Riset Akademik → Open Data
+    ['dissertation-tracker','kependudukan-bps'],['dissertation-tracker','data-kemiskinan'],
+    ['dataset-registry','kependudukan-bps'],['dataset-registry','pelanggan'],
+    ['dataset-registry','baca-meter'],['dataset-registry','ganti-meter'],
+    ['dataset-registry','pln-stat'],['dataset-registry','rkpd-jabar'],
+    ['dataset-registry','apbd-jabar'],['dataset-registry','gis-jabar'],
   ];
 
   // Build graph data

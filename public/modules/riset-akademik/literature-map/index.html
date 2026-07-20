@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Literature Map — COCKPIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/assets/cockpit-loader.js"></script>
+<style>
+:root{
+  --ind:#4F46E5;--ind-dk:#312E81;--ind-lt:#EEF2FF;--ind-mid:#6366F1;
+  --bg:#F5F5FF;--card:#FFFFFF;--border:#DDD6FE;
+  --text:#111827;--muted:#6B7280;--dim:#9CA3AF;
+  --green:#16A34A;--red:#DC2626;--amber:#D97706;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+.module-header{background:linear-gradient(135deg,#1E1B4B 0%,#4F46E5 55%,#0EA5E9 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase}
+.back-link svg{width:13px;height:13px}.back-link:hover{color:#fff}
+.breadcrumb{padding:5px 24px 0;font-size:11px;color:rgba(255,255,255,.55)}
+.header-body{padding:14px 24px 22px}
+.header-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:5px}
+.header-desc{font-size:13px;color:rgba(255,255,255,.8);max-width:740px;line-height:1.6;margin-bottom:14px}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);font-family:'JetBrains Mono',monospace}
+.tabs-bar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.tabs{display:flex;padding:0 20px;overflow-x:auto;scrollbar-width:none}
+.tab-btn{flex-shrink:0;padding:12px 20px;font-size:13px;font-weight:500;font-family:'Space Grotesk',sans-serif;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
+.tab-btn.active{color:var(--ind);border-bottom-color:var(--ind);font-weight:600}
+.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 56px}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ind-dk);margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+.sec-title:first-child{margin-top:0}
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:var(--ind-dk)}
+.kpi-unit{font-size:11px;font-weight:400;color:var(--muted)}
+/* Filters */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filter-btn{padding:5px 14px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-weight:500;background:#fff;color:var(--muted);cursor:pointer;transition:all .15s}
+.filter-btn.active{background:var(--ind);border-color:var(--ind);color:#fff}
+.search-box{padding:6px 14px;border:1px solid var(--border);border-radius:20px;font-size:12px;outline:none;width:220px;font-family:'Inter',sans-serif}
+.search-box:focus{border-color:var(--ind)}
+/* Table */
+.lit-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.lit-table th{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;padding:10px 12px;background:var(--ind-lt);border-bottom:2px solid var(--border);white-space:nowrap}
+.lit-table td{padding:12px;border-bottom:1px solid var(--border);vertical-align:top}
+.lit-table tr:last-child td{border-bottom:none}
+.lit-table tr:hover td{background:var(--ind-lt)}
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px}
+.paper-title{font-weight:500;font-size:12.5px;line-height:1.5;color:var(--text);margin-bottom:3px}
+.paper-authors{font-size:11px;color:var(--muted)}
+.status-pill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap}
+.s-belum{background:#F3F4F6;color:#374151}
+.s-antrian{background:#DBEAFE;color:#1E40AF}
+.s-sedang{background:#FEF3C7;color:#92400E}
+.s-selesai{background:#DCFCE7;color:#15803D}
+.s-dikutip{background:#F3E8FF;color:#6D28D9}
+.tema-tag{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-family:'JetBrains Mono',monospace;margin:1px 2px 1px 0}
+.chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.chart-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;margin-bottom:14px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+.no-results{text-align:center;padding:32px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="module-header">
+  <a href="/" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Kembali ke COCKPIT
+  </a>
+  <div class="breadcrumb">Riset &amp; Akademik <span>›</span> Literatur</div>
+  <div class="header-body">
+    <div class="header-title">Literature Map</div>
+    <div class="header-desc">Peta literatur penelitian — tracking status baca, sitasi, dan relevansi per paper. Update manual sesuai progress review.</div>
+    <div class="meta-row">
+      <span class="badge">📖 Literatur Riset</span>
+      <span class="badge" id="hdr-total">— paper</span>
+      <span class="badge" id="hdr-cited">— dikutip</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="list">Daftar Literatur</button>
+    <button class="tab-btn" data-tab="stats">Analisis</button>
+  </div>
+</div>
+
+<div class="page-body">
+
+<div class="tab-panel active" id="tab-list">
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <div class="filter-bar">
+    <input class="search-box" id="search" placeholder="Cari judul / penulis…" type="text">
+    <button class="filter-btn active" data-filter="all">Semua</button>
+    <button class="filter-btn" data-filter="sedang">Sedang Dibaca</button>
+    <button class="filter-btn" data-filter="selesai">Selesai</button>
+    <button class="filter-btn" data-filter="dikutip">Dikutip</button>
+    <button class="filter-btn" data-filter="antrian">Antrian</button>
+  </div>
+
+  <div class="table-wrap">
+    <table class="lit-table">
+      <thead>
+        <tr>
+          <th style="width:38%">Paper</th>
+          <th style="width:60px">Tahun</th>
+          <th>Jurnal / Konferensi</th>
+          <th>Tema</th>
+          <th style="width:90px">Status</th>
+          <th style="width:80px">Relevansi</th>
+        </tr>
+      </thead>
+      <tbody id="lit-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-stats">
+  <div class="grid-2">
+    <div class="chart-wrap">
+      <div class="chart-title">Status Reading</div>
+      <canvas id="chart-status" height="220"></canvas>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Distribusi Tahun Terbit</div>
+      <canvas id="chart-year" height="220"></canvas>
+    </div>
+  </div>
+  <div class="chart-wrap">
+    <div class="chart-title">Paper per Tema</div>
+    <canvas id="chart-tema" height="180"></canvas>
+  </div>
+</div>
+
+</div>
+
+<script>
+const TEMA_COLOR = {
+  'transisi energi':'#818CF8','distribusi':'#38BDF8','keandalan':'#4ADE80',
+  'bauran energi':'#FB923C','kemiskinan energi':'#F472B6','smart meter':'#FBBF24',
+  'kebijakan':'#A78BFA','GIS':'#34D399','RUPTL':'#F97316','pelanggan':'#60A5FA',
+  'losses':'#F43F5E','metodologi':'#94A3B8'
+};
+
+const PAPERS = [
+  { judul:'Energy transition pathways for ASEAN: A review of policies, technologies and scenarios', penulis:'Velte et al.', tahun:2023, jurnal:'Renewable & Sustainable Energy Reviews', tema:['transisi energi','kebijakan'], status:'dikutip', relevansi:5 },
+  { judul:'Challenges and opportunities for electricity grid flexibility in Southeast Asia', penulis:'Rahman & Steinke', tahun:2022, jurnal:'Nature Energy', tema:['distribusi','keandalan'], status:'dikutip', relevansi:5 },
+  { judul:'Just transition in coal-dependent regions: A framework for policy analysis', penulis:'Pai et al.', tahun:2021, jurnal:'Energy Research & Social Science', tema:['transisi energi','kebijakan'], status:'dikutip', relevansi:5 },
+  { judul:'Electricity access and energy poverty in Indonesia: Spatial analysis', penulis:'Resosudarmo et al.', tahun:2022, jurnal:'Energy for Sustainable Development', tema:['kemiskinan energi','GIS'], status:'selesai', relevansi:5 },
+  { judul:'Grid reliability metrics SAIDI/SAIFI: Comparative analysis Indonesia utilities', penulis:'Suharto & Chen', tahun:2023, jurnal:'IEEE Transactions on Power Delivery', tema:['keandalan','distribusi'], status:'dikutip', relevansi:4 },
+  { judul:'Smart meter data analytics for demand characterization in tropical climates', penulis:'Lim et al.', tahun:2023, jurnal:'Applied Energy', tema:['smart meter','pelanggan'], status:'selesai', relevansi:4 },
+  { judul:'Non-technical loss detection in distribution systems using AMR data', penulis:'Miranda et al.', tahun:2022, jurnal:'Electric Power Systems Research', tema:['losses','smart meter'], status:'selesai', relevansi:4 },
+  { judul:'Renewable energy integration challenges in Java-Bali power system', penulis:'Wijaya & Asmarini', tahun:2023, jurnal:'Energy Strategy Reviews', tema:['bauran energi','distribusi'], status:'dikutip', relevansi:5 },
+  { judul:'RUPTL 2021–2030: Analysis of renewable energy targets and implementation gaps', penulis:'IESR', tahun:2022, jurnal:'Institute for Essential Services Reform', tema:['RUPTL','kebijakan','bauran energi'], status:'dikutip', relevansi:5 },
+  { judul:'Spatial autocorrelation of electricity consumption patterns in Java', penulis:'Supriyadi et al.', tahun:2021, jurnal:'Sustainable Cities and Society', tema:['GIS','pelanggan'], status:'selesai', relevansi:3 },
+  { judul:'Political economy of electricity tariff reform in Indonesia', penulis:'Halvorsen & Sabatier', tahun:2022, jurnal:'Energy Policy', tema:['kebijakan','pelanggan'], status:'selesai', relevansi:4 },
+  { judul:'Multi-criteria analysis of energy storage for grid stability in emerging economies', penulis:'Kittner et al.', tahun:2022, jurnal:'Energy Storage Materials', tema:['keandalan','transisi energi'], status:'sedang', relevansi:3 },
+  { judul:'Towards equitable energy access: lessons from rural electrification programs in Southeast Asia', penulis:'Urmee et al.', tahun:2023, jurnal:'Renewable Energy', tema:['kemiskinan energi','kebijakan'], status:'sedang', relevansi:4 },
+  { judul:'Machine learning for electricity demand forecasting: A systematic review', penulis:'Ahmad et al.', tahun:2023, jurnal:'Energy Reports', tema:['metodologi','pelanggan'], status:'antrian', relevansi:3 },
+  { judul:'Panel data methods for energy economics: A practitioner guide', penulis:'Bhattacharya', tahun:2021, jurnal:'Energy Economics', tema:['metodologi'], status:'selesai', relevansi:4 },
+  { judul:'Coal phase-out in developing countries: Feasibility and timeline analysis', penulis:'Blimpo & Cosgrove-Davies', tahun:2023, jurnal:'World Bank Policy Research', tema:['transisi energi','RUPTL'], status:'antrian', relevansi:4 },
+  { judul:'Distribution network investment and rural electrification in Indonesia', penulis:'Thoday et al.', tahun:2022, jurnal:'Energy for Sustainable Development', tema:['distribusi','kemiskinan energi'], status:'antrian', relevansi:4 },
+  { judul:'GIS-based assessment of renewable energy potential in West Java province', penulis:'Sugiarto et al.', tahun:2023, jurnal:'Renewable Energy', tema:['bauran energi','GIS'], status:'antrian', relevansi:5 },
+  { judul:'Electricity theft detection using smart meter data: A machine learning approach', penulis:'Zheng et al.', tahun:2022, jurnal:'IEEE Transactions on Smart Grid', tema:['losses','smart meter'], status:'belum', relevansi:3 },
+  { judul:'Social equity implications of time-of-use electricity tariffs', penulis:'Borenstein', tahun:2012, jurnal:'American Economic Review', tema:['kebijakan','kemiskinan energi'], status:'dikutip', relevansi:4 },
+];
+
+const STATUS_LABEL = { belum:'Belum',antrian:'Antrian',sedang:'Sedang Dibaca',selesai:'Selesai',dikutip:'Dikutip' };
+const STATUS_CLS   = { belum:'s-belum',antrian:'s-antrian',sedang:'s-sedang',selesai:'s-selesai',dikutip:'s-dikutip' };
+
+document.getElementById('hdr-total').textContent = PAPERS.length+' paper';
+document.getElementById('hdr-cited').textContent = PAPERS.filter(p=>p.status==='dikutip').length+' dikutip';
+
+const statusCounts = {};
+PAPERS.forEach(p=>statusCounts[p.status]=(statusCounts[p.status]||0)+1);
+const kpiDefs = [
+  {label:'Total',       value:PAPERS.length,                                  unit:'paper'},
+  {label:'Dikutip',     value:PAPERS.filter(p=>p.status==='dikutip').length,  unit:'paper'},
+  {label:'Selesai',     value:PAPERS.filter(p=>p.status==='selesai').length,  unit:'paper'},
+  {label:'Sedang Baca', value:PAPERS.filter(p=>p.status==='sedang').length,   unit:'paper'},
+  {label:'Antrian',     value:PAPERS.filter(p=>p.status==='antrian').length,  unit:'paper'},
+];
+document.getElementById('kpi-grid').innerHTML = kpiDefs.map(k=>`
+  <div class="kpi-card">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-value">${k.value} <span class="kpi-unit">${k.unit}</span></div>
+  </div>`).join('');
+
+function starBar(n) {
+  return '★'.repeat(n)+'☆'.repeat(5-n);
+}
+
+function renderTable(filter, query) {
+  let data = PAPERS;
+  if (filter !== 'all') data = data.filter(p=>p.status===filter);
+  if (query) {
+    const q = query.toLowerCase();
+    data = data.filter(p=>p.judul.toLowerCase().includes(q)||p.penulis.toLowerCase().includes(q));
+  }
+  const tbody = document.getElementById('lit-tbody');
+  if (!data.length) { tbody.innerHTML='<tr><td colspan="6" class="no-results">Tidak ada hasil</td></tr>'; return; }
+  tbody.innerHTML = data.map(p=>`
+    <tr>
+      <td>
+        <div class="paper-title">${p.judul}</div>
+        <div class="paper-authors">${p.penulis}</div>
+      </td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center">${p.tahun}</td>
+      <td style="font-size:12px;color:var(--muted)">${p.jurnal}</td>
+      <td>${p.tema.map(t=>`<span class="tema-tag" style="background:${TEMA_COLOR[t]||'#E5E7EB'}22;color:${TEMA_COLOR[t]||'#6B7280'}">${t}</span>`).join('')}</td>
+      <td><span class="status-pill ${STATUS_CLS[p.status]}">${STATUS_LABEL[p.status]}</span></td>
+      <td style="font-size:13px;color:#FBBF24;letter-spacing:1px">${starBar(p.relevansi)}</td>
+    </tr>`).join('');
+}
+
+renderTable('all','');
+
+let activeFilter = 'all';
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.filter;
+    renderTable(activeFilter, document.getElementById('search').value);
+  });
+});
+document.getElementById('search').addEventListener('input', e=>{
+  renderTable(activeFilter, e.target.value);
+});
+
+/* Charts */
+const statusOrder = ['belum','antrian','sedang','selesai','dikutip'];
+new Chart(document.getElementById('chart-status'),{
+  type:'bar',
+  data:{labels:statusOrder.map(s=>STATUS_LABEL[s]),
+        datasets:[{data:statusOrder.map(s=>PAPERS.filter(p=>p.status===s).length),
+                   backgroundColor:['#F3F4F6','#DBEAFE','#FEF3C7','#DCFCE7','#F3E8FF'],
+                   borderWidth:0,borderRadius:6}]},
+  options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+});
+
+const years = [...new Set(PAPERS.map(p=>p.tahun))].sort();
+new Chart(document.getElementById('chart-year'),{
+  type:'bar',
+  data:{labels:years,datasets:[{data:years.map(y=>PAPERS.filter(p=>p.tahun===y).length),
+        backgroundColor:'rgba(99,102,241,.65)',borderRadius:4}]},
+  options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+});
+
+const temaAll = {};
+PAPERS.forEach(p=>p.tema.forEach(t=>temaAll[t]=(temaAll[t]||0)+1));
+const temaSort = Object.entries(temaAll).sort((a,b)=>b[1]-a[1]);
+new Chart(document.getElementById('chart-tema'),{
+  type:'bar',
+  data:{labels:temaSort.map(([t])=>t),
+        datasets:[{data:temaSort.map(([,n])=>n),
+                   backgroundColor:temaSort.map(([t])=>TEMA_COLOR[t]+'BB'||'#818CF8BB'),
+                   borderRadius:4}]},
+  options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1}}}}
+});
+
+/* Tabs */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
