@@ -64,10 +64,14 @@ html,body{min-height:100%;background:var(--navy);color:var(--ink);font-family:'D
 .reason-tag{font-size:.58rem;color:var(--ink-3);background:rgba(255,255,255,.04);padding:1px 6px;border-radius:6px;}
 
 /* SESSION TABLE */
-.session-row{background:var(--navy-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;}
+.session-row{background:var(--navy-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;}
+.session-body{flex:1;min-width:0;}
 .session-user{font-weight:600;font-size:.85rem;margin-bottom:4px;}
 .session-meta{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;}
 .session-exp{color:var(--yellow);}
+.btn-kill{flex-shrink:0;background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.3);color:#e74c3c;border-radius:7px;padding:6px 11px;font-size:.65rem;font-family:'DM Mono',monospace;cursor:pointer;white-space:nowrap;transition:background .15s;}
+.btn-kill:hover{background:rgba(231,76,60,.25);}
+.btn-kill:disabled{opacity:.4;cursor:default;}
 
 .loading{text-align:center;padding:40px;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--ink-3);}
 .empty{text-align:center;padding:32px;font-family:'DM Mono',monospace;font-size:.65rem;color:var(--ink-3);}
@@ -190,17 +194,44 @@ async function loadSessions() {
   wrap.innerHTML = sessionData.map(s => {
     const exp = new Date(s.expiresAt);
     const minsLeft = Math.round((exp - Date.now()) / 60000);
-    return `<div class="session-row">
-      <div class="session-user"><i class="fa-solid fa-circle-user" style="margin-right:6px;color:var(--orange);"></i>${s.username}</div>
-      <div class="session-meta">
-        <span>ID User: ${s.userId}</span>
-        <span>IP: ${s.ipAddress ?? '—'}</span>
-        <span>Mulai: ${new Date(s.createdAt).toLocaleString('id-ID')}</span>
-        <span class="session-exp">Berakhir: ${exp.toLocaleString('id-ID')} (~${minsLeft} mnt lagi)</span>
+    return `<div class="session-row" id="sr-${s.id}">
+      <div class="session-body">
+        <div class="session-user"><i class="fa-solid fa-circle-user" style="margin-right:6px;color:var(--orange);"></i>${s.username}</div>
+        <div class="session-meta">
+          <span>ID User: ${s.userId}</span>
+          <span>IP: ${s.ipAddress ?? '—'}</span>
+          <span>Mulai: ${new Date(s.createdAt).toLocaleString('id-ID')}</span>
+          <span class="session-exp">Berakhir: ${exp.toLocaleString('id-ID')} (~${minsLeft} mnt lagi)</span>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:.57rem;color:var(--ink-3);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.userAgent ?? '—'}</div>
       </div>
-      <div style="font-family:'DM Mono',monospace;font-size:.57rem;color:var(--ink-3);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.userAgent ?? '—'}</div>
+      <button class="btn-kill" onclick="killSession('${s.id}', this)"><i class="fa-solid fa-xmark"></i> Kill</button>
     </div>`;
   }).join('');
+}
+
+async function killSession(id, btn) {
+  if (!confirm('Matikan sesi ini?')) return;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+  try {
+    const res = await fetch(`/api/admin/sessions/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    if (res.ok) {
+      document.getElementById(`sr-${id}`)?.remove();
+      const remaining = document.querySelectorAll('.session-row').length;
+      document.getElementById('sessCount').textContent = remaining;
+      document.getElementById('kpiSess').textContent = remaining;
+      if (!remaining) document.getElementById('sessionsWrap').innerHTML = '<div class="empty">Tidak ada sesi aktif.</div>';
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Kill';
+      alert('Gagal mematikan sesi.');
+    }
+  } catch {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Kill';
+    alert('Gagal mematikan sesi.');
+  }
 }
 
 // Tabs
