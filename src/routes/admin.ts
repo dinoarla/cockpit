@@ -204,9 +204,7 @@ adminRoutes.get("/sessions", async (c) => {
 
 adminRoutes.delete("/sessions/:id", async (c) => {
   const id = c.req.param("id");
-  const result = await db.delete(sessions).where(eq(sessions.id, id));
-  if (!result[0] || result[0].affectedRows === 0)
-    return c.json({ error: "Session not found" }, 404);
+  await db.delete(sessions).where(eq(sessions.id, id));
   return c.json({ ok: true });
 });
 
