@@ -925,9 +925,7 @@ const MODULE_ICONS = {
   'kependudukan-bps':        '<i class="fa-solid fa-people-group"></i>',
   'data-kemiskinan':         '<i class="fa-solid fa-hand-holding-heart"></i>',
   // riset-akademik
-  'dissertation-tracker':    '<i class="fa-solid fa-book-open"></i>',
   'literature-map':          '<i class="fa-solid fa-map-location-dot"></i>',
-  'dataset-registry':        '<i class="fa-solid fa-database"></i>',
   'paper-pipeline':          '<i class="fa-solid fa-paper-plane"></i>',
 };
 const MODULE_DESC = {
@@ -980,9 +978,7 @@ const MODULE_DESC = {
   'kependudukan-bps':        'Data kependudukan BPS — jumlah penduduk, kepadatan, struktur usia, proyeksi per wilayah',
   'data-kemiskinan':         'Data kemiskinan & sosial BPS — garis kemiskinan, P0/P1/P2, DTKS, program bantuan sosial',
   // riset-akademik
-  'dissertation-tracker':    'Monitoring progress disertasi PhD — per bab, kata ditulis vs target, status revisi, dan timeline sidang',
   'literature-map':          'Peta literatur riset energi — tracker bacaan, status kutipan, relevansi, dan analisis sebaran tema & tahun',
-  'dataset-registry':        'Katalog dataset yang digunakan dalam riset — sumber internal COCKPIT, data PLN, dan data publik',
   'paper-pipeline':          'Manajemen pipeline publikasi akademik — kanban dari ide hingga accepted, jurnal target, dan deadline submit',
 };
 
@@ -1036,14 +1032,9 @@ const SECTION_MAP = {
   // open-data-nasional — Section 04: Sosial & Kependudukan
   'kependudukan-bps':        4,
   'data-kemiskinan':         4,
-  // riset-akademik — Section 01: Disertasi
-  'dissertation-tracker':   1,
-  // riset-akademik — Section 02: Literatur
-  'literature-map':          2,
-  // riset-akademik — Section 03: Dataset
-  'dataset-registry':        3,
-  // riset-akademik — Section 04: Publikasi
-  'paper-pipeline':          4,
+  // riset-akademik
+  'literature-map':          1,
+  'paper-pipeline':          1,
 };
 const DOMAIN_SECTIONS = {
   'energi-jabar': [
@@ -1059,10 +1050,7 @@ const DOMAIN_SECTIONS = {
     { id: 4, num: '04', label: 'Sosial & Kependudukan' },
   ],
   'riset-akademik': [
-    { id: 1, num: '01', label: 'Disertasi' },
-    { id: 2, num: '02', label: 'Literatur' },
-    { id: 3, num: '03', label: 'Dataset' },
-    { id: 4, num: '04', label: 'Publikasi' },
+    { id: 1, num: '', label: '' },
   ],
 };
 const DOMAIN_ICONS = {
@@ -1203,14 +1191,14 @@ function render(domainList, role) {
       const secEl = document.createElement('div');
       secEl.className = 'section-block';
       const modCount = mods.length;
-      secEl.innerHTML = `
+      secEl.innerHTML = sec.num ? `
         <div class="section-label">
           <span class="section-num">${sec.num}</span>
           <span class="section-title">${sec.label}</span>
           <div class="section-line"></div>
           <span class="section-count">${modCount ? modCount + ' modul' : 'belum ada'}</span>
         </div>
-      `;
+      ` : '';
 
       if (!mods.length) {
         secEl.innerHTML += `
@@ -1652,31 +1640,13 @@ function initKnowledgeGraph(domainList) {
     ['kependudukan-bps',   'data-kemiskinan'],
     ['data-kemiskinan',    'tariff-adjustment'],
     // ── Riset Akademik internal ───────────────────────────
-    ['dissertation-tracker', 'literature-map'],
-    ['dissertation-tracker', 'dataset-registry'],
-    ['dissertation-tracker', 'paper-pipeline'],
-    ['literature-map',       'dataset-registry'],
     ['literature-map',       'paper-pipeline'],
     // ── Riset Akademik → Energi Jabar ────────────────────
-    ['dissertation-tracker', 'ekonomi-transisi'],
-    ['dissertation-tracker', 'ekuitas-akses'],
-    ['dissertation-tracker', 'keandalan-layanan'],
     ['literature-map',       'ruptl'],
     ['literature-map',       'ekonomi-transisi'],
     ['literature-map',       'atlas-pembangkit'],
     ['paper-pipeline',       'ekonomi-transisi'],
     ['paper-pipeline',       'ekuitas-akses'],
-    // ── Riset Akademik → Open Data ───────────────────────
-    ['dissertation-tracker', 'kependudukan-bps'],
-    ['dissertation-tracker', 'data-kemiskinan'],
-    ['dataset-registry',     'kependudukan-bps'],
-    ['dataset-registry',     'pelanggan'],
-    ['dataset-registry',     'baca-meter'],
-    ['dataset-registry',     'ganti-meter'],
-    ['dataset-registry',     'pln-stat'],
-    ['dataset-registry',     'rkpd-jabar'],
-    ['dataset-registry',     'apbd-jabar'],
-    ['dataset-registry',     'gis-jabar'],
   ];
 
   const nodeMap = {}, nodes = [], links = [];
@@ -1949,20 +1919,10 @@ function initFullGraph(domainList) {
     ['peta-admin','data-kemiskinan'],['kependudukan-bps','data-kemiskinan'],
     ['data-kemiskinan','tariff-adjustment'],
     // Riset Akademik internal
-    ['dissertation-tracker','literature-map'],['dissertation-tracker','dataset-registry'],
-    ['dissertation-tracker','paper-pipeline'],['literature-map','dataset-registry'],
     ['literature-map','paper-pipeline'],
     // Riset Akademik → Energi Jabar
-    ['dissertation-tracker','ekonomi-transisi'],['dissertation-tracker','ekuitas-akses'],
-    ['dissertation-tracker','keandalan-layanan'],
     ['literature-map','ruptl'],['literature-map','ekonomi-transisi'],['literature-map','atlas-pembangkit'],
     ['paper-pipeline','ekonomi-transisi'],['paper-pipeline','ekuitas-akses'],
-    // Riset Akademik → Open Data
-    ['dissertation-tracker','kependudukan-bps'],['dissertation-tracker','data-kemiskinan'],
-    ['dataset-registry','kependudukan-bps'],['dataset-registry','pelanggan'],
-    ['dataset-registry','baca-meter'],['dataset-registry','ganti-meter'],
-    ['dataset-registry','pln-stat'],['dataset-registry','rkpd-jabar'],
-    ['dataset-registry','apbd-jabar'],['dataset-registry','gis-jabar'],
   ];
 
   // Build graph data
