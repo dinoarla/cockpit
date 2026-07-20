@@ -512,4 +512,30 @@ export const gantiMeterUmur = mysqlTable("ganti_meter_umur", {
 }, (t) => ({
     idxBulan: index("idx_gmu_bulan").on(t.bulan),
 }));
+// ============================================================
+// RISET & AKADEMIK — Literature Map
+// ============================================================
+export const literatureItems = mysqlTable("literature_items", {
+    id: int("id").autoincrement().primaryKey(),
+    zoteroKey: varchar("zotero_key", { length: 32 }),
+    title: text("title").notNull(),
+    authors: varchar("authors", { length: 500 }),
+    year: int("year"),
+    journal: varchar("journal", { length: 300 }),
+    doi: varchar("doi", { length: 200 }),
+    themes: text("themes").default("[]"), // JSON string array
+    status: varchar("status", { length: 20 }).notNull().default("belum"),
+    relevance: int("relevance").notNull().default(3),
+    citedIn: text("cited_in").default("[]"), // JSON int array of chapter numbers
+    notes: text("notes"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => ({
+    zoteroKeyIdx: uniqueIndex("lit_zotero_key_idx").on(t.zoteroKey),
+}));
+export const literatureConfig = mysqlTable("literature_config", {
+    id: int("id").autoincrement().primaryKey(),
+    key: varchar("key", { length: 50 }).notNull().unique(),
+    value: text("value"),
+});
 //# sourceMappingURL=schema.js.map

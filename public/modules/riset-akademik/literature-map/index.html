@@ -1,72 +1,142 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Literature Map — COCKPIT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="/assets/cockpit-loader.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-:root{
-  --ind:#4F46E5;--ind-dk:#312E81;--ind-lt:#EEF2FF;--ind-mid:#6366F1;
-  --bg:#F5F5FF;--card:#FFFFFF;--border:#DDD6FE;
-  --text:#111827;--muted:#6B7280;--dim:#9CA3AF;
-  --green:#16A34A;--red:#DC2626;--amber:#D97706;
-}
+:root{--ind:#4F46E5;--sky:#0EA5E9;--bg:#F8F9FB;--card:#fff;--border:#E5E7EB;--text:#111827;--muted:#6B7280;--red:#EF4444;--grn:#22C55E;--ylw:#F59E0B}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+
+/* ── HEADER ── */
 .module-header{background:linear-gradient(135deg,#1E1B4B 0%,#4F46E5 55%,#0EA5E9 100%);color:#fff;padding:0}
 .back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase}
 .back-link svg{width:13px;height:13px}.back-link:hover{color:#fff}
-.breadcrumb{padding:5px 24px 0;font-size:11px;color:rgba(255,255,255,.55)}
-.header-body{padding:14px 24px 22px}
-.header-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:5px}
-.header-desc{font-size:13px;color:rgba(255,255,255,.8);max-width:740px;line-height:1.6;margin-bottom:14px}
-.meta-row{display:flex;flex-wrap:wrap;gap:8px}
+.breadcrumb{padding:4px 24px 0;font-size:11px;color:rgba(255,255,255,.5)}
+.breadcrumb span{margin:0 4px;opacity:.5}
+.header-body{padding:16px 24px 20px}
+.header-title{font-family:'Space Grotesk',sans-serif;font-size:1.7rem;font-weight:700;margin-bottom:6px}
+.header-desc{font-size:.82rem;color:rgba(255,255,255,.7);margin-bottom:12px}
+.header-badges{display:flex;gap:8px;flex-wrap:wrap}
 .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);font-family:'JetBrains Mono',monospace}
-.tabs-bar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:2px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.07)}
-.tabs{display:flex;padding:0 20px;overflow-x:auto;scrollbar-width:none}
-.tab-btn{flex-shrink:0;padding:12px 20px;font-size:13px;font-weight:500;font-family:'Space Grotesk',sans-serif;color:var(--muted);border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .15s;white-space:nowrap;margin-bottom:-2px}
-.tab-btn.active{color:var(--ind);border-bottom-color:var(--ind);font-weight:600}
-.page-body{max-width:1200px;margin:0 auto;padding:24px 20px 56px}
-.tab-panel{display:none}.tab-panel.active{display:block}
-.sec-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--ind-dk);margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border)}
-.sec-title:first-child{margin-top:0}
-.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
-@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+
+/* ── BODY ── */
+.page-body{padding:20px 24px;max-width:1400px;margin:0 auto}
+
+/* ── KPI ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
 .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
-.kpi-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
-.kpi-value{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:var(--ind-dk)}
-.kpi-unit{font-size:11px;font-weight:400;color:var(--muted)}
-/* Filters */
-.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.filter-btn{padding:5px 14px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-weight:500;background:#fff;color:var(--muted);cursor:pointer;transition:all .15s}
+.kpi-label{font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.kpi-val{font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;color:var(--ind)}
+.kpi-sub{font-size:.7rem;color:var(--muted)}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.toolbar input{flex:1;min-width:200px;padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:inherit}
+.toolbar input:focus{border-color:var(--ind)}
+.filter-wrap{display:flex;gap:6px;flex-wrap:wrap}
+.filter-btn{padding:6px 13px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-weight:500;background:var(--card);color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap}
 .filter-btn.active{background:var(--ind);border-color:var(--ind);color:#fff}
-.search-box{padding:6px 14px;border:1px solid var(--border);border-radius:20px;font-size:12px;outline:none;width:220px;font-family:'Inter',sans-serif}
-.search-box:focus{border-color:var(--ind)}
-/* Table */
-.lit-table{width:100%;border-collapse:collapse;font-size:12.5px}
-.lit-table th{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;padding:10px 12px;background:var(--ind-lt);border-bottom:2px solid var(--border);white-space:nowrap}
-.lit-table td{padding:12px;border-bottom:1px solid var(--border);vertical-align:top}
-.lit-table tr:last-child td{border-bottom:none}
-.lit-table tr:hover td{background:var(--ind-lt)}
-.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px}
-.paper-title{font-weight:500;font-size:12.5px;line-height:1.5;color:var(--text);margin-bottom:3px}
-.paper-authors{font-size:11px;color:var(--muted)}
-.status-pill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap}
-.s-belum{background:#F3F4F6;color:#374151}
-.s-antrian{background:#DBEAFE;color:#1E40AF}
-.s-sedang{background:#FEF3C7;color:#92400E}
-.s-selesai{background:#DCFCE7;color:#15803D}
-.s-dikutip{background:#F3E8FF;color:#6D28D9}
-.tema-tag{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-family:'JetBrains Mono',monospace;margin:1px 2px 1px 0}
-.chart-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
-.chart-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;margin-bottom:14px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:700px){.grid-2{grid-template-columns:1fr}}
-.no-results{text-align:center;padding:32px;color:var(--muted);font-size:13px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--ind);color:#fff}.btn-primary:hover{background:#4338CA}
+.btn-outline{background:var(--card);color:var(--muted);border:1px solid var(--border)}.btn-outline:hover{border-color:var(--ind);color:var(--ind)}
+.btn-green{background:#16A34A;color:#fff}.btn-green:hover{background:#15803D}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 12px;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;background:#FAFAFA}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#F9FAFB}
+tbody tr.expanded{background:#F5F3FF}
+td{padding:10px 12px;vertical-align:top}
+.col-paper{min-width:280px;max-width:380px}
+.col-year{width:60px;text-align:center}
+.col-journal{min-width:140px;max-width:200px}
+.col-themes{min-width:130px}
+.col-citedin{min-width:130px}
+.col-status{width:100px;text-align:center}
+.col-rel{width:90px;text-align:center}
+.col-act{width:60px;text-align:center}
+
+/* ── PAPER CELL ── */
+.paper-title{font-weight:600;font-size:.82rem;color:var(--text);line-height:1.35;cursor:pointer}
+.paper-title:hover{color:var(--ind)}
+.paper-authors{font-size:.7rem;color:var(--muted);margin-top:2px}
+.paper-doi{font-size:.65rem;color:var(--sky);font-family:'JetBrains Mono',monospace;margin-top:2px}
+
+/* ── STATUS BADGE ── */
+.status-sel{border:none;border-radius:12px;padding:4px 10px;font-size:.7rem;font-weight:600;cursor:pointer;-webkit-appearance:none;appearance:none;outline:none}
+.s-dikutip{background:#EDE9FE;color:#6D28D9}
+.s-selesai{background:#D1FAE5;color:#065F46}
+.s-sedang {background:#DBEAFE;color:#1E40AF}
+.s-antrian{background:#FEF3C7;color:#92400E}
+.s-belum  {background:#F3F4F6;color:#6B7280}
+
+/* ── STAR RATING ── */
+.stars{display:inline-flex;gap:2px;font-size:14px;cursor:pointer}
+.star{color:#D1D5DB;transition:color .1s}.star.on{color:var(--ylw)}
+
+/* ── TAGS ── */
+.tag{display:inline-block;padding:2px 7px;border-radius:10px;font-size:.65rem;font-weight:500;margin:2px 2px 2px 0;cursor:pointer}
+.tag-add{background:transparent;border:1px dashed var(--border);color:var(--muted)}
+.tag-add:hover{border-color:var(--ind);color:var(--ind)}
+
+/* ── CITED IN ── */
+.bab-badge{display:inline-block;padding:2px 7px;border-radius:8px;font-size:.65rem;font-weight:600;background:#EDE9FE;color:#6D28D9;margin:2px 2px 2px 0;cursor:pointer}
+.bab-badge:hover{background:#DDD6FE}
+
+/* ── EXPANDED ROW ── */
+.expand-row td{padding:0}
+.expand-body{padding:16px 14px;background:#F5F3FF;border-top:1px solid #DDD6FE;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.expand-section label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.expand-input{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;outline:none}
+.expand-input:focus{border-color:var(--ind)}
+textarea.expand-input{min-height:80px;resize:vertical}
+.ch-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.ch-check{display:none}
+.ch-label{padding:4px 10px;border:1px solid var(--border);border-radius:8px;font-size:.7rem;cursor:pointer;user-select:none;transition:all .15s}
+.ch-check:checked + .ch-label{background:var(--ind);border-color:var(--ind);color:#fff}
+.tag-input-row{display:flex;gap:6px;margin-top:6px}
+.tag-input{flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;outline:none}
+.tag-input:focus{border-color:var(--ind)}
+.save-row{margin-top:12px;display:flex;align-items:center;gap:10px}
+.saved-flash{font-size:.75rem;color:var(--grn);opacity:0;transition:opacity .3s}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);border-radius:14px;padding:24px;width:460px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal h3{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;margin-bottom:16px}
+.modal label{display:block;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px;margin-top:12px}
+.modal input,.modal textarea{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.modal input:focus,.modal textarea:focus{border-color:var(--ind)}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.hint{font-size:.7rem;color:var(--muted);margin-top:4px}
+.dropzone{border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;margin-top:8px}
+.dropzone:hover,.dropzone.over{border-color:var(--ind);background:#EEF2FF}
+.dropzone i{font-size:1.8rem;color:var(--muted);margin-bottom:8px}
+.dropzone p{font-size:.8rem;color:var(--muted)}
+
+/* ── MISC ── */
+.empty-state{text-align:center;padding:48px 24px;color:var(--muted);font-size:.85rem}
+.empty-state i{font-size:2.5rem;opacity:.3;display:block;margin-bottom:12px}
+.toast{position:fixed;bottom:24px;right:24px;background:#1F2937;color:#fff;padding:10px 16px;border-radius:10px;font-size:.8rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999}
+.toast.show{opacity:1}
+
+/* tag colors */
+.tc-0{background:#EDE9FE;color:#6D28D9}.tc-1{background:#D1FAE5;color:#065F46}
+.tc-2{background:#DBEAFE;color:#1E40AF}.tc-3{background:#FEF3C7;color:#92400E}
+.tc-4{background:#FCE7F3;color:#9D174D}.tc-5{background:#E0F2FE;color:#0369A1}
+.tc-6{background:#F0FDF4;color:#166534}.tc-7{background:#FFF7ED;color:#9A3412}
+
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(3,1fr)}.expand-body{grid-template-columns:1fr}}
+@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -76,209 +146,520 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     Kembali ke Menu
   </a>
-  <div class="breadcrumb">Riset &amp; Akademik <span>›</span> Literatur</div>
+  <div class="breadcrumb">Riset &amp; Akademik <span>›</span> Literature Map</div>
   <div class="header-body">
     <div class="header-title">Literature Map</div>
-    <div class="header-desc">Peta literatur penelitian — tracking status baca, sitasi, dan relevansi per paper. Update manual sesuai progress review.</div>
-    <div class="meta-row">
-      <span class="badge">📖 Literatur Riset</span>
-      <span class="badge" id="hdr-total">— paper</span>
-      <span class="badge" id="hdr-cited">— dikutip</span>
+    <div class="header-desc">Peta literatur penelitian — tracking status baca, sitasi, dan relevansi per paper.</div>
+    <div class="header-badges">
+      <span class="badge" id="badgeTotal">—</span>
+      <span class="badge" id="badgeDikutip">—</span>
+      <span class="badge" id="badgeZotero"><i class="fa-solid fa-circle-nodes"></i> Zotero</span>
     </div>
-  </div>
-</div>
-
-<div class="tabs-bar">
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="list">Daftar Literatur</button>
-    <button class="tab-btn" data-tab="stats">Analisis</button>
   </div>
 </div>
 
 <div class="page-body">
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-val" id="kTotal">—</div><div class="kpi-sub">paper</div></div>
+    <div class="kpi-card"><div class="kpi-label">Dikutip</div><div class="kpi-val" id="kDikutip" style="color:#6D28D9">—</div><div class="kpi-sub">paper</div></div>
+    <div class="kpi-card"><div class="kpi-label">Selesai</div><div class="kpi-val" id="kSelesai" style="color:#16A34A">—</div><div class="kpi-sub">paper</div></div>
+    <div class="kpi-card"><div class="kpi-label">Sedang Baca</div><div class="kpi-val" id="kSedang" style="color:#2563EB">—</div><div class="kpi-sub">paper</div></div>
+    <div class="kpi-card"><div class="kpi-label">Antrian</div><div class="kpi-val" id="kAntrian" style="color:var(--ylw)">—</div><div class="kpi-sub">paper</div></div>
+  </div>
 
-<div class="tab-panel active" id="tab-list">
-  <div class="kpi-grid" id="kpi-grid"></div>
-
-  <div class="filter-bar">
-    <input class="search-box" id="search" placeholder="Cari judul / penulis…" type="text">
-    <button class="filter-btn active" data-filter="all">Semua</button>
-    <button class="filter-btn" data-filter="sedang">Sedang Dibaca</button>
-    <button class="filter-btn" data-filter="selesai">Selesai</button>
-    <button class="filter-btn" data-filter="dikutip">Dikutip</button>
-    <button class="filter-btn" data-filter="antrian">Antrian</button>
+  <div class="toolbar">
+    <input type="text" id="searchInput" placeholder="Cari judul / penulis…" oninput="renderTable()">
+    <div class="filter-wrap" id="filterWrap">
+      <button class="filter-btn active" data-f="semua" onclick="setFilter(this)">Semua</button>
+      <button class="filter-btn" data-f="dikutip" onclick="setFilter(this)">Dikutip</button>
+      <button class="filter-btn" data-f="selesai" onclick="setFilter(this)">Selesai</button>
+      <button class="filter-btn" data-f="sedang"  onclick="setFilter(this)">Sedang Baca</button>
+      <button class="filter-btn" data-f="antrian" onclick="setFilter(this)">Antrian</button>
+      <button class="filter-btn" data-f="belum"   onclick="setFilter(this)">Belum</button>
+    </div>
+    <button class="btn btn-green" onclick="openZoteroModal()"><i class="fa-solid fa-rotate"></i> Sync Zotero</button>
+    <button class="btn btn-outline" onclick="openBibModal()"><i class="fa-solid fa-file-import"></i> Import .bib</button>
+    <button class="btn btn-primary" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Tambah</button>
   </div>
 
   <div class="table-wrap">
-    <table class="lit-table">
+    <table id="litTable">
       <thead>
         <tr>
-          <th style="width:38%">Paper</th>
-          <th style="width:60px">Tahun</th>
-          <th>Jurnal / Konferensi</th>
-          <th>Tema</th>
-          <th style="width:90px">Status</th>
-          <th style="width:80px">Relevansi</th>
+          <th class="col-paper">PAPER</th>
+          <th class="col-year">THN</th>
+          <th class="col-journal">JURNAL / KONFERENSI</th>
+          <th class="col-themes">TEMA</th>
+          <th class="col-citedin">DIKUTIP DI</th>
+          <th class="col-status">STATUS</th>
+          <th class="col-rel">RELEVANSI</th>
+          <th class="col-act"></th>
         </tr>
       </thead>
-      <tbody id="lit-tbody"></tbody>
+      <tbody id="litBody">
+        <tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i>Memuat…</div></td></tr>
+      </tbody>
     </table>
   </div>
 </div>
 
-<div class="tab-panel" id="tab-stats">
-  <div class="grid-2">
-    <div class="chart-wrap">
-      <div class="chart-title">Status Reading</div>
-      <canvas id="chart-status" height="220"></canvas>
+<!-- ── ZOTERO MODAL ── -->
+<div class="modal-bg" id="zoteroModal">
+  <div class="modal">
+    <h3><i class="fa-solid fa-circle-nodes" style="color:var(--ind);margin-right:8px"></i>Konfigurasi Zotero</h3>
+    <label>Zotero User ID <span style="font-weight:400;text-transform:none">(zotero.org → Settings → Feeds/API)</span></label>
+    <input type="text" id="zoteroUserId" placeholder="cth: 1234567">
+    <label>API Key</label>
+    <input type="password" id="zoteroApiKey" placeholder="cth: aBcDeFgH1234567">
+    <p class="hint" style="margin-top:8px"><i class="fa-solid fa-info-circle"></i> Buat key di <b>zotero.org/settings/keys</b> — centang "Allow library access" (Read Only cukup).</p>
+    <div id="zoteroStatus" style="margin-top:10px;font-size:.75rem;color:var(--muted)"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('zoteroModal')">Batal</button>
+      <button class="btn btn-primary" onclick="saveZoteroConfig()">Simpan &amp; Sync</button>
     </div>
-    <div class="chart-wrap">
-      <div class="chart-title">Distribusi Tahun Terbit</div>
-      <canvas id="chart-year" height="220"></canvas>
-    </div>
-  </div>
-  <div class="chart-wrap">
-    <div class="chart-title">Paper per Tema</div>
-    <canvas id="chart-tema" height="180"></canvas>
   </div>
 </div>
 
+<!-- ── BIB IMPORT MODAL ── -->
+<div class="modal-bg" id="bibModal">
+  <div class="modal">
+    <h3><i class="fa-solid fa-file-import" style="color:var(--ind);margin-right:8px"></i>Import BibTeX (.bib)</h3>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">Export library dari Zotero → File → Export Library → Format: BibTeX (.bib)</p>
+    <div class="dropzone" id="dropzone" onclick="document.getElementById('bibFile').click()">
+      <i class="fa-solid fa-file-arrow-up"></i>
+      <p id="dropText">Klik atau drag & drop file .bib di sini</p>
+    </div>
+    <input type="file" id="bibFile" accept=".bib" style="display:none" onchange="handleBibFile(this.files[0])">
+    <div id="bibPreview" style="margin-top:12px;font-size:.8rem;color:var(--muted)"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('bibModal')">Batal</button>
+      <button class="btn btn-primary" id="bibImportBtn" style="display:none" onclick="doImportBib()">Import</button>
+    </div>
+  </div>
 </div>
+
+<!-- ── ADD MANUAL MODAL ── -->
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <h3><i class="fa-solid fa-plus" style="color:var(--ind);margin-right:8px"></i>Tambah Paper Manual</h3>
+    <label>Judul *</label><input type="text" id="addTitle" placeholder="Judul paper">
+    <label>Penulis</label><input type="text" id="addAuthors" placeholder="Nama et al.">
+    <label>Tahun</label><input type="number" id="addYear" placeholder="2024" min="1900" max="2030">
+    <label>Jurnal / Konferensi</label><input type="text" id="addJournal" placeholder="Nature Energy">
+    <label>DOI</label><input type="text" id="addDoi" placeholder="10.xxxx/xxxxx">
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addModal')">Batal</button>
+      <button class="btn btn-primary" onclick="doAddPaper()">Tambah</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
-const TEMA_COLOR = {
-  'transisi energi':'#818CF8','distribusi':'#38BDF8','keandalan':'#4ADE80',
-  'bauran energi':'#FB923C','kemiskinan energi':'#F472B6','smart meter':'#FBBF24',
-  'kebijakan':'#A78BFA','GIS':'#34D399','RUPTL':'#F97316','pelanggan':'#60A5FA',
-  'losses':'#F43F5E','metodologi':'#94A3B8'
+// ── CONSTANTS ──
+const CHAPTERS = [
+  { no:1, short:'Bab 1', label:'Pendahuluan & Latar Belakang' },
+  { no:2, short:'Bab 2', label:'Tinjauan Pustaka' },
+  { no:3, short:'Bab 3', label:'Metodologi Penelitian' },
+  { no:4, short:'Bab 4', label:'Bauran Energi & Transisi Jabar' },
+  { no:5, short:'Bab 5', label:'Distribusi, Keandalan & Akses' },
+  { no:6, short:'Bab 6', label:'Pembahasan & Implikasi Kebijakan' },
+  { no:7, short:'Bab 7', label:'Kesimpulan & Rekomendasi' },
+];
+const STATUS_META = {
+  dikutip:{ label:'Dikutip',  cls:'s-dikutip' },
+  selesai:{ label:'Selesai',  cls:'s-selesai' },
+  sedang: { label:'Sedang',   cls:'s-sedang'  },
+  antrian:{ label:'Antrian',  cls:'s-antrian' },
+  belum:  { label:'Belum',    cls:'s-belum'   },
 };
-
-const PAPERS = [
-  { judul:'Energy transition pathways for ASEAN: A review of policies, technologies and scenarios', penulis:'Velte et al.', tahun:2023, jurnal:'Renewable & Sustainable Energy Reviews', tema:['transisi energi','kebijakan'], status:'dikutip', relevansi:5 },
-  { judul:'Challenges and opportunities for electricity grid flexibility in Southeast Asia', penulis:'Rahman & Steinke', tahun:2022, jurnal:'Nature Energy', tema:['distribusi','keandalan'], status:'dikutip', relevansi:5 },
-  { judul:'Just transition in coal-dependent regions: A framework for policy analysis', penulis:'Pai et al.', tahun:2021, jurnal:'Energy Research & Social Science', tema:['transisi energi','kebijakan'], status:'dikutip', relevansi:5 },
-  { judul:'Electricity access and energy poverty in Indonesia: Spatial analysis', penulis:'Resosudarmo et al.', tahun:2022, jurnal:'Energy for Sustainable Development', tema:['kemiskinan energi','GIS'], status:'selesai', relevansi:5 },
-  { judul:'Grid reliability metrics SAIDI/SAIFI: Comparative analysis Indonesia utilities', penulis:'Suharto & Chen', tahun:2023, jurnal:'IEEE Transactions on Power Delivery', tema:['keandalan','distribusi'], status:'dikutip', relevansi:4 },
-  { judul:'Smart meter data analytics for demand characterization in tropical climates', penulis:'Lim et al.', tahun:2023, jurnal:'Applied Energy', tema:['smart meter','pelanggan'], status:'selesai', relevansi:4 },
-  { judul:'Non-technical loss detection in distribution systems using AMR data', penulis:'Miranda et al.', tahun:2022, jurnal:'Electric Power Systems Research', tema:['losses','smart meter'], status:'selesai', relevansi:4 },
-  { judul:'Renewable energy integration challenges in Java-Bali power system', penulis:'Wijaya & Asmarini', tahun:2023, jurnal:'Energy Strategy Reviews', tema:['bauran energi','distribusi'], status:'dikutip', relevansi:5 },
-  { judul:'RUPTL 2021–2030: Analysis of renewable energy targets and implementation gaps', penulis:'IESR', tahun:2022, jurnal:'Institute for Essential Services Reform', tema:['RUPTL','kebijakan','bauran energi'], status:'dikutip', relevansi:5 },
-  { judul:'Spatial autocorrelation of electricity consumption patterns in Java', penulis:'Supriyadi et al.', tahun:2021, jurnal:'Sustainable Cities and Society', tema:['GIS','pelanggan'], status:'selesai', relevansi:3 },
-  { judul:'Political economy of electricity tariff reform in Indonesia', penulis:'Halvorsen & Sabatier', tahun:2022, jurnal:'Energy Policy', tema:['kebijakan','pelanggan'], status:'selesai', relevansi:4 },
-  { judul:'Multi-criteria analysis of energy storage for grid stability in emerging economies', penulis:'Kittner et al.', tahun:2022, jurnal:'Energy Storage Materials', tema:['keandalan','transisi energi'], status:'sedang', relevansi:3 },
-  { judul:'Towards equitable energy access: lessons from rural electrification programs in Southeast Asia', penulis:'Urmee et al.', tahun:2023, jurnal:'Renewable Energy', tema:['kemiskinan energi','kebijakan'], status:'sedang', relevansi:4 },
-  { judul:'Machine learning for electricity demand forecasting: A systematic review', penulis:'Ahmad et al.', tahun:2023, jurnal:'Energy Reports', tema:['metodologi','pelanggan'], status:'antrian', relevansi:3 },
-  { judul:'Panel data methods for energy economics: A practitioner guide', penulis:'Bhattacharya', tahun:2021, jurnal:'Energy Economics', tema:['metodologi'], status:'selesai', relevansi:4 },
-  { judul:'Coal phase-out in developing countries: Feasibility and timeline analysis', penulis:'Blimpo & Cosgrove-Davies', tahun:2023, jurnal:'World Bank Policy Research', tema:['transisi energi','RUPTL'], status:'antrian', relevansi:4 },
-  { judul:'Distribution network investment and rural electrification in Indonesia', penulis:'Thoday et al.', tahun:2022, jurnal:'Energy for Sustainable Development', tema:['distribusi','kemiskinan energi'], status:'antrian', relevansi:4 },
-  { judul:'GIS-based assessment of renewable energy potential in West Java province', penulis:'Sugiarto et al.', tahun:2023, jurnal:'Renewable Energy', tema:['bauran energi','GIS'], status:'antrian', relevansi:5 },
-  { judul:'Electricity theft detection using smart meter data: A machine learning approach', penulis:'Zheng et al.', tahun:2022, jurnal:'IEEE Transactions on Smart Grid', tema:['losses','smart meter'], status:'belum', relevansi:3 },
-  { judul:'Social equity implications of time-of-use electricity tariffs', penulis:'Borenstein', tahun:2012, jurnal:'American Economic Review', tema:['kebijakan','kemiskinan energi'], status:'dikutip', relevansi:4 },
-];
-
-const STATUS_LABEL = { belum:'Belum',antrian:'Antrian',sedang:'Sedang Dibaca',selesai:'Selesai',dikutip:'Dikutip' };
-const STATUS_CLS   = { belum:'s-belum',antrian:'s-antrian',sedang:'s-sedang',selesai:'s-selesai',dikutip:'s-dikutip' };
-
-document.getElementById('hdr-total').textContent = PAPERS.length+' paper';
-document.getElementById('hdr-cited').textContent = PAPERS.filter(p=>p.status==='dikutip').length+' dikutip';
-
-const statusCounts = {};
-PAPERS.forEach(p=>statusCounts[p.status]=(statusCounts[p.status]||0)+1);
-const kpiDefs = [
-  {label:'Total',       value:PAPERS.length,                                  unit:'paper'},
-  {label:'Dikutip',     value:PAPERS.filter(p=>p.status==='dikutip').length,  unit:'paper'},
-  {label:'Selesai',     value:PAPERS.filter(p=>p.status==='selesai').length,  unit:'paper'},
-  {label:'Sedang Baca', value:PAPERS.filter(p=>p.status==='sedang').length,   unit:'paper'},
-  {label:'Antrian',     value:PAPERS.filter(p=>p.status==='antrian').length,  unit:'paper'},
-];
-document.getElementById('kpi-grid').innerHTML = kpiDefs.map(k=>`
-  <div class="kpi-card">
-    <div class="kpi-label">${k.label}</div>
-    <div class="kpi-value">${k.value} <span class="kpi-unit">${k.unit}</span></div>
-  </div>`).join('');
-
-function starBar(n) {
-  return '★'.repeat(n)+'☆'.repeat(5-n);
+const TC = ['tc-0','tc-1','tc-2','tc-3','tc-4','tc-5','tc-6','tc-7'];
+function tagColor(tag) {
+  let h = 0; for (const c of tag) h = (h*31 + c.charCodeAt(0)) & 0xFFFF;
+  return TC[h % TC.length];
 }
 
-function renderTable(filter, query) {
-  let data = PAPERS;
-  if (filter !== 'all') data = data.filter(p=>p.status===filter);
-  if (query) {
-    const q = query.toLowerCase();
-    data = data.filter(p=>p.judul.toLowerCase().includes(q)||p.penulis.toLowerCase().includes(q));
+// ── STATE ──
+let papers = [], activeFilter = 'semua', expandedId = null, bibParsed = [];
+
+// ── API ──
+async function api(method, path, body) {
+  const r = await fetch('/api/literature' + path, {
+    method, headers: body ? { 'Content-Type': 'application/json' } : {},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  return r.json();
+}
+async function patchPaper(id, data) {
+  await api('PATCH', '/' + id, data);
+  const idx = papers.findIndex(p => p.id === id);
+  if (idx >= 0) Object.assign(papers[idx], data);
+}
+
+// ── LOAD ──
+async function load() {
+  papers = await api('GET', '/');
+  renderKPIs(); renderTable();
+  // check zotero config
+  const cfg = await api('GET', '/zotero-config');
+  document.getElementById('badgeZotero').innerHTML =
+    cfg.configured
+      ? '<i class="fa-solid fa-circle-nodes"></i> Zotero ✓'
+      : '<i class="fa-solid fa-circle-nodes"></i> Zotero (belum dikonfigurasi)';
+}
+
+// ── KPI ──
+function renderKPIs() {
+  const total    = papers.length;
+  const dikutip  = papers.filter(p => p.status === 'dikutip').length;
+  const selesai  = papers.filter(p => p.status === 'selesai').length;
+  const sedang   = papers.filter(p => p.status === 'sedang').length;
+  const antrian  = papers.filter(p => p.status === 'antrian').length;
+  document.getElementById('kTotal').textContent    = total;
+  document.getElementById('kDikutip').textContent  = dikutip;
+  document.getElementById('kSelesai').textContent  = selesai;
+  document.getElementById('kSedang').textContent   = sedang;
+  document.getElementById('kAntrian').textContent  = antrian;
+  document.getElementById('badgeTotal').textContent    = total + ' paper';
+  document.getElementById('badgeDikutip').textContent  = dikutip + ' dikutip';
+}
+
+// ── FILTER ──
+function setFilter(btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = btn.dataset.f;
+  renderTable();
+}
+
+// ── TABLE ──
+function renderTable() {
+  const q    = document.getElementById('searchInput').value.toLowerCase();
+  let rows   = papers.filter(p => {
+    if (activeFilter !== 'semua' && p.status !== activeFilter) return false;
+    if (q && !p.title.toLowerCase().includes(q) && !(p.authors||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const tbody = document.getElementById('litBody');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-book-open"></i>Tidak ada paper yang cocok.</div></td></tr>`;
+    return;
   }
-  const tbody = document.getElementById('lit-tbody');
-  if (!data.length) { tbody.innerHTML='<tr><td colspan="6" class="no-results">Tidak ada hasil</td></tr>'; return; }
-  tbody.innerHTML = data.map(p=>`
-    <tr>
-      <td>
-        <div class="paper-title">${p.judul}</div>
-        <div class="paper-authors">${p.penulis}</div>
-      </td>
-      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;text-align:center">${p.tahun}</td>
-      <td style="font-size:12px;color:var(--muted)">${p.jurnal}</td>
-      <td>${p.tema.map(t=>`<span class="tema-tag" style="background:${TEMA_COLOR[t]||'#E5E7EB'}22;color:${TEMA_COLOR[t]||'#6B7280'}">${t}</span>`).join('')}</td>
-      <td><span class="status-pill ${STATUS_CLS[p.status]}">${STATUS_LABEL[p.status]}</span></td>
-      <td style="font-size:13px;color:#FBBF24;letter-spacing:1px">${starBar(p.relevansi)}</td>
-    </tr>`).join('');
+  tbody.innerHTML = rows.map(p => paperRows(p)).join('');
 }
 
-renderTable('all','');
+function starsHtml(id, rel) {
+  return Array.from({length:5}, (_,i) =>
+    `<span class="star ${i < rel ? 'on' : ''}" onclick="setRel(${id},${i+1})">★</span>`
+  ).join('');
+}
 
-let activeFilter = 'all';
-document.querySelectorAll('.filter-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    activeFilter = btn.dataset.filter;
-    renderTable(activeFilter, document.getElementById('search').value);
+function paperRows(p) {
+  const sm = STATUS_META[p.status] || STATUS_META.belum;
+  const themes = Array.isArray(p.themes) ? p.themes : [];
+  const citedIn = Array.isArray(p.citedIn) ? p.citedIn : [];
+  const chBadges = citedIn.map(n => {
+    const ch = CHAPTERS.find(c => c.no === n);
+    return ch ? `<span class="bab-badge" title="${ch.label}" onclick="toggleExpand(${p.id})">${ch.short}</span>` : '';
+  }).join('');
+
+  let mainRow = `
+  <tr id="tr-${p.id}" onclick="toggleExpand(${p.id})" style="cursor:pointer">
+    <td class="col-paper">
+      <div class="paper-title">${esc(p.title)}</div>
+      ${p.authors ? `<div class="paper-authors">${esc(p.authors)}</div>` : ''}
+      ${p.doi ? `<div class="paper-doi"><a href="https://doi.org/${esc(p.doi)}" target="_blank" onclick="event.stopPropagation()">${esc(p.doi)}</a></div>` : ''}
+    </td>
+    <td class="col-year" style="font-family:'JetBrains Mono',monospace;font-size:.78rem;text-align:center">${p.year || '—'}</td>
+    <td class="col-journal" style="font-size:.78rem;color:var(--muted)">${esc(p.journal||'')}</td>
+    <td class="col-themes">${themes.map(t => `<span class="tag ${tagColor(t)}">${esc(t)}</span>`).join('')}</td>
+    <td class="col-citedin">${chBadges || '<span style="color:var(--muted);font-size:.72rem">—</span>'}</td>
+    <td class="col-status" onclick="event.stopPropagation()">
+      <select class="status-sel ${sm.cls}" onchange="changeStatus(${p.id},this.value)">
+        ${Object.entries(STATUS_META).map(([v,m]) => `<option value="${v}" ${p.status===v?'selected':''}>${m.label}</option>`).join('')}
+      </select>
+    </td>
+    <td class="col-rel" onclick="event.stopPropagation()"><div class="stars">${starsHtml(p.id, p.relevance)}</div></td>
+    <td class="col-act" onclick="event.stopPropagation()">
+      <button class="btn btn-outline" style="padding:4px 8px;font-size:.7rem;color:var(--red);border-color:var(--red)" onclick="deletePaper(${p.id})" title="Hapus"><i class="fa-solid fa-xmark"></i></button>
+    </td>
+  </tr>`;
+
+  const expanded = expandedId === p.id;
+  let expandRow = '';
+  if (expanded) {
+    expandRow = `<tr id="ex-${p.id}" class="expand-row"><td colspan="8">
+      <div class="expand-body">
+        <div>
+          <div class="expand-section">
+            <label>Judul</label>
+            <input class="expand-input" id="et-${p.id}" value="${esc(p.title)}" onblur="saveField(${p.id},'title',this.value)">
+          </div>
+          <div class="expand-section" style="margin-top:10px">
+            <label>Penulis</label>
+            <input class="expand-input" id="ea-${p.id}" value="${esc(p.authors||'')}" onblur="saveField(${p.id},'authors',this.value)">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+            <div class="expand-section">
+              <label>Tahun</label>
+              <input class="expand-input" type="number" id="ey-${p.id}" value="${p.year||''}" onblur="saveField(${p.id},'year',parseInt(this.value)||null)">
+            </div>
+            <div class="expand-section">
+              <label>DOI</label>
+              <input class="expand-input" id="ed-${p.id}" value="${esc(p.doi||'')}" onblur="saveField(${p.id},'doi',this.value)">
+            </div>
+          </div>
+          <div class="expand-section" style="margin-top:10px">
+            <label>Jurnal / Konferensi</label>
+            <input class="expand-input" id="ej-${p.id}" value="${esc(p.journal||'')}" onblur="saveField(${p.id},'journal',this.value)">
+          </div>
+          <div class="expand-section" style="margin-top:10px">
+            <label>Catatan / Komentar</label>
+            <textarea class="expand-input" id="en-${p.id}" rows="3" onblur="saveField(${p.id},'notes',this.value)">${esc(p.notes||'')}</textarea>
+          </div>
+        </div>
+        <div>
+          <div class="expand-section">
+            <label>Dikutip di Bab</label>
+            <div class="ch-grid">
+              ${CHAPTERS.map(ch => {
+                const checked = citedIn.includes(ch.no) ? 'checked' : '';
+                return `<input type="checkbox" class="ch-check" id="ch-${p.id}-${ch.no}" value="${ch.no}" ${checked} onchange="saveCitedIn(${p.id})">
+                <label class="ch-label" for="ch-${p.id}-${ch.no}">${ch.short}</label>`;
+              }).join('')}
+            </div>
+          </div>
+          <div class="expand-section" style="margin-top:14px">
+            <label>Tema / Tag</label>
+            <div id="taglist-${p.id}">${themes.map(t => `<span class="tag ${tagColor(t)}">${esc(t)} <span onclick="removeTag(${p.id},'${esc(t)}')" style="cursor:pointer;margin-left:3px;opacity:.7">×</span></span>`).join('')}</div>
+            <div class="tag-input-row">
+              <input class="tag-input" id="taginput-${p.id}" placeholder="Tambah tema…" onkeydown="if(event.key==='Enter'){addTag(${p.id});event.preventDefault()}">
+              <button class="btn btn-outline" style="padding:4px 10px;font-size:.75rem" onclick="addTag(${p.id})"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+          <div class="save-row">
+            <span class="saved-flash" id="sf-${p.id}"><i class="fa-solid fa-check"></i> Tersimpan</span>
+          </div>
+        </div>
+      </div>
+    </td></tr>`;
+  }
+  return mainRow + expandRow;
+}
+
+// ── INTERACTIONS ──
+function toggleExpand(id) {
+  expandedId = expandedId === id ? null : id;
+  renderTable();
+  if (expandedId) {
+    document.getElementById(`et-${id}`)?.focus();
+  }
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function changeStatus(id, val) {
+  await patchPaper(id, { status: val });
+  const sel = document.querySelector(`#tr-${id} .status-sel`);
+  if (sel) {
+    const cls = (STATUS_META[val]||STATUS_META.belum).cls;
+    sel.className = `status-sel ${cls}`;
+  }
+  renderKPIs();
+  flashSaved(id);
+}
+
+async function setRel(id, val) {
+  await patchPaper(id, { relevance: val });
+  const starsEl = document.querySelector(`#tr-${id} .stars`);
+  if (starsEl) starsEl.innerHTML = starsHtml(id, val);
+  flashSaved(id);
+}
+
+async function saveField(id, field, value) {
+  await patchPaper(id, { [field]: value });
+  if (field === 'title') renderTable();
+  flashSaved(id);
+}
+
+async function saveCitedIn(id) {
+  const checks = document.querySelectorAll(`input[id^="ch-${id}-"]:checked`);
+  const citedIn = Array.from(checks).map(c => parseInt(c.value));
+  await patchPaper(id, { citedIn });
+  flashSaved(id);
+}
+
+function getThemes(id) {
+  const p = papers.find(x => x.id === id);
+  return Array.isArray(p?.themes) ? [...p.themes] : [];
+}
+async function addTag(id) {
+  const input = document.getElementById(`taginput-${id}`);
+  const val = input.value.trim();
+  if (!val) return;
+  const themes = getThemes(id);
+  if (!themes.includes(val)) {
+    themes.push(val);
+    await patchPaper(id, { themes });
+  }
+  input.value = '';
+  refreshTagList(id);
+  flashSaved(id);
+}
+async function removeTag(id, tag) {
+  const themes = getThemes(id).filter(t => t !== tag);
+  await patchPaper(id, { themes });
+  refreshTagList(id);
+  flashSaved(id);
+}
+function refreshTagList(id) {
+  const p = papers.find(x => x.id === id);
+  const themes = Array.isArray(p?.themes) ? p.themes : [];
+  const el = document.getElementById(`taglist-${id}`);
+  if (el) el.innerHTML = themes.map(t => `<span class="tag ${tagColor(t)}">${esc(t)} <span onclick="removeTag(${id},'${esc(t)}')" style="cursor:pointer;margin-left:3px;opacity:.7">×</span></span>`).join('');
+}
+
+function flashSaved(id) {
+  const el = document.getElementById(`sf-${id}`);
+  if (!el) return;
+  el.style.opacity = '1';
+  setTimeout(() => { el.style.opacity = '0'; }, 1500);
+}
+
+async function deletePaper(id) {
+  if (!confirm('Hapus paper ini?')) return;
+  await api('POST', `/${id}/delete`, {});
+  papers = papers.filter(p => p.id !== id);
+  if (expandedId === id) expandedId = null;
+  renderKPIs(); renderTable();
+  toast('Paper dihapus');
+}
+
+// ── ZOTERO ──
+function openZoteroModal() {
+  document.getElementById('zoteroStatus').textContent = '';
+  openModal('zoteroModal');
+}
+async function saveZoteroConfig() {
+  const userId = document.getElementById('zoteroUserId').value.trim();
+  const apiKey = document.getElementById('zoteroApiKey').value.trim();
+  if (!userId || !apiKey) { alert('Isi User ID dan API Key'); return; }
+  const statusEl = document.getElementById('zoteroStatus');
+  statusEl.textContent = 'Menyimpan dan sinkronisasi…';
+  await api('POST', '/zotero-config', { userId, apiKey });
+  const r = await api('POST', '/sync-zotero', {});
+  if (r.error) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = 'Error: ' + r.error;
+    return;
+  }
+  statusEl.style.color = 'var(--grn)';
+  statusEl.textContent = `✓ Sync berhasil: ${r.synced} paper diperbarui`;
+  await load();
+  setTimeout(() => closeModal('zoteroModal'), 1500);
+}
+
+// ── BIB ──
+function openBibModal() {
+  bibParsed = [];
+  document.getElementById('dropText').textContent = 'Klik atau drag & drop file .bib di sini';
+  document.getElementById('bibPreview').innerHTML = '';
+  document.getElementById('bibImportBtn').style.display = 'none';
+  document.getElementById('bibFile').value = '';
+  openModal('bibModal');
+}
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); handleBibFile(e.dataTransfer.files[0]); });
+
+function handleBibFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    bibParsed = parseBib(e.target.result);
+    document.getElementById('dropText').textContent = file.name;
+    document.getElementById('bibPreview').innerHTML =
+      bibParsed.length
+        ? `<span style="color:var(--grn)"><i class="fa-solid fa-check"></i> ${bibParsed.length} paper terdeteksi</span>`
+        : '<span style="color:var(--red)">Tidak ada entry BibTeX yang valid</span>';
+    document.getElementById('bibImportBtn').style.display = bibParsed.length ? 'inline-flex' : 'none';
+  };
+  reader.readAsText(file);
+}
+async function doImportBib() {
+  const r = await api('POST', '/import-bib', { items: bibParsed });
+  if (r.error) { alert('Import gagal: ' + r.error); return; }
+  await load();
+  closeModal('bibModal');
+  toast(`${r.imported} paper diimport dari .bib`);
+}
+function parseBib(text) {
+  const entries = [];
+  const re = /@\w+\{[^,]*,([^@]*)/gs;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const block = m[1];
+    const get = f => {
+      const r = new RegExp(f + '\\s*=\\s*[{"]([^}"]*)[}"]', 'i');
+      const rm = block.match(r);
+      return rm ? rm[1].replace(/\s+/g,' ').trim() : '';
+    };
+    const title = get('title');
+    if (!title) continue;
+    const rawAuth = get('author');
+    const authors = rawAuth.split(' and ').map(a => {
+      const p = a.trim().split(','); return p.length > 1 ? p[0].trim() : a.trim();
+    }).filter(Boolean).join(', ');
+    entries.push({
+      title, authors,
+      year: parseInt(get('year')) || null,
+      journal: get('journal') || get('booktitle') || get('publisher') || '',
+      doi: get('doi') || '',
+    });
+  }
+  return entries;
+}
+
+// ── ADD MANUAL ──
+function openAddModal() { openModal('addModal'); }
+async function doAddPaper() {
+  const title = document.getElementById('addTitle').value.trim();
+  if (!title) { alert('Judul wajib diisi'); return; }
+  const r = await api('POST', '/', {
+    title,
+    authors: document.getElementById('addAuthors').value.trim(),
+    year:    parseInt(document.getElementById('addYear').value) || null,
+    journal: document.getElementById('addJournal').value.trim(),
+    doi:     document.getElementById('addDoi').value.trim(),
   });
-});
-document.getElementById('search').addEventListener('input', e=>{
-  renderTable(activeFilter, e.target.value);
-});
+  if (r.ok) {
+    closeModal('addModal');
+    await load();
+    toast('Paper ditambahkan');
+    ['addTitle','addAuthors','addYear','addJournal','addDoi'].forEach(id => document.getElementById(id).value = '');
+  }
+}
 
-/* Charts */
-const statusOrder = ['belum','antrian','sedang','selesai','dikutip'];
-new Chart(document.getElementById('chart-status'),{
-  type:'bar',
-  data:{labels:statusOrder.map(s=>STATUS_LABEL[s]),
-        datasets:[{data:statusOrder.map(s=>PAPERS.filter(p=>p.status===s).length),
-                   backgroundColor:['#F3F4F6','#DBEAFE','#FEF3C7','#DCFCE7','#F3E8FF'],
-                   borderWidth:0,borderRadius:6}]},
-  options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
-});
+// ── MODAL UTILS ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
 
-const years = [...new Set(PAPERS.map(p=>p.tahun))].sort();
-new Chart(document.getElementById('chart-year'),{
-  type:'bar',
-  data:{labels:years,datasets:[{data:years.map(y=>PAPERS.filter(p=>p.tahun===y).length),
-        backgroundColor:'rgba(99,102,241,.65)',borderRadius:4}]},
-  options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
-});
+// ── TOAST ──
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
 
-const temaAll = {};
-PAPERS.forEach(p=>p.tema.forEach(t=>temaAll[t]=(temaAll[t]||0)+1));
-const temaSort = Object.entries(temaAll).sort((a,b)=>b[1]-a[1]);
-new Chart(document.getElementById('chart-tema'),{
-  type:'bar',
-  data:{labels:temaSort.map(([t])=>t),
-        datasets:[{data:temaSort.map(([,n])=>n),
-                   backgroundColor:temaSort.map(([t])=>TEMA_COLOR[t]+'BB'||'#818CF8BB'),
-                   borderRadius:4}]},
-  options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1}}}}
-});
-
-/* Tabs */
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
-  });
-});
+// ── INIT ──
+load();
 </script>
 </body>
 </html>
