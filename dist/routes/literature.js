@@ -96,18 +96,22 @@ literatureRoutes.post("/sync-zotero", async (c) => {
     const [kRow] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_api_key"));
     if (!uRow?.value || !kRow?.value)
         return c.json({ error: "Zotero belum dikonfigurasi" }, 400);
-    // Zotero API requires raw || (not URL-encoded) for OR filters
-    const url = `https://api.zotero.org/users/${uRow.value}/items?format=json&limit=100&v=3`
-        + `&itemType=journalArticle||conferencePaper||book||bookSection||thesis||report||preprint`;
+    const url = `https://api.zotero.org/users/${uRow.value}/items?format=json&limit=100&v=3`;
     const res = await fetch(url, { headers: { "Zotero-API-Key": kRow.value } });
     if (!res.ok)
         return c.json({ error: `Zotero API error: ${res.status}` }, 502);
+    const ACADEMIC_TYPES = new Set([
+        "journalArticle", "conferencePaper", "book", "bookSection",
+        "thesis", "report", "preprint", "manuscript", "encyclopediaArticle", "dictionaryEntry",
+    ]);
     const items = (await res.json());
     let synced = 0;
     for (const item of items) {
         const d = item.data;
         if (!d?.title || d.title.length < 5)
             continue;
+        if (!ACADEMIC_TYPES.has(d.itemType))
+            continue; // skip webpage, attachment, note, etc.
         const authors = (d.creators || [])
             .map((cr) => cr.lastName || cr.name || "").filter(Boolean).join(", ");
         const year = d.date ? parseInt(d.date) : null;
