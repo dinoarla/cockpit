@@ -7,12 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-:root{--acc:#FF4D00;--sky:#38BDF8;--bg:#0D1117;--card:#161B27;--border:#1E2538;--text:#E6EDF3;--muted:#7D8590;--dim:#3D4455;--red:#EF4444;--grn:#22C55E;--ylw:#F59E0B;--pur:#FF4D00}
+:root{--acc:#FF4D00;--sky:#0EA5E9;--bg:#FFFBF0;--card:#FFFFFF;--border:#E8E4DC;--text:#111118;--muted:#555560;--dim:#9CA3AF;--red:#EF4444;--grn:#22C55E;--ylw:#F59E0B;--pur:#FF4D00}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
 a{color:inherit;text-decoration:none}
 
-.module-header{background:linear-gradient(135deg,#0D1117 0%,#1A0500 55%,#3D0B00 100%);color:#fff;padding:0}
+.module-header{background:#111118;color:#fff;padding:0}
 .back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase}
 .back-link svg{width:13px;height:13px}.back-link:hover{color:#fff}
 .breadcrumb{padding:4px 24px 0;font-size:11px;color:rgba(255,255,255,.5)}
@@ -35,11 +35,11 @@ a{color:inherit;text-decoration:none}
 /* ── TABLE ── */
 .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
 table{width:100%;border-collapse:collapse}
-thead th{padding:10px 12px;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;background:#0D1117}
+thead th{padding:10px 12px;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;background:#FFF8F5}
 tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
 tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:#1C2233}
-tbody tr.expanded{background:#1A1000}
+tbody tr:hover{background:#FFF5EE}
+tbody tr.expanded{background:#FFF0E6}
 td{padding:10px 12px;vertical-align:top}
 
 .col-title{min-width:240px;max-width:360px}
@@ -55,17 +55,17 @@ td{padding:10px 12px;vertical-align:top}
 .work-slug{font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px}
 
 .type-badge{display:inline-block;padding:3px 9px;border-radius:10px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
-.tb-dissertation    {background:rgba(139,92,246,.2);color:#A78BFA}
-.tb-thesis          {background:rgba(236,72,153,.2);color:#F9A8D4}
-.tb-article         {background:rgba(56,189,248,.2);color:#7DD3FC}
-.tb-conference_paper{background:rgba(245,158,11,.2);color:#FCD34D}
-.tb-book            {background:rgba(34,197,94,.2);color:#86EFAC}
-.tb-report          {background:rgba(14,165,233,.2);color:#93C5FD}
-.tb-other           {background:rgba(120,130,145,.2);color:#94A3B8}
+.tb-dissertation    {background:#EDE9FE;color:#6D28D9}
+.tb-thesis          {background:#FCE7F3;color:#9D174D}
+.tb-article         {background:#DBEAFE;color:#1E40AF}
+.tb-conference_paper{background:#FEF3C7;color:#92400E}
+.tb-book            {background:#D1FAE5;color:#065F46}
+.tb-report          {background:#E0F2FE;color:#0369A1}
+.tb-other           {background:#F3F4F6;color:#4B5563}
 
 /* ── EXPAND ROW ── */
 .expand-row td{padding:0}
-.expand-body{padding:16px 14px;background:#1A1000;border-top:1px solid #3D1A00;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.expand-body{padding:16px 14px;background:#FFF0E6;border-top:1px solid #F5CDB8;display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .expand-section label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .expand-input{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;outline:none}
 .expand-input:focus{border-color:var(--acc)}
