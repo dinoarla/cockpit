@@ -97,13 +97,29 @@ literatureRoutes.get("/works/zotero-collections", async (c) => {
   const [uRow] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_user_id"));
   const [kRow] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_api_key"));
   if (!uRow?.value || !kRow?.value) return c.json({ error: "Zotero belum dikonfigurasi" }, 400);
+
+  // Fetch regular collections
   const res = await fetch(
     `https://api.zotero.org/users/${uRow.value}/collections?format=json&limit=100&v=3`,
     { headers: { "Zotero-API-Key": kRow.value } }
   );
   if (!res.ok) return c.json({ error: `Zotero error: ${res.status}` }, 502);
   const colls = (await res.json()) as any[];
-  return c.json(colls.map(c => ({ key: c.data.key, name: c.data.name, count: c.meta?.numItems ?? 0 })));
+
+  // Probe My Publications count via Total-Results header
+  let myPubCount = 0;
+  try {
+    const pubRes = await fetch(
+      `https://api.zotero.org/users/${uRow.value}/publications/items?format=json&limit=1&v=3`,
+      { headers: { "Zotero-API-Key": kRow.value } }
+    );
+    if (pubRes.ok) myPubCount = parseInt(pubRes.headers.get("Total-Results") || "0") || 0;
+  } catch { /* ignore */ }
+
+  return c.json([
+    { key: "__my_publications__", name: "My Publications ★", count: myPubCount },
+    ...colls.map(c => ({ key: c.data.key, name: c.data.name, count: c.meta?.numItems ?? 0 })),
+  ]);
 });
 
 /* ── POST import works from Zotero collection ── */
@@ -119,10 +135,12 @@ literatureRoutes.post("/works/import-zotero", async (c) => {
     dissertation: "dissertation", manuscript: "article",
   };
 
-  const res = await fetch(
-    `https://api.zotero.org/users/${uRow.value}/collections/${collectionKey}/items?format=json&limit=100&v=3`,
-    { headers: { "Zotero-API-Key": kRow.value } }
-  );
+  // "My Publications" is a special Zotero virtual library, not a regular collection
+  const itemsUrl = collectionKey === "__my_publications__"
+    ? `https://api.zotero.org/users/${uRow.value}/publications/items?format=json&limit=100&v=3`
+    : `https://api.zotero.org/users/${uRow.value}/collections/${collectionKey}/items?format=json&limit=100&v=3`;
+
+  const res = await fetch(itemsUrl, { headers: { "Zotero-API-Key": kRow.value } });
   if (!res.ok) return c.json({ error: `Zotero error: ${res.status}` }, 502);
 
   const items = (await res.json()) as any[];
