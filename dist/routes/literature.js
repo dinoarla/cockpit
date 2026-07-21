@@ -96,8 +96,10 @@ literatureRoutes.post("/sync-zotero", async (c) => {
     const [kRow] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_api_key"));
     if (!uRow?.value || !kRow?.value)
         return c.json({ error: "Zotero belum dikonfigurasi" }, 400);
-    const itemTypes = "journalArticle||conferencePaper||book||bookSection||thesis||report||preprint";
-    const res = await fetch(`https://api.zotero.org/users/${uRow.value}/items?format=json&limit=100&v=3&itemType=${encodeURIComponent(itemTypes)}`, { headers: { "Zotero-API-Key": kRow.value } });
+    // Zotero API requires raw || (not URL-encoded) for OR filters
+    const url = `https://api.zotero.org/users/${uRow.value}/items?format=json&limit=100&v=3`
+        + `&itemType=journalArticle||conferencePaper||book||bookSection||thesis||report||preprint`;
+    const res = await fetch(url, { headers: { "Zotero-API-Key": kRow.value } });
     if (!res.ok)
         return c.json({ error: `Zotero API error: ${res.status}` }, 502);
     const items = (await res.json());
