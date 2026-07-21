@@ -750,3 +750,27 @@ export const literatureConfig = mysqlTable("literature_config", {
   key:   varchar("key", { length: 50 }).notNull().unique(),
   value: text("value"),
 });
+
+export const myWorks = mysqlTable("my_works", {
+  id:        int("id").autoincrement().primaryKey(),
+  slug:      varchar("slug", { length: 100 }).notNull().unique(),
+  title:     text("title").notNull(),
+  type:      varchar("type", { length: 20 }).notNull().default("dissertation"),
+  year:      int("year"),
+  structure: text("structure").default("[]"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const literatureCitations = mysqlTable(
+  "literature_citations",
+  {
+    id:       int("id").autoincrement().primaryKey(),
+    litId:    int("lit_id").notNull(),
+    workSlug: varchar("work_slug", { length: 100 }).notNull(),
+    section:  varchar("section", { length: 100 }).notNull().default(""),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    litWorkSectionIdx: uniqueIndex("lit_work_section_idx").on(t.litId, t.workSlug, t.section),
+  })
+);

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { eq, desc } from "drizzle-orm";
 import { db } from "../db/client.js";
-import { literatureItems, literatureConfig } from "../db/schema.js";
+import { literatureItems, literatureConfig, myWorks, literatureCitations } from "../db/schema.js";
 import { requireAuth } from "../middleware/auth.js";
 export const literatureRoutes = new Hono();
 literatureRoutes.use("*", requireAuth);
@@ -12,10 +12,39 @@ const parse = (s) => { try {
 catch {
     return [];
 } };
-/* ── GET all ── */
+/* ── GET all my works ── */
+literatureRoutes.get("/works", async (c) => {
+    const rows = await db.select().from(myWorks).orderBy(myWorks.year);
+    return c.json(rows.map(r => ({ ...r, structure: parse(r.structure) })));
+});
+/* ── GET all items (with citations) ── */
 literatureRoutes.get("/items", async (c) => {
     const rows = await db.select().from(literatureItems).orderBy(desc(literatureItems.updatedAt));
-    return c.json(rows.map(r => ({ ...r, themes: parse(r.themes), citedIn: parse(r.citedIn) })));
+    const cits = await db.select().from(literatureCitations);
+    const citMap = new Map();
+    for (const c of cits) {
+        if (!citMap.has(c.litId))
+            citMap.set(c.litId, []);
+        citMap.get(c.litId).push({ id: c.id, workSlug: c.workSlug, section: c.section });
+    }
+    return c.json(rows.map(r => ({
+        ...r,
+        themes: parse(r.themes),
+        citedIn: citMap.get(r.id) ?? [],
+    })));
+});
+/* ── POST citation ── */
+literatureRoutes.post("/citations", async (c) => {
+    const { litId, workSlug, section } = await c.req.json();
+    await db.insert(literatureCitations)
+        .values({ litId: Number(litId), workSlug, section: section || "" })
+        .onDuplicateKeyUpdate({ set: { workSlug } });
+    return c.json({ ok: true });
+});
+/* ── DELETE citation (POST fallback for Hostinger) ── */
+literatureRoutes.post("/citations/:id/delete", async (c) => {
+    await db.delete(literatureCitations).where(eq(literatureCitations.id, Number(c.req.param("id"))));
+    return c.json({ ok: true });
 });
 /* ── POST add one ── */
 literatureRoutes.post("/", async (c) => {

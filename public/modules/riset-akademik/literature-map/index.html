@@ -87,10 +87,6 @@ td{padding:10px 12px;vertical-align:top}
 .tag-add{background:transparent;border:1px dashed var(--border);color:var(--muted)}
 .tag-add:hover{border-color:var(--ind);color:var(--ind)}
 
-/* ── CITED IN ── */
-.bab-badge{display:inline-block;padding:2px 7px;border-radius:8px;font-size:.65rem;font-weight:600;background:#EDE9FE;color:#6D28D9;margin:2px 2px 2px 0;cursor:pointer}
-.bab-badge:hover{background:#DDD6FE}
-
 /* ── EXPANDED ROW ── */
 .expand-row td{padding:0}
 .expand-body{padding:16px 14px;background:#F5F3FF;border-top:1px solid #DDD6FE;display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -98,10 +94,6 @@ td{padding:10px 12px;vertical-align:top}
 .expand-input{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;outline:none}
 .expand-input:focus{border-color:var(--ind)}
 textarea.expand-input{min-height:80px;resize:vertical}
-.ch-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
-.ch-check{display:none}
-.ch-label{padding:4px 10px;border:1px solid var(--border);border-radius:8px;font-size:.7rem;cursor:pointer;user-select:none;transition:all .15s}
-.ch-check:checked + .ch-label{background:var(--ind);border-color:var(--ind);color:#fff}
 .tag-input-row{display:flex;gap:6px;margin-top:6px}
 .tag-input{flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;outline:none}
 .tag-input:focus{border-color:var(--ind)}
@@ -122,6 +114,19 @@ textarea.expand-input{min-height:80px;resize:vertical}
 .dropzone:hover,.dropzone.over{border-color:var(--ind);background:#EEF2FF}
 .dropzone i{font-size:1.8rem;color:var(--muted);margin-bottom:8px}
 .dropzone p{font-size:.8rem;color:var(--muted)}
+
+/* ── PAGINATION ── */
+.pagination{display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:12px 16px;border-top:1px solid var(--border);font-size:.78rem;color:var(--muted)}
+.page-btn{padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card);cursor:pointer;font-size:.78rem;font-family:inherit;color:var(--text)}
+.page-btn:disabled{opacity:.35;cursor:default}
+.page-btn.active{background:var(--ind);border-color:var(--ind);color:#fff;font-weight:600}
+
+/* ── CITED IN ── */
+.cit-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:8px;font-size:.65rem;font-weight:600;background:#EDE9FE;color:#6D28D9;margin:2px 2px 2px 0}
+.cit-del{cursor:pointer;opacity:.6;margin-left:2px}.cit-del:hover{opacity:1}
+.cit-add-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.cit-select{padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;outline:none;background:var(--card)}
+.cit-select:focus{border-color:var(--ind)}
 
 /* ── MISC ── */
 .empty-state{text-align:center;padding:48px 24px;color:var(--muted);font-size:.85rem}
@@ -200,6 +205,7 @@ textarea.expand-input{min-height:80px;resize:vertical}
         <tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i>Memuat…</div></td></tr>
       </tbody>
     </table>
+    <div class="pagination" id="pagination"></div>
   </div>
 </div>
 
@@ -243,15 +249,7 @@ textarea.expand-input{min-height:80px;resize:vertical}
 
 <script>
 // ── CONSTANTS ──
-const CHAPTERS = [
-  { no:1, short:'Bab 1', label:'Pendahuluan & Latar Belakang' },
-  { no:2, short:'Bab 2', label:'Tinjauan Pustaka' },
-  { no:3, short:'Bab 3', label:'Metodologi Penelitian' },
-  { no:4, short:'Bab 4', label:'Bauran Energi & Transisi Jabar' },
-  { no:5, short:'Bab 5', label:'Distribusi, Keandalan & Akses' },
-  { no:6, short:'Bab 6', label:'Pembahasan & Implikasi Kebijakan' },
-  { no:7, short:'Bab 7', label:'Kesimpulan & Rekomendasi' },
-];
+const PAGE_SIZE = 25;
 const STATUS_META = {
   dikutip:{ label:'Dikutip',  cls:'s-dikutip' },
   selesai:{ label:'Selesai',  cls:'s-selesai' },
@@ -266,7 +264,7 @@ function tagColor(tag) {
 }
 
 // ── STATE ──
-let papers = [], activeFilter = 'semua', expandedId = null, bibParsed = [], zoteroConfigured = false;
+let papers = [], works = [], activeFilter = 'semua', expandedId = null, currentPage = 1, bibParsed = [], zoteroConfigured = false;
 
 // ── API ──
 async function api(method, path, body) {
@@ -286,7 +284,10 @@ async function patchPaper(id, data) {
 // ── LOAD ──
 async function load() {
   try {
-    papers = await api('GET', '/items');
+    [papers, works] = await Promise.all([
+      api('GET', '/items'),
+      api('GET', '/works'),
+    ]);
   } catch(e) {
     document.getElementById('litBody').innerHTML =
       `<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>Gagal memuat: ${e.message}<br><small>Pastikan server berjalan dan tabel database sudah dibuat.</small></div></td></tr>`;
@@ -301,25 +302,24 @@ async function load() {
   document.getElementById('syncBtn').innerHTML = cfg.configured
     ? '<i class="fa-solid fa-rotate"></i> Sync Zotero'
     : '<i class="fa-solid fa-plug"></i> Hubungkan Zotero';
-  // pre-fill modal
   if (cfg.userId) document.getElementById('zoteroUserId').value = cfg.userId;
   if (cfg.apiKeyMasked) document.getElementById('zoteroApiKey').placeholder = cfg.apiKeyMasked;
 }
 
 // ── KPI ──
 function renderKPIs() {
-  const total    = papers.length;
-  const dikutip  = papers.filter(p => p.status === 'dikutip').length;
-  const selesai  = papers.filter(p => p.status === 'selesai').length;
-  const sedang   = papers.filter(p => p.status === 'sedang').length;
-  const antrian  = papers.filter(p => p.status === 'antrian').length;
-  document.getElementById('kTotal').textContent    = total;
-  document.getElementById('kDikutip').textContent  = dikutip;
-  document.getElementById('kSelesai').textContent  = selesai;
-  document.getElementById('kSedang').textContent   = sedang;
-  document.getElementById('kAntrian').textContent  = antrian;
-  document.getElementById('badgeTotal').textContent    = total + ' paper';
-  document.getElementById('badgeDikutip').textContent  = dikutip + ' dikutip';
+  const total   = papers.length;
+  const dikutip = papers.filter(p => p.citedIn && p.citedIn.length > 0).length;
+  const selesai = papers.filter(p => p.status === 'selesai').length;
+  const sedang  = papers.filter(p => p.status === 'sedang').length;
+  const antrian = papers.filter(p => p.status === 'antrian').length;
+  document.getElementById('kTotal').textContent   = total;
+  document.getElementById('kDikutip').textContent = dikutip;
+  document.getElementById('kSelesai').textContent = selesai;
+  document.getElementById('kSedang').textContent  = sedang;
+  document.getElementById('kAntrian').textContent = antrian;
+  document.getElementById('badgeTotal').textContent   = total + ' paper';
+  document.getElementById('badgeDikutip').textContent = dikutip + ' dikutip';
 }
 
 // ── FILTER ──
@@ -327,24 +327,49 @@ function setFilter(btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   activeFilter = btn.dataset.f;
+  currentPage = 1;
   renderTable();
 }
 
-// ── TABLE ──
+// ── TABLE + PAGINATION ──
 function renderTable() {
-  const q    = document.getElementById('searchInput').value.toLowerCase();
-  let rows   = papers.filter(p => {
-    if (activeFilter !== 'semua' && p.status !== activeFilter) return false;
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = papers.filter(p => {
+    if (activeFilter === 'dikutip' && !(p.citedIn && p.citedIn.length > 0)) return false;
+    if (activeFilter !== 'semua' && activeFilter !== 'dikutip' && p.status !== activeFilter) return false;
     if (q && !p.title.toLowerCase().includes(q) && !(p.authors||'').toLowerCase().includes(q)) return false;
     return true;
   });
   const tbody = document.getElementById('litBody');
-  if (!rows.length) {
+  if (!filtered.length) {
     tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-book-open"></i>Tidak ada paper yang cocok.</div></td></tr>`;
+    document.getElementById('pagination').innerHTML = '';
     return;
   }
-  tbody.innerHTML = rows.map(p => paperRows(p)).join('');
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = totalPages;
+  const pageRows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  tbody.innerHTML = pageRows.map(p => paperRows(p)).join('');
+  renderPagination(filtered.length, totalPages);
 }
+
+function renderPagination(total, totalPages) {
+  const el = document.getElementById('pagination');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+  const from = (currentPage - 1) * PAGE_SIZE + 1;
+  const to   = Math.min(currentPage * PAGE_SIZE, total);
+  let html = `<span>${from}–${to} dari ${total} paper</span>`;
+  html += `<button class="page-btn" onclick="goPage(1)" ${currentPage===1?'disabled':''}>«</button>`;
+  html += `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+  for (let i = Math.max(1, currentPage-2); i <= Math.min(totalPages, currentPage+2); i++) {
+    html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>›</button>`;
+  html += `<button class="page-btn" onclick="goPage(${totalPages})" ${currentPage===totalPages?'disabled':''}>»</button>`;
+  el.innerHTML = html;
+}
+
+function goPage(n) { currentPage = n; renderTable(); window.scrollTo(0,0); }
 
 function starsHtml(id, rel) {
   return Array.from({length:5}, (_,i) =>
@@ -352,14 +377,21 @@ function starsHtml(id, rel) {
   ).join('');
 }
 
+function citLabel(workSlug, section) {
+  const w = works.find(x => x.slug === workSlug);
+  const wTitle = w ? w.title.split(':')[0].split('—')[0].trim().slice(0,20) : workSlug;
+  if (!section) return wTitle;
+  const sec = w?.structure?.find(s => s.id === section);
+  return wTitle + ' / ' + (sec ? sec.label.split('—')[0].trim() : section);
+}
+
 function paperRows(p) {
   const sm = STATUS_META[p.status] || STATUS_META.belum;
-  const themes = Array.isArray(p.themes) ? p.themes : [];
+  const themes  = Array.isArray(p.themes)  ? p.themes  : [];
   const citedIn = Array.isArray(p.citedIn) ? p.citedIn : [];
-  const chBadges = citedIn.map(n => {
-    const ch = CHAPTERS.find(c => c.no === n);
-    return ch ? `<span class="bab-badge" title="${ch.label}" onclick="toggleExpand(${p.id})">${ch.short}</span>` : '';
-  }).join('');
+  const citBadges = citedIn.map(c =>
+    `<span class="cit-badge" title="${esc(citLabel(c.workSlug,c.section))}">${esc(citLabel(c.workSlug,c.section))}</span>`
+  ).join('');
 
   let mainRow = `
   <tr id="tr-${p.id}" onclick="toggleExpand(${p.id})" style="cursor:pointer">
@@ -371,7 +403,7 @@ function paperRows(p) {
     <td class="col-year" style="font-family:'JetBrains Mono',monospace;font-size:.78rem;text-align:center">${p.year || '—'}</td>
     <td class="col-journal" style="font-size:.78rem;color:var(--muted)">${esc(p.journal||'')}</td>
     <td class="col-themes">${themes.map(t => `<span class="tag ${tagColor(t)}">${esc(t)}</span>`).join('')}</td>
-    <td class="col-citedin">${chBadges || '<span style="color:var(--muted);font-size:.72rem">—</span>'}</td>
+    <td class="col-citedin">${citBadges || '<span style="color:var(--muted);font-size:.72rem">—</span>'}</td>
     <td class="col-status" onclick="event.stopPropagation()">
       <select class="status-sel ${sm.cls}" onchange="changeStatus(${p.id},this.value)">
         ${Object.entries(STATUS_META).map(([v,m]) => `<option value="${v}" ${p.status===v?'selected':''}>${m.label}</option>`).join('')}
@@ -418,13 +450,24 @@ function paperRows(p) {
         </div>
         <div>
           <div class="expand-section">
-            <label>Dikutip di Bab</label>
-            <div class="ch-grid">
-              ${CHAPTERS.map(ch => {
-                const checked = citedIn.includes(ch.no) ? 'checked' : '';
-                return `<input type="checkbox" class="ch-check" id="ch-${p.id}-${ch.no}" value="${ch.no}" ${checked} onchange="saveCitedIn(${p.id})">
-                <label class="ch-label" for="ch-${p.id}-${ch.no}">${ch.short}</label>`;
-              }).join('')}
+            <label>Dikutip di Karya Saya</label>
+            <div id="citlist-${p.id}">
+              ${citedIn.map(c => `
+                <span class="cit-badge">${esc(citLabel(c.workSlug,c.section))}
+                  <span class="cit-del" onclick="deleteCitation(${p.id},${c.id})" title="Hapus">×</span>
+                </span>`).join('') || '<span style="color:var(--muted);font-size:.75rem">Belum ada kutipan</span>'}
+            </div>
+            <div class="cit-add-row">
+              <select class="cit-select" id="cit-work-${p.id}" onchange="updateSectionOpts(${p.id})">
+                <option value="">— pilih karya —</option>
+                ${works.map(w => `<option value="${esc(w.slug)}">${esc(w.title.split(':')[0].trim())}</option>`).join('')}
+              </select>
+              <select class="cit-select" id="cit-sec-${p.id}">
+                <option value="">— bagian (opsional) —</option>
+              </select>
+              <button class="btn btn-outline" style="padding:4px 10px;font-size:.75rem" onclick="addCitation(${p.id})">
+                <i class="fa-solid fa-plus"></i> Tambah
+              </button>
             </div>
           </div>
           <div class="expand-section" style="margin-top:14px">
@@ -482,11 +525,53 @@ async function saveField(id, field, value) {
   flashSaved(id);
 }
 
-async function saveCitedIn(id) {
-  const checks = document.querySelectorAll(`input[id^="ch-${id}-"]:checked`);
-  const citedIn = Array.from(checks).map(c => parseInt(c.value));
-  await patchPaper(id, { citedIn });
-  flashSaved(id);
+function updateSectionOpts(litId) {
+  const workSlug = document.getElementById(`cit-work-${litId}`)?.value;
+  const secEl = document.getElementById(`cit-sec-${litId}`);
+  if (!secEl) return;
+  const w = works.find(x => x.slug === workSlug);
+  const sections = w?.structure || [];
+  secEl.innerHTML = '<option value="">— bagian (opsional) —</option>'
+    + sections.map(s => `<option value="${esc(s.id)}">${esc(s.label)}</option>`).join('');
+}
+
+async function addCitation(litId) {
+  const workSlug = document.getElementById(`cit-work-${litId}`)?.value;
+  const section  = document.getElementById(`cit-sec-${litId}`)?.value || '';
+  if (!workSlug) { toast('Pilih karya terlebih dahulu', true); return; }
+  await api('POST', '/citations', { litId, workSlug, section });
+  const p = papers.find(x => x.id === litId);
+  if (p) {
+    if (!p.citedIn) p.citedIn = [];
+    if (!p.citedIn.find(c => c.workSlug === workSlug && c.section === section)) {
+      p.citedIn.push({ id: Date.now(), workSlug, section });
+    }
+  }
+  refreshCitList(litId);
+  renderKPIs();
+  flashSaved(litId);
+}
+
+async function deleteCitation(litId, citId) {
+  await api('POST', `/citations/${citId}/delete`, {});
+  const p = papers.find(x => x.id === litId);
+  if (p) p.citedIn = (p.citedIn || []).filter(c => c.id !== citId);
+  refreshCitList(litId);
+  renderKPIs();
+  flashSaved(litId);
+}
+
+function refreshCitList(litId) {
+  const p = papers.find(x => x.id === litId);
+  const citedIn = p?.citedIn || [];
+  const el = document.getElementById(`citlist-${litId}`);
+  if (!el) return;
+  el.innerHTML = citedIn.length
+    ? citedIn.map(c => `
+        <span class="cit-badge">${esc(citLabel(c.workSlug,c.section))}
+          <span class="cit-del" onclick="deleteCitation(${litId},${c.id})" title="Hapus">×</span>
+        </span>`).join('')
+    : '<span style="color:var(--muted);font-size:.75rem">Belum ada kutipan</span>';
 }
 
 function getThemes(id) {
