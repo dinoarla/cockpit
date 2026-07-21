@@ -80,6 +80,60 @@ literatureRoutes.patch("/works/:slug", async (c) => {
   return c.json({ ok: true });
 });
 
+/* ── GET Zotero collections (for My Publications picker) ── */
+literatureRoutes.get("/works/zotero-collections", async (c) => {
+  const [uRow] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_user_id"));
+  const [kRow] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_api_key"));
+  if (!uRow?.value || !kRow?.value) return c.json({ error: "Zotero belum dikonfigurasi" }, 400);
+  const res = await fetch(
+    `https://api.zotero.org/users/${uRow.value}/collections?format=json&limit=100&v=3`,
+    { headers: { "Zotero-API-Key": kRow.value } }
+  );
+  if (!res.ok) return c.json({ error: `Zotero error: ${res.status}` }, 502);
+  const colls = (await res.json()) as any[];
+  return c.json(colls.map(c => ({ key: c.data.key, name: c.data.name, count: c.meta?.numItems ?? 0 })));
+});
+
+/* ── POST import works from Zotero collection ── */
+literatureRoutes.post("/works/import-zotero", async (c) => {
+  const { collectionKey } = await c.req.json();
+  const [uRow] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_user_id"));
+  const [kRow] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_api_key"));
+  if (!uRow?.value || !kRow?.value) return c.json({ error: "Zotero belum dikonfigurasi" }, 400);
+
+  const ZOTERO_TO_WORK_TYPE: Record<string, string> = {
+    journalArticle: "article", conferencePaper: "conference_paper",
+    thesis: "thesis", book: "book", report: "report",
+    dissertation: "dissertation", manuscript: "article",
+  };
+
+  const res = await fetch(
+    `https://api.zotero.org/users/${uRow.value}/collections/${collectionKey}/items?format=json&limit=100&v=3`,
+    { headers: { "Zotero-API-Key": kRow.value } }
+  );
+  if (!res.ok) return c.json({ error: `Zotero error: ${res.status}` }, 502);
+
+  const items = (await res.json()) as any[];
+  let imported = 0;
+  for (const item of items) {
+    const d = item.data;
+    if (!d?.title || d.title.length < 5) continue;
+    const slug = d.title.toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 60)
+      + "-" + (d.date ? parseInt(d.date) || "" : "");
+    const year = d.date ? parseInt(d.date) : null;
+    await db.insert(myWorks).values({
+      slug:      slug.replace(/-$/, ""),
+      title:     d.title,
+      type:      ZOTERO_TO_WORK_TYPE[d.itemType] || "other",
+      year:      isNaN(year as number) ? null : year,
+      structure: "[]",
+    }).onDuplicateKeyUpdate({ set: { title: d.title, year: isNaN(year as number) ? null : year } });
+    imported++;
+  }
+  return c.json({ ok: true, imported });
+});
+
 /* ── DELETE work (POST fallback for Hostinger) ── */
 literatureRoutes.post("/works/:slug/delete", async (c) => {
   const slug = c.req.param("slug");

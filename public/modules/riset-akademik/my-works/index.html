@@ -43,7 +43,10 @@ a{color:inherit;text-decoration:none}
 .type-badge{padding:2px 9px;border-radius:10px;font-size:.65rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
 .tb-dissertation{background:#EDE9FE;color:#6D28D9}
 .tb-article{background:#DBEAFE;color:#1E40AF}
-.tb-report{background:#D1FAE5;color:#065F46}
+.tb-conference_paper{background:#FEF3C7;color:#92400E}
+.tb-thesis{background:#FCE7F3;color:#9D174D}
+.tb-book{background:#D1FAE5;color:#065F46}
+.tb-report{background:#E0F2FE;color:#0369A1}
 .tb-other{background:#F3F4F6;color:#4B5563}
 .wc-year{font-size:.75rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
 .wc-actions{display:flex;gap:6px;flex-direction:column;align-items:flex-end}
@@ -102,7 +105,10 @@ a{color:inherit;text-decoration:none}
 <div class="page-body">
   <div class="toolbar">
     <h2>Karya Saya</h2>
-    <button class="btn btn-primary" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Tambah Karya</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline" onclick="openZoteroImport()" style="border-color:#8B5CF6;color:#8B5CF6"><i class="fa-solid fa-circle-nodes"></i> Import Zotero</button>
+      <button class="btn btn-primary" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Tambah Karya</button>
+    </div>
   </div>
   <div id="worksList">
     <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i>Memuat…</div>
@@ -124,7 +130,10 @@ a{color:inherit;text-decoration:none}
         <label>Tipe</label>
         <select id="fType">
           <option value="dissertation">Disertasi</option>
+          <option value="thesis">Tesis</option>
           <option value="article">Artikel Jurnal</option>
+          <option value="conference_paper">Conference Paper</option>
+          <option value="book">Buku</option>
           <option value="report">Laporan</option>
           <option value="other">Lainnya</option>
         </select>
@@ -144,6 +153,27 @@ a{color:inherit;text-decoration:none}
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal()">Batal</button>
       <button class="btn btn-primary" onclick="saveWork()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ZOTERO IMPORT MODAL ── -->
+<div class="modal-bg" id="zoteroModal">
+  <div class="modal">
+    <h3><i class="fa-solid fa-circle-nodes" style="color:var(--pur);margin-right:8px"></i>Import dari Zotero</h3>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:16px">Pilih koleksi Zotero yang berisi karya Anda sendiri (misal: My Publications).</p>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Koleksi</label>
+        <select id="zCollSelect" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none">
+          <option value="">Memuat koleksi…</option>
+        </select>
+      </div>
+    </div>
+    <div id="zImportStatus" style="margin-top:10px;font-size:.78rem;color:var(--muted)"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeZoteroModal()">Batal</button>
+      <button class="btn btn-primary" id="zImportBtn" onclick="doZoteroImport()"><i class="fa-solid fa-file-import"></i> Import</button>
     </div>
   </div>
 </div>
@@ -178,10 +208,13 @@ async function load() {
 
 function typeMeta(type) {
   const map = {
-    dissertation: { label:'Disertasi', cls:'tb-dissertation', icon:'fa-graduation-cap' },
-    article:      { label:'Artikel',   cls:'tb-article',      icon:'fa-newspaper' },
-    report:       { label:'Laporan',   cls:'tb-report',       icon:'fa-file-lines' },
-    other:        { label:'Lainnya',   cls:'tb-other',        icon:'fa-folder-open' },
+    dissertation:     { label:'Disertasi',        cls:'tb-dissertation',     icon:'fa-graduation-cap' },
+    thesis:           { label:'Tesis',             cls:'tb-thesis',           icon:'fa-scroll' },
+    article:          { label:'Artikel Jurnal',    cls:'tb-article',          icon:'fa-newspaper' },
+    conference_paper: { label:'Conference Paper',  cls:'tb-conference_paper', icon:'fa-person-chalkboard' },
+    book:             { label:'Buku',              cls:'tb-book',             icon:'fa-book' },
+    report:           { label:'Laporan',           cls:'tb-report',           icon:'fa-file-lines' },
+    other:            { label:'Lainnya',           cls:'tb-other',            icon:'fa-folder-open' },
   };
   return map[type] || map.other;
 }
@@ -355,6 +388,56 @@ function closeModal() {
 }
 document.getElementById('workModal').addEventListener('click', e => {
   if (e.target === document.getElementById('workModal')) closeModal();
+});
+
+// ── ZOTERO IMPORT ──
+async function openZoteroImport() {
+  const sel = document.getElementById('zCollSelect');
+  const statusEl = document.getElementById('zImportStatus');
+  sel.innerHTML = '<option value="">Memuat koleksi…</option>';
+  statusEl.textContent = '';
+  document.getElementById('zoteroModal').classList.add('open');
+  try {
+    const colls = await api('GET', '/works/zotero-collections');
+    if (colls.error) { statusEl.textContent = 'Error: ' + colls.error; return; }
+    sel.innerHTML = '<option value="">— pilih koleksi —</option>'
+      + colls.map(c => `<option value="${esc(c.key)}">${esc(c.name)} (${c.count} item)</option>`).join('');
+  } catch(e) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = 'Gagal memuat: ' + e.message;
+  }
+}
+
+async function doZoteroImport() {
+  const collectionKey = document.getElementById('zCollSelect').value;
+  if (!collectionKey) { toast('Pilih koleksi terlebih dahulu', true); return; }
+  const statusEl = document.getElementById('zImportStatus');
+  const btn = document.getElementById('zImportBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengimpor…';
+  statusEl.style.color = 'var(--muted)';
+  statusEl.textContent = 'Mengambil data dari Zotero…';
+  try {
+    const r = await api('POST', '/works/import-zotero', { collectionKey });
+    if (r.error) { statusEl.style.color='var(--red)'; statusEl.textContent='Error: '+r.error; return; }
+    statusEl.style.color = 'var(--grn)';
+    statusEl.textContent = `✓ ${r.imported} karya berhasil diimport`;
+    await load();
+    setTimeout(closeZoteroModal, 1500);
+  } catch(e) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = 'Error: ' + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-file-import"></i> Import';
+  }
+}
+
+function closeZoteroModal() {
+  document.getElementById('zoteroModal').classList.remove('open');
+}
+document.getElementById('zoteroModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('zoteroModal')) closeZoteroModal();
 });
 
 // Auto-generate slug from title
