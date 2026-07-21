@@ -291,7 +291,8 @@ async function api(method, path, body) {
     method, headers: body ? { 'Content-Type': 'application/json' } : {},
     body: body ? JSON.stringify(body) : undefined,
   });
-  return r.json();
+  const text = await r.text();
+  try { return JSON.parse(text); } catch { throw new Error('Server error ' + r.status + ': ' + text.slice(0,120)); }
 }
 async function patchPaper(id, data) {
   await api('PATCH', '/' + id, data);
@@ -301,9 +302,15 @@ async function patchPaper(id, data) {
 
 // ── LOAD ──
 async function load() {
-  papers = await api('GET', '/');
+  try {
+    papers = await api('GET', '/');
+  } catch(e) {
+    document.getElementById('litBody').innerHTML =
+      `<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>Gagal memuat: ${e.message}<br><small>Pastikan server berjalan dan tabel database sudah dibuat.</small></div></td></tr>`;
+    return;
+  }
   renderKPIs(); renderTable();
-  const cfg = await api('GET', '/zotero-config');
+  const cfg = await api('GET', '/zotero-config').catch(() => ({ configured: false, userId: '', apiKeyMasked: '' }));
   zoteroConfigured = cfg.configured;
   document.getElementById('badgeZotero').innerHTML = cfg.configured
     ? `<i class="fa-solid fa-circle-nodes"></i> Zotero ✓ (${cfg.userId})`
@@ -547,15 +554,19 @@ async function deletePaper(id) {
 
 // ── ZOTERO ──
 async function syncOrConfig() {
-  const cfg = await api('GET', '/zotero-config');
+  const cfg = await api('GET', '/zotero-config').catch(() => ({ configured: false }));
   if (!cfg.configured) { openZoteroModal(); return; }
   const btn = document.getElementById('syncBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sinkronisasi…';
-  const r = await api('POST', '/sync-zotero', {});
+  let r;
+  try { r = await api('POST', '/sync-zotero', {}); } catch(e) { r = { error: e.message }; }
   btn.disabled = false;
   btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Sync Zotero';
-  if (r.error) { toast('Error: ' + r.error, true); return; }
+  if (r.error) {
+    if (r.error.includes('belum dikonfigurasi') || r.error.includes('400')) { openZoteroModal(); return; }
+    toast('Error: ' + r.error, true); return;
+  }
   await load();
   toast(`✓ Sync selesai — ${r.synced} paper diperbarui`);
 }
