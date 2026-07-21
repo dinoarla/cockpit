@@ -145,6 +145,22 @@ a{color:inherit;text-decoration:none}
     </div>
     <div class="form-row full">
       <div class="form-group">
+        <label>Jurnal / Konferensi / Penerbit</label>
+        <input type="text" id="fVenue" placeholder="cth: IEEE Access, ICPEP 2025">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>DOI</label>
+        <input type="text" id="fDoi" placeholder="10.xxxx/xxxxx">
+      </div>
+      <div class="form-group">
+        <label>Penulis / Ko-Penulis</label>
+        <input type="text" id="fAuthors" placeholder="Arla, D.; Haramaini, T.">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
         <label>Slug (ID unik) *</label>
         <input type="text" id="fSlug" placeholder="cth: disertasi-jabar">
         <p class="hint">Huruf kecil, gunakan tanda hubung, tanpa spasi. Tidak bisa diubah setelah disimpan.</p>
@@ -246,8 +262,11 @@ function workCard(w) {
         <div class="wc-meta">
           <span class="type-badge ${tm.cls}">${tm.label}</span>
           ${w.year ? `<span class="wc-year">${w.year}</span>` : ''}
-          <span style="font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace">${esc(w.slug)}</span>
+          ${w.venue ? `<span style="font-size:.72rem;color:var(--muted)">${esc(w.venue)}</span>` : ''}
         </div>
+        ${w.authors ? `<div style="font-size:.72rem;color:var(--muted);margin-top:3px">${esc(w.authors)}</div>` : ''}
+        ${w.doi ? `<div style="font-size:.68rem;color:var(--sky);font-family:'JetBrains Mono',monospace;margin-top:2px"><a href="https://doi.org/${esc(w.doi)}" target="_blank">${esc(w.doi)}</a></div>` : ''}
+        <div style="font-size:.65rem;color:var(--border);font-family:'JetBrains Mono',monospace;margin-top:2px">${esc(w.slug)}</div>
       </div>
       <div class="wc-actions">
         <button class="btn btn-outline btn-sm" onclick="openEditModal('${esc(w.slug)}')"><i class="fa-solid fa-pen"></i> Edit</button>
@@ -331,10 +350,8 @@ function refreshSecList(slug) {
 function openAddModal() {
   editingSlug = null;
   document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus" style="color:var(--pur);margin-right:8px"></i>Tambah Karya';
-  document.getElementById('fTitle').value = '';
+  ['fTitle','fYear','fVenue','fDoi','fAuthors','fSlug'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('fType').value  = 'dissertation';
-  document.getElementById('fYear').value  = '';
-  document.getElementById('fSlug').value  = '';
   document.getElementById('fSlug').disabled = false;
   document.getElementById('workModal').classList.add('open');
 }
@@ -344,30 +361,36 @@ function openEditModal(slug) {
   if (!w) return;
   editingSlug = slug;
   document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen" style="color:var(--pur);margin-right:8px"></i>Edit Karya';
-  document.getElementById('fTitle').value = w.title;
-  document.getElementById('fType').value  = w.type;
-  document.getElementById('fYear').value  = w.year || '';
-  document.getElementById('fSlug').value  = w.slug;
+  document.getElementById('fTitle').value   = w.title;
+  document.getElementById('fType').value    = w.type;
+  document.getElementById('fYear').value    = w.year    || '';
+  document.getElementById('fVenue').value   = w.venue   || '';
+  document.getElementById('fDoi').value     = w.doi     || '';
+  document.getElementById('fAuthors').value = w.authors || '';
+  document.getElementById('fSlug').value    = w.slug;
   document.getElementById('fSlug').disabled = true;
   document.getElementById('workModal').classList.add('open');
 }
 
 async function saveWork() {
-  const title = document.getElementById('fTitle').value.trim();
-  const type  = document.getElementById('fType').value;
-  const year  = parseInt(document.getElementById('fYear').value) || null;
-  const slug  = document.getElementById('fSlug').value.trim().toLowerCase().replace(/\s+/g,'-');
+  const title   = document.getElementById('fTitle').value.trim();
+  const type    = document.getElementById('fType').value;
+  const year    = parseInt(document.getElementById('fYear').value) || null;
+  const venue   = document.getElementById('fVenue').value.trim()   || null;
+  const doi     = document.getElementById('fDoi').value.trim()     || null;
+  const authors = document.getElementById('fAuthors').value.trim() || null;
+  const slug    = document.getElementById('fSlug').value.trim().toLowerCase().replace(/\s+/g,'-');
   if (!title) { toast('Judul wajib diisi', true); return; }
 
   if (editingSlug) {
-    await api('PATCH', `/works/${editingSlug}`, { title, type, year });
+    await api('PATCH', `/works/${editingSlug}`, { title, type, year, venue, doi, authors });
     const w = works.find(x => x.slug === editingSlug);
-    if (w) { w.title = title; w.type = type; w.year = year; }
+    if (w) Object.assign(w, { title, type, year, venue, doi, authors });
     toast('Karya diperbarui');
   } else {
     if (!slug) { toast('Slug wajib diisi', true); return; }
-    await api('POST', '/works', { slug, title, type, year, structure: [] });
-    works.push({ slug, title, type, year, structure: [] });
+    await api('POST', '/works', { slug, title, type, year, venue, doi, authors, structure: [] });
+    works.push({ slug, title, type, year, venue, doi, authors, structure: [] });
     toast('Karya ditambahkan');
   }
   closeModal();

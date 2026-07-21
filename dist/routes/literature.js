@@ -29,6 +29,17 @@ async function ensureTables() {
       KEY \`work_slug_idx\` (\`work_slug\`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
+    // Add new columns to my_works if not exist (MySQL has no ADD COLUMN IF NOT EXISTS)
+    for (const colDef of [
+        "ADD COLUMN `venue`   VARCHAR(300) DEFAULT NULL",
+        "ADD COLUMN `doi`     VARCHAR(200) DEFAULT NULL",
+        "ADD COLUMN `authors` VARCHAR(500) DEFAULT NULL",
+    ]) {
+        try {
+            await db.execute(sql.raw(`ALTER TABLE \`my_works\` ${colDef}`));
+        }
+        catch { /* already exists */ }
+    }
     await db.execute(sql `
     INSERT IGNORE INTO \`my_works\` (\`slug\`, \`title\`, \`type\`, \`year\`, \`structure\`) VALUES (
       'disertasi-jabar',
@@ -77,6 +88,12 @@ literatureRoutes.patch("/works/:slug", async (c) => {
         upd.type = b.type;
     if (b.year !== undefined)
         upd.year = b.year;
+    if (b.venue !== undefined)
+        upd.venue = b.venue;
+    if (b.doi !== undefined)
+        upd.doi = b.doi;
+    if (b.authors !== undefined)
+        upd.authors = b.authors;
     if (b.structure !== undefined)
         upd.structure = JSON.stringify(b.structure);
     await db.update(myWorks).set(upd).where(eq(myWorks.slug, slug));
@@ -119,13 +136,22 @@ literatureRoutes.post("/works/import-zotero", async (c) => {
             .replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 60)
             + "-" + (d.date ? parseInt(d.date) || "" : "");
         const year = d.date ? parseInt(d.date) : null;
+        const venue = d.publicationTitle || d.proceedingsTitle || d.bookTitle || d.conferenceName || "";
+        const authors = (d.creators || [])
+            .map((cr) => cr.lastName ? `${cr.lastName}, ${cr.firstName || ""}`.trim() : (cr.name || ""))
+            .filter(Boolean).join("; ");
         await db.insert(myWorks).values({
             slug: slug.replace(/-$/, ""),
             title: d.title,
             type: ZOTERO_TO_WORK_TYPE[d.itemType] || "other",
             year: isNaN(year) ? null : year,
+            venue: venue || null,
+            doi: d.DOI || null,
+            authors: authors || null,
             structure: "[]",
-        }).onDuplicateKeyUpdate({ set: { title: d.title, year: isNaN(year) ? null : year } });
+        }).onDuplicateKeyUpdate({
+            set: { title: d.title, year: isNaN(year) ? null : year, venue: venue || null, doi: d.DOI || null, authors: authors || null },
+        });
         imported++;
     }
     return c.json({ ok: true, imported });

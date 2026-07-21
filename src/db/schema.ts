@@ -757,6 +757,9 @@ export const myWorks = mysqlTable("my_works", {
   title:     text("title").notNull(),
   type:      varchar("type", { length: 20 }).notNull().default("dissertation"),
   year:      int("year"),
+  venue:     varchar("venue",   { length: 300 }),
+  doi:       varchar("doi",     { length: 200 }),
+  authors:   varchar("authors", { length: 500 }),
   structure: text("structure").default("[]"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
