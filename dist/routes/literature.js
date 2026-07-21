@@ -73,8 +73,14 @@ literatureRoutes.post("/:id/delete", async (c) => {
 });
 /* ── Zotero config ── */
 literatureRoutes.get("/zotero-config", async (c) => {
-    const [row] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_user_id"));
-    return c.json({ configured: !!(row?.value) });
+    const [uRow] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_user_id"));
+    const [kRow] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_api_key"));
+    const configured = !!(uRow?.value && kRow?.value);
+    return c.json({
+        configured,
+        userId: uRow?.value || "",
+        apiKeyMasked: kRow?.value ? kRow.value.slice(0, 4) + "••••••••" + kRow.value.slice(-4) : "",
+    });
 });
 literatureRoutes.post("/zotero-config", async (c) => {
     const { userId, apiKey } = await c.req.json();

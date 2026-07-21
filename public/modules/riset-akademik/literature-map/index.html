@@ -177,7 +177,8 @@ textarea.expand-input{min-height:80px;resize:vertical}
       <button class="filter-btn" data-f="antrian" onclick="setFilter(this)">Antrian</button>
       <button class="filter-btn" data-f="belum"   onclick="setFilter(this)">Belum</button>
     </div>
-    <button class="btn btn-green" onclick="openZoteroModal()"><i class="fa-solid fa-rotate"></i> Sync Zotero</button>
+    <button class="btn btn-green" id="syncBtn" onclick="syncOrConfig()"><i class="fa-solid fa-rotate"></i> Sync Zotero</button>
+    <button class="btn btn-outline" title="Ubah konfigurasi Zotero" onclick="openZoteroModal()" style="padding:7px 10px"><i class="fa-solid fa-gear"></i></button>
     <button class="btn btn-outline" onclick="openBibModal()"><i class="fa-solid fa-file-import"></i> Import .bib</button>
     <button class="btn btn-primary" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Tambah</button>
   </div>
@@ -282,7 +283,7 @@ function tagColor(tag) {
 }
 
 // ── STATE ──
-let papers = [], activeFilter = 'semua', expandedId = null, bibParsed = [];
+let papers = [], activeFilter = 'semua', expandedId = null, bibParsed = [], zoteroConfigured = false;
 
 // ── API ──
 async function api(method, path, body) {
@@ -302,12 +303,17 @@ async function patchPaper(id, data) {
 async function load() {
   papers = await api('GET', '/');
   renderKPIs(); renderTable();
-  // check zotero config
   const cfg = await api('GET', '/zotero-config');
-  document.getElementById('badgeZotero').innerHTML =
-    cfg.configured
-      ? '<i class="fa-solid fa-circle-nodes"></i> Zotero ✓'
-      : '<i class="fa-solid fa-circle-nodes"></i> Zotero (belum dikonfigurasi)';
+  zoteroConfigured = cfg.configured;
+  document.getElementById('badgeZotero').innerHTML = cfg.configured
+    ? `<i class="fa-solid fa-circle-nodes"></i> Zotero ✓ (${cfg.userId})`
+    : '<i class="fa-solid fa-circle-nodes"></i> Zotero (belum dikonfigurasi)';
+  document.getElementById('syncBtn').innerHTML = cfg.configured
+    ? '<i class="fa-solid fa-rotate"></i> Sync Zotero'
+    : '<i class="fa-solid fa-plug"></i> Hubungkan Zotero';
+  // pre-fill modal
+  if (cfg.userId) document.getElementById('zoteroUserId').value = cfg.userId;
+  if (cfg.apiKeyMasked) document.getElementById('zoteroApiKey').placeholder = cfg.apiKeyMasked;
 }
 
 // ── KPI ──
@@ -540,6 +546,19 @@ async function deletePaper(id) {
 }
 
 // ── ZOTERO ──
+async function syncOrConfig() {
+  if (!zoteroConfigured) { openZoteroModal(); return; }
+  const btn = document.getElementById('syncBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sinkronisasi…';
+  const r = await api('POST', '/sync-zotero', {});
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Sync Zotero';
+  if (r.error) { toast('Error: ' + r.error, true); return; }
+  await load();
+  toast(`✓ Sync selesai — ${r.synced} paper diperbarui`);
+}
+
 function openZoteroModal() {
   document.getElementById('zoteroStatus').textContent = '';
   openModal('zoteroModal');
@@ -549,6 +568,7 @@ async function saveZoteroConfig() {
   const apiKey = document.getElementById('zoteroApiKey').value.trim();
   if (!userId || !apiKey) { alert('Isi User ID dan API Key'); return; }
   const statusEl = document.getElementById('zoteroStatus');
+  statusEl.style.color = 'var(--muted)';
   statusEl.textContent = 'Menyimpan dan sinkronisasi…';
   await api('POST', '/zotero-config', { userId, apiKey });
   const r = await api('POST', '/sync-zotero', {});
@@ -651,9 +671,10 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
 
 // ── TOAST ──
-function toast(msg) {
+function toast(msg, isErr) {
   const el = document.getElementById('toast');
   el.textContent = msg;
+  el.style.background = isErr ? '#DC2626' : '#1F2937';
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2500);
 }
