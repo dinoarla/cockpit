@@ -559,18 +559,21 @@ async function openZoteroImport() {
   const statusEl = document.getElementById('zImportStatus');
   statusEl.textContent = 'Memuat koleksi…';
   statusEl.style.color = 'var(--muted)';
-  // My Publications selalu muncul pertama — ini special library Zotero, bukan koleksi biasa
-  sel.innerHTML = '<option value="">— pilih koleksi —</option>'
-    + '<option value="__my_publications__">My Publications ★</option>';
+  sel.innerHTML = '<option value="">— pilih sumber —</option>'
+    + '<option value="__all_library__">Seluruh Library (item akademik)</option>'
+    + '<option value="__my_publications__">My Publications ★ (zotero.org)</option>';
   document.getElementById('zoteroModal').classList.add('open');
   try {
     const colls = await api('GET', '/works/zotero-collections');
     if (colls.error) { statusEl.textContent = 'Error: ' + colls.error; return; }
     const arr = Array.isArray(colls) ? colls : [];
-    const myPub = arr.find(c => c.key === '__my_publications__');
-    const regular = arr.filter(c => c.key !== '__my_publications__');
-    sel.innerHTML = '<option value="">— pilih koleksi —</option>'
-      + `<option value="__my_publications__">My Publications ★${myPub ? ` (${myPub.count} item)` : ''}</option>`
+    const allLib = arr.find(c => c.key === '__all_library__');
+    const myPub  = arr.find(c => c.key === '__my_publications__');
+    const regular = arr.filter(c => c.key !== '__all_library__' && c.key !== '__my_publications__');
+    sel.innerHTML = '<option value="">— pilih sumber —</option>'
+      + `<option value="__all_library__">Seluruh Library${allLib ? ` (${allLib.count} item)` : ''} — filter akademik</option>`
+      + (myPub ? `<option value="__my_publications__">My Publications ★ (${myPub.count} item)</option>` : '')
+      + '<option disabled>── Koleksi ──</option>'
       + regular.map(c => `<option value="${esc(c.key)}">${esc(c.name)} (${c.count} item)</option>`).join('');
     statusEl.textContent = '';
   } catch(e) {
