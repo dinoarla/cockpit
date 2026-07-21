@@ -547,7 +547,8 @@ async function deletePaper(id) {
 
 // ── ZOTERO ──
 async function syncOrConfig() {
-  if (!zoteroConfigured) { openZoteroModal(); return; }
+  const cfg = await api('GET', '/zotero-config');
+  if (!cfg.configured) { openZoteroModal(); return; }
   const btn = document.getElementById('syncBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sinkronisasi…';
