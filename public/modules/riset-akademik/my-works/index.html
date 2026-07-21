@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Works — COCKPIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--ind:#4F46E5;--sky:#0EA5E9;--bg:#F8F9FB;--card:#fff;--border:#E5E7EB;--text:#111827;--muted:#6B7280;--red:#EF4444;--grn:#22C55E;--ylw:#F59E0B;--pur:#8B5CF6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+
+.module-header{background:linear-gradient(135deg,#2E1065 0%,#7C3AED 55%,#C026D3 100%);color:#fff;padding:0}
+.back-link{display:inline-flex;align-items:center;gap:6px;padding:14px 24px 0;color:rgba(255,255,255,.75);font-size:11px;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase}
+.back-link svg{width:13px;height:13px}.back-link:hover{color:#fff}
+.breadcrumb{padding:4px 24px 0;font-size:11px;color:rgba(255,255,255,.5)}
+.breadcrumb span{margin:0 4px;opacity:.5}
+.header-body{padding:16px 24px 20px}
+.header-title{font-family:'Space Grotesk',sans-serif;font-size:1.7rem;font-weight:700;margin-bottom:6px}
+.header-desc{font-size:.82rem;color:rgba(255,255,255,.7);margin-bottom:12px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);font-family:'JetBrains Mono',monospace}
+
+.page-body{padding:24px;max-width:900px;margin:0 auto}
+
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.toolbar h2{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;font-family:inherit}
+.btn-primary{background:var(--pur);color:#fff}.btn-primary:hover{background:#7C3AED}
+.btn-outline{background:var(--card);color:var(--muted);border:1px solid var(--border);font-size:12px;padding:6px 12px}.btn-outline:hover{border-color:var(--pur);color:var(--pur)}
+.btn-danger{background:transparent;border:1px solid var(--border);color:var(--red);font-size:12px;padding:5px 10px}.btn-danger:hover{background:#FEF2F2;border-color:var(--red)}
+.btn-sm{padding:5px 10px;font-size:.72rem}
+
+/* ── WORK CARD ── */
+.work-card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:hidden;transition:box-shadow .15s}
+.work-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.wc-header{padding:18px 20px;display:flex;align-items:flex-start;gap:14px}
+.wc-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;background:linear-gradient(135deg,#EDE9FE,#DDD6FE);color:var(--pur)}
+.wc-info{flex:1}
+.wc-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;color:var(--text);margin-bottom:4px}
+.wc-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.type-badge{padding:2px 9px;border-radius:10px;font-size:.65rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.tb-dissertation{background:#EDE9FE;color:#6D28D9}
+.tb-article{background:#DBEAFE;color:#1E40AF}
+.tb-report{background:#D1FAE5;color:#065F46}
+.tb-other{background:#F3F4F6;color:#4B5563}
+.wc-year{font-size:.75rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.wc-actions{display:flex;gap:6px;flex-direction:column;align-items:flex-end}
+
+/* ── SECTIONS ── */
+.wc-sections{border-top:1px solid var(--border);padding:14px 20px;background:#FAFAFA}
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-header label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.sec-list{display:flex;flex-direction:column;gap:4px}
+.sec-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px}
+.sec-num{width:22px;height:22px;border-radius:6px;background:var(--pur);color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-label{flex:1;font-size:.82rem}
+.sec-id{font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.sec-del{color:var(--muted);cursor:pointer;padding:2px 6px;border-radius:4px;font-size:.8rem}.sec-del:hover{color:var(--red);background:#FEF2F2}
+.sec-empty{font-size:.78rem;color:var(--muted);font-style:italic;padding:6px 0}
+.sec-add-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.sec-add-row input{flex:1;min-width:120px;padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;outline:none}
+.sec-add-row input:focus{border-color:var(--pur)}
+
+/* ── FORM MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);border-radius:14px;padding:24px;width:500px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal h3{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;margin-bottom:18px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row.full{grid-template-columns:1fr}
+.form-group label{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
+.form-group input,.form-group select{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:var(--pur)}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.hint{font-size:.7rem;color:var(--muted);margin-top:4px}
+
+.empty-state{text-align:center;padding:60px 24px;color:var(--muted)}
+.empty-state i{font-size:2.5rem;opacity:.3;display:block;margin-bottom:12px}
+.toast{position:fixed;bottom:24px;right:24px;background:#1F2937;color:#fff;padding:10px 16px;border-radius:10px;font-size:.8rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="module-header">
+  <a href="/menu.html" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Kembali ke Menu
+  </a>
+  <div class="breadcrumb">Riset &amp; Akademik <span>›</span> My Works</div>
+  <div class="header-body">
+    <div class="header-title">My Works</div>
+    <div class="header-desc">Kelola karya tulis Anda — disertasi, artikel, laporan — beserta struktur bab dan bagiannya.</div>
+    <div class="header-badges">
+      <span class="badge" id="badgeTotal">—</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="toolbar">
+    <h2>Karya Saya</h2>
+    <button class="btn btn-primary" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Tambah Karya</button>
+  </div>
+  <div id="worksList">
+    <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i>Memuat…</div>
+  </div>
+</div>
+
+<!-- ── ADD / EDIT MODAL ── -->
+<div class="modal-bg" id="workModal">
+  <div class="modal">
+    <h3 id="modalTitle"><i class="fa-solid fa-book-bookmark" style="color:var(--pur);margin-right:8px"></i>Tambah Karya</h3>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Judul *</label>
+        <input type="text" id="fTitle" placeholder="Judul lengkap karya">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tipe</label>
+        <select id="fType">
+          <option value="dissertation">Disertasi</option>
+          <option value="article">Artikel Jurnal</option>
+          <option value="report">Laporan</option>
+          <option value="other">Lainnya</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tahun</label>
+        <input type="number" id="fYear" placeholder="2026" min="1990" max="2040">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Slug (ID unik) *</label>
+        <input type="text" id="fSlug" placeholder="cth: disertasi-jabar">
+        <p class="hint">Huruf kecil, gunakan tanda hubung, tanpa spasi. Tidak bisa diubah setelah disimpan.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+      <button class="btn btn-primary" onclick="saveWork()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let works = [], editingSlug = null;
+
+// ── API ──
+async function api(method, path, body) {
+  const r = await fetch('/api/literature' + path, {
+    method,
+    headers: body ? { 'Content-Type': 'application/json' } : {},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const text = await r.text();
+  try { return JSON.parse(text); } catch { throw new Error('Server error ' + r.status + ': ' + text.slice(0,120)); }
+}
+
+// ── LOAD ──
+async function load() {
+  try {
+    works = await api('GET', '/works');
+  } catch(e) {
+    document.getElementById('worksList').innerHTML =
+      `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>Gagal memuat: ${e.message}</div>`;
+    return;
+  }
+  render();
+}
+
+function typeMeta(type) {
+  const map = {
+    dissertation: { label:'Disertasi', cls:'tb-dissertation', icon:'fa-graduation-cap' },
+    article:      { label:'Artikel',   cls:'tb-article',      icon:'fa-newspaper' },
+    report:       { label:'Laporan',   cls:'tb-report',       icon:'fa-file-lines' },
+    other:        { label:'Lainnya',   cls:'tb-other',        icon:'fa-folder-open' },
+  };
+  return map[type] || map.other;
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── RENDER ──
+function render() {
+  document.getElementById('badgeTotal').textContent = works.length + ' karya';
+  const el = document.getElementById('worksList');
+  if (!works.length) {
+    el.innerHTML = `<div class="empty-state"><i class="fa-solid fa-book-bookmark"></i>Belum ada karya. Klik "Tambah Karya" untuk mulai.</div>`;
+    return;
+  }
+  el.innerHTML = works.map(w => workCard(w)).join('');
+}
+
+function workCard(w) {
+  const tm = typeMeta(w.type);
+  const secs = Array.isArray(w.structure) ? w.structure : [];
+  return `
+  <div class="work-card" id="wc-${w.slug}">
+    <div class="wc-header">
+      <div class="wc-icon"><i class="fa-solid ${tm.icon}"></i></div>
+      <div class="wc-info">
+        <div class="wc-title">${esc(w.title)}</div>
+        <div class="wc-meta">
+          <span class="type-badge ${tm.cls}">${tm.label}</span>
+          ${w.year ? `<span class="wc-year">${w.year}</span>` : ''}
+          <span style="font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace">${esc(w.slug)}</span>
+        </div>
+      </div>
+      <div class="wc-actions">
+        <button class="btn btn-outline btn-sm" onclick="openEditModal('${esc(w.slug)}')"><i class="fa-solid fa-pen"></i> Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteWork('${esc(w.slug)}')"><i class="fa-solid fa-trash"></i> Hapus</button>
+      </div>
+    </div>
+    <div class="wc-sections">
+      <div class="sec-header">
+        <label><i class="fa-solid fa-list-ol" style="margin-right:5px"></i>Struktur Bab / Bagian</label>
+        <span style="font-size:.72rem;color:var(--muted)">${secs.length} bagian</span>
+      </div>
+      <div class="sec-list" id="seclist-${w.slug}">
+        ${secs.length
+          ? secs.map((s,i) => `
+            <div class="sec-item" id="si-${w.slug}-${esc(s.id)}">
+              <div class="sec-num">${i+1}</div>
+              <div class="sec-label">${esc(s.label)}</div>
+              <div class="sec-id">${esc(s.id)}</div>
+              <span class="sec-del" onclick="removeSection('${esc(w.slug)}','${esc(s.id)}')" title="Hapus bagian">×</span>
+            </div>`).join('')
+          : `<div class="sec-empty">Belum ada bagian ditambahkan.</div>`}
+      </div>
+      <div class="sec-add-row">
+        <input type="text" id="sid-${w.slug}" placeholder="ID (cth: bab-1)">
+        <input type="text" id="slbl-${w.slug}" placeholder="Label (cth: Bab 1 — Pendahuluan)">
+        <button class="btn btn-outline btn-sm" onclick="addSection('${esc(w.slug)}')"><i class="fa-solid fa-plus"></i> Tambah</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── SECTION CRUD ──
+async function addSection(slug) {
+  const idEl  = document.getElementById(`sid-${slug}`);
+  const lblEl = document.getElementById(`slbl-${slug}`);
+  const id    = idEl.value.trim().toLowerCase().replace(/\s+/g,'-');
+  const label = lblEl.value.trim();
+  if (!id || !label) { toast('Isi ID dan label bagian', true); return; }
+
+  const w = works.find(x => x.slug === slug);
+  if (!w) return;
+  const secs = Array.isArray(w.structure) ? [...w.structure] : [];
+  if (secs.find(s => s.id === id)) { toast('ID sudah ada', true); return; }
+  secs.push({ id, label });
+
+  await api('PATCH', `/works/${slug}`, { structure: secs });
+  w.structure = secs;
+  idEl.value = ''; lblEl.value = '';
+  refreshSecList(slug);
+  toast('Bagian ditambahkan');
+}
+
+async function removeSection(slug, secId) {
+  if (!confirm(`Hapus bagian "${secId}"?`)) return;
+  const w = works.find(x => x.slug === slug);
+  if (!w) return;
+  const secs = (w.structure || []).filter(s => s.id !== secId);
+  await api('PATCH', `/works/${slug}`, { structure: secs });
+  w.structure = secs;
+  refreshSecList(slug);
+  toast('Bagian dihapus');
+}
+
+function refreshSecList(slug) {
+  const w = works.find(x => x.slug === slug);
+  const secs = w?.structure || [];
+  const el = document.getElementById(`seclist-${slug}`);
+  if (!el) return;
+  el.innerHTML = secs.length
+    ? secs.map((s,i) => `
+        <div class="sec-item">
+          <div class="sec-num">${i+1}</div>
+          <div class="sec-label">${esc(s.label)}</div>
+          <div class="sec-id">${esc(s.id)}</div>
+          <span class="sec-del" onclick="removeSection('${esc(slug)}','${esc(s.id)}')" title="Hapus">×</span>
+        </div>`).join('')
+    : `<div class="sec-empty">Belum ada bagian ditambahkan.</div>`;
+}
+
+// ── WORK CRUD ──
+function openAddModal() {
+  editingSlug = null;
+  document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus" style="color:var(--pur);margin-right:8px"></i>Tambah Karya';
+  document.getElementById('fTitle').value = '';
+  document.getElementById('fType').value  = 'dissertation';
+  document.getElementById('fYear').value  = '';
+  document.getElementById('fSlug').value  = '';
+  document.getElementById('fSlug').disabled = false;
+  document.getElementById('workModal').classList.add('open');
+}
+
+function openEditModal(slug) {
+  const w = works.find(x => x.slug === slug);
+  if (!w) return;
+  editingSlug = slug;
+  document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen" style="color:var(--pur);margin-right:8px"></i>Edit Karya';
+  document.getElementById('fTitle').value = w.title;
+  document.getElementById('fType').value  = w.type;
+  document.getElementById('fYear').value  = w.year || '';
+  document.getElementById('fSlug').value  = w.slug;
+  document.getElementById('fSlug').disabled = true;
+  document.getElementById('workModal').classList.add('open');
+}
+
+async function saveWork() {
+  const title = document.getElementById('fTitle').value.trim();
+  const type  = document.getElementById('fType').value;
+  const year  = parseInt(document.getElementById('fYear').value) || null;
+  const slug  = document.getElementById('fSlug').value.trim().toLowerCase().replace(/\s+/g,'-');
+  if (!title) { toast('Judul wajib diisi', true); return; }
+
+  if (editingSlug) {
+    await api('PATCH', `/works/${editingSlug}`, { title, type, year });
+    const w = works.find(x => x.slug === editingSlug);
+    if (w) { w.title = title; w.type = type; w.year = year; }
+    toast('Karya diperbarui');
+  } else {
+    if (!slug) { toast('Slug wajib diisi', true); return; }
+    await api('POST', '/works', { slug, title, type, year, structure: [] });
+    works.push({ slug, title, type, year, structure: [] });
+    toast('Karya ditambahkan');
+  }
+  closeModal();
+  render();
+}
+
+async function deleteWork(slug) {
+  const w = works.find(x => x.slug === slug);
+  if (!confirm(`Hapus karya "${w?.title}"? Semua data kutipan terkait karya ini juga akan dihapus.`)) return;
+  await api('POST', `/works/${slug}/delete`, {});
+  works = works.filter(x => x.slug !== slug);
+  render();
+  toast('Karya dihapus');
+}
+
+function closeModal() {
+  document.getElementById('workModal').classList.remove('open');
+}
+document.getElementById('workModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('workModal')) closeModal();
+});
+
+// Auto-generate slug from title
+document.getElementById('fTitle').addEventListener('input', function() {
+  if (editingSlug) return;
+  const slug = this.value.toLowerCase()
+    .replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,50);
+  document.getElementById('fSlug').value = slug;
+});
+
+function toast(msg, isErr) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = isErr ? '#DC2626' : '#1F2937';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+load();
+</script>
+</body>
+</html>

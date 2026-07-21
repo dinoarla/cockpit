@@ -54,6 +54,41 @@ literatureRoutes.get("/works", async (c) => {
     const rows = await db.select().from(myWorks).orderBy(myWorks.year);
     return c.json(rows.map(r => ({ ...r, structure: parse(r.structure) })));
 });
+/* ── POST add work ── */
+literatureRoutes.post("/works", async (c) => {
+    const b = await c.req.json();
+    await db.insert(myWorks).values({
+        slug: b.slug,
+        title: b.title,
+        type: b.type || "dissertation",
+        year: b.year || null,
+        structure: JSON.stringify(b.structure || []),
+    });
+    return c.json({ ok: true });
+});
+/* ── PATCH update work ── */
+literatureRoutes.patch("/works/:slug", async (c) => {
+    const slug = c.req.param("slug");
+    const b = await c.req.json();
+    const upd = {};
+    if (b.title !== undefined)
+        upd.title = b.title;
+    if (b.type !== undefined)
+        upd.type = b.type;
+    if (b.year !== undefined)
+        upd.year = b.year;
+    if (b.structure !== undefined)
+        upd.structure = JSON.stringify(b.structure);
+    await db.update(myWorks).set(upd).where(eq(myWorks.slug, slug));
+    return c.json({ ok: true });
+});
+/* ── DELETE work (POST fallback for Hostinger) ── */
+literatureRoutes.post("/works/:slug/delete", async (c) => {
+    const slug = c.req.param("slug");
+    await db.delete(literatureCitations).where(eq(literatureCitations.workSlug, slug));
+    await db.delete(myWorks).where(eq(myWorks.slug, slug));
+    return c.json({ ok: true });
+});
 /* ── GET all items (with citations) ── */
 literatureRoutes.get("/items", async (c) => {
     const rows = await db.select().from(literatureItems).orderBy(desc(literatureItems.updatedAt));
