@@ -286,7 +286,7 @@ async function patchPaper(id, data) {
 // ── LOAD ──
 async function load() {
   try {
-    papers = await api('GET', '/');
+    papers = await api('GET', '/items');
   } catch(e) {
     document.getElementById('litBody').innerHTML =
       `<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>Gagal memuat: ${e.message}<br><small>Pastikan server berjalan dan tabel database sudah dibuat.</small></div></td></tr>`;
@@ -551,7 +551,7 @@ async function syncOrConfig() {
     toast('Error: ' + r.error, true); return;
   }
   await load();
-  toast(`✓ Sync selesai — ${r.synced} paper diperbarui`);
+  toast(`✓ Sync selesai — ${r.synced} paper ditemukan di Zotero`);
 }
 
 function openZoteroModal() {
@@ -573,7 +573,7 @@ async function saveZoteroConfig() {
     return;
   }
   statusEl.style.color = 'var(--grn)';
-  statusEl.textContent = `✓ Sync berhasil: ${r.synced} paper diperbarui`;
+  statusEl.textContent = `✓ Sync berhasil: ${r.synced} paper ditemukan di Zotero`;
   await load();
   setTimeout(() => closeModal('zoteroModal'), 1500);
 }

@@ -13,7 +13,7 @@ catch {
     return [];
 } };
 /* ── GET all ── */
-literatureRoutes.get("/", async (c) => {
+literatureRoutes.get("/items", async (c) => {
     const rows = await db.select().from(literatureItems).orderBy(desc(literatureItems.updatedAt));
     return c.json(rows.map(r => ({ ...r, themes: parse(r.themes), citedIn: parse(r.citedIn) })));
 });
