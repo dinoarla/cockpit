@@ -180,7 +180,6 @@ textarea.expand-input{min-height:80px;resize:vertical}
     <button class="btn btn-green" id="syncBtn" onclick="syncOrConfig()"><i class="fa-solid fa-rotate"></i> Sync Zotero</button>
     <button class="btn btn-outline" title="Ubah konfigurasi Zotero" onclick="openZoteroModal()" style="padding:7px 10px"><i class="fa-solid fa-gear"></i></button>
     <button class="btn btn-outline" onclick="openBibModal()"><i class="fa-solid fa-file-import"></i> Import .bib</button>
-    <button class="btn btn-primary" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Tambah</button>
   </div>
 
   <div class="table-wrap">
@@ -235,22 +234,6 @@ textarea.expand-input{min-height:80px;resize:vertical}
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('bibModal')">Batal</button>
       <button class="btn btn-primary" id="bibImportBtn" style="display:none" onclick="doImportBib()">Import</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── ADD MANUAL MODAL ── -->
-<div class="modal-bg" id="addModal">
-  <div class="modal">
-    <h3><i class="fa-solid fa-plus" style="color:var(--ind);margin-right:8px"></i>Tambah Paper Manual</h3>
-    <label>Judul *</label><input type="text" id="addTitle" placeholder="Judul paper">
-    <label>Penulis</label><input type="text" id="addAuthors" placeholder="Nama et al.">
-    <label>Tahun</label><input type="number" id="addYear" placeholder="2024" min="1900" max="2030">
-    <label>Jurnal / Konferensi</label><input type="text" id="addJournal" placeholder="Nature Energy">
-    <label>DOI</label><input type="text" id="addDoi" placeholder="10.xxxx/xxxxx">
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('addModal')">Batal</button>
-      <button class="btn btn-primary" onclick="doAddPaper()">Tambah</button>
     </div>
   </div>
 </div>
@@ -655,31 +638,6 @@ function parseBib(text) {
     });
   }
   return entries;
-}
-
-// ── ADD MANUAL ──
-function openAddModal() { openModal('addModal'); }
-async function doAddPaper() {
-  const title = document.getElementById('addTitle').value.trim();
-  if (!title) { alert('Judul wajib diisi'); return; }
-  let r;
-  try {
-    r = await api('POST', '/', {
-      title,
-      authors: document.getElementById('addAuthors').value.trim(),
-      year:    parseInt(document.getElementById('addYear').value) || null,
-      journal: document.getElementById('addJournal').value.trim(),
-      doi:     document.getElementById('addDoi').value.trim(),
-    });
-  } catch(e) { toast('Gagal tambah: ' + e.message, true); return; }
-  if (r.ok) {
-    closeModal('addModal');
-    await load();
-    toast('Paper ditambahkan');
-    ['addTitle','addAuthors','addYear','addJournal','addDoi'].forEach(id => document.getElementById(id).value = '');
-  } else {
-    toast('Gagal tambah: ' + (r.error || JSON.stringify(r)), true);
-  }
 }
 
 // ── MODAL UTILS ──
