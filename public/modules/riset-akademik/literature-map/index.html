@@ -662,18 +662,23 @@ function openAddModal() { openModal('addModal'); }
 async function doAddPaper() {
   const title = document.getElementById('addTitle').value.trim();
   if (!title) { alert('Judul wajib diisi'); return; }
-  const r = await api('POST', '/', {
-    title,
-    authors: document.getElementById('addAuthors').value.trim(),
-    year:    parseInt(document.getElementById('addYear').value) || null,
-    journal: document.getElementById('addJournal').value.trim(),
-    doi:     document.getElementById('addDoi').value.trim(),
-  });
+  let r;
+  try {
+    r = await api('POST', '/', {
+      title,
+      authors: document.getElementById('addAuthors').value.trim(),
+      year:    parseInt(document.getElementById('addYear').value) || null,
+      journal: document.getElementById('addJournal').value.trim(),
+      doi:     document.getElementById('addDoi').value.trim(),
+    });
+  } catch(e) { toast('Gagal tambah: ' + e.message, true); return; }
   if (r.ok) {
     closeModal('addModal');
     await load();
     toast('Paper ditambahkan');
     ['addTitle','addAuthors','addYear','addJournal','addDoi'].forEach(id => document.getElementById(id).value = '');
+  } else {
+    toast('Gagal tambah: ' + (r.error || JSON.stringify(r)), true);
   }
 }
 

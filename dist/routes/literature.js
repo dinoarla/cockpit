@@ -20,7 +20,7 @@ literatureRoutes.get("/", async (c) => {
 /* ── POST add one ── */
 literatureRoutes.post("/", async (c) => {
     const b = await c.req.json();
-    const [res] = await db.insert(literatureItems).values({
+    await db.insert(literatureItems).values({
         title: b.title,
         authors: b.authors || "",
         year: b.year || null,
@@ -32,7 +32,7 @@ literatureRoutes.post("/", async (c) => {
         citedIn: JSON.stringify(b.citedIn || []),
         notes: b.notes || null,
     });
-    return c.json({ ok: true, id: res.insertId });
+    return c.json({ ok: true });
 });
 /* ── PATCH update ── */
 literatureRoutes.patch("/:id", async (c) => {
@@ -96,38 +96,47 @@ literatureRoutes.post("/sync-zotero", async (c) => {
     const [kRow] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_api_key"));
     if (!uRow?.value || !kRow?.value)
         return c.json({ error: "Zotero belum dikonfigurasi" }, 400);
-    const url = `https://api.zotero.org/users/${uRow.value}/items?format=json&limit=100&v=3`;
-    const res = await fetch(url, { headers: { "Zotero-API-Key": kRow.value } });
-    if (!res.ok)
-        return c.json({ error: `Zotero API error: ${res.status}` }, 502);
     const ACADEMIC_TYPES = new Set([
         "journalArticle", "conferencePaper", "book", "bookSection",
         "thesis", "report", "preprint", "manuscript", "encyclopediaArticle", "dictionaryEntry",
     ]);
-    const items = (await res.json());
     let synced = 0;
-    for (const item of items) {
-        const d = item.data;
-        if (!d?.title || d.title.length < 5)
-            continue;
-        if (!ACADEMIC_TYPES.has(d.itemType))
-            continue; // skip webpage, attachment, note, etc.
-        const authors = (d.creators || [])
-            .map((cr) => cr.lastName || cr.name || "").filter(Boolean).join(", ");
-        const year = d.date ? parseInt(d.date) : null;
-        await db.insert(literatureItems).values({
-            zoteroKey: d.key,
-            title: d.title,
-            authors,
-            year: isNaN(year) ? null : year,
-            journal: d.publicationTitle || d.proceedingsTitle || d.bookTitle || "",
-            doi: d.DOI || "",
-            themes: "[]", status: "belum", relevance: 3, citedIn: "[]",
-        }).onDuplicateKeyUpdate({
-            set: { title: d.title, authors, year: isNaN(year) ? null : year,
-                journal: d.publicationTitle || d.proceedingsTitle || d.bookTitle || "" },
-        });
-        synced++;
+    let start = 0;
+    const limit = 100;
+    while (true) {
+        const url = `https://api.zotero.org/users/${uRow.value}/items?format=json&limit=${limit}&start=${start}&v=3`;
+        const res = await fetch(url, { headers: { "Zotero-API-Key": kRow.value } });
+        if (!res.ok)
+            return c.json({ error: `Zotero API error: ${res.status}` }, 502);
+        const items = (await res.json());
+        if (items.length === 0)
+            break;
+        for (const item of items) {
+            const d = item.data;
+            if (!d?.title || d.title.length < 5)
+                continue;
+            if (!ACADEMIC_TYPES.has(d.itemType))
+                continue;
+            const authors = (d.creators || [])
+                .map((cr) => cr.lastName || cr.name || "").filter(Boolean).join(", ");
+            const year = d.date ? parseInt(d.date) : null;
+            await db.insert(literatureItems).values({
+                zoteroKey: d.key,
+                title: d.title,
+                authors,
+                year: isNaN(year) ? null : year,
+                journal: d.publicationTitle || d.proceedingsTitle || d.bookTitle || "",
+                doi: d.DOI || "",
+                themes: "[]", status: "belum", relevance: 3, citedIn: "[]",
+            }).onDuplicateKeyUpdate({
+                set: { title: d.title, authors, year: isNaN(year) ? null : year,
+                    journal: d.publicationTitle || d.proceedingsTitle || d.bookTitle || "" },
+            });
+            synced++;
+        }
+        if (items.length < limit)
+            break;
+        start += limit;
     }
     return c.json({ ok: true, synced });
 });
