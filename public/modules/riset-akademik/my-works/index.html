@@ -22,54 +22,72 @@ a{color:inherit;text-decoration:none}
 .header-desc{font-size:.82rem;color:rgba(255,255,255,.7);margin-bottom:12px}
 .badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.88);font-family:'JetBrains Mono',monospace}
 
-.page-body{padding:24px;max-width:900px;margin:0 auto}
+.page-body{padding:20px 24px;max-width:1400px;margin:0 auto}
 
-.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.toolbar h2{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:600}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;font-family:inherit}
+/* ── TOOLBAR ── */
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.toolbar input{flex:1;min-width:200px;padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:inherit}
+.toolbar input:focus{border-color:var(--pur)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;font-family:inherit}
 .btn-primary{background:var(--pur);color:#fff}.btn-primary:hover{background:#7C3AED}
-.btn-outline{background:var(--card);color:var(--muted);border:1px solid var(--border);font-size:12px;padding:6px 12px}.btn-outline:hover{border-color:var(--pur);color:var(--pur)}
-.btn-danger{background:transparent;border:1px solid var(--border);color:var(--red);font-size:12px;padding:5px 10px}.btn-danger:hover{background:#FEF2F2;border-color:var(--red)}
-.btn-sm{padding:5px 10px;font-size:.72rem}
+.btn-outline{background:var(--card);color:var(--muted);border:1px solid var(--border)}.btn-outline:hover{border-color:var(--pur);color:var(--pur)}
 
-/* ── WORK CARD ── */
-.work-card{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:hidden;transition:box-shadow .15s}
-.work-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07)}
-.wc-header{padding:18px 20px;display:flex;align-items:flex-start;gap:14px}
-.wc-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;background:linear-gradient(135deg,#EDE9FE,#DDD6FE);color:var(--pur)}
-.wc-info{flex:1}
-.wc-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;color:var(--text);margin-bottom:4px}
-.wc-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.type-badge{padding:2px 9px;border-radius:10px;font-size:.65rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-.tb-dissertation{background:#EDE9FE;color:#6D28D9}
-.tb-article{background:#DBEAFE;color:#1E40AF}
+/* ── TABLE ── */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 12px;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;background:#FAFAFA}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#F9FAFB}
+tbody tr.expanded{background:#F5F3FF}
+td{padding:10px 12px;vertical-align:top}
+
+.col-title{min-width:240px;max-width:360px}
+.col-type{width:130px}
+.col-year{width:60px;text-align:center}
+.col-venue{min-width:160px;max-width:240px}
+.col-doi{min-width:160px;max-width:220px}
+.col-authors{min-width:140px;max-width:200px}
+.col-act{width:100px;text-align:center}
+
+.work-title{font-weight:600;font-size:.84rem;cursor:pointer;line-height:1.35}
+.work-title:hover{color:var(--pur)}
+.work-slug{font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px}
+
+.type-badge{display:inline-block;padding:3px 9px;border-radius:10px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.tb-dissertation    {background:#EDE9FE;color:#6D28D9}
+.tb-thesis          {background:#FCE7F3;color:#9D174D}
+.tb-article         {background:#DBEAFE;color:#1E40AF}
 .tb-conference_paper{background:#FEF3C7;color:#92400E}
-.tb-thesis{background:#FCE7F3;color:#9D174D}
-.tb-book{background:#D1FAE5;color:#065F46}
-.tb-report{background:#E0F2FE;color:#0369A1}
-.tb-other{background:#F3F4F6;color:#4B5563}
-.wc-year{font-size:.75rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
-.wc-actions{display:flex;gap:6px;flex-direction:column;align-items:flex-end}
+.tb-book            {background:#D1FAE5;color:#065F46}
+.tb-report          {background:#E0F2FE;color:#0369A1}
+.tb-other           {background:#F3F4F6;color:#4B5563}
+
+/* ── EXPAND ROW ── */
+.expand-row td{padding:0}
+.expand-body{padding:16px 14px;background:#F5F3FF;border-top:1px solid #DDD6FE;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.expand-section label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.expand-input{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;outline:none}
+.expand-input:focus{border-color:var(--pur)}
 
 /* ── SECTIONS ── */
-.wc-sections{border-top:1px solid var(--border);padding:14px 20px;background:#FAFAFA}
-.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.sec-header label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-.sec-list{display:flex;flex-direction:column;gap:4px}
-.sec-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px}
-.sec-num{width:22px;height:22px;border-radius:6px;background:var(--pur);color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sec-label{flex:1;font-size:.82rem}
-.sec-id{font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
-.sec-del{color:var(--muted);cursor:pointer;padding:2px 6px;border-radius:4px;font-size:.8rem}.sec-del:hover{color:var(--red);background:#FEF2F2}
-.sec-empty{font-size:.78rem;color:var(--muted);font-style:italic;padding:6px 0}
-.sec-add-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-.sec-add-row input{flex:1;min-width:120px;padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;outline:none}
+.sec-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.sec-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--card);border:1px solid var(--border);border-radius:7px}
+.sec-num{width:20px;height:20px;border-radius:5px;background:var(--pur);color:#fff;font-size:.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-label{flex:1;font-size:.8rem}
+.sec-id{font-size:.63rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.sec-del{cursor:pointer;color:var(--muted);padding:2px 5px;border-radius:4px;font-size:.8rem}.sec-del:hover{color:var(--red)}
+.sec-add-row{display:flex;gap:6px;flex-wrap:wrap}
+.sec-add-row input{flex:1;min-width:100px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;outline:none}
 .sec-add-row input:focus{border-color:var(--pur)}
 
-/* ── FORM MODAL ── */
+.save-row{margin-top:10px;display:flex;align-items:center;gap:8px}
+.saved-flash{font-size:.75rem;color:var(--grn);opacity:0;transition:opacity .3s}
+
+/* ── MODAL ── */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center}
 .modal-bg.open{display:flex}
-.modal{background:var(--card);border-radius:14px;padding:24px;width:500px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal{background:var(--card);border-radius:14px;padding:24px;width:520px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.2)}
 .modal h3{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;margin-bottom:18px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .form-row.full{grid-template-columns:1fr}
@@ -83,6 +101,8 @@ a{color:inherit;text-decoration:none}
 .empty-state i{font-size:2.5rem;opacity:.3;display:block;margin-bottom:12px}
 .toast{position:fixed;bottom:24px;right:24px;background:#1F2937;color:#fff;padding:10px 16px;border-radius:10px;font-size:.8rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999}
 .toast.show{opacity:1}
+
+@media(max-width:900px){.expand-body{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -104,21 +124,39 @@ a{color:inherit;text-decoration:none}
 
 <div class="page-body">
   <div class="toolbar">
-    <h2>Karya Saya</h2>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-outline" onclick="openZoteroImport()" style="border-color:#8B5CF6;color:#8B5CF6"><i class="fa-solid fa-circle-nodes"></i> Import Zotero</button>
-      <button class="btn btn-primary" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Tambah Karya</button>
-    </div>
+    <input type="text" id="searchInput" placeholder="Cari judul / jurnal / penulis…" oninput="renderTable()">
+    <button class="btn btn-outline" onclick="openZoteroImport()" style="border-color:var(--pur);color:var(--pur)">
+      <i class="fa-solid fa-circle-nodes"></i> Import Zotero
+    </button>
+    <button class="btn btn-primary" onclick="openAddModal()">
+      <i class="fa-solid fa-plus"></i> Tambah Karya
+    </button>
   </div>
-  <div id="worksList">
-    <div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i>Memuat…</div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-title">KARYA</th>
+          <th class="col-type">TIPE</th>
+          <th class="col-year">THN</th>
+          <th class="col-venue">JURNAL / KONFERENSI</th>
+          <th class="col-doi">DOI</th>
+          <th class="col-authors">PENULIS</th>
+          <th class="col-act"></th>
+        </tr>
+      </thead>
+      <tbody id="worksBody">
+        <tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i>Memuat…</div></td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
 <!-- ── ADD / EDIT MODAL ── -->
 <div class="modal-bg" id="workModal">
   <div class="modal">
-    <h3 id="modalTitle"><i class="fa-solid fa-book-bookmark" style="color:var(--pur);margin-right:8px"></i>Tambah Karya</h3>
+    <h3 id="modalTitle"></h3>
     <div class="form-row full">
       <div class="form-group">
         <label>Judul *</label>
@@ -163,11 +201,11 @@ a{color:inherit;text-decoration:none}
       <div class="form-group">
         <label>Slug (ID unik) *</label>
         <input type="text" id="fSlug" placeholder="cth: disertasi-jabar">
-        <p class="hint">Huruf kecil, gunakan tanda hubung, tanpa spasi. Tidak bisa diubah setelah disimpan.</p>
+        <p class="hint">Huruf kecil, tanda hubung, tanpa spasi. Tidak bisa diubah setelah disimpan.</p>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal()">Batal</button>
+      <button class="btn btn-outline" onclick="closeModal('workModal')">Batal</button>
       <button class="btn btn-primary" onclick="saveWork()">Simpan</button>
     </div>
   </div>
@@ -188,8 +226,10 @@ a{color:inherit;text-decoration:none}
     </div>
     <div id="zImportStatus" style="margin-top:10px;font-size:.78rem;color:var(--muted)"></div>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeZoteroModal()">Batal</button>
-      <button class="btn btn-primary" id="zImportBtn" onclick="doZoteroImport()"><i class="fa-solid fa-file-import"></i> Import</button>
+      <button class="btn btn-outline" onclick="closeModal('zoteroModal')">Batal</button>
+      <button class="btn btn-primary" id="zImportBtn" onclick="doZoteroImport()">
+        <i class="fa-solid fa-file-import"></i> Import
+      </button>
     </div>
   </div>
 </div>
@@ -197,7 +237,7 @@ a{color:inherit;text-decoration:none}
 <div class="toast" id="toast"></div>
 
 <script>
-let works = [], editingSlug = null;
+let works = [], expandedSlug = null, editingSlug = null;
 
 // ── API ──
 async function api(method, path, body) {
@@ -210,112 +250,178 @@ async function api(method, path, body) {
   try { return JSON.parse(text); } catch { throw new Error('Server error ' + r.status + ': ' + text.slice(0,120)); }
 }
 
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 // ── LOAD ──
 async function load() {
   try {
     works = await api('GET', '/works');
   } catch(e) {
-    document.getElementById('worksList').innerHTML =
-      `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>Gagal memuat: ${e.message}</div>`;
+    document.getElementById('worksBody').innerHTML =
+      `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>Gagal memuat: ${e.message}</div></td></tr>`;
     return;
   }
-  render();
+  renderTable();
 }
 
+// ── TYPE META ──
 function typeMeta(type) {
   const map = {
-    dissertation:     { label:'Disertasi',        cls:'tb-dissertation',     icon:'fa-graduation-cap' },
-    thesis:           { label:'Tesis',             cls:'tb-thesis',           icon:'fa-scroll' },
-    article:          { label:'Artikel Jurnal',    cls:'tb-article',          icon:'fa-newspaper' },
-    conference_paper: { label:'Conference Paper',  cls:'tb-conference_paper', icon:'fa-person-chalkboard' },
-    book:             { label:'Buku',              cls:'tb-book',             icon:'fa-book' },
-    report:           { label:'Laporan',           cls:'tb-report',           icon:'fa-file-lines' },
-    other:            { label:'Lainnya',           cls:'tb-other',            icon:'fa-folder-open' },
+    dissertation:     { label:'Disertasi',       cls:'tb-dissertation',     icon:'fa-graduation-cap' },
+    thesis:           { label:'Tesis',            cls:'tb-thesis',           icon:'fa-scroll' },
+    article:          { label:'Artikel Jurnal',   cls:'tb-article',          icon:'fa-newspaper' },
+    conference_paper: { label:'Conf. Paper',      cls:'tb-conference_paper', icon:'fa-person-chalkboard' },
+    book:             { label:'Buku',             cls:'tb-book',             icon:'fa-book' },
+    report:           { label:'Laporan',          cls:'tb-report',           icon:'fa-file-lines' },
+    other:            { label:'Lainnya',          cls:'tb-other',            icon:'fa-folder-open' },
   };
   return map[type] || map.other;
 }
 
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── RENDER ──
-function render() {
+// ── RENDER TABLE ──
+function renderTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const rows = works.filter(w =>
+    !q || w.title.toLowerCase().includes(q)
+       || (w.venue||'').toLowerCase().includes(q)
+       || (w.authors||'').toLowerCase().includes(q)
+  );
   document.getElementById('badgeTotal').textContent = works.length + ' karya';
-  const el = document.getElementById('worksList');
-  if (!works.length) {
-    el.innerHTML = `<div class="empty-state"><i class="fa-solid fa-book-bookmark"></i>Belum ada karya. Klik "Tambah Karya" untuk mulai.</div>`;
+  const tbody = document.getElementById('worksBody');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-book-bookmark"></i>Belum ada karya.</div></td></tr>`;
     return;
   }
-  el.innerHTML = works.map(w => workCard(w)).join('');
+  tbody.innerHTML = rows.map(w => workRows(w)).join('');
 }
 
-function workCard(w) {
-  const tm = typeMeta(w.type);
+function workRows(w) {
+  const tm   = typeMeta(w.type);
   const secs = Array.isArray(w.structure) ? w.structure : [];
-  return `
-  <div class="work-card" id="wc-${w.slug}">
-    <div class="wc-header">
-      <div class="wc-icon"><i class="fa-solid ${tm.icon}"></i></div>
-      <div class="wc-info">
-        <div class="wc-title">${esc(w.title)}</div>
-        <div class="wc-meta">
-          <span class="type-badge ${tm.cls}">${tm.label}</span>
-          ${w.year ? `<span class="wc-year">${w.year}</span>` : ''}
-          ${w.venue ? `<span style="font-size:.72rem;color:var(--muted)">${esc(w.venue)}</span>` : ''}
+  const isExp = expandedSlug === w.slug;
+
+  const mainRow = `
+  <tr id="wr-${esc(w.slug)}" onclick="toggleExpand('${esc(w.slug)}')" style="cursor:pointer" class="${isExp?'expanded':''}">
+    <td class="col-title">
+      <div class="work-title">${esc(w.title)}</div>
+      <div class="work-slug">${esc(w.slug)}</div>
+    </td>
+    <td class="col-type"><span class="type-badge ${tm.cls}">${tm.label}</span></td>
+    <td class="col-year" style="font-family:'JetBrains Mono',monospace;font-size:.78rem;text-align:center">${w.year||'—'}</td>
+    <td class="col-venue" style="font-size:.78rem;color:var(--muted)">${esc(w.venue||'')||'<span style="color:var(--border)">—</span>'}</td>
+    <td class="col-doi" onclick="event.stopPropagation()">
+      ${w.doi
+        ? `<a href="https://doi.org/${esc(w.doi)}" target="_blank" style="font-size:.7rem;color:var(--sky);font-family:'JetBrains Mono',monospace">${esc(w.doi)}</a>`
+        : '<span style="color:var(--border);font-size:.78rem">—</span>'}
+    </td>
+    <td class="col-authors" style="font-size:.75rem;color:var(--muted)">${esc(w.authors||'')||'<span style="color:var(--border)">—</span>'}</td>
+    <td class="col-act" onclick="event.stopPropagation()">
+      <button class="btn btn-outline" style="padding:4px 8px;font-size:.7rem" onclick="openEditModal('${esc(w.slug)}')" title="Edit"><i class="fa-solid fa-pen"></i></button>
+      <button class="btn btn-outline" style="padding:4px 8px;font-size:.7rem;color:var(--red);border-color:var(--red)" onclick="deleteWork('${esc(w.slug)}')" title="Hapus"><i class="fa-solid fa-xmark"></i></button>
+    </td>
+  </tr>`;
+
+  if (!isExp) return mainRow;
+
+  const expandRow = `<tr class="expand-row"><td colspan="7">
+    <div class="expand-body">
+      <div>
+        <div class="expand-section">
+          <label>Judul</label>
+          <input class="expand-input" value="${esc(w.title)}" onblur="saveField('${esc(w.slug)}','title',this.value)">
         </div>
-        ${w.authors ? `<div style="font-size:.72rem;color:var(--muted);margin-top:3px">${esc(w.authors)}</div>` : ''}
-        ${w.doi ? `<div style="font-size:.68rem;color:var(--sky);font-family:'JetBrains Mono',monospace;margin-top:2px"><a href="https://doi.org/${esc(w.doi)}" target="_blank">${esc(w.doi)}</a></div>` : ''}
-        <div style="font-size:.65rem;color:var(--border);font-family:'JetBrains Mono',monospace;margin-top:2px">${esc(w.slug)}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+          <div class="expand-section">
+            <label>Jurnal / Konferensi</label>
+            <input class="expand-input" value="${esc(w.venue||'')}" onblur="saveField('${esc(w.slug)}','venue',this.value)">
+          </div>
+          <div class="expand-section">
+            <label>Tahun</label>
+            <input class="expand-input" type="number" value="${w.year||''}" onblur="saveField('${esc(w.slug)}','year',parseInt(this.value)||null)">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+          <div class="expand-section">
+            <label>DOI</label>
+            <input class="expand-input" value="${esc(w.doi||'')}" onblur="saveField('${esc(w.slug)}','doi',this.value)">
+          </div>
+          <div class="expand-section">
+            <label>Penulis / Ko-Penulis</label>
+            <input class="expand-input" value="${esc(w.authors||'')}" onblur="saveField('${esc(w.slug)}','authors',this.value)">
+          </div>
+        </div>
+        <div class="save-row">
+          <span class="saved-flash" id="sf-${esc(w.slug)}"><i class="fa-solid fa-check"></i> Tersimpan</span>
+        </div>
       </div>
-      <div class="wc-actions">
-        <button class="btn btn-outline btn-sm" onclick="openEditModal('${esc(w.slug)}')"><i class="fa-solid fa-pen"></i> Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteWork('${esc(w.slug)}')"><i class="fa-solid fa-trash"></i> Hapus</button>
+      <div>
+        <div class="expand-section">
+          <label>Struktur Bab / Bagian (${secs.length})</label>
+          <div class="sec-list" id="seclist-${esc(w.slug)}">
+            ${secs.map((s,i) => `
+              <div class="sec-item">
+                <div class="sec-num">${i+1}</div>
+                <div class="sec-label">${esc(s.label)}</div>
+                <div class="sec-id">${esc(s.id)}</div>
+                <span class="sec-del" onclick="removeSection('${esc(w.slug)}','${esc(s.id)}')">×</span>
+              </div>`).join('') || `<div style="font-size:.78rem;color:var(--muted);font-style:italic">Belum ada bagian.</div>`}
+          </div>
+          <div class="sec-add-row">
+            <input type="text" id="sid-${esc(w.slug)}" placeholder="ID (cth: bab-1)">
+            <input type="text" id="slbl-${esc(w.slug)}" placeholder="Label (cth: Bab 1 — Pendahuluan)">
+            <button class="btn btn-outline" style="padding:5px 10px;font-size:.72rem" onclick="addSection('${esc(w.slug)}')">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="wc-sections">
-      <div class="sec-header">
-        <label><i class="fa-solid fa-list-ol" style="margin-right:5px"></i>Struktur Bab / Bagian</label>
-        <span style="font-size:.72rem;color:var(--muted)">${secs.length} bagian</span>
-      </div>
-      <div class="sec-list" id="seclist-${w.slug}">
-        ${secs.length
-          ? secs.map((s,i) => `
-            <div class="sec-item" id="si-${w.slug}-${esc(s.id)}">
-              <div class="sec-num">${i+1}</div>
-              <div class="sec-label">${esc(s.label)}</div>
-              <div class="sec-id">${esc(s.id)}</div>
-              <span class="sec-del" onclick="removeSection('${esc(w.slug)}','${esc(s.id)}')" title="Hapus bagian">×</span>
-            </div>`).join('')
-          : `<div class="sec-empty">Belum ada bagian ditambahkan.</div>`}
-      </div>
-      <div class="sec-add-row">
-        <input type="text" id="sid-${w.slug}" placeholder="ID (cth: bab-1)">
-        <input type="text" id="slbl-${w.slug}" placeholder="Label (cth: Bab 1 — Pendahuluan)">
-        <button class="btn btn-outline btn-sm" onclick="addSection('${esc(w.slug)}')"><i class="fa-solid fa-plus"></i> Tambah</button>
-      </div>
-    </div>
-  </div>`;
+  </td></tr>`;
+
+  return mainRow + expandRow;
 }
 
-// ── SECTION CRUD ──
+// ── EXPAND ──
+function toggleExpand(slug) {
+  expandedSlug = expandedSlug === slug ? null : slug;
+  renderTable();
+}
+
+// ── INLINE SAVE ──
+async function saveField(slug, field, value) {
+  const w = works.find(x => x.slug === slug);
+  if (!w) return;
+  await api('PATCH', `/works/${slug}`, { [field]: value });
+  w[field] = value;
+  flashSaved(slug);
+  if (['title','venue','year','doi','authors'].includes(field)) renderTable();
+}
+
+function flashSaved(slug) {
+  const el = document.getElementById(`sf-${slug}`);
+  if (!el) return;
+  el.style.opacity = '1';
+  setTimeout(() => { el.style.opacity = '0'; }, 1500);
+}
+
+// ── SECTIONS ──
 async function addSection(slug) {
   const idEl  = document.getElementById(`sid-${slug}`);
   const lblEl = document.getElementById(`slbl-${slug}`);
   const id    = idEl.value.trim().toLowerCase().replace(/\s+/g,'-');
   const label = lblEl.value.trim();
   if (!id || !label) { toast('Isi ID dan label bagian', true); return; }
-
   const w = works.find(x => x.slug === slug);
   if (!w) return;
   const secs = Array.isArray(w.structure) ? [...w.structure] : [];
   if (secs.find(s => s.id === id)) { toast('ID sudah ada', true); return; }
   secs.push({ id, label });
-
   await api('PATCH', `/works/${slug}`, { structure: secs });
   w.structure = secs;
   idEl.value = ''; lblEl.value = '';
-  refreshSecList(slug);
+  refreshSecList(slug, secs);
   toast('Bagian ditambahkan');
 }
 
@@ -326,13 +432,11 @@ async function removeSection(slug, secId) {
   const secs = (w.structure || []).filter(s => s.id !== secId);
   await api('PATCH', `/works/${slug}`, { structure: secs });
   w.structure = secs;
-  refreshSecList(slug);
+  refreshSecList(slug, secs);
   toast('Bagian dihapus');
 }
 
-function refreshSecList(slug) {
-  const w = works.find(x => x.slug === slug);
-  const secs = w?.structure || [];
+function refreshSecList(slug, secs) {
   const el = document.getElementById(`seclist-${slug}`);
   if (!el) return;
   el.innerHTML = secs.length
@@ -341,17 +445,17 @@ function refreshSecList(slug) {
           <div class="sec-num">${i+1}</div>
           <div class="sec-label">${esc(s.label)}</div>
           <div class="sec-id">${esc(s.id)}</div>
-          <span class="sec-del" onclick="removeSection('${esc(slug)}','${esc(s.id)}')" title="Hapus">×</span>
+          <span class="sec-del" onclick="removeSection('${esc(slug)}','${esc(s.id)}')">×</span>
         </div>`).join('')
-    : `<div class="sec-empty">Belum ada bagian ditambahkan.</div>`;
+    : `<div style="font-size:.78rem;color:var(--muted);font-style:italic">Belum ada bagian.</div>`;
 }
 
-// ── WORK CRUD ──
+// ── ADD / EDIT ──
 function openAddModal() {
   editingSlug = null;
   document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus" style="color:var(--pur);margin-right:8px"></i>Tambah Karya';
   ['fTitle','fYear','fVenue','fDoi','fAuthors','fSlug'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('fType').value  = 'dissertation';
+  document.getElementById('fType').value = 'dissertation';
   document.getElementById('fSlug').disabled = false;
   document.getElementById('workModal').classList.add('open');
 }
@@ -393,25 +497,19 @@ async function saveWork() {
     works.push({ slug, title, type, year, venue, doi, authors, structure: [] });
     toast('Karya ditambahkan');
   }
-  closeModal();
-  render();
+  closeModal('workModal');
+  renderTable();
 }
 
 async function deleteWork(slug) {
   const w = works.find(x => x.slug === slug);
-  if (!confirm(`Hapus karya "${w?.title}"? Semua data kutipan terkait karya ini juga akan dihapus.`)) return;
+  if (!confirm(`Hapus "${w?.title}"? Semua data kutipan terkait juga akan dihapus.`)) return;
   await api('POST', `/works/${slug}/delete`, {});
   works = works.filter(x => x.slug !== slug);
-  render();
+  if (expandedSlug === slug) expandedSlug = null;
+  renderTable();
   toast('Karya dihapus');
 }
-
-function closeModal() {
-  document.getElementById('workModal').classList.remove('open');
-}
-document.getElementById('workModal').addEventListener('click', e => {
-  if (e.target === document.getElementById('workModal')) closeModal();
-});
 
 // ── ZOTERO IMPORT ──
 async function openZoteroImport() {
@@ -446,7 +544,7 @@ async function doZoteroImport() {
     statusEl.style.color = 'var(--grn)';
     statusEl.textContent = `✓ ${r.imported} karya berhasil diimport`;
     await load();
-    setTimeout(closeZoteroModal, 1500);
+    setTimeout(() => closeModal('zoteroModal'), 1500);
   } catch(e) {
     statusEl.style.color = 'var(--red)';
     statusEl.textContent = 'Error: ' + e.message;
@@ -456,19 +554,14 @@ async function doZoteroImport() {
   }
 }
 
-function closeZoteroModal() {
-  document.getElementById('zoteroModal').classList.remove('open');
-}
-document.getElementById('zoteroModal').addEventListener('click', e => {
-  if (e.target === document.getElementById('zoteroModal')) closeZoteroModal();
-});
+// ── UTILS ──
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => { if (e.target===m) m.classList.remove('open'); }));
 
-// Auto-generate slug from title
 document.getElementById('fTitle').addEventListener('input', function() {
   if (editingSlug) return;
-  const slug = this.value.toLowerCase()
+  document.getElementById('fSlug').value = this.value.toLowerCase()
     .replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,50);
-  document.getElementById('fSlug').value = slug;
 });
 
 function toast(msg, isErr) {
