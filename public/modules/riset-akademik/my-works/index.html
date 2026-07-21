@@ -43,8 +43,12 @@ tbody tr.expanded{background:#FFF0E6}
 td{padding:10px 12px;vertical-align:top}
 
 .col-title{min-width:240px;max-width:360px}
-.col-type{width:130px}
+.col-type{width:120px}
+.col-status{width:110px}
 .col-year{width:60px;text-align:center}
+.ws-published{background:#D1FAE5;color:#065F46}
+.ws-draft    {background:#FEF3C7;color:#92400E}
+.ws-idea     {background:#F3F4F6;color:#6B7280}
 .col-venue{min-width:160px;max-width:240px}
 .col-doi{min-width:160px;max-width:220px}
 .col-authors{min-width:140px;max-width:200px}
@@ -139,6 +143,7 @@ td{padding:10px 12px;vertical-align:top}
         <tr>
           <th class="col-title">KARYA</th>
           <th class="col-type">TIPE</th>
+          <th class="col-status">STATUS</th>
           <th class="col-year">THN</th>
           <th class="col-venue">JURNAL / KONFERENSI</th>
           <th class="col-doi">DOI</th>
@@ -147,7 +152,7 @@ td{padding:10px 12px;vertical-align:top}
         </tr>
       </thead>
       <tbody id="worksBody">
-        <tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i>Memuat…</div></td></tr>
+        <tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i>Memuat…</div></td></tr>
       </tbody>
     </table>
   </div>
@@ -176,6 +181,16 @@ td{padding:10px 12px;vertical-align:top}
           <option value="other">Lainnya</option>
         </select>
       </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="fStatus">
+          <option value="idea">Idea</option>
+          <option value="draft">Draft</option>
+          <option value="published">Published</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
       <div class="form-group">
         <label>Tahun</label>
         <input type="number" id="fYear" placeholder="2026" min="1990" max="2040">
@@ -260,10 +275,20 @@ async function load() {
     works = await api('GET', '/works');
   } catch(e) {
     document.getElementById('worksBody').innerHTML =
-      `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>Gagal memuat: ${e.message}</div></td></tr>`;
+      `<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>Gagal memuat: ${e.message}</div></td></tr>`;
     return;
   }
   renderTable();
+}
+
+// ── STATUS META ──
+function statusMeta(s) {
+  const map = {
+    published: { label:'Published', cls:'ws-published' },
+    draft:     { label:'Draft',     cls:'ws-draft'     },
+    idea:      { label:'Idea',      cls:'ws-idea'      },
+  };
+  return map[s] || map.idea;
 }
 
 // ── TYPE META ──
@@ -291,7 +316,7 @@ function renderTable() {
   document.getElementById('badgeTotal').textContent = works.length + ' karya';
   const tbody = document.getElementById('worksBody');
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-book-bookmark"></i>Belum ada karya.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-book-bookmark"></i>Belum ada karya.</div></td></tr>`;
     return;
   }
   tbody.innerHTML = rows.map(w => workRows(w)).join('');
@@ -299,6 +324,7 @@ function renderTable() {
 
 function workRows(w) {
   const tm   = typeMeta(w.type);
+  const sm   = statusMeta(w.status || 'idea');
   const secs = Array.isArray(w.structure) ? w.structure : [];
   const isExp = expandedSlug === w.slug;
 
@@ -309,6 +335,7 @@ function workRows(w) {
       <div class="work-slug">${esc(w.slug)}</div>
     </td>
     <td class="col-type"><span class="type-badge ${tm.cls}">${tm.label}</span></td>
+    <td class="col-status"><span class="type-badge ${sm.cls}" style="cursor:pointer" onclick="cycleStatus('${esc(w.slug)}',event)">${sm.label}</span></td>
     <td class="col-year" style="font-family:'JetBrains Mono',monospace;font-size:.78rem;text-align:center">${w.year||'—'}</td>
     <td class="col-venue" style="font-size:.78rem;color:var(--muted)">${esc(w.venue||'')||'<span style="color:var(--border)">—</span>'}</td>
     <td class="col-doi" onclick="event.stopPropagation()">
@@ -325,7 +352,7 @@ function workRows(w) {
 
   if (!isExp) return mainRow;
 
-  const expandRow = `<tr class="expand-row"><td colspan="7">
+  const expandRow = `<tr class="expand-row"><td colspan="8">
     <div class="expand-body">
       <div>
         <div class="expand-section">
@@ -386,6 +413,18 @@ function workRows(w) {
 // ── EXPAND ──
 function toggleExpand(slug) {
   expandedSlug = expandedSlug === slug ? null : slug;
+  renderTable();
+}
+
+// ── CYCLE STATUS ──
+async function cycleStatus(slug, e) {
+  e.stopPropagation();
+  const order = ['idea','draft','published'];
+  const w = works.find(x => x.slug === slug);
+  if (!w) return;
+  const next = order[(order.indexOf(w.status||'idea') + 1) % order.length];
+  await api('PATCH', `/works/${slug}`, { status: next });
+  w.status = next;
   renderTable();
 }
 
@@ -455,7 +494,8 @@ function openAddModal() {
   editingSlug = null;
   document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus" style="color:var(--acc);margin-right:8px"></i>Tambah Karya';
   ['fTitle','fYear','fVenue','fDoi','fAuthors','fSlug'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('fType').value = 'dissertation';
+  document.getElementById('fType').value   = 'dissertation';
+  document.getElementById('fStatus').value = 'idea';
   document.getElementById('fSlug').disabled = false;
   document.getElementById('workModal').classList.add('open');
 }
@@ -467,6 +507,7 @@ function openEditModal(slug) {
   document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen" style="color:var(--acc);margin-right:8px"></i>Edit Karya';
   document.getElementById('fTitle').value   = w.title;
   document.getElementById('fType').value    = w.type;
+  document.getElementById('fStatus').value  = w.status  || 'idea';
   document.getElementById('fYear').value    = w.year    || '';
   document.getElementById('fVenue').value   = w.venue   || '';
   document.getElementById('fDoi').value     = w.doi     || '';
@@ -479,6 +520,7 @@ function openEditModal(slug) {
 async function saveWork() {
   const title   = document.getElementById('fTitle').value.trim();
   const type    = document.getElementById('fType').value;
+  const status  = document.getElementById('fStatus').value;
   const year    = parseInt(document.getElementById('fYear').value) || null;
   const venue   = document.getElementById('fVenue').value.trim()   || null;
   const doi     = document.getElementById('fDoi').value.trim()     || null;
@@ -487,14 +529,14 @@ async function saveWork() {
   if (!title) { toast('Judul wajib diisi', true); return; }
 
   if (editingSlug) {
-    await api('PATCH', `/works/${editingSlug}`, { title, type, year, venue, doi, authors });
+    await api('PATCH', `/works/${editingSlug}`, { title, type, status, year, venue, doi, authors });
     const w = works.find(x => x.slug === editingSlug);
-    if (w) Object.assign(w, { title, type, year, venue, doi, authors });
+    if (w) Object.assign(w, { title, type, status, year, venue, doi, authors });
     toast('Karya diperbarui');
   } else {
     if (!slug) { toast('Slug wajib diisi', true); return; }
-    await api('POST', '/works', { slug, title, type, year, venue, doi, authors, structure: [] });
-    works.push({ slug, title, type, year, venue, doi, authors, structure: [] });
+    await api('POST', '/works', { slug, title, type, status, year, venue, doi, authors, structure: [] });
+    works.push({ slug, title, type, status, year, venue, doi, authors, structure: [] });
     toast('Karya ditambahkan');
   }
   closeModal('workModal');
@@ -515,17 +557,25 @@ async function deleteWork(slug) {
 async function openZoteroImport() {
   const sel = document.getElementById('zCollSelect');
   const statusEl = document.getElementById('zImportStatus');
-  sel.innerHTML = '<option value="">Memuat koleksi…</option>';
-  statusEl.textContent = '';
+  statusEl.textContent = 'Memuat koleksi…';
+  statusEl.style.color = 'var(--muted)';
+  // My Publications selalu muncul pertama — ini special library Zotero, bukan koleksi biasa
+  sel.innerHTML = '<option value="">— pilih koleksi —</option>'
+    + '<option value="__my_publications__">My Publications ★</option>';
   document.getElementById('zoteroModal').classList.add('open');
   try {
     const colls = await api('GET', '/works/zotero-collections');
     if (colls.error) { statusEl.textContent = 'Error: ' + colls.error; return; }
+    const arr = Array.isArray(colls) ? colls : [];
+    const myPub = arr.find(c => c.key === '__my_publications__');
+    const regular = arr.filter(c => c.key !== '__my_publications__');
     sel.innerHTML = '<option value="">— pilih koleksi —</option>'
-      + colls.map(c => `<option value="${esc(c.key)}">${esc(c.name)} (${c.count} item)</option>`).join('');
+      + `<option value="__my_publications__">My Publications ★${myPub ? ` (${myPub.count} item)` : ''}</option>`
+      + regular.map(c => `<option value="${esc(c.key)}">${esc(c.name)} (${c.count} item)</option>`).join('');
+    statusEl.textContent = '';
   } catch(e) {
     statusEl.style.color = 'var(--red)';
-    statusEl.textContent = 'Gagal memuat: ' + e.message;
+    statusEl.textContent = 'Gagal memuat koleksi: ' + e.message;
   }
 }
 

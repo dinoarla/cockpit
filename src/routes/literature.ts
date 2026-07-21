@@ -35,6 +35,7 @@ async function ensureTables() {
     "ADD COLUMN `venue`   VARCHAR(300) DEFAULT NULL",
     "ADD COLUMN `doi`     VARCHAR(200) DEFAULT NULL",
     "ADD COLUMN `authors` VARCHAR(500) DEFAULT NULL",
+    "ADD COLUMN `status`  VARCHAR(20)  NOT NULL DEFAULT 'idea'",
   ]) {
     try { await db.execute(sql.raw(`ALTER TABLE \`my_works\` ${colDef}`)); } catch { /* already exists */ }
   }
@@ -69,8 +70,12 @@ literatureRoutes.post("/works", async (c) => {
   await db.insert(myWorks).values({
     slug:      b.slug,
     title:     b.title,
-    type:      b.type      || "dissertation",
-    year:      b.year      || null,
+    type:      b.type   || "dissertation",
+    status:    b.status || "idea",
+    year:      b.year   || null,
+    venue:     b.venue  || null,
+    doi:       b.doi    || null,
+    authors:   b.authors || null,
     structure: JSON.stringify(b.structure || []),
   });
   return c.json({ ok: true });
@@ -83,6 +88,7 @@ literatureRoutes.patch("/works/:slug", async (c) => {
   const upd: Record<string, unknown> = {};
   if (b.title     !== undefined) upd.title     = b.title;
   if (b.type      !== undefined) upd.type      = b.type;
+  if (b.status    !== undefined) upd.status    = b.status;
   if (b.year      !== undefined) upd.year      = b.year;
   if (b.venue     !== undefined) upd.venue     = b.venue;
   if (b.doi       !== undefined) upd.doi       = b.doi;
