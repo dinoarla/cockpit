@@ -543,6 +543,7 @@ export const myWorks = mysqlTable("my_works", {
     slug: varchar("slug", { length: 100 }).notNull().unique(),
     title: text("title").notNull(),
     type: varchar("type", { length: 20 }).notNull().default("dissertation"),
+    status: varchar("status", { length: 20 }).notNull().default("idea"),
     year: int("year"),
     venue: varchar("venue", { length: 300 }),
     doi: varchar("doi", { length: 200 }),

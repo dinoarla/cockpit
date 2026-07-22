@@ -34,6 +34,7 @@ async function ensureTables() {
         "ADD COLUMN `venue`   VARCHAR(300) DEFAULT NULL",
         "ADD COLUMN `doi`     VARCHAR(200) DEFAULT NULL",
         "ADD COLUMN `authors` VARCHAR(500) DEFAULT NULL",
+        "ADD COLUMN `status`  VARCHAR(20)  NOT NULL DEFAULT 'idea'",
     ]) {
         try {
             await db.execute(sql.raw(`ALTER TABLE \`my_works\` ${colDef}`));
@@ -72,7 +73,11 @@ literatureRoutes.post("/works", async (c) => {
         slug: b.slug,
         title: b.title,
         type: b.type || "dissertation",
+        status: b.status || "idea",
         year: b.year || null,
+        venue: b.venue || null,
+        doi: b.doi || null,
+        authors: b.authors || null,
         structure: JSON.stringify(b.structure || []),
     });
     return c.json({ ok: true });
@@ -86,6 +91,8 @@ literatureRoutes.patch("/works/:slug", async (c) => {
         upd.title = b.title;
     if (b.type !== undefined)
         upd.type = b.type;
+    if (b.status !== undefined)
+        upd.status = b.status;
     if (b.year !== undefined)
         upd.year = b.year;
     if (b.venue !== undefined)
@@ -105,11 +112,32 @@ literatureRoutes.get("/works/zotero-collections", async (c) => {
     const [kRow] = await db.select().from(literatureConfig).where(eq(literatureConfig.key, "zotero_api_key"));
     if (!uRow?.value || !kRow?.value)
         return c.json({ error: "Zotero belum dikonfigurasi" }, 400);
+    // Fetch regular collections
     const res = await fetch(`https://api.zotero.org/users/${uRow.value}/collections?format=json&limit=100&v=3`, { headers: { "Zotero-API-Key": kRow.value } });
     if (!res.ok)
         return c.json({ error: `Zotero error: ${res.status}` }, 502);
     const colls = (await res.json());
-    return c.json(colls.map(c => ({ key: c.data.key, name: c.data.name, count: c.meta?.numItems ?? 0 })));
+    // Probe total library count for "all library" option
+    let totalCount = 0;
+    try {
+        const totRes = await fetch(`https://api.zotero.org/users/${uRow.value}/items?format=json&limit=1&v=3`, { headers: { "Zotero-API-Key": kRow.value } });
+        if (totRes.ok)
+            totalCount = parseInt(totRes.headers.get("Total-Results") || "0") || 0;
+    }
+    catch { /* ignore */ }
+    // Probe My Publications count
+    let myPubCount = -1; // -1 = not available
+    try {
+        const pubRes = await fetch(`https://api.zotero.org/users/${uRow.value}/publications/items?format=json&limit=1&v=3`, { headers: { "Zotero-API-Key": kRow.value } });
+        if (pubRes.ok)
+            myPubCount = parseInt(pubRes.headers.get("Total-Results") || "0") || 0;
+    }
+    catch { /* ignore */ }
+    return c.json([
+        { key: "__all_library__", name: "Seluruh Library (item akademik)", count: totalCount },
+        ...(myPubCount >= 0 ? [{ key: "__my_publications__", name: "My Publications ★", count: myPubCount }] : []),
+        ...colls.map(c => ({ key: c.data.key, name: c.data.name, count: c.meta?.numItems ?? 0 })),
+    ]);
 });
 /* ── POST import works from Zotero collection ── */
 literatureRoutes.post("/works/import-zotero", async (c) => {
@@ -123,10 +151,44 @@ literatureRoutes.post("/works/import-zotero", async (c) => {
         thesis: "thesis", book: "book", report: "report",
         dissertation: "dissertation", manuscript: "article",
     };
-    const res = await fetch(`https://api.zotero.org/users/${uRow.value}/collections/${collectionKey}/items?format=json&limit=100&v=3`, { headers: { "Zotero-API-Key": kRow.value } });
-    if (!res.ok)
-        return c.json({ error: `Zotero error: ${res.status}` }, 502);
-    const items = (await res.json());
+    const ACADEMIC_TYPES = new Set([
+        "journalArticle", "conferencePaper", "thesis", "book",
+        "report", "dissertation", "manuscript", "preprint",
+    ]);
+    // Fetch items based on source type
+    let allItems = [];
+    if (collectionKey === "__my_publications__") {
+        const res = await fetch(`https://api.zotero.org/users/${uRow.value}/publications/items?format=json&limit=100&v=3`, { headers: { "Zotero-API-Key": kRow.value } });
+        if (res.status === 404)
+            return c.json({
+                error: "My Publications Zotero Anda kosong. Fitur ini memerlukan item yang dipublikasikan ke zotero.org. Coba pilih koleksi biasa atau 'Seluruh Library'.",
+            }, 200);
+        if (!res.ok)
+            return c.json({ error: `Zotero error: ${res.status}` }, 502);
+        allItems = (await res.json());
+    }
+    else if (collectionKey === "__all_library__") {
+        // Paginated fetch, filter by academic types
+        let start = 0;
+        const limit = 100;
+        while (true) {
+            const res = await fetch(`https://api.zotero.org/users/${uRow.value}/items?format=json&limit=${limit}&start=${start}&v=3`, { headers: { "Zotero-API-Key": kRow.value } });
+            if (!res.ok)
+                return c.json({ error: `Zotero error: ${res.status}` }, 502);
+            const batch = (await res.json());
+            allItems.push(...batch.filter((item) => ACADEMIC_TYPES.has(item.data?.itemType)));
+            if (batch.length < limit)
+                break;
+            start += limit;
+        }
+    }
+    else {
+        const res = await fetch(`https://api.zotero.org/users/${uRow.value}/collections/${collectionKey}/items?format=json&limit=100&v=3`, { headers: { "Zotero-API-Key": kRow.value } });
+        if (!res.ok)
+            return c.json({ error: `Zotero error: ${res.status}` }, 502);
+        allItems = (await res.json());
+    }
+    const items = allItems;
     let imported = 0;
     for (const item of items) {
         const d = item.data;
