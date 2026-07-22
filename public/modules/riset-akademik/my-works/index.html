@@ -116,7 +116,24 @@ td{padding:10px 12px;vertical-align:top}
 .per-page-sel{height:30px;padding:0 6px;border:1px solid var(--border);border-radius:7px;font-size:.78rem;font-family:inherit;color:var(--text);background:var(--card);cursor:pointer;outline:none}
 .per-page-sel:focus{border-color:var(--acc)}
 
-@media(max-width:900px){.expand-body{grid-template-columns:1fr}}
+/* ── STATS PANEL ── */
+.stats-panel{display:grid;grid-template-columns:auto 1fr 1fr;gap:12px;margin-bottom:18px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px}
+.stat-card.stat-total{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;border-left:3px solid var(--acc)}
+.stat-total-num{font-family:'Space Grotesk',sans-serif;font-size:2.2rem;font-weight:700;color:var(--acc);line-height:1}
+.stat-total-lbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
+.stat-section-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px}
+.stat-bars{display:flex;flex-direction:column;gap:7px}
+.stat-bar-row{display:flex;align-items:center;gap:8px;font-size:.78rem}
+.stat-bar-name{width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.stat-bar-track{flex:1;height:6px;background:#F0EDE6;border-radius:3px;overflow:hidden}
+.stat-bar-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.stat-bar-count{width:26px;text-align:right;font-weight:600;color:var(--muted);font-size:.72rem}
+.fill-published{background:#22C55E}.fill-draft{background:#F59E0B}.fill-idea{background:#D1D5DB}
+.fill-dissertation{background:#7C3AED}.fill-thesis{background:#DB2777}.fill-article{background:#2563EB}
+.fill-conference_paper{background:#D97706}.fill-book{background:#059669}.fill-report{background:#0284C7}
+.fill-patent{background:#EA580C}.fill-other{background:#6B7280}
+@media(max-width:900px){.stats-panel{grid-template-columns:1fr}.expand-body{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -137,6 +154,23 @@ td{padding:10px 12px;vertical-align:top}
 </div>
 
 <div class="page-body">
+
+  <!-- ── STATS PANEL ── -->
+  <div class="stats-panel" id="statsPanel" style="display:none">
+    <div class="stat-card stat-total">
+      <div class="stat-total-num" id="statTotalNum">0</div>
+      <div class="stat-total-lbl">Total Karya</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-section-lbl">Berdasarkan Status</div>
+      <div class="stat-bars" id="statsByStatus"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-section-lbl">Berdasarkan Tipe</div>
+      <div class="stat-bars" id="statsByType"></div>
+    </div>
+  </div>
+
   <div class="toolbar">
     <input type="text" id="searchInput" placeholder="Cari judul / jurnal / penulis…" oninput="renderTable(true)">
     <button class="btn btn-outline" onclick="openZoteroImport()" style="border-color:var(--acc);color:var(--acc)">
@@ -292,6 +326,46 @@ async function load() {
     return;
   }
   renderTable();
+  renderStats();
+}
+
+// ── STATS ──
+function renderStats() {
+  const total = works.length;
+  if (!total) { document.getElementById('statsPanel').style.display = 'none'; return; }
+  document.getElementById('statsPanel').style.display = 'grid';
+  document.getElementById('statTotalNum').textContent = total;
+
+  const statusOrder = ['published','draft','idea'];
+  const statusLabel = { published:'Published', draft:'Draft', idea:'Idea' };
+  const statusFill  = { published:'fill-published', draft:'fill-draft', idea:'fill-idea' };
+
+  const typeOrder = ['dissertation','thesis','article','conference_paper','book','report','patent','other'];
+  const typeLabel = { dissertation:'Disertasi', thesis:'Tesis', article:'Artikel Jurnal',
+    conference_paper:'Conf. Paper', book:'Buku', report:'Laporan', patent:'Paten', other:'Lainnya' };
+
+  function countBy(key, order) {
+    const map = {};
+    works.forEach(w => { const v = w[key] || (key==='status'?'idea':'other'); map[v] = (map[v]||0) + 1; });
+    return order.filter(k => map[k]).map(k => ({ key: k, count: map[k] }));
+  }
+
+  function barHTML(items, labelMap, fillMap) {
+    const max = Math.max(...items.map(i => i.count));
+    return items.map(i => `
+      <div class="stat-bar-row">
+        <span class="stat-bar-name">${labelMap[i.key]||i.key}</span>
+        <div class="stat-bar-track"><div class="stat-bar-fill ${fillMap[i.key]||'fill-other'}" style="width:${Math.round(i.count/max*100)}%"></div></div>
+        <span class="stat-bar-count">${i.count}</span>
+      </div>`).join('');
+  }
+
+  document.getElementById('statsByStatus').innerHTML =
+    barHTML(countBy('status', statusOrder), statusLabel, statusFill);
+
+  const typeFill = Object.fromEntries(typeOrder.map(k => [k, 'fill-' + k]));
+  document.getElementById('statsByType').innerHTML =
+    barHTML(countBy('type', typeOrder), typeLabel, typeFill);
 }
 
 // ── STATUS META ──
@@ -489,6 +563,7 @@ async function cycleStatus(slug, e) {
   await api('PATCH', `/works/${slug}`, { status: next });
   w.status = next;
   renderTable();
+  renderStats();
 }
 
 // ── INLINE SAVE ──
@@ -604,6 +679,7 @@ async function saveWork() {
   }
   closeModal('workModal');
   renderTable();
+  renderStats();
 }
 
 async function deleteWork(slug) {
@@ -613,6 +689,7 @@ async function deleteWork(slug) {
   works = works.filter(x => x.slug !== slug);
   if (expandedSlug === slug) expandedSlug = null;
   renderTable();
+  renderStats();
   toast('Karya dihapus');
 }
 
