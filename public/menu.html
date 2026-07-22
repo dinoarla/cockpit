@@ -1820,10 +1820,15 @@ function initKnowledgeGraph(domainList) {
 let _graphDomainList = null;
 let _gmInited = false;
 
-function openGraphModal() {
+async function openGraphModal() {
   document.getElementById('graphModal').classList.add('open');
   document.body.style.overflow = 'hidden';
-  if (!_gmInited && _graphDomainList) { _gmInited = true; requestAnimationFrame(() => initFullGraph(_graphDomainList)); }
+  if (!_gmInited && _graphDomainList) {
+    _gmInited = true;
+    let synapsData = { nodes: [], edges: [] };
+    try { synapsData = await fetch('/api/synaps/graph').then(r => r.json()); } catch {}
+    requestAnimationFrame(() => initFullGraph(_graphDomainList, synapsData));
+  }
 }
 function closeGraphModal() {
   document.getElementById('graphModal').classList.remove('open');
@@ -1837,7 +1842,7 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGraphModal(); });
 
-function initFullGraph(domainList) {
+function initFullGraph(domainList, synapsData = { nodes: [], edges: [] }) {
   const svgEl = document.getElementById('gm-svg');
   const W = svgEl.clientWidth, H = svgEl.clientHeight;
 
@@ -1949,10 +1954,39 @@ function initFullGraph(domainList) {
     if (nodeMap[a]&&nodeMap[b]) links.push({source:a,target:b,cross:true});
   }
 
+  // ── Inject Synaps research nodes (literature + works) ──
+  const LIT_COLOR  = '#0EA5E9';
+  const WORK_COLOR = '#EC4899';
+  const researchNodes = (synapsData.nodes || []).filter(n => n.type === 'literature' || n.type === 'work');
+  for (const n of researchNodes) {
+    const isLit = n.type === 'literature';
+    const nd = {
+      id: n.id, name: n.name, gk: isLit ? 'riset-lit' : 'riset-work',
+      color: isLit ? LIT_COLOR : WORK_COLOR,
+      status: 'aktif', accessible: true, routePath: null,
+      nodeType: n.type, meta: n,
+    };
+    nodeMap[n.id] = nd; nodes.push(nd);
+  }
+  for (const e of (synapsData.edges || [])) {
+    const s = e.source, t = e.target;
+    if (nodeMap[s] && nodeMap[t]) links.push({ source: s, target: t, cross: true, researchEdge: true });
+  }
+  GC['riset-lit']  = LIT_COLOR;
+  GC['riset-work'] = WORK_COLOR;
+  CP['riset-lit']  = { x: .78, y: .35 };
+  CP['riset-work'] = { x: .92, y: .55 };
+  LL['riset-lit']  = 'Paper';
+  LL['riset-work'] = 'My Works';
+
   // Node size by degree — hub nodes visually much larger
   const deg = {};
   for (const l of links) { deg[l.source]=(deg[l.source]||0)+1; deg[l.target]=(deg[l.target]||0)+1; }
-  const nr = d => d.status==='aktif' ? Math.max(5, Math.min(28, 4 + (deg[d.id]||0) * 1.9)) : 4;
+  const nr = d => {
+    if (d.nodeType === 'literature') return Math.max(4, Math.min(10, 3.5 + (d.meta?.relevance||3)*.5));
+    if (d.nodeType === 'work')       return 8;
+    return d.status==='aktif' ? Math.max(5, Math.min(28, 4 + (deg[d.id]||0) * 1.9)) : 4;
+  };
 
   const activeTopics = new Set(nodes.map(n=>n.gk));
   let selectedNode = null;
@@ -1998,10 +2032,11 @@ function initFullGraph(domainList) {
     n.y = cp.y * H + (Math.random()-.5)*40;
   }
 
-  // Links — gray transparent
+  // Links — gray transparent, research edges tinted
   const linkSel = g.append('g').selectAll('line').data(links).join('line')
-    .attr('stroke', 'rgba(180,190,210,.2)')
-    .attr('stroke-width', .9);
+    .attr('stroke', d => d.researchEdge ? 'rgba(14,165,233,.35)' : 'rgba(180,190,210,.2)')
+    .attr('stroke-width', d => d.researchEdge ? 1.2 : .9)
+    .attr('stroke-dasharray', d => d.researchEdge ? '5,3' : null);
 
   // Glow halos — outer blurred rings behind nodes
   const haloSel = g.append('g').selectAll('circle').data(nodes.filter(n=>n.status==='aktif')).join('circle')
@@ -2056,15 +2091,35 @@ function initFullGraph(domainList) {
       .map(l=>l.source.id===d.id?l.target:l.source);
     document.getElementById('gm-info-name').textContent = d.name;
     document.getElementById('gm-info-dot').style.background = d.color;
-    document.getElementById('gm-info-section').textContent = LL[d.gk]||d.gk;
     const sp = document.getElementById('gm-info-status');
-    sp.textContent = d.status==='aktif'?'AKTIF':'SEGERA';
-    sp.style.cssText = d.status==='aktif'
-      ? 'background:rgba(255,77,0,.18);color:var(--orange);padding:2px 7px;border-radius:8px;'
-      : 'background:rgba(255,255,255,.06);color:rgba(230,237,243,.35);padding:2px 7px;border-radius:8px;';
-    document.getElementById('gm-info-desc').textContent = MODULE_DESC[d.id]||'—';
-    document.getElementById('gm-info-btn').innerHTML = (d.status==='aktif'&&d.accessible&&d.routePath)
-      ? `<a href="${d.routePath}" class="gm-open-btn">Buka Modul →</a>` : '';
+    if (d.nodeType === 'literature') {
+      document.getElementById('gm-info-section').textContent = 'Paper / Literatur';
+      sp.textContent = d.meta?.status?.toUpperCase() || '';
+      sp.style.cssText = 'background:rgba(14,165,233,.18);color:#0EA5E9;padding:2px 7px;border-radius:8px;';
+      const m = d.meta || {};
+      document.getElementById('gm-info-desc').textContent =
+        [m.authors, m.year, m.journal].filter(Boolean).join(' · ') || '—';
+      document.getElementById('gm-info-btn').innerHTML = m.doi
+        ? `<a href="https://doi.org/${m.doi}" target="_blank" class="gm-open-btn">Lihat DOI →</a>` : '';
+    } else if (d.nodeType === 'work') {
+      document.getElementById('gm-info-section').textContent = 'My Works';
+      sp.textContent = (d.meta?.status || '').toUpperCase();
+      sp.style.cssText = 'background:rgba(236,72,153,.18);color:#EC4899;padding:2px 7px;border-radius:8px;';
+      const m = d.meta || {};
+      document.getElementById('gm-info-desc').textContent =
+        [m.wtype, m.year].filter(Boolean).join(' · ') || '—';
+      document.getElementById('gm-info-btn').innerHTML =
+        `<a href="/modules/riset-akademik/my-works/" class="gm-open-btn">Buka My Works →</a>`;
+    } else {
+      document.getElementById('gm-info-section').textContent = LL[d.gk]||d.gk;
+      sp.textContent = d.status==='aktif'?'AKTIF':'SEGERA';
+      sp.style.cssText = d.status==='aktif'
+        ? 'background:rgba(255,77,0,.18);color:var(--orange);padding:2px 7px;border-radius:8px;'
+        : 'background:rgba(255,255,255,.06);color:rgba(230,237,243,.35);padding:2px 7px;border-radius:8px;';
+      document.getElementById('gm-info-desc').textContent = MODULE_DESC[d.id]||'—';
+      document.getElementById('gm-info-btn').innerHTML = (d.status==='aktif'&&d.accessible&&d.routePath)
+        ? `<a href="${d.routePath}" class="gm-open-btn">Buka Modul →</a>` : '';
+    }
     document.getElementById('gm-conn-list').innerHTML = conns.map(n=>
       `<div class="gm-conn-item" data-id="${n.id}"><span class="gm-conn-dot" style="background:${n.color}"></span>${n.name}</div>`
     ).join('');
