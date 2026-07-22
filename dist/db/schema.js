@@ -560,4 +560,25 @@ export const literatureCitations = mysqlTable("literature_citations", {
 }, (t) => ({
     litWorkSectionIdx: uniqueIndex("lit_work_section_idx").on(t.litId, t.workSlug, t.section),
 }));
+// ── COCKPIT SYNAPS ──────────────────────────────────────────────────────────
+export const synapsConceptsTable = mysqlTable("synaps_concepts", {
+    id: int("id").autoincrement().primaryKey(),
+    slug: varchar("slug", { length: 100 }).notNull().unique(),
+    name: varchar("name", { length: 200 }).notNull(),
+    description: text("description"),
+    color: varchar("color", { length: 7 }).default("#8B5CF6"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export const synapsEdgesTable = mysqlTable("synaps_edges", {
+    id: int("id").autoincrement().primaryKey(),
+    fromType: varchar("from_type", { length: 20 }).notNull(), // module|literature|work|concept
+    fromId: varchar("from_id", { length: 100 }).notNull(),
+    toType: varchar("to_type", { length: 20 }).notNull(),
+    toId: varchar("to_id", { length: 100 }).notNull(),
+    relationship: varchar("relationship", { length: 50 }).default("related"),
+    note: text("note"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => ({
+    uniqEdge: uniqueIndex("synaps_edge_uniq").on(t.fromType, t.fromId, t.toType, t.toId),
+}));
 //# sourceMappingURL=schema.js.map

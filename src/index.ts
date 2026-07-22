@@ -24,6 +24,7 @@ import { bacaMeterRoutes } from "./routes/baca-meter.js";
 import { gantiMeterRoutes } from "./routes/ganti-meter.js";
 import { chatbotRoutes } from "./routes/chatbot.js";
 import { literatureRoutes } from "./routes/literature.js";
+import { synapsRoutes } from "./routes/synaps.js";
 import { db } from "./db/client.js";
 import { domains, domainModules, userDomainAccess, userModuleAccess, sessions } from "./db/schema.js";
 import { eq, and, sql, gt } from "drizzle-orm";
@@ -119,6 +120,7 @@ app.route("/api/baca-meter", bacaMeterRoutes);
 app.route("/api/ganti-meter", gantiMeterRoutes);
 app.route("/api/chatbot", chatbotRoutes);
 app.route("/api/literature", literatureRoutes);
+app.route("/api/synaps", synapsRoutes);
 
 // Helper: inject widget ke semua halaman yang sudah login
 function injectWidget(html: string): string {

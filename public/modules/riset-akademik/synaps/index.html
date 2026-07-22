@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cockpit Synaps</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#050508;color:#E8E4DC;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+
+/* ── TOP BAR ── */
+.topbar{height:48px;background:rgba(10,10,20,.92);border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:12px;padding:0 16px;flex-shrink:0;backdrop-filter:blur(8px);z-index:100}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:.08em;color:#FF4D00;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.logo i{font-size:.8rem}
+.search-wrap{flex:1;max-width:340px;position:relative}
+.search-wrap input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 12px 6px 32px;color:#E8E4DC;font-size:.8rem;font-family:inherit;outline:none}
+.search-wrap input::placeholder{color:rgba(255,255,255,.3)}
+.search-wrap input:focus{border-color:rgba(255,77,0,.5);background:rgba(255,77,0,.06)}
+.search-wrap .si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.3);font-size:.75rem}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.tb-btn{height:30px;padding:0 12px;border-radius:7px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:rgba(255,255,255,.7);font-size:.75rem;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
+.tb-btn:hover{border-color:rgba(255,77,0,.5);color:#FF4D00}
+.tb-btn.active{background:rgba(255,77,0,.15);border-color:#FF4D00;color:#FF4D00}
+.tb-sep{width:1px;height:20px;background:rgba(255,255,255,.1)}
+.back-btn{height:30px;padding:0 10px;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.5);font-size:.75rem;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px}
+.back-btn:hover{color:#fff;border-color:rgba(255,255,255,.3)}
+
+/* ── MAIN AREA ── */
+.main{flex:1;display:flex;overflow:hidden;position:relative}
+#graph-canvas{flex:1;cursor:grab}
+#graph-canvas:active{cursor:grabbing}
+
+/* ── SIDE PANEL ── */
+.side-panel{width:300px;background:rgba(10,10,20,.95);border-left:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;overflow:hidden;transition:width .2s;flex-shrink:0}
+.side-panel.collapsed{width:0;border-left:none}
+.sp-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.07)}
+.sp-tab{flex:1;padding:10px 4px;text-align:center;font-size:.7rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.4);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.sp-tab.active{color:#FF4D00;border-bottom-color:#FF4D00}
+.sp-body{flex:1;overflow-y:auto;padding:12px}
+.sp-body::-webkit-scrollbar{width:4px}
+.sp-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+
+/* node detail */
+.nd-type{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.nd-name{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:600;line-height:1.3;margin-bottom:10px}
+.nd-meta{font-size:.72rem;color:rgba(255,255,255,.45);margin-bottom:14px;line-height:1.6}
+.nd-edges-lbl{font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:8px}
+.nd-edge-item{display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(255,255,255,.04);border-radius:6px;margin-bottom:5px;font-size:.72rem}
+.nd-edge-item .rel-badge{font-size:.6rem;padding:2px 6px;border-radius:4px;background:rgba(255,77,0,.15);color:#FF8050;font-weight:600}
+.nd-edge-del{margin-left:auto;color:rgba(255,80,80,.5);cursor:pointer;font-size:.7rem}
+.nd-edge-del:hover{color:#FF5050}
+.add-edge-btn{width:100%;margin-top:10px;padding:8px;border-radius:8px;border:1px dashed rgba(255,77,0,.4);background:transparent;color:rgba(255,77,0,.7);font-size:.75rem;font-family:inherit;cursor:pointer;transition:all .15s}
+.add-edge-btn:hover{background:rgba(255,77,0,.1);border-color:#FF4D00;color:#FF4D00}
+
+/* concepts tab */
+.concept-item{display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,255,255,.04);border-radius:8px;margin-bottom:6px;cursor:pointer;transition:background .1s}
+.concept-item:hover{background:rgba(255,255,255,.08)}
+.concept-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.concept-name{font-size:.8rem;font-weight:500;flex:1}
+.concept-del{color:rgba(255,80,80,.4);font-size:.7rem;cursor:pointer}
+.concept-del:hover{color:#FF5050}
+.add-concept-form{padding:10px;background:rgba(255,255,255,.04);border-radius:8px;margin-bottom:10px}
+.add-concept-form input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:6px 10px;color:#E8E4DC;font-size:.78rem;font-family:inherit;outline:none;margin-bottom:6px}
+.add-concept-form input:focus{border-color:rgba(139,92,246,.5)}
+.color-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.color-swatch{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .1s}
+.color-swatch.sel{border-color:#fff}
+.add-concept-form button{width:100%;padding:6px;border-radius:6px;border:none;background:#8B5CF6;color:#fff;font-size:.75rem;font-family:inherit;cursor:pointer}
+.add-concept-form button:hover{background:#7C3AED}
+
+/* ── LEGEND ── */
+.legend{position:absolute;bottom:16px;left:16px;display:flex;gap:8px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:5px;background:rgba(10,10,20,.8);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:4px 10px;font-size:.68rem;color:rgba(255,255,255,.6);cursor:pointer;transition:all .15s;backdrop-filter:blur(4px)}
+.leg-item:hover,.leg-item.active{border-color:rgba(255,255,255,.25);color:#fff}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ── CONNECTING MODE ── */
+.connect-hint{position:absolute;top:60px;left:50%;transform:translateX(-50%);background:rgba(255,77,0,.9);color:#fff;padding:8px 16px;border-radius:8px;font-size:.8rem;font-weight:600;pointer-events:none;z-index:200;backdrop-filter:blur(4px)}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#111118;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:24px;width:420px;max-width:95vw}
+.modal h3{font-family:'Space Grotesk',sans-serif;font-size:1rem;margin-bottom:16px;color:#E8E4DC}
+.modal label{display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);margin-bottom:4px;margin-top:10px}
+.modal select,.modal textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 10px;color:#E8E4DC;font-size:.8rem;font-family:inherit;outline:none}
+.modal select:focus,.modal textarea:focus{border-color:rgba(255,77,0,.5)}
+.modal textarea{resize:vertical;min-height:60px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.modal-footer button{padding:7px 16px;border-radius:8px;font-size:.78rem;font-family:inherit;cursor:pointer;border:none}
+.btn-cancel{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)}
+.btn-cancel:hover{background:rgba(255,255,255,.14)}
+.btn-ok{background:#FF4D00;color:#fff}
+.btn-ok:hover{background:#E84300}
+
+/* node count badge */
+.node-count{font-size:.72rem;color:rgba(255,255,255,.35);padding:0 4px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><i class="fa-solid fa-circle-nodes"></i> COCKPIT SYNAPS</div>
+  <div class="search-wrap">
+    <i class="fa-solid fa-magnifying-glass si"></i>
+    <input type="text" id="searchInput" placeholder="Cari node…" oninput="onSearch(this.value)">
+  </div>
+  <span class="node-count" id="nodeCount"></span>
+  <div class="tb-sep"></div>
+  <button class="tb-btn active" id="filterAll" onclick="setFilter('all')"><i class="fa-solid fa-layer-group"></i> Semua</button>
+  <button class="tb-btn" id="filterModule" onclick="setFilter('module')"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#888;margin-right:4px"></span>Modul</button>
+  <button class="tb-btn" id="filterLit" onclick="setFilter('literature')"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#0EA5E9;margin-right:4px"></span>Literatur</button>
+  <button class="tb-btn" id="filterWork" onclick="setFilter('work')"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#EC4899;margin-right:4px"></span>My Works</button>
+  <button class="tb-btn" id="filterConcept" onclick="setFilter('concept')"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8B5CF6;margin-right:4px"></span>Konsep</button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" id="connectModeBtn" onclick="toggleConnectMode()"><i class="fa-solid fa-link"></i> Hubungkan</button>
+  <button class="tb-btn" onclick="fitGraph()"><i class="fa-solid fa-expand"></i> Fit</button>
+  <div class="tb-sep"></div>
+  <button class="back-btn" onclick="location.href='/menu.html'"><i class="fa-solid fa-arrow-left"></i> Menu</button>
+</div>
+
+<div class="main">
+  <svg id="graph-canvas"></svg>
+
+  <div class="side-panel" id="sidePanel">
+    <div class="sp-tabs">
+      <div class="sp-tab active" id="tabDetail" onclick="switchTab('detail')">Detail</div>
+      <div class="sp-tab" id="tabConcepts" onclick="switchTab('concepts')">Konsep</div>
+    </div>
+    <div class="sp-body" id="spBody">
+      <div style="text-align:center;padding:40px 16px;color:rgba(255,255,255,.2);font-size:.8rem">
+        <i class="fa-solid fa-circle-nodes" style="font-size:1.8rem;display:block;margin-bottom:10px;opacity:.3"></i>
+        Klik node untuk melihat detail dan koneksi
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="legend" id="legend"></div>
+<div class="connect-hint" id="connectHint" style="display:none"></div>
+
+<!-- Edge modal -->
+<div class="modal-bg" id="edgeModal">
+  <div class="modal">
+    <h3><i class="fa-solid fa-link" style="color:#FF4D00;margin-right:8px"></i>Tambah Koneksi</h3>
+    <div id="edgeModalInfo" style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:12px"></div>
+    <label>Tipe Relasi</label>
+    <select id="edgeRelType">
+      <option value="related">Related (terkait)</option>
+      <option value="supports">Supports (mendukung)</option>
+      <option value="contradicts">Contradicts (bertentangan)</option>
+      <option value="methodology">Methodology (metodologi)</option>
+      <option value="data_source">Data Source (sumber data)</option>
+      <option value="background">Background (latar belakang)</option>
+      <option value="extends">Extends (mengembangkan)</option>
+      <option value="parent_of">Parent Of (induk konsep)</option>
+    </select>
+    <label>Catatan (opsional)</label>
+    <textarea id="edgeNote" placeholder="Jelaskan hubungan ini…"></textarea>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('edgeModal')">Batal</button>
+      <button class="btn-ok" onclick="confirmEdge()">Simpan Koneksi</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DOMAIN COLORS (same as menu.html) ──
+const DOMAIN_COLORS = {
+  'energi-jabar-1':  '#F97316',
+  'energi-jabar-2':  '#FB923C',
+  'energi-jabar-3':  '#3B82F6',
+  'energi-jabar-4':  '#60A5FA',
+  'open-data-nasional-1': '#EAB308',
+  'open-data-nasional-2': '#A3E635',
+  'open-data-nasional-3': '#4ADE80',
+  'open-data-nasional-4': '#34D399',
+  'riset-akademik-1': '#E879F9',
+  'riset-akademik-2': '#A78BFA',
+  'riset-akademik-3': '#67E8F9',
+  'riset-akademik-4': '#FCA5A5',
+};
+const TYPE_COLORS = {
+  module:     null, // use domain color
+  literature: '#0EA5E9',
+  work:       '#EC4899',
+  concept:    '#8B5CF6',
+};
+const TYPE_LABELS = { module:'Modul', literature:'Literatur', work:'My Works', concept:'Konsep' };
+const SECTION_MAP = {
+  'financial-information':1,'pln-ar':1,'pln-sr':1,'pln-stat':1,'ruptl':1,'pln-scholar':1,
+  'sistem-transmisi':2,'keandalan-transmisi':2,'rencana-transmisi':2,'egla-pkdn':2,'proteksi-transmisi':2,'simba':2,
+  'pencurian':3,'baca-meter':3,'ganti-meter':3,'losses-integritas':3,'olap-tagihan':3,'pelanggan':3,
+  'infrastruktur-distribusi':3,'keandalan-layanan':3,'ekuitas-akses':3,'mdp':3,'ekonomi-transisi':3,'atlas-pembangkit':3,'tariff-adjustment':3,
+  'kependudukan-bps':1,'data-kemiskinan':1,'apbd-jabar':2,'rkpd-jabar':2,'iklim-cuaca':3,'indeks-bencana':3,'gis-jabar':4,'peta-admin':4,
+  'literature-map':1,'my-works':1,'dissertation-tracker':2,'paper-pipeline':2,'dataset-registry':3,
+};
+
+let graphData = { nodes: [], edges: [] };
+let simulation, svgSel, gSel, zoomBehavior;
+let activeFilter = 'all';
+let selectedNode = null;
+let connectMode = false, connectSource = null;
+let pendingEdge = null;
+const W = () => document.getElementById('graph-canvas').clientWidth;
+const H = () => document.getElementById('graph-canvas').clientHeight;
+
+// ── API ──
+async function api(method, path, body) {
+  const r = await fetch('/api/synaps' + path, {
+    method, headers: body ? { 'Content-Type': 'application/json' } : {},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  return r.json();
+}
+
+// ── LOAD ──
+async function load() {
+  graphData = await api('GET', '/graph');
+  renderGraph();
+  renderLegend();
+  document.getElementById('nodeCount').textContent = graphData.nodes.length + ' node';
+  renderConceptsTab();
+}
+
+// ── NODE COLOR ──
+function nodeColor(d) {
+  if (d.type !== 'module') return TYPE_COLORS[d.type] || '#666';
+  const sec = SECTION_MAP[d.id] || 1;
+  return DOMAIN_COLORS[d.domain + '-' + sec] || '#888';
+}
+
+// ── NODE RADIUS ──
+function nodeR(d, deg) {
+  if (d.type === 'module')     return d.status === 'aktif' ? Math.max(4, Math.min(9, 3 + (deg[d.id]||0)*.25)) : 2.5;
+  if (d.type === 'literature') return Math.max(4, Math.min(8, 3.5 + (d.relevance||3)*.5));
+  if (d.type === 'work')       return 6;
+  if (d.type === 'concept')    return 7;
+  return 4;
+}
+
+// ── RENDER GRAPH ──
+function renderGraph() {
+  const canvas = document.getElementById('graph-canvas');
+  canvas.setAttribute('width',  W());
+  canvas.setAttribute('height', H());
+  svgSel = d3.select(canvas);
+  svgSel.selectAll('*').remove();
+
+  // bloom
+  const defs = svgSel.append('defs');
+  const bloom = defs.append('filter').attr('id','bloom').attr('x','-80%').attr('y','-80%').attr('width','260%').attr('height','260%');
+  bloom.append('feGaussianBlur').attr('in','SourceGraphic').attr('stdDeviation','3').attr('result','blur');
+  const m = bloom.append('feMerge');
+  m.append('feMergeNode').attr('in','blur');
+  m.append('feMergeNode').attr('in','SourceGraphic');
+
+  gSel = svgSel.append('g');
+  zoomBehavior = d3.zoom().scaleExtent([.1, 5]).on('zoom', e => gSel.attr('transform', e.transform));
+  svgSel.call(zoomBehavior);
+
+  updateGraph();
+}
+
+function updateGraph() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+
+  const visNodes = graphData.nodes.filter(d => {
+    if (activeFilter !== 'all' && d.type !== activeFilter) return false;
+    if (q && !d.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const visIds = new Set(visNodes.map(d => d.id));
+  const visEdges = graphData.edges.filter(e => visIds.has(e.source.id||e.source) && visIds.has(e.target.id||e.target));
+
+  // degree map
+  const deg = {};
+  visEdges.forEach(e => {
+    const s = e.source.id||e.source, t = e.target.id||e.target;
+    deg[s] = (deg[s]||0)+1; deg[t] = (deg[t]||0)+1;
+  });
+
+  gSel.selectAll('*').remove();
+
+  // star field
+  const stars = gSel.append('g').attr('class','stars');
+  for (let i=0;i<120;i++) {
+    stars.append('circle')
+      .attr('cx', Math.random()*W()*2 - W()*.5)
+      .attr('cy', Math.random()*H()*2 - H()*.5)
+      .attr('r',  Math.random()*.9+.2)
+      .attr('fill', `rgba(255,255,255,${Math.random()*.18+.04})`);
+  }
+
+  const link = gSel.append('g').selectAll('line').data(visEdges).join('line')
+    .attr('stroke', d => d.relationship === 'contradicts' ? 'rgba(239,68,68,.3)' :
+                         d.cross ? 'rgba(255,77,0,.25)' : 'rgba(180,190,210,.15)')
+    .attr('stroke-width', d => d.cross ? 1.1 : .8)
+    .attr('stroke-dasharray', d => d.relationship === 'contradicts' ? '4,3' : null);
+
+  const halo = gSel.append('g').selectAll('circle')
+    .data(visNodes.filter(n => n.status === 'aktif' || n.type !== 'module')).join('circle')
+    .attr('r', d => nodeR(d,deg)*2.2)
+    .attr('fill', d => nodeColor(d))
+    .attr('opacity', .1)
+    .attr('filter','url(#bloom)');
+
+  const node = gSel.append('g').selectAll('circle').data(visNodes).join('circle')
+    .attr('r', d => nodeR(d,deg))
+    .attr('fill', d => nodeColor(d))
+    .attr('opacity', d => (d.type === 'module' && d.status !== 'aktif') ? .35 : .92)
+    .attr('stroke', d => selectedNode?.id === d.id ? '#fff' : 'rgba(255,255,255,.12)')
+    .attr('stroke-width', d => selectedNode?.id === d.id ? 1.5 : .6)
+    .style('cursor', 'pointer')
+    .on('click', (event, d) => onNodeClick(d, event))
+    .call(d3.drag()
+      .on('start', (e,d) => { if(!e.active) simulation.alphaTarget(.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag',  (e,d) => { d.fx=e.x; d.fy=e.y; })
+      .on('end',   (e,d) => { if(!e.active) simulation.alphaTarget(0); d.fx=null; d.fy=null; })
+    );
+
+  node.append('title').text(d => d.name);
+
+  const label = gSel.append('g').selectAll('text').data(visNodes.filter(d => nodeR(d,deg)>4)).join('text')
+    .attr('text-anchor','middle').attr('dy','1.4em')
+    .attr('fill','rgba(255,255,255,.65)').attr('font-size','9').attr('font-family','Inter,sans-serif')
+    .attr('pointer-events','none')
+    .text(d => d.name.length > 18 ? d.name.slice(0,16)+'…' : d.name);
+
+  // Force groups by type (pull similar types together)
+  const typeX = { module:W()*.35, literature:W()*.65, work:W()*.8, concept:W()*.5 };
+  const typeY = { module:H()*.5,  literature:H()*.35, work:H()*.65, concept:H()*.2 };
+
+  if (simulation) simulation.stop();
+  simulation = d3.forceSimulation(visNodes)
+    .force('link',    d3.forceLink(visEdges).id(d=>d.id).distance(d=>d.cross?55:30).strength(.1))
+    .force('charge',  d3.forceManyBody().strength(-80))
+    .force('x',       d3.forceX(d => typeX[d.type]||W()*.5).strength(.08))
+    .force('y',       d3.forceY(d => typeY[d.type]||H()*.5).strength(.08))
+    .force('collide', d3.forceCollide(d => nodeR(d,deg)+3))
+    .on('tick', () => {
+      link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+      halo.attr('cx',d=>d.x).attr('cy',d=>d.y);
+      node.attr('cx',d=>d.x).attr('cy',d=>d.y);
+      label.attr('x',d=>d.x).attr('y',d=>d.y);
+    });
+}
+
+function fitGraph() {
+  svgSel.transition().duration(600)
+    .call(zoomBehavior.transform, d3.zoomIdentity.translate(W()*.5,H()*.5).scale(.6));
+}
+
+// ── FILTERS ──
+function setFilter(f) {
+  activeFilter = f;
+  ['All','Module','Lit','Work','Concept'].forEach(x => {
+    document.getElementById('filter'+x)?.classList.remove('active');
+  });
+  const map = {all:'All',module:'Module',literature:'Lit',work:'Work',concept:'Concept'};
+  document.getElementById('filter'+(map[f]||'All'))?.classList.add('active');
+  updateGraph();
+}
+
+function onSearch() { updateGraph(); }
+
+// ── NODE CLICK ──
+function onNodeClick(d, event) {
+  event.stopPropagation();
+  if (connectMode) {
+    handleConnectClick(d);
+    return;
+  }
+  selectedNode = d;
+  updateGraph();
+  switchTab('detail');
+  renderDetailPanel(d);
+}
+
+svgSel?.on('click', () => { selectedNode = null; updateGraph(); });
+
+// ── DETAIL PANEL ──
+function renderDetailPanel(d) {
+  const edges = graphData.edges.filter(e => {
+    const s = e.source.id||e.source, t = e.target.id||e.target;
+    return s === d.id || t === d.id;
+  });
+  const connected = edges.map(e => {
+    const s = e.source.id||e.source, t = e.target.id||e.target;
+    const otherId = s === d.id ? t : s;
+    const other = graphData.nodes.find(n => n.id === otherId);
+    return { edge: e, other };
+  }).filter(x => x.other);
+
+  const typeColor = TYPE_COLORS[d.type] || nodeColor(d);
+  const meta = d.type === 'literature' ? `${d.authors||'—'} · ${d.year||'—'}` :
+               d.type === 'work'       ? `${d.wtype||''} · ${d.year||'—'} · ${d.status||''}` :
+               d.type === 'module'     ? `${d.domain||''} · ${d.status||''}` :
+               d.description || '';
+
+  document.getElementById('spBody').innerHTML = `
+    <div class="nd-type" style="color:${typeColor}">${TYPE_LABELS[d.type]||d.type}</div>
+    <div class="nd-name">${esc(d.name)}</div>
+    <div class="nd-meta">${esc(meta)}</div>
+    <div class="nd-edges-lbl">${connected.length} koneksi</div>
+    ${connected.map(({edge,other}) => `
+      <div class="nd-edge-item">
+        <span style="width:8px;height:8px;border-radius:50%;background:${TYPE_COLORS[other.type]||nodeColor(other)};flex-shrink:0;display:inline-block"></span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(other.name)}</span>
+        <span class="rel-badge">${edge.relationship||'related'}</span>
+        <span class="nd-edge-del" onclick="deleteEdge(${edge.edgeId})"><i class="fa-solid fa-xmark"></i></span>
+      </div>
+    `).join('')}
+    <button class="add-edge-btn" onclick="startConnect()">
+      <i class="fa-solid fa-link"></i> Tambah Koneksi
+    </button>
+  `;
+}
+
+// ── CONNECT MODE ──
+function toggleConnectMode() {
+  connectMode = !connectMode;
+  connectSource = null;
+  document.getElementById('connectModeBtn').classList.toggle('active', connectMode);
+  document.getElementById('connectHint').style.display = connectMode ? 'block' : 'none';
+  if (connectMode) document.getElementById('connectHint').textContent = 'Klik node PERTAMA (sumber koneksi)';
+}
+
+function startConnect() {
+  connectMode = true;
+  connectSource = selectedNode;
+  document.getElementById('connectModeBtn').classList.add('active');
+  document.getElementById('connectHint').style.display = 'block';
+  document.getElementById('connectHint').textContent = connectSource
+    ? `"${connectSource.name.slice(0,30)}" → klik node TUJUAN`
+    : 'Klik node PERTAMA (sumber koneksi)';
+}
+
+function handleConnectClick(d) {
+  if (!connectSource) {
+    connectSource = d;
+    document.getElementById('connectHint').textContent = `"${d.name.slice(0,30)}" → klik node TUJUAN`;
+    return;
+  }
+  if (connectSource.id === d.id) return;
+  pendingEdge = { source: connectSource, target: d };
+  connectMode = false; connectSource = null;
+  document.getElementById('connectModeBtn').classList.remove('active');
+  document.getElementById('connectHint').style.display = 'none';
+  openEdgeModal(pendingEdge);
+}
+
+function openEdgeModal(e) {
+  document.getElementById('edgeModalInfo').textContent =
+    `${e.source.name.slice(0,35)} → ${e.target.name.slice(0,35)}`;
+  document.getElementById('edgeRelType').value = 'related';
+  document.getElementById('edgeNote').value = '';
+  document.getElementById('edgeModal').classList.add('open');
+}
+
+async function confirmEdge() {
+  if (!pendingEdge) return;
+  const typeOf = n => n.type;
+  const idOf   = n => n.type === 'literature' ? String(n.id).replace('lit-','') :
+                      n.type === 'work'       ? String(n.id).replace('work-','') :
+                      n.type === 'concept'    ? String(n.id).replace('concept-','') : n.id;
+  const r = await api('POST', '/edges', {
+    fromType: typeOf(pendingEdge.source), fromId: idOf(pendingEdge.source),
+    toType:   typeOf(pendingEdge.target), toId:   idOf(pendingEdge.target),
+    relationship: document.getElementById('edgeRelType').value,
+    note: document.getElementById('edgeNote').value.trim() || null,
+  });
+  closeModal('edgeModal');
+  if (r.error) { alert(r.error); return; }
+  await load();
+  if (selectedNode) renderDetailPanel(graphData.nodes.find(n => n.id === selectedNode.id) || selectedNode);
+}
+
+async function deleteEdge(edgeId) {
+  if (!confirm('Hapus koneksi ini?')) return;
+  await api('POST', `/edges/${edgeId}/delete`, {});
+  await load();
+  if (selectedNode) renderDetailPanel(graphData.nodes.find(n => n.id === selectedNode.id) || selectedNode);
+}
+
+// ── CONCEPTS TAB ──
+function switchTab(t) {
+  ['detail','concepts'].forEach(x => {
+    document.getElementById('tab'+x.charAt(0).toUpperCase()+x.slice(1))?.classList.toggle('active', x===t);
+  });
+  if (t === 'concepts') renderConceptsTab();
+  else if (selectedNode) renderDetailPanel(selectedNode);
+  else document.getElementById('spBody').innerHTML = `<div style="text-align:center;padding:40px 16px;color:rgba(255,255,255,.2);font-size:.8rem"><i class="fa-solid fa-circle-nodes" style="font-size:1.8rem;display:block;margin-bottom:10px;opacity:.3"></i>Klik node untuk melihat detail</div>`;
+}
+
+const CONCEPT_COLORS = ['#8B5CF6','#EC4899','#0EA5E9','#10B981','#F59E0B','#EF4444','#6366F1','#14B8A6'];
+let selConceptColor = CONCEPT_COLORS[0];
+
+function renderConceptsTab() {
+  const concepts = graphData.nodes.filter(n => n.type === 'concept');
+  document.getElementById('spBody').innerHTML = `
+    <div class="add-concept-form">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.3);margin-bottom:8px">Tambah Konsep</div>
+      <input type="text" id="newConceptName" placeholder="Nama konsep…">
+      <input type="text" id="newConceptDesc" placeholder="Deskripsi (opsional)">
+      <div class="color-row">
+        ${CONCEPT_COLORS.map(c => `<div class="color-swatch${c===selConceptColor?' sel':''}" style="background:${c}" onclick="selectConceptColor('${c}')"></div>`).join('')}
+      </div>
+      <button onclick="addConcept()"><i class="fa-solid fa-plus"></i> Tambah</button>
+    </div>
+    <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.3);margin-bottom:8px">${concepts.length} Konsep</div>
+    ${concepts.length === 0 ? '<div style="color:rgba(255,255,255,.2);font-size:.78rem;text-align:center;padding:20px">Belum ada konsep</div>' :
+      concepts.map(c => `
+        <div class="concept-item" onclick="selectConceptNode('${c.id}')">
+          <div class="concept-dot" style="background:${c.color||'#8B5CF6'}"></div>
+          <span class="concept-name">${esc(c.name)}</span>
+          <span class="concept-del" onclick="event.stopPropagation();deleteConcept('${c.id}')"><i class="fa-solid fa-xmark"></i></span>
+        </div>`).join('')}
+  `;
+}
+
+function selectConceptColor(c) {
+  selConceptColor = c;
+  renderConceptsTab();
+}
+
+async function addConcept() {
+  const name = document.getElementById('newConceptName').value.trim();
+  if (!name) return;
+  const desc = document.getElementById('newConceptDesc').value.trim();
+  await api('POST', '/concepts', { name, description: desc||null, color: selConceptColor });
+  await load();
+  renderConceptsTab();
+}
+
+async function deleteConcept(nodeId) {
+  const slug = nodeId.replace('concept-','');
+  if (!confirm('Hapus konsep ini beserta semua koneksinya?')) return;
+  await api('POST', `/concepts/${slug}/delete`, {});
+  await load();
+  renderConceptsTab();
+}
+
+function selectConceptNode(nodeId) {
+  selectedNode = graphData.nodes.find(n => n.id === nodeId);
+  if (selectedNode) { switchTab('detail'); updateGraph(); renderDetailPanel(selectedNode); }
+}
+
+// ── LEGEND ──
+function renderLegend() {
+  const types = [...new Set(graphData.nodes.map(n => n.type))];
+  document.getElementById('legend').innerHTML = types.map(t => `
+    <div class="leg-item${activeFilter===t?' active':''}" onclick="setFilter(activeFilter===t?'all':'${t}')">
+      <div class="leg-dot" style="background:${TYPE_COLORS[t]||'#888'}"></div>
+      ${TYPE_LABELS[t]||t}
+    </div>`).join('');
+}
+
+// ── UTILS ──
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+function closeModal(id){ document.getElementById(id).classList.remove('open') }
+
+// ── INIT ──
+window.addEventListener('resize', () => { renderGraph(); });
+load();
+</script>
+</body>
+</html>
