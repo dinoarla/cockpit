@@ -344,7 +344,7 @@ td{padding:10px 12px;vertical-align:top}
 <script>
 let works = [], litItems = [], expandedSlug = null, editingSlug = null;
 let currentPage = 1, perPage = 10;
-let refModalSlug = null, refModalPrev = new Map();
+let refModalSlug = null, refModalPrev = new Map(), refCurrentSel = new Set();
 
 // ── API ──
 async function api(method, path, body) {
@@ -667,9 +667,16 @@ function openRefModal(workSlug) {
     const cit = (li.citedIn || []).find(c => c.workSlug === workSlug);
     if (cit) refModalPrev.set(li.id, cit.id);
   }
+  refCurrentSel = new Set(refModalPrev.keys());
   document.getElementById('refSearch').value = '';
   renderRefChecklist('');
   document.getElementById('refModal').classList.add('open');
+}
+
+function toggleRefItem(litId, checked) {
+  if (checked) refCurrentSel.add(litId);
+  else refCurrentSel.delete(litId);
+  updateRefSelCount();
 }
 
 function renderRefChecklist(filter) {
@@ -684,11 +691,11 @@ function renderRefChecklist(filter) {
     return;
   }
   document.getElementById('refChecklist').innerHTML = items.map(li => {
-    const checked = refModalPrev.has(li.id);
+    const checked = refCurrentSel.has(li.id);
     return `<label class="ref-check-item${checked ? ' selected' : ''}">
       <input type="checkbox" style="flex-shrink:0;accent-color:var(--acc)"
         value="${li.id}" ${checked ? 'checked' : ''}
-        onchange="this.closest('.ref-check-item').classList.toggle('selected',this.checked);updateRefSelCount()">
+        onchange="this.closest('.ref-check-item').classList.toggle('selected',this.checked);toggleRefItem(${li.id},this.checked)">
       <div>
         <div style="font-weight:500;font-size:.82rem;line-height:1.3">${esc(li.title)}</div>
         <div style="color:var(--muted);font-size:.74rem">${esc(li.authors||'')}${li.year?' · '+li.year:''}</div>
@@ -703,16 +710,12 @@ function filterRefList() {
 }
 
 function updateRefSelCount() {
-  const n = document.querySelectorAll('#refChecklist input[type=checkbox]:checked').length;
-  document.getElementById('refSelCount').textContent = n + ' referensi dipilih';
+  document.getElementById('refSelCount').textContent = refCurrentSel.size + ' referensi dipilih';
 }
 
 async function saveRefs() {
-  const checked = [...document.querySelectorAll('#refChecklist input[type=checkbox]:checked')]
-    .map(el => parseInt(el.value));
-  const checkedSet = new Set(checked);
-  const toAdd = checked.filter(id => !refModalPrev.has(id));
-  const toRemove = [...refModalPrev.entries()].filter(([id]) => !checkedSet.has(id));
+  const toAdd = [...refCurrentSel].filter(id => !refModalPrev.has(id));
+  const toRemove = [...refModalPrev.entries()].filter(([id]) => !refCurrentSel.has(id));
   try {
     await Promise.all([
       ...toAdd.map(litId =>
