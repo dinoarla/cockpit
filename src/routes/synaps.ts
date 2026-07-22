@@ -3,7 +3,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
   synapsConceptsTable, synapsEdgesTable,
-  literatureItems, myWorks, domainModules, domains,
+  literatureItems, myWorks, domainModules, domains, literatureCitations,
 } from "../db/schema.js";
 import { requireAuth } from "../middleware/auth.js";
 
@@ -98,7 +98,6 @@ synapsRoutes.get("/graph", async (c) => {
 
   // 5. Edges from synaps_edges
   const edges = await db.select().from(synapsEdgesTable);
-  // Normalize edge source/target to node IDs used in graph
   const normalizedEdges = edges.map(e => ({
     edgeId:       e.id,
     source:       e.fromType === "module"    ? e.fromId :
@@ -114,9 +113,22 @@ synapsRoutes.get("/graph", async (c) => {
     cross:        true,
   }));
 
+  // 6. Citation edges from literature_citations (lit → work)
+  const citations = await db.select({
+    litId: literatureCitations.litId,
+    workSlug: literatureCitations.workSlug,
+  }).from(literatureCitations);
+  const citationEdges = citations.map(c => ({
+    source:       "lit-" + c.litId,
+    target:       "work-" + c.workSlug,
+    relationship: "cited_in",
+    cross:        true,
+    researchEdge: true,
+  }));
+
   return c.json({
     nodes: [...moduleNodes, ...litNodes, ...workNodes, ...conceptNodes],
-    edges: normalizedEdges,
+    edges: [...normalizedEdges, ...citationEdges],
   });
 });
 
