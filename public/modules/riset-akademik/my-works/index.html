@@ -70,7 +70,7 @@ td{padding:10px 12px;vertical-align:top}
 
 /* ── EXPAND ROW ── */
 .expand-row td{padding:0}
-.expand-body{padding:16px 14px;background:#FFF0E6;border-top:1px solid #F5CDB8;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.expand-body{padding:16px 14px;background:#FFF0E6;border-top:1px solid #F5CDB8;display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:16px}
 .expand-section label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .expand-input{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;outline:none}
 .expand-input:focus{border-color:var(--acc)}
@@ -87,6 +87,31 @@ td{padding:10px 12px;vertical-align:top}
 .sec-add-row input:focus{border-color:var(--acc)}
 
 .save-row{margin-top:10px;display:flex;align-items:center;gap:8px}
+
+/* ── REFERENCES ── */
+.ref-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;max-height:180px;overflow-y:auto}
+.ref-item{display:flex;align-items:flex-start;gap:7px;padding:6px 8px;background:var(--card);border:1px solid var(--border);border-radius:7px;font-size:.75rem}
+.ref-item-body{flex:1;min-width:0}
+.ref-item-title{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.ref-item-meta{font-size:.65rem;color:var(--muted);margin-top:1px}
+.ref-del{cursor:pointer;color:var(--muted);flex-shrink:0;padding:2px 4px;border-radius:4px;font-size:.75rem}.ref-del:hover{color:var(--red)}
+.ref-add-btn{width:100%;padding:6px;border-radius:7px;border:1px dashed var(--border);background:transparent;color:var(--muted);font-size:.75rem;font-family:inherit;cursor:pointer;transition:all .15s;text-align:center}
+.ref-add-btn:hover{border-color:var(--acc);color:var(--acc)}
+
+/* ── REF MODAL ── */
+.ref-modal{width:580px;max-width:96vw;max-height:80vh;display:flex;flex-direction:column}
+.ref-modal-search{padding:0 24px 10px;flex-shrink:0}
+.ref-modal-search input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.ref-modal-search input:focus{border-color:var(--acc)}
+.ref-checklist{flex:1;overflow-y:auto;padding:0 24px;display:flex;flex-direction:column;gap:4px;min-height:0}
+.ref-check-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .1s}
+.ref-check-item:hover{background:#FFF5EE}
+.ref-check-item.selected{background:#FFF0E6}
+.ref-check-item input[type=checkbox]{margin-top:2px;accent-color:var(--acc);width:14px;height:14px;flex-shrink:0;cursor:pointer}
+.ref-check-title{font-size:.8rem;font-weight:500;line-height:1.3}
+.ref-check-meta{font-size:.68rem;color:var(--muted);margin-top:2px}
+.ref-modal-footer{padding:12px 24px 0;border-top:1px solid var(--border);margin-top:10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ref-sel-count{font-size:.75rem;color:var(--muted)}
 .saved-flash{font-size:.75rem;color:var(--grn);opacity:0;transition:opacity .3s}
 
 /* ── MODAL ── */
@@ -133,6 +158,7 @@ td{padding:10px 12px;vertical-align:top}
 .fill-dissertation{background:#7C3AED}.fill-thesis{background:#DB2777}.fill-article{background:#2563EB}
 .fill-conference_paper{background:#D97706}.fill-book{background:#059669}.fill-report{background:#0284C7}
 .fill-patent{background:#EA580C}.fill-other{background:#6B7280}
+@media(max-width:1100px){.expand-body{grid-template-columns:1fr 1fr}}
 @media(max-width:900px){.stats-panel{grid-template-columns:1fr}.expand-body{grid-template-columns:1fr}}
 </style>
 </head>
@@ -297,9 +323,28 @@ td{padding:10px 12px;vertical-align:top}
 
 <div class="toast" id="toast"></div>
 
+<!-- ── REF MODAL ── -->
+<div class="modal-bg" id="refModal">
+  <div class="modal ref-modal">
+    <h3 style="padding:0 24px;margin-bottom:10px"><i class="fa-solid fa-book-open" style="color:var(--acc);margin-right:8px"></i>Referensi — <span id="refModalTitle" style="font-weight:400;font-size:.9rem"></span></h3>
+    <div class="ref-modal-search">
+      <input type="text" id="refSearch" placeholder="Cari judul / penulis…" oninput="filterRefList()">
+    </div>
+    <div class="ref-checklist" id="refChecklist"></div>
+    <div class="ref-modal-footer">
+      <span class="ref-sel-count" id="refSelCount"></span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" onclick="closeModal('refModal')">Batal</button>
+        <button class="btn btn-primary" onclick="saveRefs()">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-let works = [], expandedSlug = null, editingSlug = null;
+let works = [], litItems = [], expandedSlug = null, editingSlug = null;
 let currentPage = 1, perPage = 10;
+let refModalSlug = null, refModalPrev = new Map();
 
 // ── API ──
 async function api(method, path, body) {
@@ -319,7 +364,10 @@ function esc(s) {
 // ── LOAD ──
 async function load() {
   try {
-    works = await api('GET', '/works');
+    [works, litItems] = await Promise.all([
+      api('GET', '/works'),
+      fetch('/api/literature/items').then(r => r.json()).catch(() => []),
+    ]);
   } catch(e) {
     document.getElementById('worksBody').innerHTML =
       `<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>Gagal memuat: ${e.message}</div></td></tr>`;
@@ -541,6 +589,17 @@ function workRows(w) {
           </div>
         </div>
       </div>
+      <div>
+        <div class="expand-section">
+          <label>Referensi dari Literature Map</label>
+          <div class="ref-list" id="reflist-${esc(w.slug)}">
+            ${buildRefListHtml(w.slug)}
+          </div>
+          <button class="ref-add-btn" onclick="openRefModal('${esc(w.slug)}')">
+            <i class="fa-solid fa-book-open"></i> Kelola Referensi
+          </button>
+        </div>
+      </div>
     </div>
   </td></tr>`;
 
@@ -581,6 +640,105 @@ function flashSaved(slug) {
   if (!el) return;
   el.style.opacity = '1';
   setTimeout(() => { el.style.opacity = '0'; }, 1500);
+}
+
+// ── REFERENCES ──
+function buildRefListHtml(workSlug) {
+  const linked = litItems.filter(li =>
+    (li.citedIn || []).some(c => c.workSlug === workSlug)
+  );
+  if (!linked.length) return `<div style="font-size:.78rem;color:var(--muted);font-style:italic">Belum ada referensi.</div>`;
+  return linked.map(li => `
+    <div class="ref-item">
+      <i class="fa-solid fa-file-lines" style="color:var(--sky);margin-top:2px;flex-shrink:0"></i>
+      <div>
+        <div style="font-weight:500;line-height:1.3">${esc(li.title)}</div>
+        <div style="color:var(--muted);font-size:.73rem">${esc(li.authors||'')}${li.year ? ' · ' + li.year : ''}</div>
+      </div>
+    </div>`).join('');
+}
+
+function openRefModal(workSlug) {
+  refModalSlug = workSlug;
+  const w = works.find(x => x.slug === workSlug);
+  document.getElementById('refModalTitle').textContent = w ? w.title : workSlug;
+  refModalPrev = new Map();
+  for (const li of litItems) {
+    const cit = (li.citedIn || []).find(c => c.workSlug === workSlug);
+    if (cit) refModalPrev.set(li.id, cit.id);
+  }
+  document.getElementById('refSearch').value = '';
+  renderRefChecklist('');
+  document.getElementById('refModal').classList.add('open');
+}
+
+function renderRefChecklist(filter) {
+  const q = filter.toLowerCase();
+  const items = litItems.filter(li =>
+    !q || li.title.toLowerCase().includes(q) || (li.authors || '').toLowerCase().includes(q)
+  );
+  if (!items.length) {
+    document.getElementById('refChecklist').innerHTML =
+      `<div style="padding:16px;color:var(--muted);font-size:.84rem">Tidak ada hasil.</div>`;
+    updateRefSelCount();
+    return;
+  }
+  document.getElementById('refChecklist').innerHTML = items.map(li => {
+    const checked = refModalPrev.has(li.id);
+    return `<label class="ref-check-item${checked ? ' selected' : ''}">
+      <input type="checkbox" style="flex-shrink:0;accent-color:var(--acc)"
+        value="${li.id}" ${checked ? 'checked' : ''}
+        onchange="this.closest('.ref-check-item').classList.toggle('selected',this.checked);updateRefSelCount()">
+      <div>
+        <div style="font-weight:500;font-size:.82rem;line-height:1.3">${esc(li.title)}</div>
+        <div style="color:var(--muted);font-size:.74rem">${esc(li.authors||'')}${li.year?' · '+li.year:''}</div>
+      </div>
+    </label>`;
+  }).join('');
+  updateRefSelCount();
+}
+
+function filterRefList() {
+  renderRefChecklist(document.getElementById('refSearch').value);
+}
+
+function updateRefSelCount() {
+  const n = document.querySelectorAll('#refChecklist input[type=checkbox]:checked').length;
+  document.getElementById('refSelCount').textContent = n + ' referensi dipilih';
+}
+
+async function saveRefs() {
+  const checked = [...document.querySelectorAll('#refChecklist input[type=checkbox]:checked')]
+    .map(el => parseInt(el.value));
+  const checkedSet = new Set(checked);
+  const toAdd = checked.filter(id => !refModalPrev.has(id));
+  const toRemove = [...refModalPrev.entries()].filter(([id]) => !checkedSet.has(id));
+  try {
+    await Promise.all([
+      ...toAdd.map(litId =>
+        fetch('/api/literature/citations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ litId, workSlug: refModalSlug, section: '' }),
+        })
+      ),
+      ...toRemove.map(([, citId]) =>
+        fetch(`/api/literature/citations/${citId}/delete`, {
+          method: 'POST',
+          credentials: 'include',
+        })
+      ),
+    ]);
+    litItems = await fetch('/api/literature/items', { credentials: 'include' })
+      .then(r => r.json()).catch(() => litItems);
+    closeModal('refModal');
+    const el = document.getElementById(`reflist-${refModalSlug}`);
+    if (el) el.innerHTML = buildRefListHtml(refModalSlug);
+    toast('Referensi disimpan');
+  } catch(e) {
+    toast('Gagal menyimpan: ' + e.message, true);
+  }
 }
 
 // ── SECTIONS ──
