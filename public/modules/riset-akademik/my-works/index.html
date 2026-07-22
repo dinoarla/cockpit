@@ -106,6 +106,15 @@ td{padding:10px 12px;vertical-align:top}
 .toast{position:fixed;bottom:24px;right:24px;background:#1F2937;color:#fff;padding:10px 16px;border-radius:10px;font-size:.8rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999}
 .toast.show{opacity:1}
 
+.pagination{display:flex;align-items:center;gap:6px;padding:14px 4px 4px;justify-content:flex-end}
+.pagination .pg-info{font-size:.75rem;color:var(--muted);margin-right:auto}
+.pg-btn{height:30px;min-width:30px;padding:0 8px;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text);font-size:.78rem;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background .1s,border-color .1s}
+.pg-btn:hover:not(:disabled){border-color:var(--acc);color:var(--acc)}
+.pg-btn.active{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.pg-btn:disabled{opacity:.35;cursor:default}
+.per-page-sel{height:30px;padding:0 6px;border:1px solid var(--border);border-radius:7px;font-size:.78rem;font-family:inherit;color:var(--text);background:var(--card);cursor:pointer;outline:none}
+.per-page-sel:focus{border-color:var(--acc)}
+
 @media(max-width:900px){.expand-body{grid-template-columns:1fr}}
 </style>
 </head>
@@ -128,7 +137,7 @@ td{padding:10px 12px;vertical-align:top}
 
 <div class="page-body">
   <div class="toolbar">
-    <input type="text" id="searchInput" placeholder="Cari judul / jurnal / penulis…" oninput="renderTable()">
+    <input type="text" id="searchInput" placeholder="Cari judul / jurnal / penulis…" oninput="renderTable(true)">
     <button class="btn btn-outline" onclick="openZoteroImport()" style="border-color:var(--acc);color:var(--acc)">
       <i class="fa-solid fa-circle-nodes"></i> Import Zotero
     </button>
@@ -155,6 +164,7 @@ td{padding:10px 12px;vertical-align:top}
         <tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i>Memuat…</div></td></tr>
       </tbody>
     </table>
+    <div class="pagination" id="pagination"></div>
   </div>
 </div>
 
@@ -253,6 +263,7 @@ td{padding:10px 12px;vertical-align:top}
 
 <script>
 let works = [], expandedSlug = null, editingSlug = null;
+let currentPage = 1, perPage = 10;
 
 // ── API ──
 async function api(method, path, body) {
@@ -306,21 +317,68 @@ function typeMeta(type) {
 }
 
 // ── RENDER TABLE ──
-function renderTable() {
+function renderTable(resetPage = false) {
+  if (resetPage) currentPage = 1;
   const q = document.getElementById('searchInput').value.toLowerCase();
-  const rows = works.filter(w =>
+  const filtered = works.filter(w =>
     !q || w.title.toLowerCase().includes(q)
        || (w.venue||'').toLowerCase().includes(q)
        || (w.authors||'').toLowerCase().includes(q)
   );
   document.getElementById('badgeTotal').textContent = works.length + ' karya';
   const tbody = document.getElementById('worksBody');
-  if (!rows.length) {
+  if (!filtered.length) {
     tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-book-bookmark"></i>Belum ada karya.</div></td></tr>`;
+    document.getElementById('pagination').innerHTML = '';
     return;
   }
-  tbody.innerHTML = rows.map(w => workRows(w)).join('');
+  const totalPages = Math.ceil(filtered.length / perPage);
+  if (currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * perPage;
+  const pageRows = filtered.slice(start, start + perPage);
+  tbody.innerHTML = pageRows.map(w => workRows(w)).join('');
+  renderPagination(filtered.length, totalPages);
 }
+
+function renderPagination(total, totalPages) {
+  const pg = document.getElementById('pagination');
+  if (totalPages <= 1) { pg.innerHTML = ''; return; }
+
+  const start = (currentPage - 1) * perPage + 1;
+  const end   = Math.min(currentPage * perPage, total);
+
+  // page number buttons — show window of 5 around current
+  const pages = [];
+  const delta = 2;
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
+      pages.push(i);
+    } else if (pages[pages.length - 1] !== '…') {
+      pages.push('…');
+    }
+  }
+
+  const pagesBtns = pages.map(p =>
+    p === '…'
+      ? `<span class="pg-btn" style="cursor:default;border:none;background:none">…</span>`
+      : `<button class="pg-btn${p === currentPage ? ' active' : ''}" onclick="goPage(${p})">${p}</button>`
+  ).join('');
+
+  pg.innerHTML = `
+    <span class="pg-info">${start}–${end} dari ${total}</span>
+    <label style="font-size:.75rem;color:var(--muted)">Per hal:
+      <select class="per-page-sel" onchange="changePerPage(this.value)">
+        ${[10,20,50].map(n => `<option value="${n}"${n===perPage?' selected':''}>${n}</option>`).join('')}
+      </select>
+    </label>
+    <button class="pg-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}><i class="fa-solid fa-chevron-left" style="font-size:.65rem"></i></button>
+    ${pagesBtns}
+    <button class="pg-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}><i class="fa-solid fa-chevron-right" style="font-size:.65rem"></i></button>
+  `;
+}
+
+function goPage(p) { currentPage = p; renderTable(); }
+function changePerPage(v) { perPage = parseInt(v); currentPage = 1; renderTable(); }
 
 function workRows(w) {
   const tm   = typeMeta(w.type);
