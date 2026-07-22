@@ -41,15 +41,6 @@ async function ensureTables() {
         }
         catch { /* already exists */ }
     }
-    await db.execute(sql `
-    INSERT IGNORE INTO \`my_works\` (\`slug\`, \`title\`, \`type\`, \`year\`, \`structure\`) VALUES (
-      'disertasi-jabar',
-      'Transisi Energi Jawa Barat: Bauran Energi, Distribusi, dan Implikasi Kebijakan',
-      'dissertation',
-      2026,
-      '[{"id":"bab-1","label":"Bab 1 — Pendahuluan & Latar Belakang"},{"id":"bab-2","label":"Bab 2 — Tinjauan Pustaka"},{"id":"bab-3","label":"Bab 3 — Metodologi Penelitian"},{"id":"bab-4","label":"Bab 4 — Bauran Energi & Transisi Jabar"},{"id":"bab-5","label":"Bab 5 — Distribusi, Keandalan & Akses"},{"id":"bab-6","label":"Bab 6 — Pembahasan & Implikasi Kebijakan"},{"id":"bab-7","label":"Bab 7 — Kesimpulan & Rekomendasi"}]'
-    )
-  `);
 }
 ensureTables().catch(err => console.error("[literature] ensureTables error:", err));
 export const literatureRoutes = new Hono();
