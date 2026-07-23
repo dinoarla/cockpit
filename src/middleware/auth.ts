@@ -16,6 +16,7 @@ declare module "hono" {
 /**
  * Middleware ini menolak request yang tidak punya sesi valid.
  * Pasang di semua route yang butuh login (lihat contoh di src/routes/mdp.ts).
+ * Untuk route HTML, gunakan requireAuthHtml agar browser di-redirect ke login.
  */
 export async function requireAuth(c: Context, next: Next) {
   const token = getCookie(c, SESSION_COOKIE_NAME);
@@ -33,6 +34,26 @@ export async function requireAuth(c: Context, next: Next) {
   if (!user || !user.isActive) {
     return c.json({ error: "Akun tidak aktif." }, 401);
   }
+
+  c.set("user", user);
+  return next();
+}
+
+/**
+ * Versi requireAuth untuk route HTML.
+ * Ketika sesi tidak valid, browser di-redirect ke "/" (halaman login)
+ * alih-alih mendapat response JSON 401.
+ */
+export async function requireAuthHtml(c: Context, next: Next) {
+  const token = getCookie(c, SESSION_COOKIE_NAME);
+
+  if (!token) return c.redirect("/");
+
+  const userId = await validateSessionToken(token);
+  if (!userId) return c.redirect("/");
+
+  const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  if (!user || !user.isActive) return c.redirect("/");
 
   c.set("user", user);
   return next();

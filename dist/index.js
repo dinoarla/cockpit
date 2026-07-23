@@ -7,7 +7,7 @@ import { readFile } from "node:fs/promises";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
-import { securityHeaders, requireAuth } from "./middleware/auth.js";
+import { securityHeaders, requireAuth, requireAuthHtml } from "./middleware/auth.js";
 import { authRoutes } from "./routes/auth.js";
 import { domainRoutes } from "./routes/domains.js";
 import { mdpRoutes } from "./routes/mdp.js";
@@ -119,11 +119,11 @@ app.route("/api/synaps", synapsRoutes);
 function injectWidget(html) {
     return html.replace("</body>", '<script src="/assets/chatbot-widget.js"></script></body>');
 }
-app.get("/menu.html", requireAuth, async (c) => {
+app.get("/menu.html", requireAuthHtml, async (c) => {
     const content = await readFile(join(publicDir, "menu.html"), "utf-8");
     return c.html(injectWidget(content));
 });
-app.use("/admin/*", requireAuth, async (c, next) => {
+app.use("/admin/*", requireAuthHtml, async (c, next) => {
     const reqPath = c.req.path.replace(/^\//, "");
     const candidates = [
         join(publicDir, reqPath),
@@ -141,7 +141,7 @@ app.use("/admin/*", requireAuth, async (c, next) => {
 // ── TOKEN-BASED MODULE HANDLER ──
 // URL modul menggunakan token acak (url_token), bukan slug asli.
 // Server resolve token → slug → file, sambil cek akses user.
-app.get("/modules/:domainSlug/:token/", requireAuth, async (c) => {
+app.get("/modules/:domainSlug/:token/", requireAuthHtml, async (c) => {
     const user = c.get("user");
     const domainSlug = c.req.param("domainSlug") ?? "";
     const token = c.req.param("token") ?? "";
@@ -185,7 +185,7 @@ app.get("/modules/:domainSlug/:token/", requireAuth, async (c) => {
     }
 });
 // Semua path /modules/* lainnya → redirect (tidak bisa akses langsung via slug)
-app.all("/modules/*", requireAuth, (c) => c.redirect("/menu.html"));
+app.all("/modules/*", requireAuthHtml, (c) => c.redirect("/menu.html"));
 app.use("/*", serveStatic({ root: publicDir }));
 const port = Number(process.env.PORT) || 3000;
 serve({
