@@ -46,9 +46,10 @@ td{padding:10px 12px;vertical-align:top}
 .col-type{width:120px}
 .col-status{width:110px}
 .col-year{width:60px;text-align:center}
-.ws-published{background:#D1FAE5;color:#065F46}
-.ws-draft    {background:#FEF3C7;color:#92400E}
-.ws-idea     {background:#F3F4F6;color:#6B7280}
+.ws-published  {background:#D1FAE5;color:#065F46}
+.ws-draft      {background:#FEF3C7;color:#92400E}
+.ws-idea       {background:#F3F4F6;color:#6B7280}
+.ws-under-review{background:#DBEAFE;color:#1E40AF}
 .col-venue{min-width:160px;max-width:240px}
 .col-doi{min-width:160px;max-width:220px}
 .col-authors{min-width:140px;max-width:200px}
@@ -97,6 +98,14 @@ td{padding:10px 12px;vertical-align:top}
 .ref-del{cursor:pointer;color:var(--muted);flex-shrink:0;padding:2px 4px;border-radius:4px;font-size:.75rem}.ref-del:hover{color:var(--red)}
 .ref-add-btn{width:100%;padding:6px;border-radius:7px;border:1px dashed var(--border);background:transparent;color:var(--muted);font-size:.75rem;font-family:inherit;cursor:pointer;transition:all .15s;text-align:center}
 .ref-add-btn:hover{border-color:var(--acc);color:var(--acc)}
+
+/* ── MODULE TAGS ── */
+.mod-tag-list{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;min-height:20px}
+.mod-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:.7rem;font-weight:600;background:#EDE9FE;color:#6D28D9;border:1px solid #DDD6FE}
+.mod-check-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .1s}
+.mod-check-item:hover{background:#F5F3FF}
+.mod-check-item.selected{background:#EDE9FE}
+.mod-check-item input[type=checkbox]{margin-top:2px;accent-color:#7C3AED;width:14px;height:14px;flex-shrink:0;cursor:pointer}
 
 /* ── REF MODAL ── */
 .ref-modal{width:580px;max-width:96vw;max-height:80vh;display:flex;flex-direction:column}
@@ -258,6 +267,7 @@ td{padding:10px 12px;vertical-align:top}
         <select id="fStatus">
           <option value="idea">Idea</option>
           <option value="draft">Draft</option>
+          <option value="under-review">Under Review</option>
           <option value="published">Published</option>
         </select>
       </div>
@@ -341,10 +351,32 @@ td{padding:10px 12px;vertical-align:top}
   </div>
 </div>
 
+<div class="modal-bg" id="modModal">
+  <div class="modal ref-modal">
+    <h3 style="padding:0 24px;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-shrink:0">
+      <i class="fa-solid fa-cubes" style="color:#7C3AED"></i>
+      Modul Terkait — <span id="modModalTitle" style="font-weight:400;font-size:.9em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:320px"></span>
+    </h3>
+    <div class="ref-modal-search">
+      <input type="text" id="modSearch" placeholder="Cari nama modul…" oninput="filterModList()">
+    </div>
+    <div class="ref-checklist" id="modChecklist"></div>
+    <div class="ref-modal-footer">
+      <span class="ref-sel-count" id="modSelCount"></span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" onclick="closeModal('modModal')">Batal</button>
+        <button class="btn btn-primary" style="background:#7C3AED;border-color:#7C3AED" onclick="saveModules()">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 let works = [], litItems = [], expandedSlug = null, editingSlug = null;
 let currentPage = 1, perPage = 10;
 let refModalSlug = null, refModalPrev = new Map(), refCurrentSel = new Set();
+let moduleItems = [], workModEdges = {};
+let modModalSlug = null, modModalPrev = new Map(), modCurrentSel = new Set();
 
 // ── API ──
 async function api(method, path, body) {
@@ -364,10 +396,18 @@ function esc(s) {
 // ── LOAD ──
 async function load() {
   try {
-    [works, litItems] = await Promise.all([
+    const [ws, lits, mods, modEdges] = await Promise.all([
       api('GET', '/works'),
       fetch('/api/literature/items').then(r => r.json()).catch(() => []),
+      fetch('/api/synaps/all-modules', { credentials: 'include' }).then(r => r.json()).catch(() => []),
+      fetch('/api/synaps/work-module-edges', { credentials: 'include' }).then(r => r.json()).catch(() => []),
     ]);
+    works = ws; litItems = lits; moduleItems = mods;
+    workModEdges = {};
+    for (const e of modEdges) {
+      if (!workModEdges[e.workSlug]) workModEdges[e.workSlug] = [];
+      workModEdges[e.workSlug].push({ id: e.id, moduleSlug: e.moduleSlug });
+    }
   } catch(e) {
     document.getElementById('worksBody').innerHTML =
       `<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>Gagal memuat: ${e.message}</div></td></tr>`;
@@ -419,9 +459,10 @@ function renderStats() {
 // ── STATUS META ──
 function statusMeta(s) {
   const map = {
-    published: { label:'Published', cls:'ws-published' },
-    draft:     { label:'Draft',     cls:'ws-draft'     },
-    idea:      { label:'Idea',      cls:'ws-idea'      },
+    idea:         { label:'Idea',         cls:'ws-idea'        },
+    draft:        { label:'Draft',        cls:'ws-draft'       },
+    'under-review':{ label:'Under Review',cls:'ws-under-review'},
+    published:    { label:'Published',    cls:'ws-published'   },
   };
   return map[s] || map.idea;
 }
@@ -599,6 +640,15 @@ function workRows(w) {
             <i class="fa-solid fa-book-open"></i> Kelola Referensi
           </button>
         </div>
+        <div class="expand-section" style="margin-top:12px;padding-top:12px;border-top:1px solid #F5CDB8">
+          <label>Modul Terkait</label>
+          <div class="mod-tag-list" id="modlist-${esc(w.slug)}">
+            ${buildModListHtml(w.slug)}
+          </div>
+          <button class="ref-add-btn" onclick="openModModal('${esc(w.slug)}')">
+            <i class="fa-solid fa-cubes"></i> Kelola Modul
+          </button>
+        </div>
       </div>
     </div>
   </td></tr>`;
@@ -615,7 +665,7 @@ function toggleExpand(slug) {
 // ── CYCLE STATUS ──
 async function cycleStatus(slug, e) {
   e.stopPropagation();
-  const order = ['idea','draft','published'];
+  const order = ['idea','draft','under-review','published'];
   const w = works.find(x => x.slug === slug);
   if (!w) return;
   const next = order[(order.indexOf(w.status||'idea') + 1) % order.length];
@@ -739,6 +789,104 @@ async function saveRefs() {
     const el = document.getElementById(`reflist-${refModalSlug}`);
     if (el) el.innerHTML = buildRefListHtml(refModalSlug);
     toast('Referensi disimpan');
+  } catch(e) {
+    toast('Gagal menyimpan: ' + e.message, true);
+  }
+}
+
+// ── MODULES ──
+function buildModListHtml(workSlug) {
+  const linked = workModEdges[workSlug] || [];
+  if (!linked.length) return `<div style="font-size:.78rem;color:var(--muted);font-style:italic">Belum ada modul.</div>`;
+  return linked.map(e => {
+    const mod = moduleItems.find(m => m.slug === e.moduleSlug);
+    return `<span class="mod-tag"><i class="fa-solid fa-cube" style="font-size:.6rem"></i>${esc(mod?.nama || e.moduleSlug)}</span>`;
+  }).join('');
+}
+
+function openModModal(workSlug) {
+  modModalSlug = workSlug;
+  const w = works.find(x => x.slug === workSlug);
+  document.getElementById('modModalTitle').textContent = w ? w.title : workSlug;
+  modModalPrev = new Map();
+  for (const e of (workModEdges[workSlug] || [])) modModalPrev.set(e.moduleSlug, e.id);
+  modCurrentSel = new Set(modModalPrev.keys());
+  document.getElementById('modSearch').value = '';
+  renderModChecklist('');
+  document.getElementById('modModal').classList.add('open');
+}
+
+function toggleModItem(slug, checked) {
+  if (checked) modCurrentSel.add(slug);
+  else modCurrentSel.delete(slug);
+  updateModSelCount();
+}
+
+function renderModChecklist(filter) {
+  const q = filter.toLowerCase();
+  const items = moduleItems.filter(m =>
+    !q || m.nama.toLowerCase().includes(q) || (m.domain||'').toLowerCase().includes(q)
+  );
+  if (!items.length) {
+    document.getElementById('modChecklist').innerHTML =
+      `<div style="padding:16px;color:var(--muted);font-size:.84rem">Tidak ada modul.</div>`;
+    updateModSelCount();
+    return;
+  }
+  document.getElementById('modChecklist').innerHTML = items.map(m => {
+    const checked = modCurrentSel.has(m.slug);
+    return `<label class="mod-check-item${checked ? ' selected' : ''}">
+      <input type="checkbox" style="flex-shrink:0;accent-color:#7C3AED"
+        value="${esc(m.slug)}" ${checked ? 'checked' : ''}
+        onchange="this.closest('.mod-check-item').classList.toggle('selected',this.checked);toggleModItem('${esc(m.slug)}',this.checked)">
+      <div>
+        <div style="font-weight:500;font-size:.82rem;line-height:1.3">${esc(m.nama)}</div>
+        <div style="color:var(--muted);font-size:.74rem">${esc(m.domain||'')}</div>
+      </div>
+    </label>`;
+  }).join('');
+  updateModSelCount();
+}
+
+function filterModList() {
+  renderModChecklist(document.getElementById('modSearch').value);
+}
+
+function updateModSelCount() {
+  document.getElementById('modSelCount').textContent = modCurrentSel.size + ' modul dipilih';
+}
+
+async function saveModules() {
+  const toAdd = [...modCurrentSel].filter(s => !modModalPrev.has(s));
+  const toRemove = [...modModalPrev.entries()].filter(([s]) => !modCurrentSel.has(s));
+  try {
+    await Promise.all([
+      ...toAdd.map(moduleSlug =>
+        fetch('/api/synaps/edges', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ fromType:'work', fromId:modModalSlug, toType:'module', toId:moduleSlug, relationship:'related' }),
+        })
+      ),
+      ...toRemove.map(([, edgeId]) =>
+        fetch(`/api/synaps/edges/${edgeId}/delete`, {
+          method: 'POST',
+          credentials: 'include',
+        })
+      ),
+    ]);
+    const fresh = await fetch('/api/synaps/work-module-edges', { credentials: 'include' })
+      .then(r => r.json()).catch(() => []);
+    workModEdges = {};
+    for (const e of fresh) {
+      if (!workModEdges[e.workSlug]) workModEdges[e.workSlug] = [];
+      workModEdges[e.workSlug].push({ id: e.id, moduleSlug: e.moduleSlug });
+    }
+    closeModal('modModal');
+    const el = document.getElementById(`modlist-${modModalSlug}`);
+    if (el) el.innerHTML = buildModListHtml(modModalSlug);
+    toast('Modul disimpan');
   } catch(e) {
     toast('Gagal menyimpan: ' + e.message, true);
   }

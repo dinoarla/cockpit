@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db/client.js";
 import { synapsConceptsTable, synapsEdgesTable, literatureItems, myWorks, domainModules, domains, literatureCitations, } from "../db/schema.js";
 import { requireAuth } from "../middleware/auth.js";
@@ -115,6 +115,20 @@ synapsRoutes.get("/graph", async (c) => {
         nodes: [...moduleNodes, ...litNodes, ...workNodes, ...conceptNodes],
         edges: [...normalizedEdges, ...citationEdges],
     });
+});
+/* ── GET /synaps/all-modules — flat list for checklist ── */
+synapsRoutes.get("/all-modules", async (c) => {
+    const mods = await db
+        .select({ slug: domainModules.slug, nama: domainModules.nama, domainId: domainModules.domainId })
+        .from(domainModules);
+    const doms = await db.select({ id: domains.id, slug: domains.slug }).from(domains);
+    const domMap = Object.fromEntries(doms.map(d => [d.id, d.slug]));
+    return c.json(mods.map(m => ({ slug: m.slug, nama: m.nama, domain: domMap[m.domainId] || "" })));
+});
+/* ── GET /synaps/work-module-edges — work→module edges ── */
+synapsRoutes.get("/work-module-edges", async (c) => {
+    const rows = await db.select().from(synapsEdgesTable).where(and(eq(synapsEdgesTable.fromType, "work"), eq(synapsEdgesTable.toType, "module")));
+    return c.json(rows.map(r => ({ id: r.id, workSlug: r.fromId, moduleSlug: r.toId })));
 });
 /* ── GET /synaps/concepts ── */
 synapsRoutes.get("/concepts", async (c) => {
